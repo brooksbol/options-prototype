@@ -23,7 +23,7 @@ for(const [name,value] of [['equal to entry',54.215],['moderately above',55],['m
     const p=position();p.spot.value=value;const s=silhouette(p),v=verticalViewport(position());
     near(s.lo,v.lo);near(s.hi,v.hi);assert.equal(s.markerIndex,Math.max(0,Math.min(29,Math.round((value-s.lo)/(s.hi-s.lo)*29))));
     assert.equal(cellWidth(s.text),31);
-    assert.match(s.text,value<v.lo?/←/:value>v.hi?/→/:/▼/);
+    assert.match(s.text,value<v.lo?/←/:value>v.hi?/→/:/[▲▼◆]/);
     assert.match(silhouette(p,{color:true}).text,/\x1b\[96m/);
   });
 }
@@ -50,7 +50,7 @@ for(const [name,mutate] of [['unavailable',e=>e.entryReferences=[]],['stale',e=>
 }
 test('bear call mirrors the entry policy with upside risk; IC remains on the exact accepted strike axis',()=>{
   const p=position();p.payoff={...p.payoff,strikes:[56,56.5],strategy:'call'};p.spot.value=54.215;
-  const s=silhouette(p);assert.equal(s.markerIndex,15);assert.match(s.text,/‾+▼‾+╲_+/);
+  const s=silhouette(p);assert.equal(s.markerIndex,15);assert.match(s.text,/‾+▲‾+╲_+/);
   const ic=projectLive(liveEvidence).positions[0];ic.payoff={strikes:[31,32,42,43],leftTail:-.58,rightTail:-.58,maximumProfit:.42,unequal:false};
   const original=silhouette(ic);ic.entryReference={value:500};assert.deepEqual(silhouette(ic),original);near(original.lo,29.2);near(original.hi,44.8);
 });
@@ -63,6 +63,29 @@ test('visual goldens show spot progression while fixed-width landscape and ANSI 
   const e=base();e.spotQuotes=[{symbol:'XLF','instrument-type':'Equity',bid:'54.25',ask:'54.28',mid:'54.265','updated-at':e.now.toISOString()}];
   for(const columns of [80,100,157,189])for(const ascii of [false,true])for(const color of [false,true]) {
     const out=renderLive({...e,columns,ascii,color});assert.ok(out.split('\n').every(l=>cellWidth(l)<columns));
-    if(columns>=157)assert.match(strip(out),ascii?/v/:/▼/);
+    if(columns>=157)assert.match(strip(out),ascii?/\^/:/▲/);
+  }
+});
+
+// Compare each occupied cell against the unmarked outline, preserving the axis.
+test('local rail determines cyan marker for condors and both vertical orientations',()=>{
+  const ic=projectLive(liveEvidence).positions[0];
+  ic.payoff={strikes:[31,32,42,43],leftTail:-.58,rightTail:-.58,maximumProfit:.42,unequal:false};
+  const bull=position(),bear=position();bear.payoff={...bear.payoff,strikes:[56,56.5],strategy:'call'};
+  for(const p of [ic,bull,bear])for(const ascii of [false,true]){
+    p.spot={...p.spot,value:null};const landscape=silhouette(p,{ascii}),seen=new Set();
+    const regionCodes=[...silhouette(p,{ascii,color:true}).text.matchAll(/\x1b\[([;\d]+)m(.)\x1b\[22;97m/g)].map(m=>m[1]);
+    assert.equal(regionCodes.length,30);
+    for(let i=0;i<30;i++){
+      const rail=landscape.text[i+1];
+      const expected=rail==='_'?(ascii?'v':'▼'):['╱','╲','/','\\'].includes(rail)?(ascii?'*':'◆'):(ascii?'^':'▲');
+      seen.add(expected);p.spot.value=landscape.lo+(landscape.hi-landscape.lo)*i/29;
+      const plain=silhouette(p,{ascii}),colored=silhouette(p,{ascii,color:true});
+      assert.equal(plain.spotRegionCode,regionCodes[i]);assert.equal(plain.markerIndex,i);assert.equal(plain.text[i+1],expected);
+      assert.equal(plain.text.slice(0,i+1)+rail+plain.text.slice(i+2),landscape.text);
+      assert.deepEqual(plain.breaks,landscape.breaks);near(plain.lo,landscape.lo);near(plain.hi,landscape.hi);
+      assert.equal(strip(colored.text),plain.text);assert.ok(colored.text.includes(`\x1b[96m${expected}`));assert.equal(cellWidth(colored.text),31);
+    }
+    assert.deepEqual([...seen].sort(),(ascii?['v','*','^']:['▼','◆','▲']).sort());
   }
 });

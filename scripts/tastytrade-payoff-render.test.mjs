@@ -18,10 +18,10 @@ const position=()=>projectLive(evidence).positions[0];
 test("approved graphic is line-based with proportional strikes and the same observed spot",()=>{
   const p=position(); assert.deepEqual(p.payoff.strikes,[31,32,42,43]);
   const s=silhouette(p); assert.equal(cellWidth(s.text),31);
-  assert.match(s.text,/[_╱‾▼╲]+/); assert.doesNotMatch(s.text,/[\u2580-\u259f]/);
+  assert.match(s.text,/[_╱‾▲╲]+/); assert.doesNotMatch(s.text,/[\u2580-\u259f]/);
   assert.equal(s.markerIndex,Math.round((p.spot.value-s.lo)/(s.hi-s.lo)*29));
   assert.deepEqual(s.breaks,p.payoff.strikes.map(k=>Math.round((k-s.lo)/(s.hi-s.lo)*29)));
-  assert.equal([...s.text].indexOf("▼"),s.markerIndex+1);
+  assert.equal([...s.text].indexOf("▲"),s.markerIndex+1);
   assert.ok(s.breaks[2]-s.breaks[1]>8*(s.breaks[1]-s.breaks[0]));
 });
 
@@ -29,7 +29,7 @@ test("semantic colors are independent of current P/L; ANSI stripping preserves a
   const p=position(); p.pnl=-18; const plain=silhouette(p), colored=silhouette(p,{color:true});
   assert.equal(strip(colored.text),plain.text);
   for(const code of ["2;91","93","92","96"])assert.ok(colored.text.includes(`\x1b[${code}m`));
-  const out=renderLive({...evidence,color:true}); assert.match(out,/PAYOFF/);
+  const out=renderLive({...evidence,color:true}); assert.match(out,/TRADE SHAPE/);
   assert.ok(out.split("\n").every(l=>cellWidth(l)<157));
 });
 
@@ -44,7 +44,7 @@ test("sub-cell wings and plateaux yield explicit compressed geometry, never inve
   const p=position();
   for(const strikes of [[31,31.01,42,43],[31,32,32.01,43],[31,32,42.99,43]]) {
     p.payoff={...p.payoff,strikes};const s=silhouette(p); assert.equal(s.compressed,true);
-    assert.equal(strip(s.text),"IC [compressed]");assert.doesNotMatch(s.text,/▼|╱|╲/);
+    assert.equal(strip(s.text),"IC [compressed]");assert.doesNotMatch(s.text,/[▲▼◆╱╲]/);
   }
 });
 
@@ -59,16 +59,16 @@ test("off-chart spot uses outward arrows; spot in the loss tail stays proportion
 
 test("missing spot has no marker; stale and retained observed spot markers stay cyan",()=>{
   const p=position();
-  assert.doesNotMatch(silhouette({...p,spot:{value:null,stale:true}}).text,/▼|←|→/);
+  assert.doesNotMatch(silhouette({...p,spot:{value:null,stale:true}}).text,/[▲▼◆←→]/);
   const stale={...p,spot:{value:39.6,stale:true}};
-  assert.match(silhouette(stale,{color:true}).text,/\x1b\[96m▼/);
+  assert.match(silhouette(stale,{color:true}).text,/\x1b\[96m▲/);
   assert.equal(silhouette(stale).markerIndex,silhouette(p).markerIndex);
   const session={state:"Closed","previous-session":{"open-at":"2026-10-09T13:30:00Z","close-at":"2026-10-09T20:00:00Z"},"next-session":{"open-at":"2026-10-12T13:30:00Z"}};
   const retained={...evidence,session,now:new Date("2026-10-11T14:00:00Z"),
     quotes:evidence.quotes.map(q=>({...q,"updated-at":"2026-10-09T20:00:00Z"})),
     spotQuotes:[{...spot,"updated-at":"2026-10-09T20:00:00Z"}]};
   const r=projectLive(retained).positions[0];assert.equal(r.spot.retained,true);
-  assert.match(silhouette(r).text,/▼/);assert.match(renderLive(retained),/39.60.*42h$/m);
+  assert.match(silhouette(r).text,/▲/);assert.match(renderLive(retained),/39.60.*42h$/m);
 });
 
 test("unverified, adjusted, contradictory and duplicate terms withhold geometry only",()=>{
@@ -84,18 +84,18 @@ test("unverified, adjusted, contradictory and duplicate terms withhold geometry 
 
 test("ASCII remains a line silhouette and target/spot alignment is stable across 20 graphics",()=>{
   const s=silhouette(position(),{ascii:true});assert.doesNotMatch(s.text,/[^\x00-\x7f]/);
-  assert.match(s.text,/v/);
+  assert.match(s.text,/\^/);
   const trades=Array.from({length:20},(_,i)=>sampleTrade(`T${i}`,"261120",[["P",31],["P",32],["C",42],["C",43]],[.52,.71,1.11,.88],[.45,.65,.75,.62],.21,.53));
   const holdings=trades.flatMap(t=>t.holdings);
   const data={...evidence,holdings,instruments:terms(holdings),quotes:trades.flatMap(t=>t.quotes),orders:trades.flatMap(t=>[t.opening,...t.closing.orders]),complexOrders:trades.map(t=>t.closing),spotQuotes:trades.map((_,i)=>({...spot,symbol:`T${i}`}))};
   for(const columns of [157,189]) {
     const ls=strip(renderLive({...data,columns,color:true})).trim().split("\n");
     const rows=ls.filter(l=>/^T\d+\s/.test(l));assert.equal(rows.length,20);
-    assert.ok(rows.every(r=>r.indexOf("▼")===rows[0].indexOf("▼")));
+    assert.ok(rows.every(r=>r.indexOf("▲")===rows[0].indexOf("▲")));
     assert.ok(rows.every(r=>r.indexOf("P50")===rows[0].indexOf("P50")));
     assert.ok(ls.every(l=>cellWidth(l)<columns));assert.ok(ls.length<=26);
     const header=ls[1], start=rows[0].indexOf("___");
-    assert.equal(header.indexOf("PAYOFF"),8+Math.floor((31-6)/2));
+    assert.equal(header.indexOf("TRADE SHAPE"),8+Math.floor((31-11)/2));
     assert.ok(start>=8);
   }
 });
@@ -124,8 +124,8 @@ test("batch-instrument rejection uses bounded existing single-contract reads; TS
       }
     });
     assert.equal(code,0);assert.equal(calls.filter(u=>u.includes('/instruments/equity-options/')).length,tsv?0:8);
-    assert.ok(maxActive<=4);if(!tsv)assert.match(out[0],/╱.*▼.*╲/);
-    else assert.doesNotMatch(out[0],/╱|▼|PAYOFF/);
+    assert.ok(maxActive<=4);if(!tsv)assert.match(out[0],/╱.*▲.*╲/);
+    else assert.doesNotMatch(out[0],/╱|▲|PAYOFF/);
   }
 });
 
@@ -136,7 +136,7 @@ test("PAYOFF uses a single rising/falling outline stroke and the observed triang
     const s=silhouette(p);
     assert.equal((s.text.match(/╱/g)||[]).length,1);
     assert.equal((s.text.match(/╲/g)||[]).length,1);
-    assert.equal((s.text.match(/▼/g)||[]).length,1);
+    assert.equal((s.text.match(/▲/g)||[]).length,1);
     assert.equal(s.text.indexOf("╱"),1+Math.round(((strikes[0]+strikes[1])/2-s.lo)/(s.hi-s.lo)*29));
     assert.equal(s.text.indexOf("╲"),1+Math.round(((strikes[2]+strikes[3])/2-s.lo)/(s.hi-s.lo)*29));
     assert.equal(cellWidth(s.text),31);

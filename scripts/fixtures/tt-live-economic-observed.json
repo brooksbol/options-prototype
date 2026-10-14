@@ -1,0 +1,2813 @@
+{
+  "orders": [
+    {
+      "id": "synthetic-1",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-2",
+      "gtc-date": "2026-11-06",
+      "order-type": "Limit",
+      "price": "0.04",
+      "price-effect": "Debit",
+      "received-at": "2026-10-14T18:12:28.837+00:00",
+      "size": 1,
+      "status": "Live",
+      "time-in-force": "GTD",
+      "underlying-symbol": "XLF",
+      "updated-at": 1792001550487,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-3",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-2",
+      "order-type": "Stop Limit",
+      "price": "0.1",
+      "price-effect": "Debit",
+      "received-at": "2026-10-14T18:12:28.844+00:00",
+      "size": 1,
+      "status": "Live",
+      "stop-trigger": "0.1",
+      "time-in-force": "GTC",
+      "underlying-symbol": "XLF",
+      "updated-at": 1792001550484,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-4",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-2",
+      "order-type": "Limit",
+      "price": "0.08",
+      "price-effect": "Credit",
+      "received-at": "2026-10-14T18:12:28.830+00:00",
+      "size": 1,
+      "status": "Filled",
+      "time-in-force": "Day",
+      "underlying-symbol": "XLF",
+      "updated-at": 1792001549702,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052000",
+          "fills": [
+            {
+              "fill-price": "0.49",
+              "filled-at": "2026-10-14T18:12:29.664+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052500",
+          "fills": [
+            {
+              "fill-price": "0.58",
+              "filled-at": "2026-10-14T18:12:29.664+00:00",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-5",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-6",
+      "gtc-date": "2026-11-06",
+      "order-type": "Limit",
+      "price": "0.05",
+      "price-effect": "Debit",
+      "received-at": "2026-10-14T18:10:31.154+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "GTD",
+      "underlying-symbol": "XLF",
+      "updated-at": 1792001517437,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-7",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-6",
+      "order-type": "Limit",
+      "price": "0.11",
+      "price-effect": "Credit",
+      "received-at": "2026-10-14T18:10:31.143+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "Day",
+      "underlying-symbol": "XLF",
+      "updated-at": 1792001517436,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-8",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-6",
+      "order-type": "Stop Limit",
+      "price": "0.17",
+      "price-effect": "Debit",
+      "received-at": "2026-10-14T18:10:31.163+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "stop-trigger": "0.13",
+      "time-in-force": "GTC",
+      "underlying-symbol": "XLF",
+      "updated-at": 1792001517411,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLF   261127P00052500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-9",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-10",
+      "order-type": "Limit",
+      "price": "0.09",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T16:49:07.757+00:00",
+      "size": 1,
+      "status": "Live",
+      "time-in-force": "GTC",
+      "underlying-symbol": "XLE",
+      "updated-at": 1791980319174,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016C00065000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016C00064500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016P00059500",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016P00059000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-11",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-10",
+      "order-type": "Stop Limit",
+      "price": "0.24",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T16:49:07.765+00:00",
+      "size": 1,
+      "status": "Live",
+      "stop-trigger": "0.24",
+      "time-in-force": "GTC",
+      "underlying-symbol": "XLE",
+      "updated-at": 1791980319102,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016C00065000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016C00064500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016P00059500",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016P00059000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-12",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-13",
+      "order-type": "Stop Limit",
+      "price": "0.53",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T17:19:50.175+00:00",
+      "size": 1,
+      "status": "Live",
+      "stop-trigger": "0.53",
+      "time-in-force": "GTC",
+      "underlying-symbol": "EWZ",
+      "updated-at": 1791980318998,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120C00043000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120C00042000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120P00032000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120P00031000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-14",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-13",
+      "order-type": "Limit",
+      "price": "0.21",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T17:19:50.167+00:00",
+      "size": 1,
+      "status": "Live",
+      "time-in-force": "GTC",
+      "underlying-symbol": "EWZ",
+      "updated-at": 1791980318931,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120C00043000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120C00042000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120P00032000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120P00031000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-15",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-16",
+      "order-type": "Stop Limit",
+      "price": "0.06",
+      "price-effect": "Debit",
+      "received-at": "2026-10-13T14:08:09.986+00:00",
+      "size": 1,
+      "status": "Live",
+      "stop-trigger": "0.06",
+      "time-in-force": "GTC",
+      "underlying-symbol": "UNG",
+      "updated-at": 1791980318858,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00009000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-17",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-16",
+      "order-type": "Limit",
+      "price": "0.02",
+      "price-effect": "Debit",
+      "received-at": "2026-10-13T14:08:09.976+00:00",
+      "size": 1,
+      "status": "Live",
+      "time-in-force": "GTC",
+      "underlying-symbol": "UNG",
+      "updated-at": 1791980318775,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00009000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-18",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-16",
+      "order-type": "Limit",
+      "price": "0.05",
+      "price-effect": "Credit",
+      "received-at": "2026-10-13T14:08:09.965+00:00",
+      "size": 1,
+      "status": "Filled",
+      "time-in-force": "Day",
+      "underlying-symbol": "UNG",
+      "updated-at": 1791900490839,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008500",
+          "fills": [
+            {
+              "fill-price": "0.1",
+              "filled-at": "2026-10-13T14:08:10.802+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00009000",
+          "fills": [
+            {
+              "fill-price": "0.11",
+              "filled-at": "2026-10-13T14:08:10.802+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013000",
+          "fills": [
+            {
+              "fill-price": "0.28",
+              "filled-at": "2026-10-13T14:08:10.802+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013500",
+          "fills": [
+            {
+              "fill-price": "0.2",
+              "filled-at": "2026-10-13T14:08:10.802+00:00",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-19",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-20",
+      "order-type": "Limit",
+      "price": "0.05",
+      "price-effect": "Credit",
+      "received-at": "2026-10-13T00:40:42.577+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "Day",
+      "underlying-symbol": "UNG",
+      "updated-at": 1791900065023,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00014000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013500",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-21",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-20",
+      "order-type": "Limit",
+      "price": "0.02",
+      "price-effect": "Debit",
+      "received-at": "2026-10-13T00:40:42.585+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "GTC",
+      "underlying-symbol": "UNG",
+      "updated-at": 1791900064988,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00014000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008500",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-22",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-20",
+      "order-type": "Stop Limit",
+      "price": "0.06",
+      "price-effect": "Debit",
+      "received-at": "2026-10-13T00:40:42.593+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "stop-trigger": "0.06",
+      "time-in-force": "GTC",
+      "underlying-symbol": "UNG",
+      "updated-at": 1791900054046,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00014000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127C00013500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008500",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "UNG   261127P00008000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-23",
+      "account-number": "TEST1234",
+      "order-type": "Limit",
+      "price": "0.42",
+      "price-effect": "Credit",
+      "received-at": "2026-09-30T16:52:33.830+00:00",
+      "size": 1,
+      "status": "Filled",
+      "time-in-force": "Day",
+      "underlying-symbol": "EWZ",
+      "updated-at": 1790787155109,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120C00043000",
+          "fills": [
+            {
+              "fill-price": "0.88",
+              "filled-at": "2026-09-30T16:52:35.076+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120C00042000",
+          "fills": [
+            {
+              "fill-price": "1.11",
+              "filled-at": "2026-09-30T16:52:35.076+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120P00032000",
+          "fills": [
+            {
+              "fill-price": "0.71",
+              "filled-at": "2026-09-30T16:52:35.076+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "EWZ   261120P00031000",
+          "fills": [
+            {
+              "fill-price": "0.52",
+              "filled-at": "2026-09-30T16:52:35.076+00:00",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-24",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-10",
+      "order-type": "Limit",
+      "price": "0.18",
+      "price-effect": "Credit",
+      "received-at": "2026-09-30T16:49:07.746+00:00",
+      "size": 1,
+      "status": "Filled",
+      "time-in-force": "Day",
+      "underlying-symbol": "XLE",
+      "updated-at": 1790786948598,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016C00065000",
+          "fills": [
+            {
+              "fill-price": "0.35",
+              "filled-at": "2026-09-30T16:49:08.562+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016C00064500",
+          "fills": [
+            {
+              "fill-price": "0.45",
+              "filled-at": "2026-09-30T16:49:08.562+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016P00059500",
+          "fills": [
+            {
+              "fill-price": "0.4",
+              "filled-at": "2026-09-30T16:49:08.562+00:00",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261016P00059000",
+          "fills": [
+            {
+              "fill-price": "0.32",
+              "filled-at": "2026-09-30T16:49:08.562+00:00",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-25",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-26",
+      "order-type": "Limit",
+      "price": "0.43",
+      "price-effect": "Credit",
+      "received-at": "2026-09-30T15:45:23.360+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "Day",
+      "underlying-symbol": "XLE",
+      "updated-at": 1790784033389,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067500",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00057000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00056500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-27",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-26",
+      "order-type": "Stop Limit",
+      "price": "0.54",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T15:45:23.377+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "stop-trigger": "0.54",
+      "time-in-force": "GTC",
+      "underlying-symbol": "XLE",
+      "updated-at": 1790783901728,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00057000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00056500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-28",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-26",
+      "order-type": "Limit",
+      "price": "0.21",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T15:45:23.369+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "GTC",
+      "underlying-symbol": "XLE",
+      "updated-at": 1790783895805,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00057000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00056500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-29",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-30",
+      "order-type": "Stop Limit",
+      "price": "0.59",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T15:57:33.198+00:00",
+      "size": 1,
+      "status": "Rejected",
+      "stop-trigger": "0.44",
+      "time-in-force": "GTC",
+      "underlying-symbol": "DRAM",
+      "updated-at": 1790783853198,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106C00061500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106C00061000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106P00060000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106P00059500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-31",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-30",
+      "order-type": "Limit",
+      "price": "0.17",
+      "price-effect": "Debit",
+      "received-at": "2026-09-30T15:57:33.190+00:00",
+      "size": 1,
+      "status": "Rejected",
+      "time-in-force": "GTC",
+      "underlying-symbol": "DRAM",
+      "updated-at": 1790783853190,
+      "legs": [
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106C00061500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106C00061000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106P00060000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Close",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106P00059500",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-32",
+      "account-number": "TEST1234",
+      "complex-order-id": "synthetic-30",
+      "order-type": "Limit",
+      "price": "0.35",
+      "price-effect": "Credit",
+      "received-at": "2026-09-30T15:57:33.179+00:00",
+      "size": 1,
+      "status": "Rejected",
+      "time-in-force": "Day",
+      "underlying-symbol": "DRAM",
+      "updated-at": 1790783853179,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106C00071000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106C00070000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106P00051000",
+          "fills": []
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "DRAM  261106P00050000",
+          "fills": []
+        }
+      ]
+    },
+    {
+      "id": "synthetic-33",
+      "account-number": "TEST1234",
+      "order-type": "Limit",
+      "price": "1.11",
+      "price-effect": "Credit",
+      "received-at": "2026-09-30T02:49:06.741+00:00",
+      "size": 1,
+      "status": "Cancelled",
+      "time-in-force": "Day",
+      "underlying-symbol": "XLE",
+      "updated-at": 1790737030441,
+      "legs": [
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00067000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106C00065000",
+          "fills": []
+        },
+        {
+          "action": "Sell to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00057500",
+          "fills": []
+        },
+        {
+          "action": "Buy to Open",
+          "instrument-type": "Equity Option",
+          "quantity": 1,
+          "symbol": "XLE   261106P00056000",
+          "fills": []
+        }
+      ]
+    }
+  ],
+  "complexOrders": [
+    {
+      "id": "synthetic-13",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OCO",
+      "orders": [
+        {
+          "id": "synthetic-12",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-13",
+          "order-type": "Stop Limit",
+          "price": "0.53",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T17:19:50.175+00:00",
+          "size": 1,
+          "status": "Live",
+          "stop-trigger": "0.53",
+          "time-in-force": "GTC",
+          "underlying-symbol": "EWZ",
+          "updated-at": 1791980318998,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120C00043000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120C00042000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120P00032000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120P00031000",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-14",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-13",
+          "order-type": "Limit",
+          "price": "0.21",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T17:19:50.167+00:00",
+          "size": 1,
+          "status": "Live",
+          "time-in-force": "GTC",
+          "underlying-symbol": "EWZ",
+          "updated-at": 1791980318931,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120C00043000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120C00042000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120P00032000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "EWZ   261120P00031000",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-2",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-4",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-2",
+        "order-type": "Limit",
+        "price": "0.08",
+        "price-effect": "Credit",
+        "received-at": "2026-10-14T18:12:28.830+00:00",
+        "size": 1,
+        "status": "Filled",
+        "time-in-force": "Day",
+        "underlying-symbol": "XLF",
+        "updated-at": 1792001549702,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLF   261127P00052000",
+            "fills": [
+              {
+                "fill-price": "0.49",
+                "filled-at": "2026-10-14T18:12:29.664+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLF   261127P00052500",
+            "fills": [
+              {
+                "fill-price": "0.58",
+                "filled-at": "2026-10-14T18:12:29.664+00:00",
+                "quantity": 1
+              }
+            ]
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-1",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-2",
+          "gtc-date": "2026-11-06",
+          "order-type": "Limit",
+          "price": "0.04",
+          "price-effect": "Debit",
+          "received-at": "2026-10-14T18:12:28.837+00:00",
+          "size": 1,
+          "status": "Live",
+          "time-in-force": "GTD",
+          "underlying-symbol": "XLF",
+          "updated-at": 1792001550487,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052500",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-3",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-2",
+          "order-type": "Stop Limit",
+          "price": "0.1",
+          "price-effect": "Debit",
+          "received-at": "2026-10-14T18:12:28.844+00:00",
+          "size": 1,
+          "status": "Live",
+          "stop-trigger": "0.1",
+          "time-in-force": "GTC",
+          "underlying-symbol": "XLF",
+          "updated-at": 1792001550484,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052500",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-6",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-7",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-6",
+        "order-type": "Limit",
+        "price": "0.11",
+        "price-effect": "Credit",
+        "received-at": "2026-10-14T18:10:31.143+00:00",
+        "size": 1,
+        "status": "Cancelled",
+        "time-in-force": "Day",
+        "underlying-symbol": "XLF",
+        "updated-at": 1792001517436,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLF   261127P00052000",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLF   261127P00052500",
+            "fills": []
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-5",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-6",
+          "gtc-date": "2026-11-06",
+          "order-type": "Limit",
+          "price": "0.05",
+          "price-effect": "Debit",
+          "received-at": "2026-10-14T18:10:31.154+00:00",
+          "size": 1,
+          "status": "Cancelled",
+          "time-in-force": "GTD",
+          "underlying-symbol": "XLF",
+          "updated-at": 1792001517437,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052500",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-8",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-6",
+          "order-type": "Stop Limit",
+          "price": "0.17",
+          "price-effect": "Debit",
+          "received-at": "2026-10-14T18:10:31.163+00:00",
+          "size": 1,
+          "status": "Cancelled",
+          "stop-trigger": "0.13",
+          "time-in-force": "GTC",
+          "underlying-symbol": "XLF",
+          "updated-at": 1792001517411,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLF   261127P00052500",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-16",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-18",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-16",
+        "order-type": "Limit",
+        "price": "0.05",
+        "price-effect": "Credit",
+        "received-at": "2026-10-13T14:08:09.965+00:00",
+        "size": 1,
+        "status": "Filled",
+        "time-in-force": "Day",
+        "underlying-symbol": "UNG",
+        "updated-at": 1791900490839,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127P00008500",
+            "fills": [
+              {
+                "fill-price": "0.1",
+                "filled-at": "2026-10-13T14:08:10.802+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127P00009000",
+            "fills": [
+              {
+                "fill-price": "0.11",
+                "filled-at": "2026-10-13T14:08:10.802+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127C00013000",
+            "fills": [
+              {
+                "fill-price": "0.28",
+                "filled-at": "2026-10-13T14:08:10.802+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127C00013500",
+            "fills": [
+              {
+                "fill-price": "0.2",
+                "filled-at": "2026-10-13T14:08:10.802+00:00",
+                "quantity": 1
+              }
+            ]
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-15",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-16",
+          "order-type": "Stop Limit",
+          "price": "0.06",
+          "price-effect": "Debit",
+          "received-at": "2026-10-13T14:08:09.986+00:00",
+          "size": 1,
+          "status": "Live",
+          "stop-trigger": "0.06",
+          "time-in-force": "GTC",
+          "underlying-symbol": "UNG",
+          "updated-at": 1791980318858,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00013500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00013000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00009000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00008500",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-17",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-16",
+          "order-type": "Limit",
+          "price": "0.02",
+          "price-effect": "Debit",
+          "received-at": "2026-10-13T14:08:09.976+00:00",
+          "size": 1,
+          "status": "Live",
+          "time-in-force": "GTC",
+          "underlying-symbol": "UNG",
+          "updated-at": 1791980318775,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00013500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00013000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00009000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00008500",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-20",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-19",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-20",
+        "order-type": "Limit",
+        "price": "0.05",
+        "price-effect": "Credit",
+        "received-at": "2026-10-13T00:40:42.577+00:00",
+        "size": 1,
+        "status": "Cancelled",
+        "time-in-force": "Day",
+        "underlying-symbol": "UNG",
+        "updated-at": 1791900065023,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127C00014000",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127C00013500",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127P00008500",
+            "fills": []
+          },
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "UNG   261127P00008000",
+            "fills": []
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-22",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-20",
+          "order-type": "Stop Limit",
+          "price": "0.06",
+          "price-effect": "Debit",
+          "received-at": "2026-10-13T00:40:42.593+00:00",
+          "size": 1,
+          "status": "Cancelled",
+          "stop-trigger": "0.06",
+          "time-in-force": "GTC",
+          "underlying-symbol": "UNG",
+          "updated-at": 1791900054046,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00014000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00013500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00008500",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00008000",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-21",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-20",
+          "order-type": "Limit",
+          "price": "0.02",
+          "price-effect": "Debit",
+          "received-at": "2026-10-13T00:40:42.585+00:00",
+          "size": 1,
+          "status": "Cancelled",
+          "time-in-force": "GTC",
+          "underlying-symbol": "UNG",
+          "updated-at": 1791900064988,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00014000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127C00013500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00008500",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "UNG   261127P00008000",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-10",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-24",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-10",
+        "order-type": "Limit",
+        "price": "0.18",
+        "price-effect": "Credit",
+        "received-at": "2026-09-30T16:49:07.746+00:00",
+        "size": 1,
+        "status": "Filled",
+        "time-in-force": "Day",
+        "underlying-symbol": "XLE",
+        "updated-at": 1790786948598,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261016C00065000",
+            "fills": [
+              {
+                "fill-price": "0.35",
+                "filled-at": "2026-09-30T16:49:08.562+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261016C00064500",
+            "fills": [
+              {
+                "fill-price": "0.45",
+                "filled-at": "2026-09-30T16:49:08.562+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261016P00059500",
+            "fills": [
+              {
+                "fill-price": "0.4",
+                "filled-at": "2026-09-30T16:49:08.562+00:00",
+                "quantity": 1
+              }
+            ]
+          },
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261016P00059000",
+            "fills": [
+              {
+                "fill-price": "0.32",
+                "filled-at": "2026-09-30T16:49:08.562+00:00",
+                "quantity": 1
+              }
+            ]
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-9",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-10",
+          "order-type": "Limit",
+          "price": "0.09",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T16:49:07.757+00:00",
+          "size": 1,
+          "status": "Live",
+          "time-in-force": "GTC",
+          "underlying-symbol": "XLE",
+          "updated-at": 1791980319174,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016C00065000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016C00064500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016P00059500",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016P00059000",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-11",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-10",
+          "order-type": "Stop Limit",
+          "price": "0.24",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T16:49:07.765+00:00",
+          "size": 1,
+          "status": "Live",
+          "stop-trigger": "0.24",
+          "time-in-force": "GTC",
+          "underlying-symbol": "XLE",
+          "updated-at": 1791980319102,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016C00065000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016C00064500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016P00059500",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261016P00059000",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-26",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-25",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-26",
+        "order-type": "Limit",
+        "price": "0.43",
+        "price-effect": "Credit",
+        "received-at": "2026-09-30T15:45:23.360+00:00",
+        "size": 1,
+        "status": "Cancelled",
+        "time-in-force": "Day",
+        "underlying-symbol": "XLE",
+        "updated-at": 1790784033389,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261106C00067500",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261106C00067000",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261106P00057000",
+            "fills": []
+          },
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "XLE   261106P00056500",
+            "fills": []
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-27",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-26",
+          "order-type": "Stop Limit",
+          "price": "0.54",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T15:45:23.377+00:00",
+          "size": 1,
+          "status": "Cancelled",
+          "stop-trigger": "0.54",
+          "time-in-force": "GTC",
+          "underlying-symbol": "XLE",
+          "updated-at": 1790783901728,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106C00067500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106C00067000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106P00057000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106P00056500",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-28",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-26",
+          "order-type": "Limit",
+          "price": "0.21",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T15:45:23.369+00:00",
+          "size": 1,
+          "status": "Cancelled",
+          "time-in-force": "GTC",
+          "underlying-symbol": "XLE",
+          "updated-at": 1790783895805,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106C00067500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106C00067000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106P00057000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "XLE   261106P00056500",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "synthetic-30",
+      "account-number": "TEST1234",
+      "ratio-price-is-threshold-based-on-notional": false,
+      "ratio-price-threshold": "0.0",
+      "type": "OTOCO",
+      "trigger-order": {
+        "id": "synthetic-32",
+        "account-number": "TEST1234",
+        "complex-order-id": "synthetic-30",
+        "order-type": "Limit",
+        "price": "0.35",
+        "price-effect": "Credit",
+        "received-at": "2026-09-30T15:57:33.179+00:00",
+        "size": 1,
+        "status": "Rejected",
+        "time-in-force": "Day",
+        "underlying-symbol": "DRAM",
+        "updated-at": 1790783853179,
+        "legs": [
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "DRAM  261106C00071000",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "DRAM  261106C00070000",
+            "fills": []
+          },
+          {
+            "action": "Sell to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "DRAM  261106P00051000",
+            "fills": []
+          },
+          {
+            "action": "Buy to Open",
+            "instrument-type": "Equity Option",
+            "quantity": 1,
+            "symbol": "DRAM  261106P00050000",
+            "fills": []
+          }
+        ]
+      },
+      "orders": [
+        {
+          "id": "synthetic-29",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-30",
+          "order-type": "Stop Limit",
+          "price": "0.59",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T15:57:33.198+00:00",
+          "size": 1,
+          "status": "Rejected",
+          "stop-trigger": "0.44",
+          "time-in-force": "GTC",
+          "underlying-symbol": "DRAM",
+          "updated-at": 1790783853198,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106C00061500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106C00061000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106P00060000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106P00059500",
+              "fills": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-31",
+          "account-number": "TEST1234",
+          "complex-order-id": "synthetic-30",
+          "order-type": "Limit",
+          "price": "0.17",
+          "price-effect": "Debit",
+          "received-at": "2026-09-30T15:57:33.190+00:00",
+          "size": 1,
+          "status": "Rejected",
+          "time-in-force": "GTC",
+          "underlying-symbol": "DRAM",
+          "updated-at": 1790783853190,
+          "legs": [
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106C00061500",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106C00061000",
+              "fills": []
+            },
+            {
+              "action": "Buy to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106P00060000",
+              "fills": []
+            },
+            {
+              "action": "Sell to Close",
+              "instrument-type": "Equity Option",
+              "quantity": 1,
+              "symbol": "DRAM  261106P00059500",
+              "fills": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "instruments": [
+    {
+      "expiration-date": "2026-11-27",
+      "expires-at": "2026-11-27T18:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "52.5",
+      "symbol": "XLF   261127P00052500",
+      "underlying-symbol": "XLF"
+    },
+    {
+      "expiration-date": "2026-11-27",
+      "expires-at": "2026-11-27T18:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "52.0",
+      "symbol": "XLF   261127P00052000",
+      "underlying-symbol": "XLF"
+    },
+    {
+      "expiration-date": "2026-11-27",
+      "expires-at": "2026-11-27T18:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "8.5",
+      "symbol": "UNG   261127P00008500",
+      "underlying-symbol": "UNG"
+    },
+    {
+      "expiration-date": "2026-11-27",
+      "expires-at": "2026-11-27T18:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "9.0",
+      "symbol": "UNG   261127P00009000",
+      "underlying-symbol": "UNG"
+    },
+    {
+      "expiration-date": "2026-11-27",
+      "expires-at": "2026-11-27T18:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "C",
+      "shares-per-contract": 100,
+      "strike-price": "13.5",
+      "symbol": "UNG   261127C00013500",
+      "underlying-symbol": "UNG"
+    },
+    {
+      "expiration-date": "2026-11-20",
+      "expires-at": "2026-11-20T21:00:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "32.0",
+      "symbol": "EWZ   261120P00032000",
+      "underlying-symbol": "EWZ"
+    },
+    {
+      "expiration-date": "2026-11-20",
+      "expires-at": "2026-11-20T21:00:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "C",
+      "shares-per-contract": 100,
+      "strike-price": "43.0",
+      "symbol": "EWZ   261120C00043000",
+      "underlying-symbol": "EWZ"
+    },
+    {
+      "expiration-date": "2026-11-27",
+      "expires-at": "2026-11-27T18:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "C",
+      "shares-per-contract": 100,
+      "strike-price": "13.0",
+      "symbol": "UNG   261127C00013000",
+      "underlying-symbol": "UNG"
+    },
+    {
+      "expiration-date": "2026-11-20",
+      "expires-at": "2026-11-20T21:00:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "C",
+      "shares-per-contract": 100,
+      "strike-price": "42.0",
+      "symbol": "EWZ   261120C00042000",
+      "underlying-symbol": "EWZ"
+    },
+    {
+      "expiration-date": "2026-10-16",
+      "expires-at": "2026-10-16T20:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "59.0",
+      "symbol": "XLE   261016P00059000",
+      "underlying-symbol": "XLE"
+    },
+    {
+      "expiration-date": "2026-10-16",
+      "expires-at": "2026-10-16T20:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "59.5",
+      "symbol": "XLE   261016P00059500",
+      "underlying-symbol": "XLE"
+    },
+    {
+      "expiration-date": "2026-11-20",
+      "expires-at": "2026-11-20T21:00:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "P",
+      "shares-per-contract": 100,
+      "strike-price": "31.0",
+      "symbol": "EWZ   261120P00031000",
+      "underlying-symbol": "EWZ"
+    },
+    {
+      "expiration-date": "2026-10-16",
+      "expires-at": "2026-10-16T20:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "C",
+      "shares-per-contract": 100,
+      "strike-price": "64.5",
+      "symbol": "XLE   261016C00064500",
+      "underlying-symbol": "XLE"
+    },
+    {
+      "expiration-date": "2026-10-16",
+      "expires-at": "2026-10-16T20:15:00.000+00:00",
+      "instrument-type": "Equity Option",
+      "option-chain-type": "Standard",
+      "option-type": "C",
+      "shares-per-contract": 100,
+      "strike-price": "65.0",
+      "symbol": "XLE   261016C00065000",
+      "underlying-symbol": "XLE"
+    }
+  ],
+  "spotQuotes": [
+    {
+      "ask": "67.57",
+      "bid": "67.56",
+      "instrument-type": "Equity",
+      "mark": "67.57",
+      "mid": "67.565",
+      "prev-close": "67.2",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Final",
+      "summary-date": "2026-10-14",
+      "symbol": "XLE",
+      "updated-at": "2026-10-14T19:21:12.715Z"
+    },
+    {
+      "ask": "54.42",
+      "bid": "54.41",
+      "instrument-type": "Equity",
+      "mark": "54.415",
+      "mid": "54.415",
+      "prev-close": "54.82",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Final",
+      "summary-date": "2026-10-14",
+      "symbol": "XLF",
+      "updated-at": "2026-10-14T19:21:12.713Z"
+    },
+    {
+      "ask": "42.51",
+      "bid": "42.5",
+      "instrument-type": "Equity",
+      "mark": "42.505",
+      "mid": "42.505",
+      "prev-close": "42.87",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Final",
+      "summary-date": "2026-10-14",
+      "symbol": "EWZ",
+      "updated-at": "2026-10-14T19:21:11.708Z"
+    },
+    {
+      "ask": "10.99",
+      "bid": "10.98",
+      "instrument-type": "Equity",
+      "mark": "10.9801",
+      "mid": "10.985",
+      "prev-close": "11.41",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Final",
+      "summary-date": "2026-10-14",
+      "symbol": "UNG",
+      "updated-at": "2026-10-14T19:21:12.718Z"
+    }
+  ],
+  "holdings": [
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLF   261127P00052000",
+      "underlying-symbol": "XLF",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.49",
+      "close-price": "0.49",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "updated-at": "2026-10-14T18:12:31.244Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLF   261127P00052500",
+      "underlying-symbol": "XLF",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.58",
+      "close-price": "0.58",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "updated-at": "2026-10-14T18:12:32.112Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "UNG   261127P00008500",
+      "underlying-symbol": "UNG",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.07",
+      "close-price": "0.07",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "updated-at": "2026-10-13T14:08:13.431Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "UNG   261127P00009000",
+      "underlying-symbol": "UNG",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.08",
+      "close-price": "0.08",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "updated-at": "2026-10-13T14:08:13.404Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "UNG   261127C00013500",
+      "underlying-symbol": "UNG",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.31",
+      "close-price": "0.31",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "updated-at": "2026-10-13T14:08:13.445Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "UNG   261127C00013000",
+      "underlying-symbol": "UNG",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.36",
+      "close-price": "0.36",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-11-27T18:15:00.000Z",
+      "updated-at": "2026-10-13T14:08:13.422Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "EWZ   261120C00043000",
+      "underlying-symbol": "EWZ",
+      "quantity": 1,
+      "average-daily-market-close-price": "2.23",
+      "close-price": "2.23",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-11-20T21:00:00.000Z",
+      "updated-at": "2026-09-30T16:52:37.291Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "EWZ   261120P00032000",
+      "underlying-symbol": "EWZ",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.16",
+      "close-price": "0.16",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-11-20T21:00:00.000Z",
+      "updated-at": "2026-09-30T16:52:36.650Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "EWZ   261120C00042000",
+      "underlying-symbol": "EWZ",
+      "quantity": 1,
+      "average-daily-market-close-price": "2.82",
+      "close-price": "2.82",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-11-20T21:00:00.000Z",
+      "updated-at": "2026-09-30T16:52:37.270Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "EWZ   261120P00031000",
+      "underlying-symbol": "EWZ",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.13",
+      "close-price": "0.13",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-11-20T21:00:00.000Z",
+      "updated-at": "2026-09-30T16:52:36.636Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLE   261016P00059000",
+      "underlying-symbol": "XLE",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.0001",
+      "close-price": "0.0001",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-10-16T20:15:00.000Z",
+      "updated-at": "2026-09-30T16:49:10.725Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLE   261016P00059500",
+      "underlying-symbol": "XLE",
+      "quantity": 1,
+      "average-daily-market-close-price": "0.0001",
+      "close-price": "0.0001",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-10-16T20:15:00.000Z",
+      "updated-at": "2026-09-30T16:49:10.744Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLE   261016C00064500",
+      "underlying-symbol": "XLE",
+      "quantity": 1,
+      "average-daily-market-close-price": "2.78",
+      "close-price": "2.78",
+      "multiplier": "100.0",
+      "quantity-direction": "Short",
+      "expires-at": "2026-10-16T20:15:00.000Z",
+      "updated-at": "2026-09-30T16:49:10.752Z"
+    },
+    {
+      "account-number": "TEST1234",
+      "instrument-type": "Equity Option",
+      "symbol": "XLE   261016C00065000",
+      "underlying-symbol": "XLE",
+      "quantity": 1,
+      "average-daily-market-close-price": "2.32",
+      "close-price": "2.32",
+      "multiplier": "100.0",
+      "quantity-direction": "Long",
+      "expires-at": "2026-10-16T20:15:00.000Z",
+      "updated-at": "2026-09-30T16:49:10.734Z"
+    }
+  ],
+  "quotes": [
+    {
+      "ask": "3.25",
+      "bid": "3.0",
+      "delta": "0.964771208",
+      "instrument-type": "Equity Option",
+      "mark": "3.125",
+      "mid": "3.125",
+      "prev-close": "2.69",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "XLE   261016C00064500",
+      "updated-at": "2026-10-14T19:20:52.963Z"
+    },
+    {
+      "ask": "0.02",
+      "bid": "0.0",
+      "delta": "-0.000205763",
+      "instrument-type": "Equity Option",
+      "mark": "0.01",
+      "mid": "0.01",
+      "prev-close": "0.01",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "XLE   261016P00059500",
+      "updated-at": "2026-10-14T19:20:45.972Z"
+    },
+    {
+      "ask": "0.26",
+      "bid": "0.24",
+      "delta": "-0.062931374",
+      "instrument-type": "Equity Option",
+      "mark": "0.25",
+      "mid": "0.25",
+      "prev-close": "0.15",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "EWZ   261120P00032000",
+      "updated-at": "2026-10-14T19:20:36.938Z"
+    },
+    {
+      "ask": "0.63",
+      "bid": "0.53",
+      "delta": "-0.271578336",
+      "instrument-type": "Equity Option",
+      "mark": "0.58",
+      "mid": "0.58",
+      "prev-close-date": "1970-01-01",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "XLF   261127P00052500",
+      "updated-at": "2026-10-14T19:20:42.755Z"
+    },
+    {
+      "ask": "0.2",
+      "bid": "0.18",
+      "delta": "-0.048900552",
+      "instrument-type": "Equity Option",
+      "mark": "0.19",
+      "mid": "0.19",
+      "prev-close": "0.12",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "EWZ   261120P00031000",
+      "updated-at": "2026-10-14T19:20:36.274Z"
+    },
+    {
+      "ask": "0.12",
+      "bid": "0.08",
+      "delta": "-0.104315789",
+      "instrument-type": "Equity Option",
+      "mark": "0.1",
+      "mid": "0.1",
+      "prev-close": "0.11",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "UNG   261127P00009000",
+      "updated-at": "2026-10-14T19:19:57.937Z"
+    },
+    {
+      "ask": "0.02",
+      "bid": "0.0",
+      "delta": "-0.000083156",
+      "instrument-type": "Equity Option",
+      "mark": "0.01",
+      "mid": "0.01",
+      "prev-close": "0.01",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "XLE   261016P00059000",
+      "updated-at": "2026-10-14T19:20:51.890Z"
+    },
+    {
+      "ask": "2.22",
+      "bid": "2.18",
+      "delta": "0.497478799",
+      "instrument-type": "Equity Option",
+      "mark": "2.2",
+      "mid": "2.2",
+      "prev-close": "2.21",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "EWZ   261120C00043000",
+      "updated-at": "2026-10-14T19:21:09.996Z"
+    },
+    {
+      "ask": "2.78",
+      "bid": "2.76",
+      "delta": "0.562734202",
+      "instrument-type": "Equity Option",
+      "mark": "2.77",
+      "mid": "2.77",
+      "prev-close": "2.79",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "EWZ   261120C00042000",
+      "updated-at": "2026-10-14T19:21:00.368Z"
+    },
+    {
+      "ask": "0.33",
+      "bid": "0.22",
+      "delta": "0.234068767",
+      "instrument-type": "Equity Option",
+      "mark": "0.275",
+      "mid": "0.275",
+      "prev-close": "0.4",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "UNG   261127C00013000",
+      "updated-at": "2026-10-14T19:19:57.855Z"
+    },
+    {
+      "ask": "0.17",
+      "bid": "0.02",
+      "delta": "-0.078793542",
+      "instrument-type": "Equity Option",
+      "mark": "0.095",
+      "mid": "0.095",
+      "prev-close": "0.1",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "UNG   261127P00008500",
+      "updated-at": "2026-10-14T19:19:57.525Z"
+    },
+    {
+      "ask": "0.5",
+      "bid": "0.44",
+      "delta": "-0.227707096",
+      "instrument-type": "Equity Option",
+      "mark": "0.47",
+      "mid": "0.47",
+      "prev-close": "0.39",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "XLF   261127P00052000",
+      "updated-at": "2026-10-14T19:20:59.360Z"
+    },
+    {
+      "ask": "0.34",
+      "bid": "0.06",
+      "delta": "0.184311878",
+      "instrument-type": "Equity Option",
+      "mark": "0.20758154",
+      "mid": "0.2",
+      "prev-close": "0.2",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "UNG   261127C00013500",
+      "updated-at": "2026-10-14T19:19:57.215Z"
+    },
+    {
+      "ask": "2.68",
+      "bid": "2.6",
+      "delta": "0.95137065",
+      "instrument-type": "Equity Option",
+      "mark": "2.64",
+      "mid": "2.64",
+      "prev-close": "2.34",
+      "prev-close-date": "2026-10-13",
+      "prev-close-price-type": "Regular",
+      "summary-date": "2026-10-14",
+      "symbol": "XLE   261016C00065000",
+      "updated-at": "2026-10-14T19:21:10.345Z"
+    }
+  ],
+  "session": {
+    "close-at": "2026-10-14T20:00:00.000+00:00",
+    "close-at-ext": "2026-10-15T00:00:00.000+00:00",
+    "instrument-collection": "Equity",
+    "open-at": "2026-10-14T13:30:00.000+00:00",
+    "start-at": "2026-10-14T12:15:00.000+00:00",
+    "next-session": {
+      "close-at": "2026-10-15T20:00:00.000+00:00",
+      "close-at-ext": "2026-10-16T00:00:00.000+00:00",
+      "instrument-collection": "Equity",
+      "open-at": "2026-10-15T13:30:00.000+00:00",
+      "session-date": "2026-10-15",
+      "start-at": "2026-10-15T12:15:00.000+00:00"
+    },
+    "previous-session": {
+      "close-at": "2026-10-13T20:00:00.000+00:00",
+      "close-at-ext": "2026-10-14T00:00:00.000+00:00",
+      "instrument-collection": "Equity",
+      "open-at": "2026-10-13T13:30:00.000+00:00",
+      "session-date": "2026-10-13",
+      "start-at": "2026-10-13T12:15:00.000+00:00"
+    },
+    "state": "Open"
+  },
+  "account": "TEST1234",
+  "now": "2026-10-14T19:21:15.312Z",
+  "entryReferences": [
+    {
+      "symbol": "XLF",
+      "openedAt": 1792001549664,
+      "value": 54.215,
+      "barStart": 1792001460000,
+      "barEnd": 1792001520000,
+      "periodMs": 60000,
+      "source": "tastytrade DXLink completed pre-entry 1m candle",
+      "priceType": "trade candle close"
+    }
+  ]
+}

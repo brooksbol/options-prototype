@@ -1,4 +1,5 @@
 // Trading projection for tt only: recognition, economics and evidence validity. No terminal rendering or I/O.
+import { economicObjectives, recentEconomicMovement } from "./tastytrade-economic-story.mjs";
 import { ENTRY_CANDLE_SOURCE } from "./tastytrade-entry-reference.mjs";
 import { usableEvidence, retainedSessionLabel, completedSession } from "./tastytrade-freshness.mjs";
 
@@ -136,6 +137,7 @@ function matchingExit(complexOrders, orders, held) {
     if (target.id == null || String(target.id) === "" || components.length > 1 || components.some(c => String(c.id) !== String(target.id) ||
         c["time-in-force"] !== target["time-in-force"] || c["gtc-date"] !== target["gtc-date"] ||
         c.status !== target.status || c["order-type"] !== target["order-type"] ||
+        (c["stop-trigger"] != null || target["stop-trigger"] != null) && decimal(c["stop-trigger"]) !== decimal(target["stop-trigger"]) ||
         c["price-effect"] !== target["price-effect"] || decimal(c.price) !== decimal(target.price) ||
         !sameLegs(c.legs, held, false)) || components.length === 0 && target["complex-order-id"] != null) {
       fail("current target order linkage is missing or ambiguous");
@@ -426,6 +428,8 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
         elapsedDays: openingDte - dte, progress: openingDte === 0 ? 1 : (openingDte - dte) / openingDte };
       positions.push({ strategy: trade.label, status: "recognized", issues, symbol: trade.symbol, underlying, expiry: trade.expiry, quantity: trade.quantity,
         multiplier: trade.multiplier, credit, target, market, spot, dte, openedAt,
+        economicObjectives: economicObjectives({ credit, target, stopOrder: exit.stop, quantity: trade.quantity, multiplier: trade.multiplier }),
+        recentMovement: recentEconomicMovement({ legs: heldWithDayClose, quotes, orders, openedAt, market, now, session }),
         // Principal-approved convention is manual intent, never an executable time-exit order.
         manualExit,
         timeExit: { objectiveDte: manualExit?.checkpointDte ?? null, openingDte,

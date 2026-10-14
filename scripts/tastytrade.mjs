@@ -42,25 +42,39 @@ If you have one accessible account, it is selected automatically.
 With multiple accounts, specify --account <account-number>.
 Positions and orders are separate broker evidence; no protection verdict is inferred.`;
 
-const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv] [--width <columns>] [--no-color] [--ascii]
+const LIVE_HELP = `Usage: tt live [--account <account-number>] [--tsv] [--width <columns>] [--no-color] [--ascii] [--with-pnl]
 
 Show an indicative, read-only position scan for one production account.
-Human columns: SYMBOL, PAYOFF, RANGE, SPOT, SPAN, EXIT PROFIT, P/L, QUOTE.
-PAYOFF is the expiration shape; its spot marker is always cyan.
+Human columns: SYMBOL, TRADE SHAPE, RANGE, SPOT, DTE, EXIT PROGRESS, QUOTE (accepted economic-state baseline; --with-pnl retains P/L).
+TRADE SHAPE is the expiration shape; its spot marker is always cyan:
+▲ on the upper rail, ▼ on the lower rail, ◆ on a slope (ASCII ^, v, *).
 Supported credit strategies: Iron Condor, Bull Put Credit Spread, Bear Call Credit Spread.
 RANGE is the verified expiration maximum-profit interval (IC) or half-line (vertical), not breakevens.
-SPOT is broker equity mid, never last/close. Its color compares the same snapshot's
-midpoint to its validated dated final previous close: green up, red down, white flat,
-yellow unknown. Market closure and quote age do not determine this color.
-SPAN runs from the final opening fill to expiration using New York calendar dates;
-remaining DTE is embedded on the right. Verified profit target + GTD automatically
-establishes the Principal's manual checkpoint MxDTE: M, M! due, M> past due;
-suffix e means the linked target expired, not a closing trade. GTD expires an order,
+SPOT is broker equity mid, never last/close. Its color matches the occupied trade-shape
+region: green profit plateau, yellow strike transition, red loss tail; white if shape
+is unavailable. Quote freshness remains in QUOTE; prior-close evidence stays in the domain.
+DTE runs from the final opening fill to expiration using New York calendar dates;
+remaining/original DTE is embedded on the right (37/45d); unknown duration is —.
+Verified profit target + GTD establishes an embedded M checkpoint, red when past due.
+Exact checkpoint/status evidence remains outside the compact scan. GTD expires an order,
 never executes a time-based exit. Co-cell age/M/expiration markers share a slot.
-EXIT PROFIT shows each verified broker objective and signed progress:
-(OPEN-NOW)/(OPEN-TARGET). Negative progress uses a left diamond;
-green and ~ mean an observed target while still held, never execution. T is a transition.
-P/L is gross dollars for the full held quantity and multiplier, before fees.
+EXIT PROGRESS is centered at opening economic breakeven (zero gross P/L).
+Negative stop dollars label the red left boundary; beyond it, the cyan diamond sits
+between that label and the boundary. Nonnegative stops use a proportional inline ↩︎ (ASCII r), without dollar labels.
+↩︎ stop-limit interpretation is provisional pending broker-behavior verification.
+Red left / white center / green right landmarks show reported adverse-threshold
+economics, entry and profit target. Cyan diamond is indicative current P/L.
+Negative stop dollars label the left boundary; profit dollars touch the right bar.
+Green means profit, red loss, white zero. Dollar labels round; exact values remain
+in domain/details/TSV. Recent movement arrows remain experimental.
+Maximum expiration profit remains detailed evidence, not the right endpoint.
+Threshold results never imply guaranteed execution or effective protection.
+Dotted open halves have no verified distance scale; the diamond there shows sign only.
+Adjacent green right / red left arrow compares dated option prior closes; r means
+retained completed-session change. Missing/incomparable/noisy evidence has no arrow.
+Profit overflow clamps; adverse overflow places the diamond outside the boundary.
+Neither implies execution; T is an order transition.
+--with-pnl retains gross dollars for the full quantity/multiplier before fees.
 A negative package midpoint uses complete valid broker marks when available;
 otherwise valuation and exit progress are unavailable. TSV NOTE identifies mark use.
 QUOTE is the oldest displayed option/spot age in s, m or h, with no coded suffixes.
@@ -98,10 +112,11 @@ export function parseCommand(argv) {
     if (argv.length === 2 && ["-h", "--help"].includes(argv[1])) return { kind: "help", text: help };
     if (argv.length === 1) return { kind };
     if (kind === "live") {
-      let account; let tsv = false; let width; let noColor = false; let ascii = false;
+      let account; let tsv = false; let width; let noColor = false; let ascii = false; let showPnl = false;
       for (let index = 1; index < argv.length; index++) {
         if (argv[index] === "--tsv" && !tsv) tsv = true;
         else if (argv[index] === "--no-color" && !noColor) noColor = true;
+        else if (argv[index] === "--with-pnl" && !showPnl) showPnl = true;
         else if (argv[index] === "--ascii" && !ascii) ascii = true;
         else if (argv[index] === "--width" && width === undefined && /^\d+$/.test(argv[index + 1] ?? "") &&
           Number(argv[index + 1]) >= 20 && Number(argv[index + 1]) <= 1000) width = Number(argv[++index]);
@@ -110,7 +125,7 @@ export function parseCommand(argv) {
         else throw new CliError(`Invalid live arguments.\n${LIVE_HELP}`, 2);
       }
       return { kind, ...(account ? { account } : {}), ...(tsv ? { tsv } : {}), ...(width ? { width } : {}),
-        ...(noColor ? { noColor } : {}), ...(ascii ? { ascii } : {}) };
+        ...(noColor ? { noColor } : {}), ...(ascii ? { ascii } : {}), ...(showPnl ? { showPnl } : {}) };
     }
     if (argv.length !== 3 || argv[1] !== "--account" || !/^[A-Za-z0-9]+$/.test(argv[2])) {
       throw new CliError(`Invalid ${kind} arguments.\n${help}`, 2);
@@ -424,7 +439,7 @@ export async function main(argv = process.argv.slice(2), { env = process.env, re
           const evidence = { account, holdings, orders: orders.items, complexOrders: complex.items,
             quotes: quotes?.data?.items, spotQuotes, instruments, now: now(), sessionCloseAt, session,
             columns: command.width ?? terminalColumns() ?? (/^\d+$/.test(env.COLUMNS ?? "") ? Number(env.COLUMNS) : 157),
-            ascii: command.ascii || env.TERM === "dumb",
+            ascii: command.ascii || env.TERM === "dumb", showPnl: command.showPnl,
             color: !command.tsv && !command.noColor && !env.NO_COLOR && env.TERM !== "dumb",
             format: command.tsv ? "tsv" : "table" };
           if (!command.tsv) {

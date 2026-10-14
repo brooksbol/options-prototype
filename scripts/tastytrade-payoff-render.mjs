@@ -1,4 +1,9 @@
 // Line-based terminal geometry only; domain supplies verified payoff semantics.
+function spotGlyph(char, ascii) {
+  if (char === '_') return ascii ? 'v' : '▼';
+  if (['╱','╲','/','\\'].includes(char)) return ascii ? '*' : '◆';
+  return ascii ? '^' : '▲';
+}
 export function silhouette(position, { width = 31, ascii = false, color = false } = {}) {
   const profile = position.payoff;
   const ink = (s,code) => color && code ? `\x1b[${code}m${s}\x1b[22;97m` : s;
@@ -30,15 +35,16 @@ export function silhouette(position, { width = 31, ascii = false, color = false 
     if (x<=d) return {char:i<callSlope?ascii?"-":"‾":"_",code:"93"};
     return {char:"_",code:profile.rightTail<0?"2;91":"97"};
   });
-  let markerIndex = null;
+  let markerIndex = null, spotRegionCode = null;
   if (Number.isFinite(position.spot.value)) {
     const value = position.spot.value;
     markerIndex = value<lo ? 0 : value>hi ? count-1 : index(value);
-    cells[markerIndex] = {char: value<lo ? ascii?"<":"←" : value>hi ? ascii?">":"→" : ascii?"v":"▼",code:"96"};
+    spotRegionCode = value<lo ? (profile.leftTail<0?"2;91":"97") : value>hi ? (profile.rightTail<0?"2;91":"97") : cells[markerIndex].code;
+    cells[markerIndex] = {char: value<lo ? ascii?"<":"←" : value>hi ? ascii?">":"→" : spotGlyph(cells[markerIndex].char,ascii),code:"96"};
   }
   const prefix = profile.unequal ? ascii ? "U" : "≠" : " ";
   return { text: ink(prefix,profile.unequal?"93":null)+cells.map(c=>ink(c.char,c.code)).join(""),
-    breaks, markerIndex, lo, hi };
+    breaks, markerIndex, spotRegionCode, lo, hi };
 }
 
 // Same linear strike axis and single transition cue as the condor graphic.
@@ -56,15 +62,16 @@ function vertical(position, { width, ascii, color }) {
     if(i===slope) return {char:bull ? ascii?"/":"╱" : ascii?"\\":"╲",code:"93"};
     return {char:high ? ascii?"-":"‾" : "_",code:x<a ? bull?"2;91":"92" : x>b ? bull?"92":"2;91" : "93"};
   });
-  let markerIndex = null;
+  let markerIndex = null, spotRegionCode = null;
   if(Number.isFinite(position.spot.value)) {
     const v=position.spot.value;
     markerIndex=v<lo ? 0 : v>hi ? count-1 : index(v);
-    cells[markerIndex]={char:v<lo ? ascii?"<":"←" : v>hi ? ascii?">":"→" : ascii?"v":"▼",code:"96"};
+    spotRegionCode = v<lo ? (bull?"2;91":"92") : v>hi ? (bull?"92":"2;91") : cells[markerIndex].code;
+    cells[markerIndex]={char:v<lo ? ascii?"<":"←" : v>hi ? ascii?">":"→" : spotGlyph(cells[markerIndex].char,ascii),code:"96"};
   }
   const prefix = viewport.referenceKind === "strike fallback" ? "?" : viewport.limited ? "~" : " ";
   return {text:(prefix === " " ? prefix : ink(prefix,"93"))+cells.map(c=>ink(c.char,c.code)).join(""),
-    breaks,markerIndex,lo,hi,viewport};
+    breaks,markerIndex,spotRegionCode,lo,hi,viewport};
 }
 
 // Presentation policy only. IC keeps its existing four-strike axis unchanged.

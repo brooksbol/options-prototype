@@ -235,7 +235,8 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 
 | Document | Subject |
 |----------|---------|
-| `cli/tt-live-panel.md` | Accepted standalone `tt live` operator scan and semantic display contract |
+| `cli/tt-live-panel.md` | Qualified Principal-accepted TT Live economic-state baseline; experimental movement/provisional stop semantics excluded |
+| `design/tt-live-economic-story/README.md` | Current economic-state visual contract, acceptance scope, evidence/unknowns, specimens, open investigations and WW reuse boundary |
 | `cli/ww-man.txt` | Current top-level `ww` command reference and terminal conventions |
 | `cli/ww-show-man.txt` | Current `ww show` command reference (quotes and Positions) |
 | `cli/ww-account-evidence.md` | Fidelity Account sync and Position evidence operator reference; later multi-broker acceptance is recorded separately |

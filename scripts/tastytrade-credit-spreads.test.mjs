@@ -184,7 +184,7 @@ test('contradictory complex group identity cannot establish management',()=>{
 });
 test('missing opening credit cannot manufacture P0 from an existing limit',()=>{
   const e=evidence();e.orders=e.orders.filter(o=>o.status!=='Filled');
-  assert.match(renderLive(e),/LIMIT/);assert.doesNotMatch(renderLive(e),/P0/);
+  assert.doesNotMatch(renderLive(e),/LIMIT|P0/);assert.match(renderLive(e),/financial evidence unavailable/);
 });
 
 test('unsupported equity without expiration stays explicit alongside recognized spreads',async()=>{

@@ -149,7 +149,7 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
       if (url.includes("/instruments/equity-options?")) return reply(200, { data: { items: [] } });
       throw Error("unexpected endpoint");
     };
-  const code = await main(["live"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
+  const code = await main(["live", "--with-pnl"], { env, out: (s) => output.push(s), now: () => liveEvidence.now,
     fetchImpl });
   assert.equal(code, 0);
   assert.deepEqual(calls.map(({ options }) => options.method), ["POST", ...Array(8).fill("GET")]);
@@ -158,17 +158,17 @@ test("live uses only allowlisted reads, one token, and sanitizes API errors", as
   assert.ok(calls.slice(1).every(({ options }) => options.headers.Authorization === "Bearer access-marker"));
   assert.doesNotMatch(output.join("\n"), /access-marker|secret-marker|refresh-marker/);
   assert.match(output[0], /EWZ.*\+\$9/);
-  assert.match(output[0], /EXIT PROFIT/);
+  assert.match(output[0], /EXIT PROGRESS/);
   assert.match(output[0], /\x1b\[92m\+\$9/);
   const ttyOutput = [];
-  assert.equal(await main(["live"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
+  assert.equal(await main(["live", "--with-pnl"], { env, out: (s) => ttyOutput.push(s), now: () => liveEvidence.now,
     fetchImpl }), 0);
   assert.match(ttyOutput[0], /^\n\x1b\[97m/);
   assert.match(ttyOutput[0], /\x1b\[92m\+\$9\x1b\[97m/);
   assert.match(ttyOutput[0], /\x1b\[91m−\$13\x1b\[97m/);
   assert.match(ttyOutput[0], /\x1b\[0m\n$/);
   const noColorOutput = [];
-  assert.equal(await main(["live"], { env: { ...env, NO_COLOR: "1" },
+  assert.equal(await main(["live", "--with-pnl"], { env: { ...env, NO_COLOR: "1" },
     out: (s) => noColorOutput.push(s), now: () => liveEvidence.now,
     fetchImpl }), 0);
   assert.doesNotMatch(noColorOutput[0], /\x1b\[/);

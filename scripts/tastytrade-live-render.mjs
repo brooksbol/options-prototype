@@ -7,7 +7,7 @@ export function cellWidth(text) {
     const visible = segment.replace(/[\p{Mark}\p{Cf}\p{Cc}]/gu, "");
     if (!visible) return n;
     const c = visible.codePointAt(0);
-    const wide = /\p{Extended_Pictographic}/u.test(visible) || c >= 0x1100 && (
+    const wide = (/\p{Extended_Pictographic}/u.test(visible) && !segment.includes("\uFE0E")) || c >= 0x1100 && (
       c <= 0x115f || c === 0x2329 || c === 0x232a || c >= 0x2e80 && c <= 0xa4cf ||
       c >= 0xac00 && c <= 0xd7a3 || c >= 0xf900 && c <= 0xfaff || c >= 0xfe10 && c <= 0xfe6f ||
       c >= 0xff01 && c <= 0xff60 || c >= 0xffe0 && c <= 0xffe6 || c >= 0x20000 && c <= 0x3fffd);
@@ -29,22 +29,60 @@ function wrap(text, width) {
   if (line) lines.push(line);
   return lines;
 }
-const progressPercent = (progress, ascii = false) =>
-  `${progress >= 0 ? "+" : ascii ? "-" : "−"}${Math.round(Math.abs(progress) * 100)}%${progress >= 1 - 1e-8 ? "~" : ""}`;
-// Rendering bounds only the marker; the signed economic percentage remains unbounded.
-export function exitTrack(progress, { width = 11, percentWidth = 6, ascii = false, color = false } = {}) {
-  if (!Number.isFinite(progress)) {
-    const missing = ascii ? "--" : "—";
-    return color ? `\x1b[37m${missing}\x1b[97m` : missing;
+// The track normalizes to verified management objectives. Dollar rounding is
+// presentation only; exact domain values still drive marker placement.
+const wholeDollars = value => `$${new Intl.NumberFormat('en-US', { maximumFractionDigits:0 }).format(Math.abs(value))}`;
+function economicSlot(value, objectives) {
+  if (Math.abs(value)<1e-8) return 4;
+  const denominator=value>0?objectives.targetGrossProfit:objectives.adverseExitLoss;
+  const fraction=Number.isFinite(denominator)&&denominator>0?Math.abs(value)/denominator:null;
+  const steps=fraction===null?1:fraction>=1-1e-8?4:Math.max(1,Math.min(3,Math.round(fraction*4)));
+  return 4+(value>0?steps:-steps);
+}
+export function exitTrack(position, { ascii = false, color = false, leftStopWidth } = {}) {
+  const { pnl, economicObjectives: objectives = {}, recentMovement: movement = {} } = position ?? {};
+  const profit=objectives.targetGrossProfit,loss=objectives.adverseExitLoss,stop=objectives.stopThreshold?.grossPnl;
+  const valid=n=>Number.isFinite(n)&&n>0;
+  const ink=(s,c)=>color?`\x1b[${c}m${s}\x1b[97m`:s;
+  const line=ascii?'-':'─',bar=ascii?'|':'│';
+  const at=Number.isFinite(pnl)?economicSlot(pnl,objectives):null;
+  const beyondStop=Number.isFinite(pnl)&&valid(loss)&&pnl < -loss-1e-8;
+  const drawAt=beyondStop?null:at;
+  const directionArrow=['improving','deteriorating'].includes(movement.direction)?
+    ink(movement.direction==='improving'?(ascii?'>':'→'):(ascii?'<':'←'),movement.direction==='improving'?'92':'91'):' ';
+  const overflow=beyondStop?ink(ascii?'*':'◆','96')+directionArrow:'  ';
+  const trackCells=Array.from({length:9},(_,i)=>{
+    const scaled=i<4?valid(loss):valid(profit),landmark=[0,4,8].includes(i);
+    const base=i===4?bar:landmark&&scaled?bar:scaled?line:'.';
+    const code=i===4?'97':i<4?'91':'92';
+    const filler=i===4?(valid(profit)?line:'.'):scaled?line:'.';
+    const fillerCode=i===4?'92':code;
+    const marker=drawAt===i?ink(ascii?'*':'◆','96'):ink(filler,fillerCode);
+    const arrow=drawAt===i&&['improving','deteriorating'].includes(movement.direction)?
+      ink(movement.direction==='improving'?(ascii?'>':'→'):(ascii?'<':'←'),movement.direction==='improving'?'92':'91'):ink(filler,fillerCode);
+    // Put the final boundary last so the dollar summary touches it even at target.
+    return i===8?[marker,arrow,ink(base,code)]:[ink(base,code),marker,arrow];
+  }).flat();
+  // A verified nonnegative stop belongs on the same economic axis as current P/L.
+  // Preserve references/current/movement when terminal quantization shares a cell.
+  if(Number.isFinite(stop)&&stop>=0&&valid(profit)&&stop<=profit){
+    const desired=Math.round(12+14*stop/profit);
+    const current=drawAt===null?null:drawAt===8?24:drawAt*3+1;
+    const occupied=new Set([0,12,26]);
+    if(current!==null){occupied.add(current);if(movement.direction)occupied.add(current+1);}
+    const candidates=Array.from({length:14},(_,i)=>13+i).filter(i=>!occupied.has(i));
+    const ordered=candidates.filter(i=>current===null||Math.abs(stop-pnl)<1e-8||(stop>pnl?i>current:i<current));
+    const available=ordered.length?ordered:candidates;
+    available.sort((a,b)=>Math.abs(a-desired)-Math.abs(b-desired)||a-b);
+    if(available.length)trackCells[available[0]]=ink(ascii?'r':'↩︎',stop>1e-8?'92':'97');
   }
-  const reached = progress >= 1 - 1e-8;
-  const track = Array(width).fill(ascii ? "-" : "─");
-  const index = Math.round(Math.max(0, Math.min(1, progress)) * (width - 1));
-  const marker = progress < 0 ? (ascii ? "*" : "◆") : progress > 1 + 1e-8 ? (ascii ? ">" : "→") : reached ? (ascii ? "*" : "◆") : (ascii ? "o" : "●");
-  const code = progress < 0 ? "91" : reached ? "92" : progress >= .9 ? "93" : "96";
-  track[index] = color ? `\x1b[${code}m${marker}\x1b[97m` : marker;
-  const percent = progressPercent(progress, ascii).padStart(percentWidth);
-  return `${track.join("")} ${color ? `\x1b[${code}m${percent}\x1b[97m` : percent}`;
+  const track=trackCells.join('');
+  const status=at===null?' ?':movement.direction&&movement.mode==='retained'?' r':'';
+  const targetLabel=valid(profit)?ink(wholeDollars(profit),'92'):ink(ascii?'--':'—','37');
+  const leftAmount=Number.isFinite(stop)&&stop < -1e-8 ? (ascii?'-':'−')+wholeDollars(stop):'';
+  const labelWidth=Math.max(leftStopWidth??0,cellWidth(leftAmount));
+  const leftLabel=labelWidth?pad(leftAmount?ink(leftAmount,'91'):'',labelWidth,true)+' ':'';
+  return `${leftLabel}${overflow}${track}${targetLabel}${status}`;
 }
 export function observationAge(evidence) {
   if (!Number.isFinite(evidence.ageMs)) return "—";
@@ -52,20 +90,18 @@ export function observationAge(evidence) {
   const age = seconds < 60 ? `${seconds}s` : seconds < 3600 ? `${Math.floor(seconds / 60)}m` : `${Math.floor(seconds / 3600)}h`;
   return age;
 }
-function profitObjective(p) {
-  if (!p.targetOrder || !Number.isFinite(p.target)) return "—";
-  // Only exact integer credit-capture objectives get Pxx labels; TARGET retains exact price evidence.
-  if (!Number.isFinite(p.profitCapture)) return "LIMIT";
-  const percent = p.profitCapture * 100;
-  const objective = Number.isFinite(percent) && Math.abs(percent - Math.round(percent)) < 1e-8 ?
-    `P${Math.round(percent)}` : "LIMIT";
-  return objective;
+// Both durations come from the existing verified calendar-day projection.
+function dteLabel(position, ascii) {
+  const missing=ascii?'--':'—';
+  const days=n=>Number.isInteger(n)&&n>=0?String(n):missing;
+  return `${days(position.dte)}/${days(position.lifespan?.openingDte)}`;
 }
 // The domain supplies calendar-day progress. This function only projects it.
-export function spanTrack(position, { width = 11, dteWidth = 3, ascii = false, color = false } = {}) {
-  const { lifespan, dte } = position;
+export function spanTrack(position, { width = 11, dteWidth = 5, ascii = false, color = false } = {}) {
+  const { lifespan } = position;
+  const duration=dteLabel(position,ascii);
+  dteWidth=Math.max(dteWidth,cellWidth(duration));
   if (position.manualExit && lifespan) return manualSpan(position, { width, dteWidth, ascii, color });
-  const remaining = Number.isInteger(dte) && dte >= 0 ? String(dte) : ascii ? "--" : "—";
   let track;
   if (!lifespan || !Number.isFinite(lifespan.progress)) {
     const missing = ascii ? "--" : "—";
@@ -77,13 +113,13 @@ export function spanTrack(position, { width = 11, dteWidth = 3, ascii = false, c
     cells[at] = progress <= 0 || progress >= 1 ? ascii ? "*" : "◆" : ascii ? "o" : "●";
     track = cells.join("");
   }
-  return `${track}${pad(remaining,dteWidth,true)}d`;
+  return `${track} ${pad(duration,dteWidth,true)}d`;
 }
 
 // Eleven logical time slots. Co-cell markers concatenate in current/M/expiration
 // order rather than moving a checkpoint or silently erasing it.
 function manualSpan(position, { width, dteWidth, ascii, color }) {
-  const { lifespan, manualExit: m, dte } = position;
+  const { lifespan, manualExit: m } = position;
   const index = p => Math.round(Math.max(0,Math.min(1,p))*(width-1));
   const slots = Array.from({length:width},()=>[]);
   const ink = (s,code) => color ? `\x1b[${code}m${s}\x1b[97m` : s;
@@ -92,40 +128,38 @@ function manualSpan(position, { width, dteWidth, ascii, color }) {
   slots[index(m.progress)].push(ink("M",code));
   slots[width-1].push(ascii ? "*" : "◆");
   const track = slots.map(s=>s.length?s.join(""):ascii?"-":"─").join("");
-  const flag = m.state === "DUE" ? "!" : m.state === "PAST DUE" ? ">" : "";
-  // xDTE stays exact despite terminal-cell quantization; e means the order expired,
-  // not that the manual action executed. Current target status is a separate field.
-  const label = `M${m.checkpointDte}${flag}${m.active ? "" : "e"}`;
-  return `${track}${pad(String(dte),dteWidth,true)}d ${ink(label,code)}`;
+  return `${track} ${pad(dteLabel(position,ascii),dteWidth,true)}d`;
 }
 
-export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false } = {}) {
+export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false, showPnl = false } = {}) {
   const limit = Number.isInteger(columns) && columns > 1 ? columns - 1 : 156;
   const mono = s => ascii ? s.replaceAll("—","--").replaceAll("−","-").replaceAll("–","-").replaceAll("≥",">=").replaceAll("≤","<=") : s;
   const ink = (s,code) => color && code ? `\x1b[${code}m${s}\x1b[97m` : s;
-  const exitOptions = { ascii, percentWidth: Math.max(6,...positions.filter(p=>Number.isFinite(p.progress)).map(p=>cellWidth(progressPercent(p.progress,ascii)))) };
-  const objectiveWidth = Math.max(3,...positions.map(p=>cellWidth(mono(profitObjective(p)))));
-  const dteWidth = Math.max(3,...positions.map(p=>cellWidth(String(p.dte))));
+  const leftStopWidth=Math.max(0,...positions.map(p=>{
+    const stop=p.economicObjectives?.stopThreshold?.grossPnl;
+    return Number.isFinite(stop)&&stop < -1e-8?cellWidth((ascii?'-':'−')+wholeDollars(stop)):0;
+  }));
+  const exitOptions = { ascii, leftStopWidth };
+  const dteWidth = Math.max(5,...positions.map(p=>cellWidth(dteLabel(p,ascii))));
   const rowAge = p => observationAge({ ageMs: Math.max(...[p.optionEvidence.ageMs,
     ...(p.spot.value === null ? [] : [p.spot.ageMs])].filter(Number.isFinite)) });
-  const profitCell = (p, colored = false) => `${pad(mono(profitObjective(p)),objectiveWidth)} ${
-    exitTrack(p.targetOrder ? p.progress : null,{...exitOptions,color:colored})}${
+  const profitCell = (p, colored = false) => `${exitTrack(p,{...exitOptions,color:colored})}${
     p.transition ? colored ? ink(" T","93") : " T" : ""}`;
   const displayedPnl = p => p.pnl === null ? null : Math.sign(p.pnl) * Math.round(Math.abs(p.pnl)*100)/100;
   const payoff = (p, colored = false) => Object.hasOwn(p, "payoffUnavailableLabel") && !p.payoff ?
     ink(mono(p.payoffUnavailableLabel), colored ? "37" : null) : silhouette(p,{ascii,color:colored}).text;
-  const rows = positions.map(p=>({ SYMBOL:p.symbol, PAYOFF:payoff(p),
+  const rows = positions.map(p=>({ SYMBOL:p.symbol, "TRADE SHAPE":payoff(p),
     RANGE:p.rangeLabel ?? (p.range ? `${p.range.lower}–${p.range.upper}` : "—"),
     SPOT:p.spot.value === null ? "—" : spotPrice(p.spot.value),
-    SPAN:spanTrack(p,{ascii,dteWidth}), "EXIT PROFIT":profitCell(p),
+    DTE:spanTrack(p,{ascii,dteWidth}), "EXIT PROGRESS":profitCell(p),
     "P/L":p.pnl === null ? "—" : dollars(displayedPnl(p)), QUOTE:rowAge(p), p }));
-  const specs = [["SYMBOL",6],["PAYOFF",31],["RANGE",11],["SPOT",9],["SPAN",11+dteWidth+1],
-    ["EXIT PROFIT",objectiveWidth+1+11+1+exitOptions.percentWidth],["P/L",9],["QUOTE",5]];
+  const specs = [["SYMBOL",6],["TRADE SHAPE",31],["RANGE",11],["SPOT",9],["DTE",11+dteWidth+2],
+    ["EXIT PROGRESS",29],["P/L",9],["QUOTE",5]];
   const widths = Object.fromEntries(specs.map(([k,w])=>[k,Math.max(w,...rows.map(r=>cellWidth(mono(r[k]))))]));
-  const gap = k => ["SPAN","EXIT PROFIT","P/L"].includes(k) ? "    " : k === "QUOTE" ? "   " : "  ";
+  const gap = k => k === "EXIT PROGRESS" ? "  " : ["DTE","P/L"].includes(k) ? "    " : k === "QUOTE" ? "   " : "  ";
   const size = keys => keys.reduce((n,k,i)=>n+widths[k]+(i ? gap(k).length : 0),0);
-  let keys = specs.map(([k])=>k), compact=false;
-  for(const k of ["PAYOFF","RANGE","SPOT"]) {
+  let keys = specs.map(([k])=>k).filter(k=>showPnl || k!=="P/L"), compact=false;
+  for(const k of ["TRADE SHAPE","RANGE","SPOT"]) {
     if(size(keys)<=limit)break;
     keys=keys.filter(key=>key!==k);compact=true;
   }
@@ -133,17 +167,17 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
   const numeric = new Set(["SPOT","P/L","QUOTE"]);
   const join = values => values.map((v,i)=>(i ? gap(keys[i]) : "")+v).join("").trimEnd();
   const heading = `Account ${accountLabel}${compact ? " | narrow view" : ""}`;
-  const header = join(keys.map(k=>k === "PAYOFF" ? pad(" ".repeat(Math.floor((widths[k]-6)/2))+k,widths[k]) : pad(k,widths[k],numeric.has(k))));
+  const header = join(keys.map(k=>["TRADE SHAPE","DTE","EXIT PROGRESS"].includes(k) ? pad(" ".repeat(Math.floor((widths[k]-k.length)/2))+k,widths[k]) : pad(k,widths[k],numeric.has(k))));
   const lines = [...wrap(heading,limit),header];
   for(const r of rows) {
     const p=r.p;
     lines.push(join(keys.map(k=>{
       const value=mono(r[k]);
       const code=k === "P/L" ? displayedPnl(p) === null || displayedPnl(p) === 0 ? null : displayedPnl(p)>0 ? "92" : "91" :
-        k === "SPOT" ? ({up:"92",down:"91",unchanged:"97",unknown:"93"}[p.spot.movement] ?? "93") :
+        k === "SPOT" ? silhouette(p,{ascii}).spotRegionCode?.replace("2;","") ?? (p.spot.value === null ? "37" : "97") :
         k === "QUOTE" ? p.market.closeDebit === null || p.market.valuationSource === "broker mark" || p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
         value === mono("—") ? "37" : null;
-      const decorated=k === "PAYOFF" ? payoff(p,color) : k === "EXIT PROFIT" ? profitCell(p,color) : k === "SPAN" ? spanTrack(p,{ascii,dteWidth,color}) : ink(value,code);
+      const decorated=k === "TRADE SHAPE" ? payoff(p,color) : k === "EXIT PROGRESS" ? profitCell(p,color) : k === "DTE" ? spanTrack(p,{ascii,dteWidth,color}) : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
     })));
   }

@@ -1,0 +1,22 @@
+Hypothetical presentation states; XLF $5 target / -$1 stop; gain-stop cases use UNG $3 stop / $7 target.
+STATE                   EXIT PROGRESS
+Opening breakeven       -$1   |-----------|*------------|$5
+Small loss              -$1   |---------*-|-------------|$5
+Small profit            -$1   |-----------|---*---------|$5
+Material adverse        -$1   |---*-------|-------------|$5
+Losing / improving      -$1   |---------*>|-------------|$5
+Losing / deteriorating  -$1   |---------*<|-------------|$5
+Profit / improving      -$1   |-----------|------*>-----|$5
+Profit / deteriorating  -$1   |-----------|------*<-----|$5
+Near profit target      -$1   |-----------|---------*>--|$5
+Profit target reached   -$1   |-----------|-----------*-|$5
+Beyond profit target    -$1   |-----------|-----------*-|$5
+Adverse reached         -$1   |*----------|-------------|$5
+Adverse exceeded        -$1 * |-----------|-------------|$5
+Retained improvement    -$1   |---------*>|-------------|$5 r
+No adverse objective      ..........*.|-------------|$5
+Gain stop / below         ............|---*-r-------|$7
+Gain stop / above         ............|-----r---*---|$7
+Gain stop / same slot     ............|-----r*------|$7
+No profit objective     -$1   |-----------|...*..........--
+No valuation            -$1   |-----------|-------------|$5 ?

@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { stripVTControlCharacters as strip } from 'node:util';
 import { projectLive, renderLive } from './tastytrade-live.mjs';
 import { renderPanel, exitTrack, observationAge, cellWidth } from './tastytrade-live-render.mjs';
-import { liveEvidence as evidence, ewz, sampleTrade } from './tastytrade-fixtures.mjs';
+import { liveEvidence, ewz, sampleTrade } from './tastytrade-fixtures.mjs';
+
+const evidence = { ...liveEvidence, showPnl:true };
 
 // BUG-040: observed UNG bid/ask/mid values, with synthetic account/opening/exit evidence.
 const ung = sampleTrade('UNG', '261127', [['P',8.5],['P',9],['C',13],['C',13.5]],
@@ -38,7 +40,7 @@ test('negative midpoint recovers whole-package broker mark P/L and exit progress
   for(const ascii of [false,true]) for(const color of [false,true]) {
     const out=renderLive({...brokerMarkedPackage,ascii,color});
     const row=strip(out).split('\n').find(l=>l.startsWith('UNG'));
-    assert.match(row,/LIMIT.*\+74%.*\+\$5\.19/);
+    assert.match(row,/\$7.*\+\$5\.19/);
     assert.doesNotMatch(row,/74%~|executed|filled|NaN|Infinity/);
   }
   const tsv=renderLive({...brokerMarkedPackage,format:'tsv'});
@@ -89,8 +91,8 @@ test('BUG-040: inconsistent package midpoint withholds dependent values without 
     const lines=strip(output).split('\n').filter(l=>/^(UNG|EWZ|XLE)\s/.test(l));
     assert.equal(lines.length,3);
     const unknown=ascii?'--':'—';
-    assert.ok(lines[0].includes(`P50 ${unknown}`));
-    assert.doesNotMatch(lines[0],/\$|%~|NaN|Infinity/);
+    assert.ok(lines[0].includes("$10")); assert.ok(lines[0].includes(" ?"));
+    assert.doesNotMatch(lines[0],/%~|NaN|Infinity/);
     if(color) assert.match(output.split('\n').find(l=>l.startsWith('UNG')),/\x1b\[93m/);
   }
   const tsv=renderLive({...inconsistentPackage,format:'tsv',color:true});
@@ -117,38 +119,20 @@ const valued = progress => ({ ...evidence, quotes: evidence.quotes.map(q => {
   return { ...q, mid: String(mid), bid: String(mid-.01), ask: String(mid+.01) };
 }) });
 
-test('profit track uses verified opening/target/leg-mid economics, not credit capture percentage', () => {
+test('signed progress remains exact in domain, human percentage removed', () => {
   for (const progress of [0,.4,.5,.9,1,-.5,1.001,1.2]) {
-    const p = projectLive(valued(progress)).positions[0];
-    assert.ok(Math.abs(p.progress-progress) < 1e-12);
-    const out = renderLive(valued(progress));
-    assert.ok(out.includes(`${progress < 0 ? '−' : '+'}${Math.round(Math.abs(progress)*100)}%${progress >= 1 ? '~' : ''}`));
-    const track = exitTrack(p.progress).split(' ')[0];
-    const marker = progress < 0 ? '◆' : progress > 1 ? '→' : progress >= 1 ? '◆' : '●';
-    assert.equal(track.indexOf(marker),Math.round(Math.max(0,Math.min(1,progress))*10));
-    assert.equal(cellWidth(track),11);
-    assert.doesNotMatch(out,/executed|completed|filled/i);
+    const p=projectLive(valued(progress)).positions[0];
+    assert.ok(Math.abs(p.progress-progress)<1e-12);
+    assert.doesNotMatch(renderLive(valued(progress)),/[+−]\d+%/);
+    assert.match(exitTrack(p),/◆/);
   }
-  // Capturing 25% of credit is halfway to a P50 exit.
   assert.equal(projectLive(valued(.5)).positions[0].market.closeDebit.toFixed(3),'0.315');
 });
 
-test('marker/percentage colors distinguish adverse, current, approaching and observed threshold', () => {
-  for (const [progress,code] of [[-.5,91],[0,96],[.4,96],[.9,93],[1,92],[1.2,92]]) {
-    const plain=exitTrack(progress), color=exitTrack(progress,{color:true});
-    assert.equal(strip(color),plain); assert.ok(color.includes(`\x1b[${code}m`));
-    const ascii=exitTrack(progress,{ascii:true,color:true}); assert.doesNotMatch(strip(ascii),/[^\x00-\x7f]/);
-  }
-  for(const ascii of [false,true]) {
-    const missing=exitTrack(null,{ascii,color:true});
-    assert.match(missing,/\x1b\[37m/); assert.equal(strip(missing),ascii?'--':'—');
-  }
-});
-
 test('missing profit evidence is unavailable; existing acquisition remains fail closed', () => {
-  const projection=projectLive(evidence); projection.positions[0].targetOrder=null;
+  const projection=projectLive(evidence); projection.positions[0].targetOrder=null; projection.positions[0].economicObjectives.targetGrossProfit=null;
   const row=renderPanel(projection).split('\n').find(l=>l.startsWith('EWZ'));
-  assert.match(row,/51d\s+—\s+—/); assert.doesNotMatch(row,/51d\s+[─●◆]/);
+  assert.match(row,/51d\s+\./); assert.doesNotMatch(row,/51d\s+[─●◆]/);
   assert.match(projectLive({...evidence,complexOrders:[]}).positions[0].issues.join(" "),/target\/stop order linkage/);
 });
 
@@ -156,7 +140,7 @@ test('stale options suppress the progress marker even if spot is valid', () => {
   const quotes=evidence.quotes.map(q=>({...q,'updated-at':'2026-09-30T12:00:00Z'}));
   const spotQuotes=[{symbol:'EWZ','instrument-type':'Equity',bid:'39.59',ask:'39.61',mid:'39.60','updated-at':'2026-10-01T01:59:50Z'}];
   const out=renderLive({...evidence,quotes,spotQuotes});
-  assert.match(out,/EWZ.*39.60.*P50\s+—\s+—\s+14h/);
+  assert.match(out,/EWZ.*39.60.*\$21.*\?.*—\s+14h/);
   assert.doesNotMatch(out,/P50\s+[─●◆]/);
 });
 
@@ -166,20 +150,20 @@ test('DTE exit is explicitly undeclared; verified opening DTE follows New York c
   assert.deepEqual(p.positions.map(p=>p.timeExit),[
     {objectiveDte:null,openingDte:51,progress:null}, {objectiveDte:null,openingDte:16,progress:null}]);
   const out=renderPanel(p,{color:true});
-  assert.match(out,/SPAN/); assert.doesNotMatch(out,/│|EXIT DTE/);
+  assert.match(out,/DTE/); assert.doesNotMatch(out,/EXIT DTE/);
   assert.doesNotMatch(out,/D21|D0|EXIT D51/);
   // Expiration and broker stop orders never supply a time-exit objective.
   assert.ok(p.positions.every(p=>p.stopOrder && p.expiry && p.timeExit.objectiveDte===null));
 });
 
-test('mixed broker targets use EXIT PROFIT with exact per-row objective labels', () => {
+test('mixed broker targets use EXIT PROGRESS with exact per-row objective labels', () => {
   const target={...ewz.closing.orders[0],price:'0.168'}; // 60% credit capture, not P50.
   const data={...evidence,orders:evidence.orders.map(o=>o.id===target.id?target:o),
     complexOrders:evidence.complexOrders.map(o=>o.id===ewz.closing.id?{...o,orders:[target,ewz.closing.orders[1]]}:o)};
   const out=renderLive(data);
-  assert.match(out,/EXIT PROFIT/); assert.match(out,/EWZ.*P60\s/); assert.match(out,/XLE.*P50\s/);
+  assert.match(out,/EXIT PROGRESS/); assert.match(out,/EWZ.*\$25/); assert.match(out,/XLE.*\$9/);
   const rows=out.split('\n').filter(l=>/^(EWZ|XLE)\s/.test(l));
-  assert.equal(rows[0].indexOf('P60')+4,rows[1].indexOf('P50')+4);
+  assert.equal(rows[0].indexOf('│'),rows[1].indexOf('│'));
 });
 
 test('QUOTE elapsed ages use plain seconds, minutes and hours', () => {
@@ -190,16 +174,16 @@ test('QUOTE elapsed ages use plain seconds, minutes and hours', () => {
   assert.equal(observationAge({}),'—');
 });
 
-test('twenty mixed progress rows keep track and numeric percentage alignment at 157/189 columns', () => {
+test('twenty mixed progress rows keep track alignment at 157/189 columns', () => {
   const p=projectLive(evidence), values=[0,.4,.5,.9,1,-.5,1.001,1.2];
-  p.positions=Array.from({length:20},(_,i)=>({...p.positions[0],symbol:`T${i}`,progress:values[i%values.length]}));
+  p.positions=Array.from({length:20},(_,i)=>({...p.positions[0],symbol:`T${i}`,pnl:values[i%values.length]*21,progress:values[i%values.length]}));
   for(const columns of [157,189]) for(const ascii of [false,true]) {
     const plain=renderPanel(p,{columns,ascii}), colored=renderPanel(p,{columns,ascii,color:true});
     assert.equal(strip(colored),plain); assert.doesNotMatch(plain,/[\u2580-\u259f]/);
     const rows=plain.trim().split('\n');
-    assert.equal(rows.length,22); assert.match(rows[1],/PAYOFF.*SPAN.*EXIT PROFIT/);
+    assert.equal(rows.length,22); assert.match(rows[1],/TRADE SHAPE.*DTE.*EXIT PROGRESS/);
     assert.ok(rows.every(l=>cellWidth(l)<columns));
-    const matches=rows.slice(2).map(l=>[...l.matchAll(/([─●◆←→o*<>\-]{11})\s+([+−\-]\d+%~?)/g)].at(-1));
+    const matches=rows.slice(2).map(l=>[...l.matchAll(/([.─│X?$\d◆←→|*<>\/ \-]+\$21[.─│X?$\d◆←→|*<>\/ \-]*)/g)].at(-1));
     assert.ok(matches.every(m=>m));
     assert.equal(new Set(matches.map(m=>m.index)).size,1);
     assert.equal(new Set(matches.map(m=>m.index+m[0].length)).size,1);
@@ -215,19 +199,15 @@ test('QUOTE alone shows conservative row age; no per-price age or flag clutter',
   for(const ascii of [false,true]) {
     const out=renderLive({...data,ascii});
     const rows=out.split('\n').filter(l=>/^(EWZ|XLE)\s/.test(l));
-    assert.match(out,/EXIT PROFIT/); assert.doesNotMatch(out,/P50:B|O:|S:/);
+    assert.match(out,/EXIT PROGRESS/); assert.doesNotMatch(out,/P50:B|O:|S:/);
     assert.ok(rows.every(l=>/^\d+[smh]$/.test(l.trim().split(/\s+/).at(-1))));
     assert.doesNotMatch(rows[0],/0.33r|42hr|!|O:|S:/); assert.match(rows[0],/39.60.*42h$/);
   }
-  for(const [progress,track] of [[0,'●──────────'],[.4,'────●──────'],[.5,'─────●─────'],[.9,'─────────●─'],[1,'──────────◆']])
-    assert.ok(exitTrack(progress).startsWith(track));
+
 });
 
-test('DTE exit column is eliminated and adverse progress keeps the requested left diamond',()=>{
+test('DTE exit column is eliminated; EXIT PROGRESS owns economic landmarks',()=>{
   const out=renderLive(evidence), lines=out.trim().split('\n');
   assert.doesNotMatch(lines[1],/EXIT DTE|EXIT P50/);
-  assert.doesNotMatch(out,/│/);
-  assert.ok(exitTrack(-.86).startsWith('◆──────────'));
-  assert.match(exitTrack(-.86),/−86%/);
-  assert.doesNotMatch(out,/no rule|←|O:|S:/);
+  assert.match(out,/│/); assert.doesNotMatch(out,/[+−]\d+%/);
 });

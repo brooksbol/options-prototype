@@ -1,0 +1,5 @@
+ACCOUNT	SYMBOL	STRUCTURE	DIRECTION	QTY	P/L DAY	TOTAL G/L	OPENED@	CURRENT	TARGET CLOSE@	PROGRESS	OPENED	DTE	QUOTE
+XXXX1234	XLF	Bull Put Credit Spread	NEUTRAL	1	−$2	−$2	0.09 CR	0.11	56% @ 0.04 or exp 11/27	0.07 above target	10/14 (0 days)	44	1m
+XXXX1234	UNG	Iron Condor	NEUTRAL	1	−$2	+$1	0.09 CR	0.08	78% @ 0.02 or exp 11/27	0.06 above target	10/13 (1 day)	44	1m
+XXXX1234	EWZ	Iron Condor	NEUTRAL	1	−$1	−$21	0.42 CR	0.63	50% @ 0.21 or exp 11/20	0.42 above target	09/30 (14 days)	37	1m
+XXXX1234	XLE	Iron Condor	NEUTRAL	1	−$2.50	−$30.50	0.18 CR	0.485	50% @ 0.09 or exp 10/16	0.395 above target	09/30 (14 days)	2	1m

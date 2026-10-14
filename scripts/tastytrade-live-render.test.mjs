@@ -2,20 +2,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { stripVTControlCharacters as strip } from "node:util";
 import { renderLive, projectLive } from "./tastytrade-live.mjs";
-import { cellWidth, renderPanel } from "./tastytrade-live-render.mjs";
-import { sampleTrade, ewz, xle, liveEvidence as evidence } from "./tastytrade-fixtures.mjs";
+import { cellWidth, renderPanel, spanTrack, exitTrack } from "./tastytrade-live-render.mjs";
+import { sampleTrade, ewz, xle, liveEvidence } from "./tastytrade-fixtures.mjs";
 import { main, parseCommand } from "./tastytrade.mjs";
+const evidence = {...liveEvidence,showPnl:true};
 const spot = (symbol="EWZ",at="2026-10-01T01:59:00Z") => ({symbol,"instrument-type":"Equity",bid:"39.59",ask:"39.61",mid:"39.60","updated-at":at});
 const output = (extra={}) => renderLive({...evidence,spotQuotes:[spot()],...extra});
 const lines = s => strip(s).trim().split("\n");
 
 test("approved columns align, financial values right-align, static references stay neutral",()=>{
   const plain=output(), colored=output({color:true});
-  assert.deepEqual(lines(plain)[1].trim().split(/\s+/),["SYMBOL","PAYOFF","RANGE","SPOT","SPAN","EXIT","PROFIT","P/L","QUOTE"]);
+  assert.deepEqual(lines(plain)[1].trim().split(/\s+/),["SYMBOL","TRADE","SHAPE","RANGE","SPOT","DTE","EXIT","PROGRESS","P/L","QUOTE"]);
   const [_,header,row] = lines(plain);
   assert.equal(row.indexOf("+$9")+3,header.indexOf("P/L")+3);
-  assert.doesNotMatch(header,/OPEN|NOW|TARGET|DTE|QTY|EXP/);
-  assert.match(row,/39.60\s+◆──────────\s+51d\s+P50 ────●──────\s+\+43%\s+\+\$9\s+2h/);
+  assert.doesNotMatch(header,/OPEN|NOW|TARGET|QTY|EXP/);
+  assert.match(row,/39.60\s+◆──────────\s+51\/51d\s+.*\$21.*\+\$9\s+2h/);
   assert.equal(strip(colored),plain); assert.match(colored,/\x1b\[92m\+\$9\x1b\[97m/);
   assert.doesNotMatch(colored,/\x1b\[92m0\.21/);
   assert.equal(lines(plain).length,4); // Account, headings, two positions; no bottom legend.
@@ -39,7 +40,7 @@ test("narrow layouts are deliberate; extreme values are never truncated",()=>{
     assert.match(out,columns===20?/positions.*not|not.*displayed/s:/narrow view|not displayed/);
   }
   const p=projectLive(evidence); p.positions[0].pnl=123456789012345;
-  const out=renderPanel(p,{columns:157});
+  const out=renderPanel(p,{columns:157,showPnl:true});
   assert.match(out,/123,456,789,012,345|not displayed/);
 });
 
@@ -62,7 +63,7 @@ test("stale spot does not hide option economics; stale options do not hide spot"
   let out=output({spotQuotes:[spot("EWZ","2026-09-30T12:00:00Z")]});
   assert.match(out,/EWZ.*39.60.*\+\$9\s+14h/);
   const quotes=evidence.quotes.map(q=>({...q,"updated-at":"2026-09-30T12:00:00Z"}));
-  out=output({quotes}); assert.match(out,/EWZ.*39.60.*P50\s+—\s+—\s+14h/);
+  out=output({quotes}); assert.match(out,/EWZ.*39.60.*\$21.*\?.*—\s+14h/);
 });
 
 test("retained options and spot carry independent ages, including immediately after close",()=>{
@@ -77,10 +78,11 @@ test("retained options and spot carry independent ages, including immediately af
 test("arbitrary targets are LIMIT, transitions T, midpoint crossing marked still held",()=>{
   const target={...ewz.closing.orders[0],price:"0.20",status:"Contingent"};
   const data={...evidence,orders:evidence.orders.map(o=>o.id===target.id?target:o),complexOrders:[{...ewz.closing,orders:[target,ewz.closing.orders[1]]},xle.closing]};
-  assert.match(renderLive(data),/EWZ.*LIMIT.* T/);
+  assert.match(renderLive(data),/EWZ.*\$22.* T/);
   assert.match(renderLive({...data,format:"tsv"}),/exit transition: target Contingent, stop Received/);
   const quotes=evidence.quotes.map(q=>q.symbol===xle.holdings[2].symbol?{...q,bid:"0.28",ask:"0.30",mid:"0.29"}:q);
-  assert.match(output({quotes}),/XLE.*\+111%~/); assert.match(output(),/XLE.*−144%/);
+  assert.match(output({quotes}),/XLE.*◆/); assert.match(output(),/XLE.*◆/);
+  assert.ok(projectLive({...evidence,quotes}).positions[1].progress>1); assert.ok(projectLive(evidence).positions[1].progress<0);
   assert.doesNotMatch(output(),/D21/);
 });
 
@@ -115,6 +117,16 @@ test("acquisition requests broker equity mid separately; TSV makes no new reads;
     });
     assert.equal(code,0,errors.join()); assert.equal(calls.some(u=>u.includes("equity[]=")),!tsv);
     assert.doesNotMatch(out[0],/\x1b\[/);
-    if(!tsv)assert.match(out[0],fail?/EWZ.*—.*P50/:/39.60/);
+    if(!tsv)assert.match(out[0],fail?/EWZ.*—.*\$21/:/39.60/);
   }
+});
+
+test('DTE and EXIT PROGRESS headers center over their full displayed columns',()=>{
+ const projected=projectLive({...evidence,spotQuotes:[spot()]}),p=projected.positions[0];
+ for(const ascii of [false,true])for(const color of [false,true])for(const showPnl of [false,true]){
+  const [_,header,row]=lines(renderPanel({...projected,positions:[p]},{columns:189,ascii,color,showPnl}));
+  const span=spanTrack(p,{ascii,dteWidth:3}),exit=exitTrack(p,{ascii});
+  assert.equal(header.indexOf('DTE'),row.indexOf(span)+Math.floor((Math.max(15,cellWidth(span))-3)/2));
+  assert.equal(header.indexOf('EXIT PROGRESS'),row.indexOf(exit)+Math.floor((Math.max(29,cellWidth(exit))-13)/2));
+ }
 });

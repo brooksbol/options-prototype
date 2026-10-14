@@ -1,5 +1,5 @@
 {
-  "status": "Engineering visual regression specimens; installed XLF rendering Principal-accepted 2026-10-14; hypothetical progression cases remain test specimens",
+  "status": "Engineering visual regression specimens; installed XLF rendering Principal-accepted 2026-10-14; hypothetical progression cases remain test specimens; local-rail marker revision is part of the qualified Principal-accepted October 14 prototype baseline",
   "entryReference": 54.215,
   "strikes": [
     52,
@@ -8,28 +8,28 @@
   "progression": [
     {
       "spot": 54.215,
-      "unicode": " ___╱‾‾‾‾‾‾‾‾‾‾‾▼‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
-      "ascii": " ___/-----------v--------------"
+      "unicode": " ___╱‾‾‾‾‾‾‾‾‾‾‾▲‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
+      "ascii": " ___/-----------^--------------"
     },
     {
       "spot": 55,
-      "unicode": " ___╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾▼‾‾‾‾‾‾‾‾‾‾",
-      "ascii": " ___/---------------v----------"
+      "unicode": " ___╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾▲‾‾‾‾‾‾‾‾‾‾",
+      "ascii": " ___/---------------^----------"
     },
     {
       "spot": 53.5,
-      "unicode": " ___╱‾‾‾‾‾‾▼‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
-      "ascii": " ___/------v-------------------"
+      "unicode": " ___╱‾‾‾‾‾‾▲‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
+      "ascii": " ___/------^-------------------"
     },
     {
       "spot": 52.6,
-      "unicode": " ___╱‾▼‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
-      "ascii": " ___/-v------------------------"
+      "unicode": " ___╱‾▲‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
+      "ascii": " ___/-^------------------------"
     },
     {
       "spot": 52.25,
-      "unicode": " ___▼‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
-      "ascii": " ___v--------------------------"
+      "unicode": " ___◆‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
+      "ascii": " ___*--------------------------"
     },
     {
       "spot": 51.8,

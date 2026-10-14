@@ -29,18 +29,18 @@ for(const [name,c,l,g,dte,label] of [
   ['P50',.8,.4,'2026-11-06',21,'P50'],
   ['P75',.8,.2,'2026-11-13',14,'P75'],
   ['P37',1,.63,'2026-11-10',17,'P37'],
-  ['noninteger LIMIT',.8,.33,'2026-11-04',23,'LIMIT'],
+  ['noninteger LIMIT',.8,.33,'2026-11-04',23,'P59'],
   ['P100',.8,0,'2026-11-06',21,'P100'],
 ])test(name+' + GTD derives exact profit capture and manual xDTE for any verified target',()=>{
   const e=objective(c,l,g),p=pos(e);near(p.credit,c);near(p.profitCapture,(c-l)/c);
   assert.equal(p.manualExit.checkpointDate,g);assert.equal(p.manualExit.checkpointDte,dte);
   assert.equal(p.manualExit.state,'UPCOMING');assert.equal(p.manualExit.active,true);assert.equal(p.timeExit.objectiveDte,dte);
-  assert.match(renderLive(e),new RegExp(`\\b${label}\\b`));assert.match(spanTrack(p),new RegExp(`M${dte}$`));
+  assert.ok(renderLive(e).includes(`$${Math.round((c-l)*100)}`));assert.match(spanTrack(p),/M/);assert.doesNotMatch(spanTrack(p),/M\d/);
 });
 test('observed XLF actual $0.09 fills and $0.04 GTD limit imply LIMIT and M21',()=>{
   const p=pos(base());near(p.credit,.09);near(p.profitCapture,5/9);assert.equal(p.manualExit.checkpointDte,21);
   assert.equal(p.manualExit.checkpointDate,'2026-11-06');assert.equal(p.manualExit.orderStatus,'Live');
-  assert.match(renderLive(base()),/M21\s+LIMIT/);
+  assert.match(renderLive(base()),/M.*\$5/);
 });
 test('standalone GTD target needs no stop/OCO; its exact legs and quantity still must match',()=>{
   const e=standalone(objective()),p=pos(e);assert.equal(p.stopOrder,null);assert.equal(p.manualExit.checkpointDte,21);
@@ -49,8 +49,8 @@ test('standalone GTD target needs no stop/OCO; its exact legs and quantity still
 test('profit target without GTD preserves the established SPAN exactly',()=>{
   const e=objective();targets(e).forEach(t=>{t['time-in-force']='GTC';delete t['gtc-date'];});
   const p=pos(e);assert.equal(p.manualExit,null);assert.equal(p.timeExit.objectiveDte,null);
-  assert.equal(spanTrack(p),'◆────────── 44d');
-  assert.match(renderLive(e),/P50/);
+  assert.equal(spanTrack(p),'◆────────── 44/44d');
+  assert.match(renderLive(e),/\$40/);
 });
 for(const [name,mutate] of [
   ['credit-effect GTD limit',e=>targets(e).forEach(t=>t['price-effect']='Credit')],
@@ -66,7 +66,7 @@ test('New York date-only GTD arithmetic survives DST and near-midnight observati
 for(const [state,at,flag] of [['UPCOMING','2026-11-05T17:00:00Z',''],['DUE','2026-11-06T17:00:00Z','!'],['PAST DUE','2026-11-07T17:00:00Z','>']]) {
   test(state+' manual checkpoint is proportional, exact and readable without color',()=>{
     const e=observe(objective(),at),p=pos(e);assert.equal(p.manualExit.state,state);
-    const s=spanTrack(p);assert.ok(s.includes(`M21${flag}`));assert.ok(s.includes('◆'));
+    const s=spanTrack(p);assert.ok(s.includes("M"));assert.doesNotMatch(s,/M\d/);assert.ok(s.includes('◆'));
     const slots=s.split(' ')[0];assert.equal(slots.indexOf('M'),Math.round(p.manualExit.progress*10)+(slots.indexOf('●')<=5?1:0));
     assert.equal(strip(spanTrack(p,{color:true})),s);
     assert.ok(spanTrack(p,{color:true}).includes(`\x1b[${state==='PAST DUE'?'91':'92'}mM`));
@@ -75,9 +75,9 @@ for(const [state,at,flag] of [['UPCOMING','2026-11-05T17:00:00Z',''],['DUE','202
 test('expired GTD target retains linked historical manual intent without an active target/profit progress',()=>{
   const e=expire(objective()),p=pos(e);assert.equal(p.targetOrder,null);assert.equal(p.target,null);assert.equal(p.progress,null);
   assert.equal(p.manualExit.orderStatus,'Expired');assert.equal(p.manualExit.active,false);assert.equal(p.manualExit.state,'PAST DUE');
-  assert.match(spanTrack(p),/M21>e$/);assert.equal(p.credit,.8);assert.ok(Number.isFinite(p.pnl));
+  assert.match(spanTrack(p),/M/);assert.equal(p.credit,.8);assert.ok(Number.isFinite(p.pnl));
   const row=projectLive(e).rows[0];assert.equal(row[9],'—');assert.match(row[14],/Expired \(inactive\)/);
-  assert.match(renderLive(e),/M21>e\s+—\s+—/);assert.doesNotMatch(renderLive(e),/P50/);
+  assert.match(renderLive(e),/M.*\./);assert.doesNotMatch(renderLive(e),/P50/);
 });
 test('expired target can retain manual checkpoint alongside its surviving verified stop',()=>{
   const p=pos(expire(objective(),true));assert.ok(p.stopOrder);assert.equal(p.targetOrder,null);assert.equal(p.manualExit.active,false);
@@ -98,7 +98,7 @@ test('replacement target supersedes cancelled original and supplies its own xDTE
   const e=standalone(objective());const old=e.orders[0];old.status='Cancelled';
   e.orders.push({...structuredClone(old),id:'replacement',status:'Live',price:'0.2','gtc-date':'2026-11-13','received-at':'2026-10-15T18:00:00Z'});
   observe(e,'2026-10-16T18:00:00Z');const p=pos(e);assert.equal(p.targetOrder.id,'replacement');assert.equal(p.manualExit.checkpointDte,14);
-  assert.match(renderLive(e),/M14\s+P75/);
+  assert.match(renderLive(e),/M.*\$60/);
 });
 test('active non-GTD replacement supersedes old expired checkpoint rather than resurrecting it',()=>{
   const e=expire(objective());e.orders.push({...structuredClone(e.orders[0]),id:'new','complex-order-id':undefined,status:'Live','time-in-force':'GTC','received-at':'2026-11-07T16:00:00Z'});
@@ -132,10 +132,10 @@ test('co-cell current/M/expiration markers are deterministic, compact and never 
   const e=objective();observe(e,'2026-11-06T17:00:00Z');let p=pos(e);
   assert.match(spanTrack(p),/●M/);assert.match(spanTrack(p,{ascii:true}),/oM/);
   targets(e).forEach(t=>t['gtc-date']='2026-11-27');observe(e,'2026-11-27T17:00:00Z');p=pos(e);
-  assert.match(spanTrack(p),/●M◆\s+0d M0!/);assert.match(spanTrack(p,{ascii:true}),/oM\*\s+0d M0!/);
+  assert.match(spanTrack(p),/●M◆\s+0\/44d$/);assert.match(spanTrack(p,{ascii:true}),/oM\*\s+0\/44d$/);
 });
 test('all supported constructions share the GTD convention; non-GTD IC SPAN unchanged',()=>{
-  const ic=structuredClone(liveEvidence);const old=projectLive(ic).positions[0];assert.equal(old.manualExit,null);assert.equal(spanTrack(old),'◆────────── 51d');
+  const ic=structuredClone(liveEvidence);const old=projectLive(ic).positions[0];assert.equal(old.manualExit,null);assert.equal(spanTrack(old),'◆────────── 51/51d');
   const changes=o=>{if(o['order-type']==='Limit'){o['time-in-force']='GTD';o['gtc-date']='2026-10-30';}return o;};
   ic.orders.forEach(changes);ic.complexOrders.forEach(g=>g.orders.forEach(changes));
   const p=projectLive(ic).positions[0];assert.equal(p.strategy,'Iron Condor');assert.equal(p.manualExit.checkpointDte,21);assert.ok(p.stopOrder);
@@ -151,7 +151,7 @@ test('Unicode/ASCII/color/narrow/width behavior remains aligned and TSV keeps or
   for(const now of ['2026-10-14T18:17:00Z','2026-11-06T17:00:00Z','2026-11-07T17:00:00Z'])for(const columns of [20,80,100,157,189])for(const ascii of [false,true])for(const color of [false,true]) {
     observe(e,now);const out=renderLive({...e,columns,ascii,color});assert.ok(out.split('\n').every(l=>cellWidth(l)<columns));
     if(ascii)assert.doesNotMatch(strip(out),/[^\x00-\x7f]/);
-    if(columns>=100)assert.match(out,/M21/);
+    if(columns>=100)assert.match(out,/M/);assert.doesNotMatch(out,/M21/);
   }
   const rows=renderLive({...e,format:'tsv'}).split('\n').map(l=>l.split('\t'));assert.equal(rows[0].length,14);assert.equal(rows[1][9],'50% @ 0.40 or exp 11/27');
   assert.doesNotMatch(renderLive(e),/automatic|executed|closed at|will close/i);
