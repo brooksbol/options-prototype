@@ -116,10 +116,12 @@ SPAN retains eleven logical time slots. M is placed at `(GTD date − opening-fi
 
 | State | Display | Meaning |
 |---|---|---|
-| Upcoming | `M21` | Manual checkpoint is at 21 DTE, not yet due |
-| Due | amber `M21!` | Observation New York date equals GTD date |
+| Upcoming | green `M21` | Manual checkpoint is at 21 DTE, not yet due |
+| Due | green `M21!` | Observation New York date equals GTD date |
 | Past due | red `M21>` | Still held after the checkpoint |
 | Expired target | `M21>e` (or due `M21!e`) | Reliably linked GTD target is expired/inactive; manual checkpoint remains relevant |
+
+Principal color clarification, October 14: both M and its MxDTE label are green through the GTD checkpoint date, including when due, and red after it while still held. Due/past/expired suffixes remain independently readable without color.
 
 Within a quantized timeline slot, collisions concatenate in current/M/expiration order: `●M`, `M◆` or `●M◆`; ASCII `oM`, `M*`, `oM*`. These are **co-cell** markers, not relocated dates. Only colliding slots grow by one/two characters; existing dynamic column padding keeps rows aligned. Non-GTD IC SPAN remains byte-identical. No separate column/timeline is added; exact MxDTE compensates for finite terminal resolution. Monochrome/ASCII preserve due/past/expired state suffixes.
 

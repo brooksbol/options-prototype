@@ -69,7 +69,7 @@ for(const [state,at,flag] of [['UPCOMING','2026-11-05T17:00:00Z',''],['DUE','202
     const s=spanTrack(p);assert.ok(s.includes(`M21${flag}`));assert.ok(s.includes('◆'));
     const slots=s.split(' ')[0];assert.equal(slots.indexOf('M'),Math.round(p.manualExit.progress*10)+(slots.indexOf('●')<=5?1:0));
     assert.equal(strip(spanTrack(p,{color:true})),s);
-    assert.ok(spanTrack(p,{color:true}).includes(`\x1b[${state==='DUE'?'93':state==='PAST DUE'?'91':'97'}mM`));
+    assert.ok(spanTrack(p,{color:true}).includes(`\x1b[${state==='PAST DUE'?'91':'92'}mM`));
   });
 }
 test('expired GTD target retains linked historical manual intent without an active target/profit progress',()=>{

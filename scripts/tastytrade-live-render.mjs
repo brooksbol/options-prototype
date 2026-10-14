@@ -87,7 +87,7 @@ function manualSpan(position, { width, dteWidth, ascii, color }) {
   const index = p => Math.round(Math.max(0,Math.min(1,p))*(width-1));
   const slots = Array.from({length:width},()=>[]);
   const ink = (s,code) => color ? `\x1b[${code}m${s}\x1b[97m` : s;
-  const code = m.state === "DUE" ? "93" : m.state === "PAST DUE" ? "91" : "97";
+  const code = m.state === "PAST DUE" ? "91" : "92";
   slots[index(lifespan.progress)].push(ascii ? "o" : "●");
   slots[index(m.progress)].push(ink("M",code));
   slots[width-1].push(ascii ? "*" : "◆");
