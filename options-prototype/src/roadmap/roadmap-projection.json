@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-14T18:51:55.238Z",
+    "generatedAt": "2026-10-14T18:59:59.931Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "principleTotal": 10,
       "domainEntryTotal": 36,
       "bugTotal": 41,
-      "logTotal": 115,
+      "logTotal": 116,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 61
@@ -10210,6 +10210,13 @@
           "content": "Exact scoped candidate: **303/303 scripts tests passed**, including195/195 tastytrade tests. Existing sanitized generated Java specimens were supplied to the isolated candidate's tests; no Java/backend changes were needed.24 baseline/current IC output comparisons were byte-identical across terminal/TSV, Unicode/ASCII, color/no-color, ordinary/stale/empty scenarios. Existing non-GTD IC scale and SPAN remained unchanged.",
           "truncated": true,
           "tables": []
+        },
+        {
+          "heading": "Principal acceptance / closure — October 14, 2026",
+          "level": 2,
+          "content": "The Principal explicitly stated **“perfect. acceptance passed. execute end of session protocol”** after the requested M color adjustment. This establishes Product acceptance of the completed standalone TT Live credit-spread workstream, including the scaled vertical viewport, manual GTD checkpoint and green-through-GTD/red-after marker behavior. Accepted implementation: `11112e03a29fa2cf306b6aaf74d51e6e6cf4a8fb`, with accepted color refinement `4088d03b81a227dcfb737c9da49d4f9608f452cc`, both pushed to main. This supersedes earlier acceptance-pending statements as current state while preserving their historical provenance. Independent reviewer disposition is not inferred.",
+          "truncated": true,
+          "tables": []
         }
       ]
     }
@@ -10421,7 +10428,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 639
+      "sourceOrder": 640
     },
     {
       "plId": null,
@@ -11045,7 +11052,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 638
+      "sourceOrder": 639
     },
     {
       "plId": "PL-SEM-01",
@@ -11709,6 +11716,19 @@
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
       "sourceOrder": 637
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-041",
+      "title": "Principal acceptance / closure — October 14, 2026",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "October 14, 2026",
+      "eventDateIso": "2026-10-14",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
+      "sourceOrder": 638
     }
   ],
   "intakeDateUnknown": [
