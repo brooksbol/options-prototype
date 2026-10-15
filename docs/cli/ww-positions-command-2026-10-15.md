@@ -95,3 +95,33 @@ composition defect (blank separators/prose on empty collections). The corrected
 candidate excludes explicit JSONL from human collection framing; regression
 specimens cover multi-Account and empty terminal JSONL. The rejected candidate
 was not installed. This preserves the output-selection contract across scopes.
+
+## Installed command verification — October 15, 2026
+
+Corrected source `98432965202a20b4981273af8d57269985f39205` independently
+ACCEPTED for engineering conformance, then installed using the established
+source-verified client release and atomic normal ww symlink replacement.
+Release: `~/.local/share/wheelwright/pl-cli-01-positions/operational-20261015-9843296/`.
+The release private manifest preserves previous target, hashes and recovery
+check; the previous executable and its saved configuration remain intact. The
+new private .ww.env is byte-identical with mode 0600. No backend process, database,
+grant, brokerage acquisition or history/update source changed.
+
+Exact PATH-resolved `ww positions` with terminal stdout exited 0 from `/tmp` and
+User home, using `~/.local/bin/ww`, with no flags, setup or repository-relative
+path. It displayed pts (31), sawdust (7) and tt1 (10) retained Positions. The exact
+installed compatibility command also exited 0. Recorded terminal comparisons
+are byte-identical between spellings and match the previous installed explicit
+Account tables, with blank lines between Accounts. Redirected runs emit three
+snapshot JSONL records; their evidence is equivalent between directories and
+spellings apart from per-request correlation/evaluation clocks. Unknown financial
+values remain unknown. All request paths are existing Wheelwright v2 GETs;
+no provider or acquisition operation is involved.
+
+Verification: 44 focused shared/alias/history/update tests plus six existing
+Position parser/render/transport tests pass. Independent review of corrected
+source accepts conformance; generated manual check passes. Private operational
+output and verification JSON stay in the release's private directory outside
+Git. Installed history/pull help is functional and their source/manuals are
+byte-identical to the prior accepted installed release. No Principal Product
+acceptance, new financial capability or managed-Position monitoring is claimed.
