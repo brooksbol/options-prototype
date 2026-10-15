@@ -42,6 +42,21 @@
 
 **Step 5 — Closeout integration.** Amend end-of-session protocol with documentation freshness/publication check; failures are reported but nonblocking for session closeout. Reconcile issue #39 and report final SYNC and published status.
 
+
+## COTS-first acceptance checks
+
+Apply the existing RECOVER → REUSE → COMPOSE → EXTEND → INVENT mandate (`docs/mandates/product-first-continuous-engineering-2026-10-13.md`).
+
+1. Reuse existing OpenAPI contracts, Redocly rendering, GitHub Pages/Actions and applicable validators. Document the specific capability gap before proposing any new abstraction.
+2. Do not create a custom documentation app, server, API explorer, search engine, database or CI framework. No documentation runtime in the Java backend.
+3. Use native Redocly navigation and responsive layout. Search and dark mode are conditional on native support; report gaps instead of writing substitutes.
+4. Keep project-specific code limited to focused OAS fidelity, synthetic examples, route coverage, conformance, publication security and small build/deployment integration. Prefer existing test mechanisms.
+5. Pin and lock tested dependencies. Check reproducibility, generated assets, external network behavior, licenses and dependency security.
+6. Independent Codex review must falsify claims of reuse and challenge unnecessary custom infrastructure; implementation self-attestation is insufficient.
+7. Retain the approved OpenAPI → Redocly → GitHub Pages stack unless a demonstrated material blocker warrants Principal escalation.
+
+**Acceptance:** Predominantly standards, configuration, reused tools and documentation content, with only justified Wheelwright-specific integration. See also `docs/principles.md`, `docs/foundations/technology-quality-constitution-v1.md`, and `docs/technology-quality-fitness-controls-v1.md`.
+
 ## Completion criteria
 
 A reader can browse all accepted v2 REST methods and truthful schemas/errors/examples without Wheelwright running, without credentials, and without the documentation sending API requests. Source and publication are reproducible and traceable internally. First publication is independently approved by Codex and passes release gates. Legacy v1 remains out of scope. No unrelated work is modified.
