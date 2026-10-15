@@ -182,3 +182,17 @@ single-contract labels. This is a bounded human formatter, not reuse of the
 standalone tt broker client or introduction of client domain authority. Regression
 covers both encodings, fractional precision, adjusted roots, malformed/fallback
 inputs, labels and byte-identical unmutated JSONL, plus holdings-only compact output.
+
+Installed typography runtime `3de8dce` independently ACCEPTED, with test-only
+follow-up `0ac98f6` also checked (runtime unchanged). All55 shared/Position tests
+pass, including eight generated-Java specimen checks. Previous generated-fixture
+presentation expectations were updated to the current table/contract grammar.
+Normal installed source-verified release:
+`~/.local/share/wheelwright/pl-cli-01-positions/operational-20261015-3de8dce/`.
+Exact `ww positions` exits0 from `/tmp` and home: one header/48 rows, normalized
+Fidelity/tastytrade contract display, adjusted ETHA1 preserved and no close-order
+section. Alias human bytes match. Compared to prior installed release, all raw
+JSONL snapshot evidence is unchanged except request/evaluation clocks. Previous
+client/configuration remains available; no backend/history/pull/acquisition change.
+Private terminal/verification evidence stays outside Git. No Principal acceptance
+is claimed by these engineering checks.
