@@ -74,7 +74,7 @@ test('actual tastytrade Java projection exposes independent contracts with quant
   const data=parseShowJson(await readFile(new URL('../evidence-service-java/build/tastytrade-position-read-specimen.json',import.meta.url),'utf8'));
   validatePositions(data,data.accountId,data.requestId);
   const output=renderPositions(data,{format:'table',accountLabel:'tt1',noColor:true});
-  assert.equal(data.positions.length,4);assert.match(output,/tastytrade inventory/);assert.match(output,/XLE\s+261016P00059000\s+1/);assert.match(output,/XLE\s+261016P00059500\s+-1/);
+  assert.equal(data.positions.length,4);assert.match(output,/tastytrade\s+tt1/);assert.match(output,/XLE 261016P59\s+1/);assert.match(output,/XLE 261016P59\.5\s+-1/);
   for(const p of data.positions){assert.equal(p.openPl,null);assert.equal(p.program,null);assert.equal(p.constituents.length,1);}
   assert.ok(!output.includes('opening attribution unresolved'));assert.match(renderPositions(data,{verbose:true,noColor:true}),/opening attribution unresolved/);assert.ok(!output.includes('0.18'));
 });
