@@ -146,3 +146,16 @@ multiple brokers, quantity/sign/unknown preservation, color equivalence/opt-outs
 empty output, explicit Account consistency and byte-identical original snapshot
 JSONL. Deliver through the existing normal installed CLI release mechanism and
 verify exact `ww positions` without acquiring new evidence.
+
+Installed refinement: source `1dec8ab4a16d963a02b2ab2703418287defc8ced`
+independently verified (46 shared/focused checks plus six Position checks).
+Normal ww symlink now targets source-verified client release
+`~/.local/share/wheelwright/pl-cli-01-positions/operational-20261015-1dec8ab/`.
+Configuration is byte-preserved; previous release remains available for recovery.
+Exact `ww positions` exits0 from `/tmp` and home: one header,48 rows, BROKER and
+ACCOUNT first, shared widths and no per-Account banners. Installed alias human
+output is byte-identical. JSONL compared with prior installed release preserves
+all snapshot evidence except request/evaluation clocks. History/update sources,
+backend and acquisition are unchanged. Private terminal/verification evidence
+stays with the release outside Git. This is installed engineering verification,
+not an invented Principal acceptance disposition.
