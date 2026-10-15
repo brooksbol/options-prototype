@@ -148,3 +148,9 @@ frozen identity, independent verification, deployment/recovery and Operator acce
 
 Command grammar: `ww positions` is canonical. `ww show positions` remains a
 fully functional compatibility alias with the same options, output and exit codes.
+
+Current Position CLI acceptance: the Principal reported **acceptance PASSED** on
+October 15, 2026 for installed bare `ww positions`, the single BROKER/ACCOUNT table
+and consistent human contract syntax. `ww show positions` remains equivalent;
+bare output is holdings-only. [Accepted delivery and recovery](ww-positions-command-2026-10-15.md)
+supersedes earlier pending acceptance for this bounded CLI refinement.

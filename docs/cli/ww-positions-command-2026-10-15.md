@@ -1,5 +1,30 @@
 # Canonical Position command — October 15, 2026
 
+**Current status: Principal acceptance PASSED — October 15, 2026.**
+The Principal accepted the ordinary installed `ww positions` after observing the
+single-table terminal result. Accepted scope: no-argument authorized Account
+Position inventory, BROKER/ACCOUNT as columns 1/2, shared compact table, consistent
+human contract typography and no close-order section in bare output. Both command
+spellings work from any directory; verbose/raw JSONL and explicit Account/snapshot
+selection remain available. This accepts the bounded installed Product behavior,
+not unfinished managed-Position monitoring or new financial/domain semantics.
+
+Accepted installed runtime: `3de8dceb1659a674a30d35714896b4baba86fdbe`;
+test-only follow-up: `0ac98f67d796207fd630d0d2841b28d710183c5a`;
+pre-acceptance delivery evidence: `31cb5335278f6ff62817f7d414d69aa6bba2c2d5`.
+Normal `~/.local/bin/ww` targets
+`~/.local/share/wheelwright/pl-cli-01-positions/operational-20261015-3de8dce/client/scripts/ww`.
+The private release manifest preserves source hashes, the previous executable,
+unchanged saved configuration and verification output. No backend/service/DB/grant
+change or brokerage acquisition was needed. Independent engineering verification
+and Principal Product acceptance are separately established.
+
+The following sections preserve the initial source-only checkpoint and subsequent
+Product corrections chronologically. Their earlier pending-acceptance/no-visual-
+change language is historical scope, superseded by this accepted delivery.
+
+## Initial grammar checkpoint and delivery progression
+
 Product decision: the Principal commissioned `ww positions` as the canonical
 Position inspection command, with `ww show positions` retained as a fully
 functional compatibility alias. This is bounded PL-CLI-01 command grammar work,
@@ -196,3 +221,26 @@ JSONL snapshot evidence is unchanged except request/evaluation clocks. Previous
 client/configuration remains available; no backend/history/pull/acquisition change.
 Private terminal/verification evidence stays outside Git. No Principal acceptance
 is claimed by these engineering checks.
+
+## Accepted closeout
+
+Principal command: **“acceptance PASSED; execute end of session protocol”**.
+End-of-Workstream Memory Check: PL-CLI-01 remains the owning concern; no new intake,
+principle, ADR, Bet or horizon. Recovered/extended accepted Position display and
+existing v2 collection rather than a second Position model. Important rejected
+JSONL framing and source-only completion remain preserved above. Installed release,
+private recovery/configuration and accepted specimen are reconstructable. Coming
+Soon still concerns broader Position reassessment/attention, so it is unchanged.
+Managed monitoring, unavailable tastytrade economics/custody and unrecognized
+contract-format fallback remain bounded limitations, not newly commissioned work.
+Accepted pull/history, unrelated worktrees, EVA and WW-GATE-001 remain unchanged.
+Closeout updates canonical state/index/journal, regenerates the derived Roadmap,
+verifies current source/docs and synchronizes main. No further work is authorized
+by this acceptance; next action after closeout is NONE.
+
+Final closeout verification:55 CLI tests and147 Roadmap parser/integrity/freshness
+tests pass. Generated show manual and Roadmap freshness checks pass. Installed
+runtime source hashes match the accepted release/current runtime, saved private
+configuration matches the preserved prior client, and recorded operational proof
+retains successful command/alias/raw-evidence checks. No runtime reinstall or
+provider call is needed for this documentation-only closeout.

@@ -241,6 +241,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `design/ww-show-positions-v2-architectural-proposal-2026-10-13.md` | Revised WW Position v2 proposal awaiting Principal architectural review; no implementation acceptance |
 | `design/ww-position-scan-draft-recovery-2026-10-14/README.md` | Inactive orphaned draft source patch, reconstruction/hash evidence and cleanup disposition |
 | `cli/ww-man.txt` | Current top-level `ww` command reference and terminal conventions |
+| `cli/ww-positions-command-2026-10-15.md` | Principal-accepted installed `ww positions`, compatibility alias, all-authorized single table, human contract syntax, verification and release/recovery closeout |
 | `cli/ww-show-man.txt` | Current `ww show` command reference (quotes and Positions) |
 | `cli/ww-account-evidence.md` | Fidelity Account sync and Position evidence operator reference; later multi-broker acceptance is recorded separately |
 | `contracts/api-v2-account-evidence.json` | Current v2 Account, User, artifact and Position OpenAPI fragment |
