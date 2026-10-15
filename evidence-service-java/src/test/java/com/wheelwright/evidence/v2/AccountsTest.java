@@ -27,6 +27,8 @@ class AccountsTest {
             var c=store.getConnection();c.setAutoCommit(false);
             try(var q=c.createStatement()) {
                 q.execute("PRAGMA defer_foreign_keys=ON");
+                for(String table:List.of("account_history_page","account_history_state","account_transaction_observation","account_transaction","account_history_attempt"))q.execute("DROP TABLE "+table);
+                q.execute("DELETE FROM _migrations WHERE id='020_transaction_history.sql'");
                 q.execute("DROP TABLE brokerage_position_acquisition");
                 q.execute("DELETE FROM _migrations WHERE id='019_position_acquisition.sql'");
                 q.execute("DROP TABLE v2_user_account");

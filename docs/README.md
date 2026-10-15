@@ -246,7 +246,10 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `contracts/api-v2-account-evidence.json` | Current v2 Account, User, artifact and Position OpenAPI fragment |
 | `cli/ww-show-query-acceptance-2026-10-05.md` | Held-quote query/table verification and accepted visual amendments |
 | `cli/ww-show-acceptance-2026-10-05.md` | Historical held-quote candidate verification; check later closeout for current acceptance |
-| `cli/ww-fetch-man.txt` | Current v2-native explicit-symbol `ww fetch(1)` behavior, ORDINARY/FORCE intent, Bearer configuration, and truthful fulfillment; available through `ww fetch --man` |
+| `cli/ww-fetch-man.txt` | Current v2-native explicit-symbol and backend-selected default `ww fetch(1)` behavior, ORDINARY/FORCE intent, Bearer configuration, and truthful fulfillment; available through `ww fetch --man` |
+| `cli/ww-sync-man.txt` | Current authorized Account synchronization and retained transaction update reference |
+| `cli/ww-pull-man.txt` | Current routine update workflow, Git-style report, ordering and partial-failure status |
+| `cli/ww-history-man.txt` | Current Account-scoped/all-authorized transaction history and table/TSV/CSV/JSONL reference |
 | `cli/ww-fetch-acceptance-2026-10-04.md` | Bounded deterministic and real-backend `ww fetch` acceptance evidence; candidate, not Product acceptance |
 | `cli/ww-composition-friction-acceptance.md` | **Explicit CF01–CF12 composition-friction acceptance specimens**: numeric sort, cut, awk, state counts, grep/rg, tee, head, command substitution, redirection, absence semantics, explicit rich serialization, and no generic-utility reinvention; records correctness separately from adapter friction so actors do not infer the Unix gauntlet |
 | `cli/ww-prices-man.txt` | Current read-only `ww prices(1)` behavior and evidence limits; available through `ww prices --man` |
@@ -283,7 +286,9 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `engineering-spikes/*` | API feasibility assessments |
 | `design/pl-cli-01-historical-position-candidate.md` | Accepted historical Position catalog/selection, compact CLI, verification/deployment/recovery and provenance of the later bounded Portfolio Capital delivery |
 | `design/pl-cli-01-portfolio-capital-history.md` | Principal-accepted isolated PTS Portfolio Capital Unicode graph: retained source coverage, 44 composites/29 gaps, public read/Unix composition, frozen verification and unperformed deployment |
-| `design/ww-history-product-and-technical-proposal-2026-10-15.md` | Revised Account-nested transaction history proposal: one scoped history grant, bounded backend read-through, essential/deferred scope, seven-item review disposition and complete sanitized 21-record output specimens; design only |
+| `design/ww-history-product-and-technical-proposal-2026-10-15.md` | Revised Account-nested transaction history proposal: one scoped history grant, bounded backend read-through, essential/deferred scope, seven-item review disposition and complete sanitized 21-record design specimens; approved checkpoint and implementation candidate are linked separately |
+| `design/ww-history-candidate-2026-10-15/README.md` | Historical transaction-history component verification; subsequent integrated operational delivery and Principal acceptance are recorded in the update/history delivery below. |
+| `design/ww-integrated-update-candidate-2026-10-15/README.md` | Principal-accepted installed `ww pull && ww history`: ordered synchronization/backend subject selection/acquisition, scoped history, verification, operational recovery and closeout limits |
 | `design/pl-conv-01-step5-candidate.md` | Accepted/deployed API-first tastytrade holdings R2; independent verification, Principal functional/visual acceptance and recovery provenance |
 | `design/pl-conv-01-step3-candidate.md` | Accepted multi-broker Account and BUG-035 delivery, recovery and closeout evidence |
 | `design/ww-show-held-quote-solution-design.md` | Bounded Solution Design for multi-subject show/local field discovery and the authorized collection/filter/order/horizontal-table extension (§15); accepted reversible path-symbol codec preserved; linked verification evidence. |

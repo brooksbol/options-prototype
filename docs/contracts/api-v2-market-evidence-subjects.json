@@ -1,0 +1,300 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Wheelwright relevant market-evidence subjects",
+    "version": "0.1.0",
+    "description": "Backend-owned default selection, not a new acquisition mechanism. Principal policy and engineering authorization October 15, 2026."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/v2/market-evidence-subjects": {
+      "get": {
+        "operationId": "listRelevantMarketEvidenceSubjects",
+        "summary": "Discover authorized holdings underlyings union explicitly configured monitoring subjects",
+        "description": "Pure GET, no query/body, provider contact or persistence. Requires quote.acquire; holdings only from explicit account.positions.read grants. Reads latest admitted snapshots via the Position domain service. Failed synchronization never removes prior retained holdings. Nonzero holdings only; supported standard option roots resolve to their underlying, adjusted/unrecognized roots report incomplete coverage. Uppercase canonical underlying identity deduplicates. Monitoring reads the existing declared set only with backend wheelwright.market-evidence.monitoring-users visibility binding to immutable User IDs. Nonempty unbound monitoring is unavailable, not silently omitted. Each source retains its clocks/qualifications; selection is not an atomic portfolio snapshot or freshness verdict. Empty complete subjects is a legitimate no-op. Client may transport-batch these subjects through existing POST /v2/quotes; explicit acquisition contract is unchanged.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "quote.acquire"
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete selection representation; complete=false preserves missing source coverage.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketEvidenceSubjectSelection"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Standard v2 request-wide Problem; no acquisition.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              },
+              "WWW-Authenticate": {
+                "required": true,
+                "schema": {
+                  "const": "Bearer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Standard v2 request-wide Problem; no acquisition.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Standard v2 request-wide Problem; no acquisition.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Standard v2 request-wide Problem; no acquisition.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "MarketEvidenceSubjectSelection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "selectedAt",
+          "policy",
+          "complete",
+          "subjects",
+          "coverage"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "policy": {
+            "const": "AUTHORIZED_HOLDINGS_UNION_CONFIGURED_MONITORING"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "subjects": {
+            "type": "array",
+            "maxItems": 10000,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "symbol",
+                "sources"
+              ],
+              "properties": {
+                "symbol": {
+                  "type": "string",
+                  "pattern": "^[A-Z^][A-Z0-9.^/_-]{0,31}$"
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "HOLDINGS",
+                      "MONITORING"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "coverage": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/MarketEvidenceSourceCoverage"
+            }
+          }
+        }
+      },
+      "MarketEvidenceSourceCoverage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "accountId",
+          "status",
+          "snapshotId",
+          "evidenceDate",
+          "recordedAt",
+          "qualifications"
+        ],
+        "properties": {
+          "source": {
+            "enum": [
+              "HOLDINGS",
+              "MONITORING"
+            ]
+          },
+          "accountId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "status": {
+            "enum": [
+              "AVAILABLE",
+              "EMPTY",
+              "NOT_AUTHORIZED",
+              "UNAVAILABLE",
+              "INCOMPLETE"
+            ]
+          },
+          "snapshotId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidenceDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "recordedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
+import {parseHistory,readHistory,renderHistory,readHistories,renderHistories,historyDiagnostic,HISTORY_HELP} from './ww-history.mjs';
 
 import { parseCapital,readCapital,renderCapital,CAPITAL_HELP } from "./ww-capital.mjs";
 import { readFile } from "node:fs/promises";
 import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
 import { parsePositions, readPositions, renderPositions, POSITIONS_HELP, parseObservations, readObservations, renderObservations, OBSERVATIONS_HELP } from "./ww-positions.mjs";
 import { resolveAccount, readAccounts, renderAccounts, ACCOUNTS_HELP } from "./ww-accounts.mjs";
+import {readAccountScope,syncAccounts,fetchDefault,pull,renderUpdate} from './ww-update.mjs';
 import { parseSync, syncAccount, SYNC_HELP } from "./ww-sync.mjs";
 
 // The converged client never loads or forwards inherited brokerage integration secrets.
@@ -14,22 +16,27 @@ const ROOT_HELP = `Usage: ww <command> [options]
        ww --help | -h | --man
 
 Small Wheelwright evidence tools for people, shells, and agents.
-Use explicit symbols. Reading never silently acquires; acquisition never claims
-freshness or suitability. Pipe commands without a format flag.
+Use explicit symbols or Account nicknames. Held-quote reads never acquire.
+Account history uses backend policy-bounded read-through with explicit outcomes.
+Acquisition never claims suitability. Pipe commands without a format flag.
 
 Working commands:
+  pull [-v | --verbose] [--no-color]
+      Update WW with everything so I can start doing stuff.
+  history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl] [--verbose]
+      Read Account transaction evidence through the backend history facade.
   ls accounts [--table | --tsv | --jsonl]
       Find account aliases before syncing or inspecting Positions.
   ls portfolio-capital-observations --account ACCOUNT [--tsv | --table | --jsonl]
       Read retained Fidelity Portfolio Capital export-minute composites.
   ls position-observations --account ACCOUNT [--table | --tsv | --jsonl] [--verbose]
       Discover retained Position observations; display order is not brokerage chronology.
-  sync account ACCOUNT
+  sync [account ACCOUNT]
       Acquire tastytrade holdings through the backend, or synchronize Fidelity CSVs.
   positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table]
       Inspect backend Positions, constituents, qualifications and source provenance.
       show positions remains a compatibility alias.
-  fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+  fetch [-q | --quiet | -v | --verbose] [--force] [--] [SYMBOL...]
       Acquire direct quotes for named subjects.
   ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
       Discover canonical direct-quote holdings (provider-free).
@@ -79,11 +86,14 @@ Backend: WW_BASE_URL (default http://localhost:3100).`;
 
 const PRICES_HELP = SOURCE_HELP.replaceAll("observed-prices", "prices");
 
-const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+const FETCH_HELP = `Usage: ww fetch [-q | --quiet | -v | --verbose] [--force] [--] [SYMBOL...]
        ww fetch --help | -h | --man
 
 Acquire canonical direct quotes for explicit named subjects using Wheelwright
-API v2. One invocation sends one batch request. Bare fetch is a usage error.
+API v2. Explicit operands send one batch request. Without operands, the backend selects
+authorized holdings underlyings UNION configured monitoring subjects. Empty is a no-op.
+Default selection is transport-batched through the existing acquisition API; incomplete
+source coverage is reported and returns nonzero, even if available subjects succeed.
 Symbols are uppercased and deduplicated in first-occurrence order.
 
 Ordinary acquisition may reuse eligible held evidence. --force requests an
@@ -219,7 +229,18 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "pull") {
+    if(rest.length===1&&["--help","-h","--man"].includes(rest[0]))return {command:"command-man",page:"pull"};
+    if(rest.some(a=>!['-v','--verbose','--no-color'].includes(a)))usage('pull: see ww pull --help');
+    return {command:'pull',verbose:rest.some(a=>['-v','--verbose'].includes(a)),noColor:rest.includes('--no-color')};
+  }
+  if (command === "history") {
+    if(rest.length===1&&rest[0]==="--man")return {command:"command-man",page:"history"};
+    const parsed=parseHistory(rest);
+    return parsed.help?{command:"help",help:HISTORY_HELP}:{command:"history",...parsed};
+  }
   if (command === "sync") {
+    if(rest.length===1&&rest[0]==="--man")return {command:"command-man",page:"sync"};
     const parsed = parseSync(rest);
     return parsed.help ? { command: "help", help: SYNC_HELP } : { command: "sync-account", ...parsed };
   }
@@ -303,7 +324,7 @@ export function parseArgs(args) {
       if (!arg.trim()) usage(`${command}: symbol must not be empty`);
       symbols.push(arg);
     }
-    if (symbols.length === 0) usage(`${command}: at least one ${command === "fetch" ? "explicit " : ""}symbol is required`);
+    if (symbols.length === 0&&command!=="fetch") usage(`${command}: at least one ${command === "fetch" ? "explicit " : ""}symbol is required`);
     if (command === "fetch" && quiet && verbose) usage("fetch: --quiet and --verbose cannot be combined");
     const parsed = { command, symbols: [...new Set(symbols.map(s => s.toUpperCase()))] };
     if (command === "fetch") {
@@ -483,7 +504,7 @@ export async function fetchEvidence(symbols, {
   mode = "ORDINARY", token = process.env.WW_API_TOKEN,
   base = process.env.WW_BASE_URL ?? "http://localhost:3100", fetchImpl = fetch,
 } = {}) {
-  if (symbols.length === 0) usage("fetch: at least one explicit symbol is required");
+  if (symbols.length === 0&&command!=="fetch") usage("fetch: at least one explicit symbol is required");
   if (typeof token !== "string" || !token.trim()) {
     throw new WwError("fetch: WW_API_TOKEN is required (configured Wheelwright Bearer credential)");
   }
@@ -734,8 +755,25 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
-  const usesBackend=['ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const usesBackend=['pull','history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
+  if(parsed.command==='history') {
+    const token=await readApiToken();
+    if(parsed.account===undefined) {
+      const scope=await readAccountScope(token,{base});
+      const results=await readHistories(scope.filter(r=>r.access?.transactionsRead).map(r=>r.account),token,{base});
+      process.stdout.write(renderHistories(results,{...parsed,tty:!!process.stdout.isTTY}));
+      for(const r of results)process.stderr.write(r.data?historyDiagnostic(r.data):`history: ${r.account.alias}: ${r.error}; Account result unavailable\n`);
+      if(results.some(r=>r.error||!r.data.complete))process.exitCode=1;
+      return;
+    }
+    const account=await resolveAccount(parsed.account,token,{base});
+    const result=await readHistory(account.id,token,{base});
+    process.stdout.write(renderHistory(result,{...parsed,accountLabel:account.alias,tty:!!process.stdout.isTTY}));
+    process.stderr.write(historyDiagnostic(result));
+    if(!result.complete)process.exitCode=1;
+    return;
+  }
   if(parsed.command==='ls-capital') {
     const token=await readApiToken(),account=await resolveAccount(parsed.account,token,{base});
     const data=await readCapital(account.id,token,{base});
@@ -754,9 +792,16 @@ export async function main(args) {
     process.stdout.write(renderAccounts(accounts,{format:parsed.format,tty:!!process.stdout.isTTY,noColor:parsed.noColor}));
     return;
   }
+  if(parsed.command==='pull') {
+    const report=await pull(await readApiToken(),{acquire:fetchEvidence,base});
+    process.stdout.write(renderUpdate(report,{...parsed,tty:!!process.stdout.isTTY}));
+    if(!report.complete)process.exitCode=1;
+    return;
+  }
   if (parsed.command === "sync-account") {
-    const result = await syncAccount(parsed.account, await readApiToken(),{base});
-    if (!result.complete) process.exitCode = 1;
+    const sync=await syncAccounts(await readApiToken(),{accountAlias:parsed.account,base});
+    process.stdout.write(renderUpdate({sync},{...parsed,pullReport:false,tty:!!process.stdout.isTTY}));
+    if(!sync.complete)process.exitCode=1;
     return;
   }
   if (parsed.command === "show-positions") {
@@ -832,6 +877,20 @@ export async function main(args) {
     return;
   }
   if (parsed.command === "fetch") {
+    if(!parsed.symbols.length) {
+      const report=await fetchDefault(await readApiToken(),{acquire:fetchEvidence,base,mode:parsed.mode,onBatch:result=>{
+        const p=presentFetchResult(result,parsed.quiet,!!process.stdout.isTTY,!!process.stderr.isTTY,parsed.verbose);
+        if(p.stdout)process.stdout.write(p.stdout);if(p.stderr)process.stderr.write(p.stderr);
+      }});
+      for(const e of report.errors)process.stderr.write(e.message+'\n');
+      if(!report.selection.complete) {
+        process.stderr.write('fetch: default-subject coverage incomplete; available subjects processed\n');
+        for(const c of report.selection.coverage)if(['UNAVAILABLE','INCOMPLETE'].includes(c.status))process.stderr.write(`  ${c.source} ${c.status}: ${c.qualifications.join(' ')}\n`);
+      }
+      if(!report.selection.subjects.length&&!parsed.quiet)process.stderr.write('fetch: empty backend selection; no acquisition attempted\n');
+      if(!report.complete)process.exitCode=1;
+      return;
+    }
     const result = await fetchEvidence(parsed.symbols, { mode: parsed.mode, token: await readApiToken(),base });
     const presentation = presentFetchResult(result, parsed.quiet, !!process.stdout.isTTY,
       !!process.stderr.isTTY, parsed.verbose);

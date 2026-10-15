@@ -54,6 +54,36 @@ final class PositionMarketEvidence {
         }
         return result;
     }
+    record ReportedUnderlying(String symbol, PositionSnapshot.MarketEvidence provenance) {}
+    /** Explicit broker root-to-share identity; never strip an adjusted-root suffix. */
+    static Map<String, ReportedUnderlying> underlyingSymbols(Connection c, PositionSnapshot snapshot, ObjectMapper mapper) throws Exception {
+        var result = new HashMap<String, ReportedUnderlying>();var conflicted=new HashSet<String>();
+        try(var q=c.prepareStatement("""
+                SELECT a.artifact_id,a.sha256,a.payload,i.original_filename FROM brokerage_artifact a
+                JOIN brokerage_import i ON i.account=a.account AND i.artifact_id=a.artifact_id
+                WHERE a.account=? AND i.file_type='OPTION_SUMMARY' AND i.status='ACCEPTED'
+                ORDER BY a.received_at DESC,a.artifact_id DESC
+                """)) {
+            q.setString(1,snapshot.account());
+            try(var rs=q.executeQuery()){while(rs.next()) {
+                var date=Pattern.compile("Quote data as of (\\d{2}/\\d{2}/\\d{4})\\.").matcher(new String(rs.getBytes("payload"),java.nio.charset.StandardCharsets.UTF_8));
+                if(!date.find()||!LocalDate.parse(date.group(1),DateTimeFormatter.ofPattern("MM/dd/uuuu")).toString().equals(snapshot.evidenceDate()))continue;
+                try(var rows=c.prepareStatement("SELECT source_row,row_json FROM brokerage_evidence_row WHERE account=? AND artifact_id=? AND file_type='OPTION_SUMMARY' ORDER BY source_row")) {
+                    rows.setString(1,snapshot.account());rows.setString(2,rs.getString("artifact_id"));
+                    try(var row=rows.executeQuery()){while(row.next()) {
+                        var json=mapper.readTree(row.getString("row_json"));String root=json.path("Symbol").asText();
+                        var shares=Pattern.compile("Shares \\(([A-Z][A-Z0-9.]*)\\)").matcher(json.path("Expiration & Strike").asText());
+                        if(!root.matches("[A-Z][A-Z0-9.]*")||!shares.matches())continue;
+                        String symbol=shares.group(1);try{PathSymbolCodec.encode(symbol);}catch(IllegalArgumentException e){continue;}
+                        var value=new ReportedUnderlying(symbol,new PositionSnapshot.MarketEvidence(rs.getString("artifact_id"),rs.getString("original_filename"),rs.getString("sha256"),snapshot.evidenceDate(),List.of(row.getInt("source_row"))));
+                        var prior=result.putIfAbsent(root,value);if(prior!=null&&!prior.symbol().equals(symbol))conflicted.add(root);
+                    }}
+                }
+                break;
+            }}
+        }
+        conflicted.forEach(result::remove);return Map.copyOf(result);
+    }
     private static String contract(String symbol, String terms) {
         if (terms.equals("Shares")) return symbol;
         var shares = Pattern.compile("Shares \\(([A-Z0-9.]+)\\)").matcher(terms);

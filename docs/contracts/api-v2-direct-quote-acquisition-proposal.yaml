@@ -11,6 +11,12 @@ info:
 servers:
   - url: /
 paths:
+  /v2/market-evidence-subjects:
+    $ref: 'api-v2-market-evidence-subjects.json#/paths/~1v2~1market-evidence-subjects'
+  /v2/accounts/{accountId}/transactions:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions'
+  /v2/accounts/{accountId}/transactions/{transactionId}:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions~1{transactionId}'
   /v2/users:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1users'
   /v2/users/{userId}:

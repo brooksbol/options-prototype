@@ -35,6 +35,39 @@ public class TastytradeClient {
         this.clientId=clientId;this.clientSecret=clientSecret;this.refreshToken=refreshToken;this.base=base;this.http=http;
     }
     public boolean configured(){return !clientId.isBlank()&&!clientSecret.isBlank()&&!refreshToken.isBlank();}
+    @FunctionalInterface public interface TransactionPageSink { void accept(int offset,byte[] bytes) throws Exception; }
+
+    /** One OAuth exchange and bounded full traversal. Sink retains each safe page before interpretation. */
+    public void transactions(String account,String endAt,TransactionPageSink sink) throws Exception {
+        if(!configured()||!account.matches("[A-Za-z0-9]+"))throw new IllegalStateException("transaction acquisition unavailable");
+        java.time.Instant.parse(endAt);
+        long expires=System.nanoTime()+deadline.toNanos();int total=-1,pages=-1,count=0,bytesRead=0;
+        try {
+            String token=accessToken(expires);
+            for(int offset=0;offset<100;offset++) {
+                String path="/accounts/"+account+"/transactions?per-page=250&page-offset="+offset+"&sort=Asc&end-at="+encode(endAt);
+                var request=HttpRequest.newBuilder(base.resolve(path)).timeout(deadline)
+                        .header("Accept","application/json").header("User-Agent","Wheelwright/transaction-history-v1")
+                        .header("Authorization","Bearer "+token).GET().build();
+                var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+                if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+                byte[] bytes=reply.body();bytesRead=Math.addExact(bytesRead,bytes.length);
+                if(bytesRead>BrokerageArtifacts.MAX_BYTES)throw new IllegalStateException();
+                String text=new String(bytes,StandardCharsets.UTF_8);
+                for(String secret:List.of(clientId,clientSecret,refreshToken,token))if(text.contains(secret))throw new IllegalStateException();
+                if(!safeDocument(TastytradeHoldings.document(bytes),List.of(clientId,clientSecret,refreshToken,token)))throw new IllegalStateException();
+                sink.accept(offset,bytes);
+                var page=TastytradeTransactions.page(bytes,account,offset);
+                if(offset==0){total=page.total();pages=page.pages();if(pages>100||total>25000)throw new IllegalStateException();}
+                if(total!=page.total()||pages!=page.pages())throw new IllegalStateException();
+                count=Math.addExact(count,page.items().size());
+                if(offset>=Math.max(1,pages)-1) {if(count!=total)throw new IllegalStateException();return;}
+                if(page.items().isEmpty())throw new IllegalStateException();
+            }
+            throw new IllegalStateException(); // Budget exhaustion is failure, never truncated success.
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("transaction acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("transaction acquisition unavailable");}
+    }
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
 
     /** Fresh OAuth access token via refresh-token exchange. No durable cache; the

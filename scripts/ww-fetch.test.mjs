@@ -14,21 +14,21 @@ async function withFixture(work) {
   try { await work(f, run); } finally { await f.close(); }
 }
 
-test("bare fetch and missing credentials fail before any backend/provider request", async () => {
+test("default and targeted fetch with missing credentials fail before backend/provider requests", async () => {
   // Isolate credential discovery from the operator's real private .ww.env.
   const isolated = await mkdtemp(join(tmpdir(), "ww-no-credentials-"));
   const isolatedCli = join(isolated, "scripts", "wheelwright.mjs");
   await mkdir(join(isolated, "scripts"));
   await copyFile(cli, isolatedCli);
-  for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
+  for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs", "ww-update.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
     await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
   const actualCli = await realpath(isolatedCli);
   try {
     await withFixture(async (f, run) => {
       for (const args of [["fetch"], ["fetch", "--force"], ["fetch", "-v"], ["fetch", "--"]]) {
-        const r = await run(args);
-        assert.equal(r.status, 2); assert.equal(r.stdout, "");
-        assert.match(r.stderr, /at least one explicit symbol/);
+        const r = await capture([actualCli,...args],{WW_BASE_URL:f.base,WW_API_TOKEN:""});
+        assert.equal(r.status, 1); assert.equal(r.stdout, "");
+        assert.match(r.stderr, /WW_API_TOKEN/);
       }
       for (const token of ["", "   ", "bad\ncredential"]) {
         const r = await capture([actualCli, "fetch", "SPY"], { WW_BASE_URL: f.base, WW_API_TOKEN: token });
@@ -234,7 +234,7 @@ test("ww fetch works with a private .ww.env credential and no exported token", a
   try {
     await mkdir(join(isolated, "scripts"));
     await copyFile(cli, join(isolated, "scripts", "wheelwright.mjs"));
-    for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
+    for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs", "ww-update.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
       await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
     const actualCli = await realpath(join(isolated, "scripts", "wheelwright.mjs"));
     const { writeFile } = await import("node:fs/promises");

@@ -44,3 +44,23 @@ including terminal-default comparison. Generated show-manual registry check and
 whitespace checks pass. Existing Java-generated Position fixture tests require
 build artifacts absent from this isolated worktree; no backend build or live
 acquisition was performed for this dispatch-only change.
+
+## Reconciliation with accepted history delivery
+
+On resumption, remote main `7732138decf3318abe2482af84dde82290777509`
+records Principal acceptance and closeout of integrated pull/history. The original
+checkout is clean and synchronized. The only textual merge conflict is adjacent
+root-help lines: retain both the Position alias description and the accepted
+optional-symbol fetch synopsis. History/pull/sync/default-fetch dispatch and their
+manuals remain as accepted. No Product or architecture plan change is required.
+The previous parallel-safety paragraph describes initial isolation, not current
+history availability. Operational installation remains separate from this source
+integration; the accepted installed release is not replaced by this change.
+
+Reconciled verification: 43 tests pass across the canonical/alias process
+comparisons, shared dispatch, Accounts, history, update/pull, fetch and sync.
+Generated show-manual consistency and assignment-scoped whitespace checks pass.
+The net delta from accepted main remains the eight Position grammar/help/test
+files; no history/pull/backend/API implementation or accepted delivery evidence
+is changed. Independent engineering verification is repeated on the frozen
+reconciled commit before promotion.

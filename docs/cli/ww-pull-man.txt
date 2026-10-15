@@ -1,0 +1,71 @@
+WW-PULL(1)                  Wheelwright Manual                  WW-PULL(1)
+
+NAME
+    ww pull — Update WW with everything so I can start doing stuff.
+
+SYNOPSIS
+    ww pull [-v | --verbose] [--no-color]
+    ww pull --help | -h | --man
+
+DESCRIPTION
+    Update Wheelwright from applicable authorized sources, then report what
+    happened. The routine workflow is exactly:
+
+        ww pull && ww history
+
+    SYNC -> DISCOVER -> FETCH -> REPORT:
+      SYNC      Synchronize all applicable authorized Account evidence, using
+                existing Fidelity CSV submission and tastytrade backend holdings
+                acquisition; include history updates under backend policy.
+      DISCOVER  Backend selects authorized holdings' underlyings UNION explicitly
+                configured monitoring subjects using latest admitted holdings.
+      FETCH     Acquire those subjects through existing direct-quote acquisition.
+      REPORT    Concise Git-style source outcomes, reuse, failures and limitations.
+
+    All Account synchronization attempts finish before subject discovery. A newly
+    admitted holding is eligible in the same pull. Failed sync preserves prior
+    holdings; independent authorized work continues. No atomic portfolio snapshot
+    is manufactured. Keep source clocks separate. No position/transaction deltas
+    are invented: history counts are available records, not new transactions.
+
+    Default subjects are deduplicated by backend canonical underlying identity.
+    Closed holdings are excluded unless monitoring independently retains relevance.
+    Unheld monitoring subjects remain. An empty complete selection is a no-op.
+    Unavailable/ambiguous source coverage is incomplete, never silently empty.
+    Watchlists, strategy candidates and other sources are outside this default.
+
+    Fidelity remains limited to supported CSVs already available in Downloads
+    and retained imports; pull does not download new Fidelity files. Processing
+    available files does not establish current broker state or complete history.
+    tastytrade history may reuse eligible backend evidence or acquire/persist it
+    under enabled backend read-through policy. No manual ww sync or ww fetch step
+    is required. Lower-level commands remain independently available.
+
+OUTPUT
+    Normal output is a concise change report: Account evidence updated/reused,
+    available history counts, quote acquisition/reuse/failures, retained evidence
+    and missing coverage. It is not a dashboard, quote dump or transaction list.
+    --verbose includes source clocks and file diagnostics. Terminal Account aliases
+    are cyan, neutral text bright white and incomplete states amber. --no-color,
+    NO_COLOR or TERM=dumb disables color. Redirected reports contain no ANSI.
+
+EXIT STATUS
+    0  All applicable authorized work fulfilled; no required source is incomplete.
+       Empty authorized scope/default subjects may succeed without acquisition.
+    1  Partial failure, unavailable required evidence or incomplete coverage.
+       Successful independent updates remain retained. && prevents history running.
+    2  Usage/configuration error.
+
+    Success does not certify universal freshness or lifetime history completeness.
+    ww history subsequently reads authorized Account-scoped domain representations.
+
+ENGINEERING / DELIVERY STATUS
+    Integrated implementation is a candidate pending independent review and
+    Principal acceptance. Operational installation, database/grant/configuration
+    changes, service restart and live acquisition require separate authorization.
+    Configured source credentials and User capabilities are backend-owned.
+    Nonempty legacy monitoring requires an explicit backend User-visibility binding;
+    missing binding is reported rather than substituted with holdings-only selection.
+
+SEE ALSO
+    ww sync --man, ww fetch --man, ww history --man

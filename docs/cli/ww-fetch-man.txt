@@ -1,18 +1,25 @@
 WW-FETCH(1)                 Wheelwright Manual                WW-FETCH(1)
 
 NAME
-    ww fetch — acquire canonical direct quotes for named subjects
+    ww fetch — acquire canonical direct quotes for selected subjects
 
 SYNOPSIS
-    ww fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+    ww fetch [-q | --quiet | -v | --verbose] [--force] [--] [SYMBOL...]
     ww fetch --help | -h | --man
 
 DESCRIPTION
     Fetch satisfies a direct-quote acquisition request through Wheelwright
-    API v2. At least one explicit symbol is required. Bare fetch is a usage
-    error and performs no API or provider work. There is no default selector.
+    API v2. Explicit symbols retain their targeted semantics. Without symbols,
+    GET /v2/market-evidence-subjects obtains the backend-selected union of
+    authorized holdings' underlyings and configured monitoring subjects.
+    The CLI does not reconstruct relevance from holdings. Canonical subjects
+    are transport-batched in groups of at most 30 through existing POST /v2/quotes.
+    Empty complete selection is a successful no-op. Missing/incomplete source
+    coverage returns nonzero even when available subjects are acquired. Monitoring
+    requires configured backend User visibility; unbound nonempty data is not
+    silently omitted. No watchlist/strategy-candidate/default market universe.
 
-    Symbols are uppercased and deduplicated in first-occurrence order, retaining
+    Explicit symbols are uppercased and deduplicated in first-occurrence order, retaining
     the existing CLI operand convention. All subjects are submitted together
     in one POST /v2/quotes request. The backend accepts at most 30 distinct
     subjects; larger requests fail as a whole, without automatic splitting.

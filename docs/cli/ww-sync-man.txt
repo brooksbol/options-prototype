@@ -1,0 +1,45 @@
+WW-SYNC(1)                  Wheelwright Manual                  WW-SYNC(1)
+
+NAME
+    ww sync — update applicable authorized Account evidence
+
+SYNOPSIS
+    ww sync [account ACCOUNT] [-v | --verbose] [--no-color]
+    ww sync --help | -h | --man
+
+DESCRIPTION
+    Omitted Account synchronizes applicable authorized Accounts discovered through
+    the backend. Explicit selection narrows to a nickname, never a GUID. Backend
+    capability discovery guides applicable work; every operation independently
+    rechecks authorization. Administrative privilege does not bypass financial grants.
+
+    tastytrade holdings use existing backend acquisition. Authorized history uses
+    the Account facade's enabled policy-bounded read-through, retaining originals
+    and exact observations; eligible evidence may be reused. Fidelity submits
+    supported CSVs from Downloads using the existing artifact API, oldest first,
+    skipping accepted hashes and resuming retained failed imports without duplicate
+    upload. Backend owns attribution, parsing, admission and reconciliation.
+
+    Fidelity activity is retained row evidence, not a complete broker event ledger.
+    No hidden Fidelity API download, strategy accounting or calculated P/L.
+    File processing and source acquisition do not establish lifetime coverage.
+    No market evidence is acquired; use ww fetch or the composed ww pull workflow.
+
+OUTPUT AND FAILURES
+    Concise Account update/history status; --verbose adds file diagnostics and
+    separate source clocks. A failed Account does not stop independent Accounts.
+    Failure within one Account's CSV sequence stops that sequence, preserving
+    pending/rejected source status and last accepted evidence. Repeat to resume.
+    Retained file counts and accepted import counts are distinct.
+
+    Exit 0: applicable authorized work fulfilled; empty applicable scope succeeds.
+    Exit 1: incomplete/failed work; successful evidence remains persisted.
+    Exit 2: usage/configuration error. Missing unsupported capabilities are explicit.
+    Color conventions and opt-outs match ww pull; machine financial output belongs
+    to ww history, which supports TSV, CSV and JSONL.
+
+EXAMPLES
+    ww sync
+    ww sync account tt1
+    ww sync account pts --verbose
+    ww pull && ww history

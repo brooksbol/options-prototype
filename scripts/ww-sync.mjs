@@ -5,11 +5,13 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { ShowError, showConfig } from './ww-show.mjs';
 
-export const SYNC_HELP = `Usage: ww sync account ACCOUNT
+export const SYNC_HELP = `Usage: ww sync [account ACCOUNT] [-v | --verbose] [--no-color]
 
-Update retained Account evidence: Fidelity CSV downloads or backend tastytrade API acquisition.
+Update applicable authorized Accounts, or narrow to one nickname.
+Reuse Fidelity CSV submission and backend tastytrade acquisition; include authorized transaction history updates.
 
 Examples:
+  ww sync
   ww sync account pts
   ww sync account sawdust
   ww sync account tt1
@@ -18,18 +20,22 @@ Download your brokerage CSVs, then run this command. Wheelwright finds
 supported files for the account, skips files already saved, and processes
 new files oldest first. Unrelated files are ignored.
 
-If a file fails, sync stops and reports it. Run the same command again
+If a file fails, that Account stops and reports incomplete work; other Accounts continue. Run the same command again
 to retry and continue.
 
 SYNC COMPLETE means all eligible files found have been saved and processed.
 It does not mean your brokerage history is complete; coverage is reported
-separately.`;
+separately. Use --verbose for file diagnostics and source clocks; --man for the full contract.`;
 export function parseSync(args) {
-  if (args.length === 1 && ['--help','-h'].includes(args[0])) return { help: true };
-  if (args.length !== 2 || args[0] !== 'account' || !/^[a-z][a-z0-9-]{0,31}$/.test(args[1]))
-    throw new ShowError('sync: invalid usage; see ww sync --help', 2);
-  return { account: args[1] };
+  if(args.length===1&&['--help','-h'].includes(args[0]))return {help:true};
+  const verbose=args.some(a=>['-v','--verbose'].includes(a)),noColor=args.includes('--no-color');
+  const operands=args.filter(a=>!['-v','--verbose','--no-color'].includes(a));
+  const flags={...(verbose?{verbose:true}:{}),...(noColor?{noColor:true}:{})};
+  if(!operands.length)return flags;
+  if(operands.length!==2||operands[0]!=='account'||!/^[a-z][a-z0-9-]{0,31}$/.test(operands[1]))throw new ShowError('sync: invalid usage; see ww sync --help',2);
+  return {...flags,account:operands[1]};
 }
+
 const safe = s => String(s).replace(/[\x00-\x1f\x7f-\x9f]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4,'0')}`);
 export const filenameParameter = name => encodeURIComponent(name).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
 export function classifyExport(filename, text, brokerAccount) {
