@@ -1,1 +1,1 @@
-history.csv -text
+history.csv -text whitespace=trailing-space,space-before-tab,cr-at-eol
