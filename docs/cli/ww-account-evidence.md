@@ -1,7 +1,9 @@
 # Account evidence synchronization and Position inspection
 
 Start with `ww ls accounts` to discover authorized Account aliases, names,
-broker associations and immutable IDs. Use an alias from that list in
+broker associations and immutable IDs. `ww positions` inspects available retained
+Position evidence across all authorized Accounts with no setup or flags.
+Use an alias from that list in
 `ww sync account pts` and `ww positions --account pts --verbose`.
 Account discovery reads the backend's existing authorized collection; it does
 not acquire brokerage evidence. `ww show accounts` directs operators to

@@ -64,3 +64,28 @@ The net delta from accepted main remains the eight Position grammar/help/test
 files; no history/pull/backend/API implementation or accepted delivery evidence
 is changed. Independent engineering verification is repeated on the frozen
 reconciled commit before promotion.
+
+## Installed Product delivery scope — Principal clarification
+
+The Principal requires ordinary installed `ww positions`, with no flags, from
+any working directory. Source merge and isolated tests do not establish delivery.
+This authorizes client installation using the established immutable release plus
+normal `~/.local/bin/ww` symlink, preserving existing private configuration and
+previous target for recovery; no backend restart, migration or grant change.
+
+The prior parser required --account, so bare invocation now reuses the existing
+unscoped GET /v2/positions collection. The backend selects authorized available
+snapshots; the CLI validates the complete collection before output, obtains
+friendly labels through existing Account discovery and renders each using the
+unchanged accepted renderer. No Account or financial interpretation is moved to
+the client. Explicit --account and --snapshot behavior is preserved; --snapshot
+requires --account. Both spellings share bare and explicit behavior. No-evidence
+scope is empty machine output or a concise human absence statement. Backend
+failure fails nonzero without invented empty evidence. Machine output remains
+one complete snapshot per JSONL line. No output-selection policy changes.
+
+Operational verification must use the normal PATH-resolved executable and the
+saved configured v2 backend, with real retained evidence. It performs pure v2
+GETs only; no history/pull/acquisition or brokerage operation is needed. Preserve
+private output outside Git. Independent engineering review and installed-command
+verification are evidence; Principal acceptance is not claimed automatically.

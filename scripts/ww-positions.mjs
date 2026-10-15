@@ -1,15 +1,16 @@
 import { canonicalAccountId } from './ww-accounts.mjs';
 import { ShowError, showConfig, parseShowJson, humanShowNumber } from './ww-show.mjs';
 
-export const POSITIONS_HELP = `Usage: ww positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table] [--no-color]
+export const POSITIONS_HELP = `Usage: ww positions [--account ACCOUNT] [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table] [--no-color]
 Compatibility alias: ww show positions (same arguments and output).
 Read admitted backend Positions; never reads a client database or contacts a broker.
+Without --account, inspect available evidence across all authorized Accounts.
 --verbose  Aligned terminal presentation with constituents and evidence, also when piped.
 --table    Compact aligned presentation, also when piped.
 --jsonl    One complete backend read representation (default when piped).
 Aliases resolve through authorized backend Account discovery. REST uses opaque Account IDs.
 Requires WW_API_TOKEN, account.read:ID and account.positions.read:ID.
---snapshot  Select an exact retained observation; no as-of or predecessor inference.
+--snapshot  Requires --account; select an exact retained observation, without as-of inference.
 Human default: compact reported inventory. DTE(today) uses inspection date in New York;
 ? means unavailable/unknown. Inventory dates do not establish events or intraday order.
 --verbose includes full snapshot identity, provenance, evaluation time and qualifications.
@@ -28,7 +29,8 @@ export function parsePositions(args) {
     else if (['--jsonl', '--table'].includes(a)) { if (format) bad(); format = a.slice(2); }
     else bad();
   }
-  if (!/^[a-z][a-z0-9-]{0,31}$/.test(account ?? '') || verbose && format === 'jsonl') bad();
+  if (account !== undefined && !/^[a-z][a-z0-9-]{0,31}$/.test(account) || snapshotId !== undefined && account === undefined || verbose && format === 'jsonl') bad();
+  if (args.includes('--account') && account === undefined) bad();
   return { account, verbose, format, ...(snapshotId === undefined ? {} : {snapshotId}), ...(noColor ? {noColor} : {}) };
 }
 const safe = value => String(JSON.isRawJSON(value) ? value.rawJSON : value ?? '').replace(/[\x00-\x1f\x7f-\x9f]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`);
@@ -74,11 +76,24 @@ export async function readPositions(account, token, { base = process.env.WW_BASE
     throw new ShowError('show positions: selected observation mismatch or missing context');
   return result;
 }
-async function positionRequest(account, token, {base, fetchImpl, snapshotId, view} = {}) {
+export async function readPositionCollection(token, options = {}) {
+  const data = await positionRequest(undefined, token, options);
+  if (!Array.isArray(data.snapshots)) throw new ShowError('positions: invalid Position collection');
+  const seen = new Set();
+  for (const snapshot of data.snapshots) {
+    if (!canonicalAccountId(snapshot?.accountId) || seen.has(snapshot.accountId))
+      throw new ShowError('positions: invalid or duplicate Account in Position collection');
+    seen.add(snapshot.accountId);
+    validatePositions(snapshot, snapshot.accountId, data.requestId);
+  }
+  return data.snapshots;
+}
+async function positionRequest(account, token, {base = process.env.WW_BASE_URL, fetchImpl = fetch, snapshotId, view} = {}) {
   const command = view ? 'ls position-observations' : 'show positions';
-  if (!canonicalAccountId(account)) throw new ShowError(`${command}: canonical Account ID required`);
+  if (account !== undefined && !canonicalAccountId(account)) throw new ShowError(`${command}: canonical Account ID required`);
   const config = showConfig(token, base);
-  const url = new URL(`/v2/positions?accountId=${encodeURIComponent(account)}`, config.url);
+  const url = new URL('/v2/positions', config.url);
+  if (account !== undefined) url.searchParams.set('accountId', account);
   if (snapshotId !== undefined) url.searchParams.set('snapshotId', snapshotId);
   if (view !== undefined) url.searchParams.set('view', view);
   let response;

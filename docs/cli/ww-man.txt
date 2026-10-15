@@ -48,9 +48,11 @@ WORKING COMMANDS
         means discovered content processed, not continuous brokerage history.
         See 'ww sync --help' and docs/cli/ww-account-evidence.md.
 
-    positions --account ACCOUNT [--verbose | --jsonl | --table] [--no-color]
+    positions [--account ACCOUNT] [--verbose | --jsonl | --table] [--no-color]
         Canonical Position command; ww show positions remains a fully functional
         compatibility alias with identical arguments, output and exit status.
+        With no Account argument, read available backend-held snapshots across
+        all authorized Accounts. --snapshot requires --account.
         Read backend-held Position snapshots with explicit evidence gaps.
         --verbose includes constituents, provenance and separate close/order
         sections; it requests terminal layout even when redirected. Default

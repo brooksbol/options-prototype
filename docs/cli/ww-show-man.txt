@@ -4,7 +4,7 @@ NAME
     ww-show - inspect and query canonical held direct-quote observations
 
 SYNOPSIS
-    ww show positions --account ACCOUNT [--verbose | --jsonl | --table]
+    ww show positions [--account ACCOUNT] [--verbose | --jsonl | --table]
     ww show SUBJECT... [--quote] [OPTIONS]
     ww show --quotes [OPTIONS]
     ww show --fields

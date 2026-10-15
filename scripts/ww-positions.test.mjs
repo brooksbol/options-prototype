@@ -16,7 +16,7 @@ test('positions grammar is explicit and preserves quote show',()=>{
   assert.deepEqual(parsePositions(['--account','pts','--verbose']),{account:'pts',verbose:true,format:undefined});
   assert.equal(parseArgs(['show','positions','--account','pts']).command,'show-positions');
   assert.deepEqual(parseArgs(['show','SPY']).symbols,['SPY']);
-  for(const args of [[],['--account','../bad'],['--account','pts','--jsonl','--verbose'],['--account','pts','SPY']]) assert.throws(()=>parsePositions(args));
+  for(const args of [['--account'],['--account','../bad'],['--account','pts','--jsonl','--verbose'],['--account','pts','SPY']]) assert.throws(()=>parsePositions(args));
 });
 test('fixed numeric columns ignore indentation and missing values; multi-leg quantities retain signs',()=>{
   const s=specimen(), output=renderPositions(s,{verbose:true});
