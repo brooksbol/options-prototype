@@ -660,6 +660,10 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 ## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
 
+> **October 15, 2026 Principal decision — API documentation publication surface:** APPROVED: static browsable reference generated from authoritative OpenAPI, with Redocly preferred and GitHub Pages as host; no live API documentation UI or documentation runtime in the Wheelwright backend. Version-controlled OAS remains authoritative; generated pages are derived, validated and safe for publication. Verify Pages visibility/privacy before enabling publication. This resolves the publication-surface choice, **not** the broader PL-API-02 HTTP-boundary reconciliation or an implementation/deployment authorization. Fresh-thread handoff and bounded acceptance: [API documentation GitHub Pages checkpoint](design/api-documentation-github-pages-product-checkpoint-2026-10-15.md).
+
+
+
 **Date:** October 5, 2026  
 **State:** INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized  
 **Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.
