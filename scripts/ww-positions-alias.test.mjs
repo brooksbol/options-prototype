@@ -56,16 +56,18 @@ test('public command forms have byte-identical output, errors, status and backen
   const all=await compare([]);
   assert.equal(JSON.parse(all.stdout).accountId,ACCOUNT);
   assert.deepEqual(calls.map(c=>c.url),['/v2/accounts','/v2/positions']);
-  assert.match((await compare([],{FIXTURE_TTY:'1'})).stdout,/pts.*inventory/);
+  assert.match((await compare([],{FIXTURE_TTY:'1'})).stdout,/Fidelity\s+pts\s+SPY/);
   mode='multi';
   const multiple=await compare([]);assert.equal(multiple.stdout.trim().split('\n').length,2);
-  assert.equal((await compare([],{FIXTURE_TTY:'1'})).stdout.match(/inventory/g).length,2);
+  const human=(await compare([],{FIXTURE_TTY:'1'})).stdout;
+  assert.equal(human.match(/POSITION \/ CONTRACT/g).length,1);
+  assert.equal(human.trimEnd().split('\n').length,3);
   const terminalJson=await compare(['--jsonl'],{FIXTURE_TTY:'1'});
   assert.equal(terminalJson.stdout.trimEnd().split('\n').length,2);
   assert.ok(terminalJson.stdout.trimEnd().split('\n').every(line=>JSON.parse(line).accountId));
   mode='empty';assert.equal((await compare([])).stdout,'');
   assert.equal((await compare(['--jsonl'],{FIXTURE_TTY:'1'})).stdout,'');
-  assert.match((await compare([],{FIXTURE_TTY:'1'})).stdout,/No admitted Positions/);
+  assert.match((await compare([],{FIXTURE_TTY:'1'})).stdout,/No Positions reported/);
   mode='denied';assert.equal((await compare([],{},1)).stdout,'');
   mode='malformed';assert.equal((await compare([],{},1)).stdout,'');
   for(const help of ['--help','-h']){await compare([help]);assert.equal(calls.length,0);}

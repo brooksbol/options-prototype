@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {renderPositionCollection,renderPositions} from './ww-positions.mjs';
+import {parseShowJson} from './ww-show.mjs';
+const specimen=(id,label,custody,amount)=>parseShowJson(JSON.stringify({accountId:id,accountName:'Fixture',evidenceDate:'2026-10-15',positions:[{label,openPl:amount,marketValue:null,constituents:[{holding:{custody,quantity:-2},dte:8,state:'SHORT / obligation reported'}]}]}));
+test('one global table starts with broker/account and shares widths across mixed broker evidence',()=>{
+ const a=specimen('one','SHORT','Cash',12.34),b={...specimen('two','LONGER CONTRACT','BROKER_REPORTED',null),observation:{broker:'TASTYTRADE'}};
+ const accounts=[{id:'one',alias:'pts'},{id:'two',alias:'sawdust'}];
+ const output=renderPositionCollection([a,b],{tty:true,noColor:true,accounts});
+ const lines=output.trimEnd().split('\n');assert.equal(lines.length,3);
+ assert.match(lines[0],/^BROKER\s+ACCOUNT\s+POSITION \/ CONTRACT\s+CUSTODY/);
+ assert.equal(output.match(/POSITION \/ CONTRACT/g).length,1);assert.ok(!output.includes('inventory'));
+ assert.match(lines[1],/^Fidelity\s+pts\s+SHORT/);assert.match(lines[2],/^tastytrade\s+sawdust\s+LONGER CONTRACT/);
+ for(const line of lines.slice(1))assert.equal(line.indexOf('-2'),lines[0].indexOf('QTY')+1);
+ assert.ok(lines[2].slice(lines[0].indexOf('CUSTODY'),lines[0].indexOf('QTY')).includes('?'));
+ assert.equal(renderPositions(a,{tty:true,noColor:true,accountLabel:'pts'}),renderPositionCollection([a],{tty:true,noColor:true,accounts}));
+ assert.ok(!renderPositionCollection([b],{tty:true,noColor:true,accounts}).includes('CUSTODY'));
+});
+test('brand/alias accents preserve alignment, suppression and complete unmodified JSONL',()=>{
+ const a=specimen('one','SHORT','Cash',12.34),b={...specimen('two','LONGER','BROKER_REPORTED',null),observation:{broker:'TASTYTRADE'}};
+ const options={tty:true,accounts:[{id:'one',alias:'pts'},{id:'two',alias:'tt1'}],env:{TERM:'xterm'}};
+ const colored=renderPositionCollection([a,b],options),plain=renderPositionCollection([a,b],{...options,noColor:true});
+ assert.equal(colored.replace(/\x1b\[[0-9;]*m/g,''),plain);
+ for(const marker of ['\x1b[32mFidelity','\x1b[91mtastytrade','\x1b[96mpts','\x1b[96mtt1','\x1b[92m'])assert.ok(colored.includes(marker));
+ for(const env of [{NO_COLOR:''},{TERM:'dumb'}])assert.ok(!renderPositionCollection([a,b],{...options,env}).includes('\x1b'));
+ const expected=JSON.stringify(a)+'\n'+JSON.stringify(b)+'\n';
+ assert.equal(renderPositionCollection([a,b],{...options,format:'jsonl'}),expected);
+ assert.equal(renderPositionCollection([a,b],{tty:false}),expected);
+ assert.equal(renderPositionCollection([],{...options,format:'jsonl'}),'');
+ assert.equal(renderPositionCollection([],{tty:false}),'');
+ assert.match(renderPositionCollection([],{tty:true,noColor:true}),/^BROKER\s+ACCOUNT/);
+ assert.match(renderPositionCollection([a],{tty:true,noColor:true}),/one/);
+});

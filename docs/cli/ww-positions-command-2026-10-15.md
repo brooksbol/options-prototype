@@ -125,3 +125,24 @@ output and verification JSON stay in the release's private directory outside
 Git. Installed history/pull help is functional and their source/manuals are
 byte-identical to the prior accepted installed release. No Principal Product
 acceptance, new financial capability or managed-Position monitoring is claimed.
+
+## Single-table Product refinement — October 15, 2026
+
+Principal requests BROKER and ACCOUNT as columns 1 and 2 and one human table
+across the returned Positions. This supersedes the prior compact per-Account
+headings and joined-table delivery specimen. Reuse the existing compact row
+projection and formatting with one global width calculation and one header.
+Broker brand colors and cyan aliases remain; opaque Account fallback stays gray.
+Mixed broker output retains CUSTODY when reported by any constituent and displays
+? for unspecified brokerage custody, rather than exposing BROKER_REPORTED.
+Explicit Account compact output follows the same table grammar. Verbose evidence
+detail remains available; snapshot/evidence dates remain in verbose/JSONL instead
+of per-Account compact headings. Complete JSONL, retrieval, authorization and
+Position/financial interpretation are unchanged. The compatibility alias shares
+this renderer. No backend/history/pull/brokerage change is authorized or needed.
+
+Focused specimens verify first-two-column order, one header/global alignment,
+multiple brokers, quantity/sign/unknown preservation, color equivalence/opt-outs,
+empty output, explicit Account consistency and byte-identical original snapshot
+JSONL. Deliver through the existing normal installed CLI release mechanism and
+verify exact `ww positions` without acquiring new evidence.

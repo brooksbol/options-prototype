@@ -4,7 +4,7 @@ import {parseHistory,readHistory,renderHistory,readHistories,renderHistories,his
 import { parseCapital,readCapital,renderCapital,CAPITAL_HELP } from "./ww-capital.mjs";
 import { readFile } from "node:fs/promises";
 import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
-import { parsePositions, readPositions, readPositionCollection, renderPositions, POSITIONS_HELP, parseObservations, readObservations, renderObservations, OBSERVATIONS_HELP } from "./ww-positions.mjs";
+import { parsePositions, readPositions, readPositionCollection, renderPositionCollection, renderPositions, POSITIONS_HELP, parseObservations, readObservations, renderObservations, OBSERVATIONS_HELP } from "./ww-positions.mjs";
 import { resolveAccount, readAccounts, renderAccounts, ACCOUNTS_HELP } from "./ww-accounts.mjs";
 import {readAccountScope,syncAccounts,fetchDefault,pull,renderUpdate} from './ww-update.mjs';
 import { parseSync, syncAccount, SYNC_HELP } from "./ww-sync.mjs";
@@ -811,12 +811,9 @@ export async function main(args) {
     if (parsed.account === undefined) {
       const accounts = await readAccounts(token,{base});
       const snapshots = await readPositionCollection(token,{base});
-      const human = parsed.format !== 'jsonl' && (!!process.stdout.isTTY || parsed.verbose || parsed.format === 'table');
-      const output = snapshots.map(snapshot => renderPositions(snapshot, {
-        ...parsed, accountLabel: accounts.find(a => a.id === snapshot.accountId)?.alias,
-        tty: !!process.stdout.isTTY,
-      })).join(human ? '\n' : '');
-      process.stdout.write(output || (human ? 'No admitted Positions available in authorized Accounts.\n' : ''));
+      process.stdout.write(renderPositionCollection(snapshots, {
+        ...parsed, accounts, tty: !!process.stdout.isTTY,
+      }));
       return;
     }
     const account = await resolveAccount(parsed.account, token,{base});

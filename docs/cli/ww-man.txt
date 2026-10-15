@@ -206,8 +206,9 @@ HISTORICAL POSITION OBSERVATIONS
     Original artifact access requires separate authority.
 
 HUMAN POSITION OUTPUT
-    Default terminal output and --table show a compact reported-inventory heading
-    and aligned records. Custody distinguishes otherwise identical symbols.
+    Default terminal output and --table show one aligned table across Accounts.
+    BROKER and ACCOUNT are columns 1 and 2; one header and shared column widths.
+    Custody distinguishes otherwise identical symbols; unknown broker custody is ?.
     DTE(today) uses the inspection date in New York; ? means unavailable/unknown.
     Signed quantities and adjusted roots are preserved. Past-expiry uncertainty
     remains in the affected record. Evidence dates are observations, not events.

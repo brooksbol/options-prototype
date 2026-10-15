@@ -11,7 +11,7 @@ Without --account, inspect available evidence across all authorized Accounts.
 Aliases resolve through authorized backend Account discovery. REST uses opaque Account IDs.
 Requires WW_API_TOKEN, account.read:ID and account.positions.read:ID.
 --snapshot  Requires --account; select an exact retained observation, without as-of inference.
-Human default: compact reported inventory. DTE(today) uses inspection date in New York;
+Human default: one compact table, BROKER then ACCOUNT, across returned Positions. DTE(today) uses inspection date in New York;
 ? means unavailable/unknown. Inventory dates do not establish events or intraday order.
 --verbose includes full snapshot identity, provenance, evaluation time and qualifications.
 JSONL preserves the complete backend read, including all qualifications.`;
@@ -119,7 +119,7 @@ export function renderPositions(data, { verbose = false, format, tty = false, ac
   if (format === 'jsonl' || !tty && !verbose && format !== 'table') return JSON.stringify(data) + '\n';
   const color=!noColor&&!Object.hasOwn(env,'NO_COLOR')&&env.TERM!=='dumb';
   const ink=(text,code)=>color?`\x1b[${code}m${text}\x1b[97m`:text;
-  if (!verbose) return renderCompactPositions(data,{accountLabel,color,ink});
+  if (!verbose) return renderCompactPositions([data],{accountLabel,color,ink});
   const unavailable=text=>text.replace(/\?/g,()=>ink('?','37'));
   // Indentation is inside the label cell. All numeric cells share the same absolute offsets.
   const headers = ['POSITION / CONTRACT', 'QTY', 'DTE', 'OPEN P/L', 'DELTA(sh)', 'CAP REQ', 'MKT VALUE', 'BID / ASK', 'STATE / TERMS'];
@@ -170,25 +170,42 @@ export function renderPositions(data, { verbose = false, format, tty = false, ac
 }
 
 
-function renderCompactPositions(data,{accountLabel,color,ink}) {
-  const heading=`${ink(safe(accountLabel??data.accountId),accountLabel?'96':'38;5;240')} — ${ink(data.observation?'tastytrade':'Fidelity',data.observation?'91':'32')} inventory ${safe(data.evidenceDate)}`;
-  const headers=['POSITION / CONTRACT','CUSTODY','QTY','DTE(today)','OPEN P/L','MKT VALUE','STATE'];
-  const rows=data.positions.map(p=>{
+export function renderPositionCollection(snapshots, {accounts = [], ...options} = {}) {
+  const human = options.format !== 'jsonl' && (options.tty || options.verbose || options.format === 'table');
+  if (!human || options.verbose) {
+    const output = snapshots.map(data => renderPositions(data, {
+      ...options, accountLabel: accounts.find(a => a.id === data.accountId)?.alias,
+    })).join(human ? '\n' : '');
+    return output || (human ? 'No admitted Positions available in authorized Accounts.\n' : '');
+  }
+  const env = options.env ?? process.env;
+  const color = !options.noColor && !Object.hasOwn(env,'NO_COLOR') && env.TERM !== 'dumb';
+  const ink = (text,code) => color ? `\x1b[${code}m${text}\x1b[97m` : text;
+  return renderCompactPositions(snapshots,{accounts,color,ink});
+}
+
+function renderCompactPositions(snapshots,{accounts = [],accountLabel,color,ink}) {
+  const headers=['BROKER','ACCOUNT','POSITION / CONTRACT','CUSTODY','QTY','DTE(today)','OPEN P/L','MKT VALUE','STATE'];
+  const rows=snapshots.flatMap(data=>data.positions.map(p=>{
     const leg=p.constituents.length===1?p.constituents[0]:null;
     const state=leg?safe(leg.state).replace(' / obligation reported','').replace(' / right reported','').replace(/ reported$/,''):'OBSERVED';
-    return [safe(p.label),leg?safe(leg.holding.custody):'',leg?quantity(leg.holding.quantity):'',leg?number(leg.dte):'',number(p.openPl,true),number(p.marketValue,true),state];
-  });
-  if(!data.positions.some(p=>p.constituents.some(l=>l.holding.custody!=='BROKER_REPORTED'))) {
-    headers.splice(1,1);for(const row of rows)row.splice(1,1);
+    const alias=accountLabel??accounts.find(a=>a.id===data.accountId)?.alias;
+    return [data.observation?'tastytrade':'Fidelity',safe(alias??data.accountId),safe(p.label),leg?(leg.holding.custody==='BROKER_REPORTED'?'?':safe(leg.holding.custody)):'',leg?quantity(leg.holding.quantity):'',leg?number(leg.dte):'',number(p.openPl,true),number(p.marketValue,true),state];
+  }));
+  if(!snapshots.some(data=>data.positions.some(p=>p.constituents.some(l=>l.holding.custody!=='BROKER_REPORTED')))) {
+    headers.splice(3,1);for(const row of rows)row.splice(3,1);
   }
   const widths=headers.map((h,i)=>Math.max(h.length,...rows.map(row=>row[i].length)));
+  const aliases=new Set(accounts.map(a=>safe(a.alias)));if(accountLabel)aliases.add(safe(accountLabel));
   const line=(row,header=false)=>row.map((v,i)=>{
     const padded=['QTY','DTE(today)','OPEN P/L','MKT VALUE'].includes(headers[i])?v.padStart(widths[i]):v.padEnd(widths[i]);
+    if(!header&&headers[i]==='BROKER')return ink(padded,v==='tastytrade'?'91':'32');
+    if(!header&&headers[i]==='ACCOUNT')return ink(padded,aliases.has(v)?'96':'38;5;240');
     if(!header&&['OPEN P/L','MKT VALUE'].includes(headers[i])&&/^-/.test(v.trim()))return ink(padded,'91');
     if(!header&&['OPEN P/L','MKT VALUE'].includes(headers[i])&&/^\d/.test(v.trim())&&/[1-9]/.test(v.trim()))return ink(padded,'92');
     return padded.replace(/\?/g,()=>ink('?','37'));
   }).join('  ').trimEnd();
-  const out=rows.length?[heading,line(headers,true),...rows.map(row=>line(row))]:[heading,'No Positions reported.'];
+  const out=[line(headers,true),...(rows.length?rows.map(row=>line(row)):['No Positions reported.'])];
   return out.map(v=>color?`\x1b[97m${v}\x1b[0m`:v).join('\n')+'\n';
 }
 

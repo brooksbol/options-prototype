@@ -79,11 +79,11 @@ test('actual tastytrade Java projection exposes independent contracts with quant
   assert.ok(!output.includes('opening attribution unresolved'));assert.match(renderPositions(data,{verbose:true,noColor:true}),/opening attribution unresolved/);assert.ok(!output.includes('0.18'));
 });
 
-test('default human output is inventory records only; detail and machine evidence remain available',()=>{
+test('default human output is one broker/account table; detail and machine evidence remain available',()=>{
  const s=specimen();s.positions[1].constituents[0].holding.quantity=parseShowJson('200.123456789012');
  const out=renderPositions(s,{format:'table',accountLabel:'pts',noColor:true});
- assert.equal(out.trimEnd().split('\n').length,s.positions.length+2);
- assert.match(out,/pts — Fidelity inventory 2026-10-11/);assert.match(out,/DTE\(today\)/);assert.match(out,/200\.123456789012/);
+ assert.equal(out.trimEnd().split('\n').length,s.positions.length+1);
+ assert.match(out,/BROKER\s+ACCOUNT\s+POSITION \/ CONTRACT/);assert.match(out,/DTE\(today\)/);assert.match(out,/200\.123456789012/);
  for(const prose of ['WORKING BROKERAGE ORDERS','Evidence:','Snapshot:','Historical snapshot','Close terms:','Program:'])assert.ok(!out.includes(prose));
  assert.match(out,/CUSTODY/);assert.match(out,/Cash/);
  assert.equal(renderPositions(s,{format:'jsonl'}),JSON.stringify(s)+'\n');
