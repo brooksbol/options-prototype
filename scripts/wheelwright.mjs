@@ -811,7 +811,7 @@ export async function main(args) {
     if (parsed.account === undefined) {
       const accounts = await readAccounts(token,{base});
       const snapshots = await readPositionCollection(token,{base});
-      const human = !!process.stdout.isTTY || parsed.verbose || parsed.format === 'table';
+      const human = parsed.format !== 'jsonl' && (!!process.stdout.isTTY || parsed.verbose || parsed.format === 'table');
       const output = snapshots.map(snapshot => renderPositions(snapshot, {
         ...parsed, accountLabel: accounts.find(a => a.id === snapshot.accountId)?.alias,
         tty: !!process.stdout.isTTY,

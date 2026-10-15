@@ -89,3 +89,9 @@ saved configured v2 backend, with real retained evidence. It performs pure v2
 GETs only; no history/pull/acquisition or brokerage operation is needed. Preserve
 private output outside Git. Independent engineering review and installed-command
 verification are evidence; Principal acceptance is not claimed automatically.
+
+Pre-install independent review rejected 16cf477 for an explicit JSONL-on-terminal
+composition defect (blank separators/prose on empty collections). The corrected
+candidate excludes explicit JSONL from human collection framing; regression
+specimens cover multi-Account and empty terminal JSONL. The rejected candidate
+was not installed. This preserves the output-selection contract across scopes.

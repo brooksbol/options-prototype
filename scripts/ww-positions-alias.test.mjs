@@ -60,7 +60,11 @@ test('public command forms have byte-identical output, errors, status and backen
   mode='multi';
   const multiple=await compare([]);assert.equal(multiple.stdout.trim().split('\n').length,2);
   assert.equal((await compare([],{FIXTURE_TTY:'1'})).stdout.match(/inventory/g).length,2);
+  const terminalJson=await compare(['--jsonl'],{FIXTURE_TTY:'1'});
+  assert.equal(terminalJson.stdout.trimEnd().split('\n').length,2);
+  assert.ok(terminalJson.stdout.trimEnd().split('\n').every(line=>JSON.parse(line).accountId));
   mode='empty';assert.equal((await compare([])).stdout,'');
+  assert.equal((await compare(['--jsonl'],{FIXTURE_TTY:'1'})).stdout,'');
   assert.match((await compare([],{FIXTURE_TTY:'1'})).stdout,/No admitted Positions/);
   mode='denied';assert.equal((await compare([],{},1)).stdout,'');
   mode='malformed';assert.equal((await compare([],{},1)).stdout,'');
