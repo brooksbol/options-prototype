@@ -184,13 +184,35 @@ export function renderPositionCollection(snapshots, {accounts = [], ...options} 
   return renderCompactPositions(snapshots,{accounts,color,ink});
 }
 
+// Human typography only: preserve raw source identities and explicit association labels.
+function compactContractLabel(position) {
+  const leg = position.constituents.length === 1 ? position.constituents[0] : null;
+  const holding = leg?.holding;
+  if (holding?.kind !== 'Options' || position.label !== holding.contract ||
+      position.identityBasis === 'EXPLICIT_SNAPSHOT_ASSOCIATION') return safe(position.label);
+  const raw = holding.contract;
+  const occ = /^([A-Z][A-Z0-9.]{0,9}) +(\d{6})([CP])(\d{8})$/.exec(raw);
+  const fidelity = /^-([A-Z][A-Z0-9.]*)(\d{6})([CP])(\d+(?:\.\d+)?)$/.exec(raw);
+  const match = occ ?? fidelity;
+  if (!match) return safe(position.label);
+  const [, root, day, side, sourceStrike] = match;
+  // Display only a source spelling consistent with the backend-published expiration.
+  if (holding.expiration !== `20${day.slice(0,2)}-${day.slice(2,4)}-${day.slice(4,6)}`)
+    return safe(position.label);
+  const encoded = occ ? `${sourceStrike.slice(0,-3)}.${sourceStrike.slice(-3)}` : sourceStrike;
+  const [integer, fraction = ''] = encoded.split('.');
+  const whole = integer.replace(/^0+(?=\d)/,'');
+  const decimals = fraction.replace(/0+$/,'');
+  return `${root} ${day}${side}${whole}${decimals ? '.' + decimals : ''}`;
+}
+
 function renderCompactPositions(snapshots,{accounts = [],accountLabel,color,ink}) {
   const headers=['BROKER','ACCOUNT','POSITION / CONTRACT','CUSTODY','QTY','DTE(today)','OPEN P/L','MKT VALUE','STATE'];
   const rows=snapshots.flatMap(data=>data.positions.map(p=>{
     const leg=p.constituents.length===1?p.constituents[0]:null;
     const state=leg?safe(leg.state).replace(' / obligation reported','').replace(' / right reported','').replace(/ reported$/,''):'OBSERVED';
     const alias=accountLabel??accounts.find(a=>a.id===data.accountId)?.alias;
-    return [data.observation?'tastytrade':'Fidelity',safe(alias??data.accountId),safe(p.label),leg?(leg.holding.custody==='BROKER_REPORTED'?'?':safe(leg.holding.custody)):'',leg?quantity(leg.holding.quantity):'',leg?number(leg.dte):'',number(p.openPl,true),number(p.marketValue,true),state];
+    return [data.observation?'tastytrade':'Fidelity',safe(alias??data.accountId),compactContractLabel(p),leg?(leg.holding.custody==='BROKER_REPORTED'?'?':safe(leg.holding.custody)):'',leg?quantity(leg.holding.quantity):'',leg?number(leg.dte):'',number(p.openPl,true),number(p.marketValue,true),state];
   }));
   if(!snapshots.some(data=>data.positions.some(p=>p.constituents.some(l=>l.holding.custody!=='BROKER_REPORTED')))) {
     headers.splice(3,1);for(const row of rows)row.splice(3,1);

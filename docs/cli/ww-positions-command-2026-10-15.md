@@ -159,3 +159,26 @@ all snapshot evidence except request/evaluation clocks. History/update sources,
 backend and acquisition are unchanged. Private terminal/verification evidence
 stays with the release outside Git. This is installed engineering verification,
 not an invented Principal acceptance disposition.
+
+## Contract typography and holdings-only bare output — October 15, 2026
+
+Principal identifies inconsistent Fidelity/tastytrade POSITION / CONTRACT syntax
+and directs that bare output must not show close orders. Compact output remains
+holdings-only: no orders, close terms or order inference are introduced.
+Single-contract Options whose Position label equals their observed contract use
+common human typography `ROOT YYMMDD{C|P}STRIKE`, for example `XLF 261127P52`
+and `USO 261023C153`. Fidelity's source prefix and OCC padding/fixed decimal
+encoding are display syntax, not quantity direction or Wheelwright identity.
+Require backend kind Options and matching published expiration; preserve raw
+fallback for unrecognized/mismatched forms and custom/explicit association labels.
+Adjusted roots (ETHA1), fractional strikes and all raw source values are preserved;
+exact decimal text formatting uses no floating-point financial calculation.
+Verbose/JSONL remain raw and unchanged. No canonical identity, equivalence claim,
+Position association, backend/API or acquisition behavior changes.
+
+Recovered precedents: existing Fidelity compact source parser and backend
+TastytradeHoldings supported envelope, PositionSnapshot kind/expiration and
+single-contract labels. This is a bounded human formatter, not reuse of the
+standalone tt broker client or introduction of client domain authority. Regression
+covers both encodings, fractional precision, adjusted roots, malformed/fallback
+inputs, labels and byte-identical unmutated JSONL, plus holdings-only compact output.
