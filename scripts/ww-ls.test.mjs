@@ -225,7 +225,7 @@ test("missing credentials, private .ww.env and grammar before credential loading
   const {tmpdir}=await import("node:os");const {join}=await import("node:path");
   const dir=await mkdtemp(join(tmpdir(),"ww-ls-private-"));
   const isolated=join(dir,"scripts","wheelwright.mjs");await mkdir(join(dir,"scripts"));await copyFile(cli,isolated);
-  for(const module of ["ww-show.mjs","ww-show-fields.mjs","ww-positions.mjs", "ww-capital.mjs","ww-sync.mjs", "ww-accounts.mjs"])
+  for(const module of ["ww-show.mjs","ww-show-fields.mjs","ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs","ww-sync.mjs", "ww-accounts.mjs"])
     await copyFile(new URL(module,import.meta.url),join(dir,"scripts",module));
   try{
     const actual=await realpath(isolated);

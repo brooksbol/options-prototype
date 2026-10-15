@@ -1,0 +1,53 @@
+WW-PULL(1)                  Wheelwright Manual                  WW-PULL(1)
+
+NAME
+    ww pull — Update WW with everything so I can start doing stuff.
+
+SYNOPSIS
+    ww pull --help | -h | --man
+    ww pull                    (execution deferred; not implemented)
+
+PRODUCT CONTRACT
+    Update Wheelwright's retained evidence and domain state from all
+    applicable authorized sources before beginning work. Wheelwright is
+    the destination. Intended routine: ww pull, then ww show ..., ww ls ...,
+    and ww history ... . Targeted sync and fetch remain useful separately.
+
+    The agreed sequence is SYNC -> DISCOVER -> FETCH -> REPORT:
+      SYNC      Update applicable authorized brokerage Account evidence.
+      DISCOVER  Backend selects authorized holdings' underlyings UNION
+                explicitly configured monitoring subjects, using latest
+                admitted holdings after synchronization.
+      FETCH     Acquire applicable market evidence through backend capabilities.
+      REPORT    Summarize updates, reuse, failures and incomplete coverage.
+
+    Deduplicate by canonical instrument identity. Preserve configured
+    monitoring subjects even when not held. Closed holdings are excluded
+    unless independently relevant through monitoring. Failed sync does
+    not erase retained holdings. Empty default subjects are a valid no-op.
+    Watchlists, strategy candidates and other sources are outside this default.
+
+OUTPUT CONTRACT
+    A concise Git-style change report, not a dashboard, holdings table,
+    transaction listing or quote dump. Report authoritative outcomes only:
+    sources updated or reused, failures, prior retained evidence and coverage
+    or freshness limitations. Do not fabricate position/transaction deltas.
+    Preserve independent source timestamps and meaningful partial-failure
+    exit status. Completion never implies an atomic portfolio snapshot,
+    universal freshness or complete historical coverage.
+
+STATUS
+    Product direction and default-subject policy are accepted. Execution
+    remains deferred. Help and this manual are local and need no backend
+    or credentials. Bare ww pull exits with a clear limitation and performs
+    no synchronization or acquisition. No successful-update exit contract
+    is implemented yet.
+
+    Missing primitives include backend default-subject selection with
+    authorized monitoring evidence and adequate aggregate sync/reporting.
+    Pull must compose public capabilities, never add a second acquisition
+    engine, read SQLite, call providers or reconstruct relevance in the CLI.
+
+SEE ALSO
+    ww sync --help, ww fetch --man, ww history --man
+    docs/cli/ww-update-product-clarifications-2026-10-15.md

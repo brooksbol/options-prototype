@@ -1,0 +1,77 @@
+pts — Fidelity transaction history | 2 records | RETAINED/UNVERIFIED
+Imported 2026-10-15T20:35:05.536459Z; row-equivalence identity; brokerage freshness unknown | Observed 2026-10-14–2026-10-15 | checked ? | available result complete; lifetime/source consistency unverified
+sourceTransactionId: ?
+executedAt: ?
+sourceCreatedAt: ?
+sourceSubType: ?
+underlyingSymbol: ?
+instrumentType: ?
+multiplier: ?
+orderId: ?
+reversesSourceId: ?
+otherCharge: ?
+estimatedFee: ?
+transactionDate: 2026-10-14
+settlementDate: 2026-10-15
+kind: OTHER
+sourceType: Fidelity Activity
+action: YOU SOLD
+sourceAction: YOU SOLD
+symbol: DEMO
+description: Demo shares
+currency: ?
+quantity: -2
+price: 1.2345678901234567
+value: ?
+netCash: 2.3491357802469134
+commission: -0.10
+fees: -0.02
+commissionStatus: REPORTED
+feesStatus: REPORTED_TOTAL
+feeComponents: {"clearing-fees":null,"regulatory-fees":null,"proprietary-index-option-fees":null,"currency-conversion-fees":null}
+normalization: SUPPORTED
+sourceIdentityStatus: ROW_EQUIVALENCE_ONLY
+transactionId: 17831495-839e-435f-9f39-27df0716ab4d
+accountId: acct_b0a55f5f47e14cae8f9f001788b476cc
+provenance: {"artifactId":"5b65768f-4ed6-4a97-9661-191752ec513c","sha256":"c9f70fbe07708e9d334da74359a95bd6afe297fe19b03c634f8bb4008ff2668c","observationId":"3ea82520-5470-4131-a009-8b2b06247e74","receivedAt":"2026-10-15T20:35:05.536459Z","previousObservationId":null,"rowNumber":2}
+correctionStatus: NONE_OBSERVED
+reversesTransactionId: ?
+reversalStatus: NONE_REPORTED
+
+sourceTransactionId: ?
+executedAt: ?
+sourceCreatedAt: ?
+sourceSubType: ?
+underlyingSymbol: ?
+instrumentType: ?
+multiplier: ?
+orderId: ?
+reversesSourceId: ?
+otherCharge: ?
+estimatedFee: ?
+transactionDate: 2026-10-15
+settlementDate: ?
+kind: OTHER
+sourceType: Fidelity Activity
+action: CASH TRANSFER
+sourceAction: CASH TRANSFER
+symbol: ?
+description: Synthetic deposit
+currency: ?
+quantity: ?
+price: ?
+value: ?
+netCash: 250.00
+commission: ?
+fees: ?
+commissionStatus: NOT_REPORTED
+feesStatus: NOT_REPORTED
+feeComponents: {"clearing-fees":null,"regulatory-fees":null,"proprietary-index-option-fees":null,"currency-conversion-fees":null}
+normalization: SUPPORTED
+sourceIdentityStatus: ROW_EQUIVALENCE_ONLY
+transactionId: bd1e5841-b030-47ee-9b49-e7107411f6fc
+accountId: acct_b0a55f5f47e14cae8f9f001788b476cc
+provenance: {"artifactId":"5b65768f-4ed6-4a97-9661-191752ec513c","sha256":"c9f70fbe07708e9d334da74359a95bd6afe297fe19b03c634f8bb4008ff2668c","observationId":"8e870206-fcd1-465b-863c-ac769f1842d6","receivedAt":"2026-10-15T20:35:05.536459Z","previousObservationId":null,"rowNumber":3}
+correctionStatus: NONE_OBSERVED
+reversesTransactionId: ?
+reversalStatus: NONE_REPORTED

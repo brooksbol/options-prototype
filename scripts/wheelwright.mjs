@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {parseHistory,readHistory,renderHistory,readHistories,renderHistories,historyDiagnostic,HISTORY_HELP} from './ww-history.mjs';
 
 import { parseCapital,readCapital,renderCapital,CAPITAL_HELP } from "./ww-capital.mjs";
 import { readFile } from "node:fs/promises";
@@ -14,10 +15,15 @@ const ROOT_HELP = `Usage: ww <command> [options]
        ww --help | -h | --man
 
 Small Wheelwright evidence tools for people, shells, and agents.
-Use explicit symbols. Reading never silently acquires; acquisition never claims
-freshness or suitability. Pipe commands without a format flag.
+Use explicit symbols or Account nicknames. Held-quote reads never acquire.
+Account history uses backend policy-bounded read-through with explicit outcomes.
+Acquisition never claims suitability. Pipe commands without a format flag.
 
 Working commands:
+  pull --help | --man
+      Read the agreed update workflow; pull execution is not implemented.
+  history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl] [--verbose]
+      Read Account transaction evidence through the backend history facade.
   ls accounts [--table | --tsv | --jsonl]
       Find account aliases before syncing or inspecting Positions.
   ls portfolio-capital-observations --account ACCOUNT [--tsv | --table | --jsonl]
@@ -218,6 +224,15 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "pull") {
+    if(rest.length===1&&["--help","-h","--man"].includes(rest[0]))return {command:"command-man",page:"pull"};
+    throw new WwError("pull: execution is not implemented; see ww pull --help",2);
+  }
+  if (command === "history") {
+    if(rest.length===1&&rest[0]==="--man")return {command:"command-man",page:"history"};
+    const parsed=parseHistory(rest);
+    return parsed.help?{command:"help",help:HISTORY_HELP}:{command:"history",...parsed};
+  }
   if (command === "sync") {
     const parsed = parseSync(rest);
     return parsed.help ? { command: "help", help: SYNC_HELP } : { command: "sync-account", ...parsed };
@@ -732,8 +747,24 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
-  const usesBackend=['ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const usesBackend=['history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
+  if(parsed.command==='history') {
+    const token=await readApiToken();
+    if(parsed.account===undefined) {
+      const results=await readHistories(await readAccounts(token,{base}),token,{base});
+      process.stdout.write(renderHistories(results,{...parsed,tty:!!process.stdout.isTTY}));
+      for(const r of results)process.stderr.write(r.data?historyDiagnostic(r.data):`history: ${r.account.alias}: ${r.error}; Account result unavailable\n`);
+      if(results.some(r=>r.error||!r.data.complete))process.exitCode=1;
+      return;
+    }
+    const account=await resolveAccount(parsed.account,token,{base});
+    const result=await readHistory(account.id,token,{base});
+    process.stdout.write(renderHistory(result,{...parsed,accountLabel:account.alias,tty:!!process.stdout.isTTY}));
+    process.stderr.write(historyDiagnostic(result));
+    if(!result.complete)process.exitCode=1;
+    return;
+  }
   if(parsed.command==='ls-capital') {
     const token=await readApiToken(),account=await resolveAccount(parsed.account,token,{base});
     const data=await readCapital(account.id,token,{base});

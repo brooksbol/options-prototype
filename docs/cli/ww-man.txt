@@ -10,9 +10,22 @@ SYNOPSIS
 DESCRIPTION
     ww supplies small evidence capabilities to people, shell scripts, and
     agents. The shell composes commands with pipes, redirection, and &&.
-    Reading held evidence is separate from asking Wheelwright to acquire it.
+    Held-quote reads are separate from explicit acquisition. Domain history
+    reads may use bounded backend read-through with truthful status.
 
 WORKING COMMANDS
+    history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl] [--verbose]
+        Read Account-scoped transaction evidence; omitted Account composes
+        authorized Account reads. tastytrade supports backend-policy read-through;
+        Fidelity uses retained imported CSVs. Exact money and source lineage,
+        separate freshness/coverage, no strategy/P&L/tax accounting.
+        See ww history --help and ww history --man.
+
+    pull --help | --man
+        ww pull — Update WW with everything so I can start doing stuff.
+        Product workflow: SYNC -> DISCOVER -> FETCH -> REPORT. Execution is
+        deferred; help/manual are available and bare pull performs no update.
+
     ls accounts [--table | --tsv | --jsonl] [--no-color]
         List accounts you can access, with their aliases, names, broker
         associations and immutable IDs. Start with 'ww ls accounts', then

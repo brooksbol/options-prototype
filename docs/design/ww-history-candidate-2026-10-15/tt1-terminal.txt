@@ -1,0 +1,25 @@
+tt1 — tastytrade transaction history | 21 records | RETAINED/REUSABLE
+Observed 2026-09-29–2026-10-15 | checked 2026-10-15T18:00:00Z | available result complete; lifetime/source consistency unverified
+DATE                       TYPE / ACTION       SYMBOL / DESCRIPTION           QTY  PRICE     VALUE  COMMISSION  REPORTED FEES  NET CASH  CCY  ORDER
+2026-09-29T09:00:00-06:00  Deposit             Reference fixture transaction    0      ?  +4000.00           ?           0.00  +4000.00  USD  ?
+2026-09-29T10:01:00-06:00  Sell to Open        DEMO 261120P00095000             1   1.50   +150.00       -1.00          -0.12   +148.88  USD  1
+2026-09-29T10:01:00-06:00  Sell to Open        DEMO 261120C00105000             1   1.25   +125.00       -1.00          -0.12   +123.88  USD  1
+2026-09-29T10:01:00-06:00  Buy to Open         DEMO 261120C00110000             1   0.40    -40.00       -1.00          -0.12    -41.12  USD  1
+2026-09-29T10:01:00-06:00  Buy to Open         DEMO 261120P00090000             1   0.50    -50.00       -1.00          -0.12    -51.12  USD  1
+2026-10-01T10:02:00-06:00  Buy to Open         DEMO 261120P00090000             1   0.50    -50.00       -1.00          -0.12    -51.12  USD  2
+2026-10-01T10:02:00-06:00  Sell to Open        DEMO 261120P00095000             1   1.50   +150.00       -1.00          -0.12   +148.88  USD  2
+2026-10-01T10:02:00-06:00  Sell to Open        DEMO 261120C00105000             1   1.25   +125.00       -1.00          -0.12   +123.88  USD  2
+2026-10-01T10:02:00-06:00  Buy to Open         DEMO 261120C00110000             1   0.40    -40.00       -1.00          -0.12    -41.12  USD  2
+2026-10-06T10:03:00-06:00  Buy to Open         DEMO 261120P00090000             1   0.50    -50.00       -1.00          -0.12    -51.12  USD  3
+2026-10-06T10:03:00-06:00  Buy to Open         DEMO 261120C00110000             1   0.40    -40.00       -1.00          -0.12    -41.12  USD  3
+2026-10-06T10:03:00-06:00  Sell to Open        DEMO 261120P00095000             1   1.50   +150.00       -1.00          -0.12   +148.88  USD  3
+2026-10-06T10:03:00-06:00  Sell to Open        DEMO 261120C00105000             1   1.25   +125.00       -1.00          -0.12   +123.88  USD  3
+2026-10-09T10:04:00-06:00  Sell to Open        DEMO 261120P00095000             1   1.50   +150.00       -1.00          -0.12   +148.88  USD  4
+2026-10-09T10:04:00-06:00  Buy to Open         DEMO 261120P00090000             1   0.50    -50.00       -1.00          -0.12    -51.12  USD  4
+2026-10-12T09:00:00-06:00  Balance Adjustment  Reference fixture transaction    0      ?     -0.25           ?           0.00     -0.25  USD  ?
+2026-10-14T09:00:00-06:00  Deposit             Reference fixture transaction    0      ?  +1500.00           ?           0.00  +1500.00  USD  ?
+2026-10-15T10:05:00-06:00  Sell to Close       DEMO 261120P00090000             1   0.10    +10.00        0.00          -0.12     +9.88  USD  5
+2026-10-15T10:05:00-06:00  Buy to Close        DEMO 261120C00105000             1   0.45    -45.00        0.00          -0.12    -45.12  USD  5
+2026-10-15T10:05:00-06:00  Buy to Close        DEMO 261120P00095000             1   0.60    -60.00        0.00          -0.12    -60.12  USD  5
+2026-10-15T10:05:00-06:00  Sell to Close       DEMO 261120C00110000             1   0.05     +5.00        0.00          -0.12     +4.88  USD  5
+? = unreported; fees are as reported; cash signs are not P/L.

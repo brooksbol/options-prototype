@@ -95,3 +95,11 @@ tasks.register<JavaExec>("capitalHistoryPreview") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("previewReady") as? String)
 }
+
+// Synthetic transaction-history operator preview; disposable DB and loopback provider only.
+tasks.register<JavaExec>("transactionHistoryPreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.TransactionHistoryPreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}

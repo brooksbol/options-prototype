@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "Wheelwright v2 account evidence and Positions",
-    "version": "0.5.0",
-    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization."
+    "title": "Wheelwright v2 Account evidence, Positions and transaction history",
+    "version": "0.6.0",
+    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization. Account-nested transaction history is a retained-first backend facade with one explicit Account history grant and policy-bounded source acquisition. No strategy/tax/P&L interpretation."
   },
   "servers": [
     {
@@ -1057,6 +1057,177 @@
           }
         ]
       }
+    },
+    "/v2/accounts/{accountId}/transactions": {
+      "get": {
+        "operationId": "readAccountTransactions",
+        "summary": "Read selected Account transaction evidence",
+        "description": "Explicit account.transactions.read grant required. Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No query parameters or GET body. Account and transaction IDs confer no permission. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.transactions.read:{accountId}"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$",
+              "description": "Existing immutable Account ID; no ID migration."
+            }
+          },
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Single optional correlation UUID; never Account authority."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountTransactionCollection"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v2/accounts/{accountId}/transactions/{transactionId}": {
+      "get": {
+        "operationId": "readAccountTransaction",
+        "summary": "Read selected Account transaction evidence",
+        "description": "Explicit account.transactions.read grant required. Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No query parameters or GET body. Account and transaction IDs confer no permission. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.transactions.read:{accountId}"
+        ],
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$",
+              "description": "Existing immutable Account ID; no ID migration."
+            }
+          },
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Single optional correlation UUID; never Account authority."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authorized committed backend resource collection or metadata.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountTransactionDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1698,6 +1869,10 @@
           "positionsAcquire": {
             "type": "boolean",
             "description": "Explicit Account acquisition capability; independent of metadata, Position reads, artifacts and quotes. Defaults false on migration."
+          },
+          "transactionsRead": {
+            "type": "boolean",
+            "description": "Explicit Account history facade grant; includes only policy-bounded read-through."
           }
         },
         "required": [
@@ -1706,7 +1881,8 @@
           "positionsRead",
           "artifactsRead",
           "artifactsWrite",
-          "positionsAcquire"
+          "positionsAcquire",
+          "transactionsRead"
         ],
         "description": "One explicitly established backend User\u2013Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
       },
@@ -2198,6 +2374,729 @@
             }
           }
         }
+      },
+      "TransactionProvenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactId",
+          "sha256",
+          "observationId",
+          "receivedAt",
+          "previousObservationId",
+          "rowNumber"
+        ],
+        "properties": {
+          "artifactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "observationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "previousObservationId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "rowNumber": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "AccountTransaction": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourceTransactionId",
+          "transactionDate",
+          "executedAt",
+          "settlementDate",
+          "sourceCreatedAt",
+          "kind",
+          "sourceType",
+          "sourceSubType",
+          "action",
+          "sourceAction",
+          "symbol",
+          "underlyingSymbol",
+          "instrumentType",
+          "description",
+          "currency",
+          "quantity",
+          "price",
+          "multiplier",
+          "orderId",
+          "reversesSourceId",
+          "value",
+          "netCash",
+          "commission",
+          "commissionStatus",
+          "fees",
+          "feesStatus",
+          "otherCharge",
+          "normalization",
+          "feeComponents",
+          "estimatedFee",
+          "transactionId",
+          "accountId",
+          "provenance",
+          "correctionStatus",
+          "reversesTransactionId",
+          "reversalStatus",
+          "sourceIdentityStatus"
+        ],
+        "properties": {
+          "sourceTransactionId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,40}$"
+          },
+          "transactionDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "executedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "settlementDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "sourceCreatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "TRADE",
+              "MONEY_MOVEMENT",
+              "OTHER"
+            ]
+          },
+          "sourceType": {
+            "type": "string"
+          },
+          "sourceSubType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "action": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceAction": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "symbol": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "underlyingSymbol": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "instrumentType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z]{3}$"
+          },
+          "quantity": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "multiplier": {
+            "type": "null",
+            "description": "Not supplied by the transaction endpoint; never infer 100."
+          },
+          "orderId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,40}$"
+          },
+          "reversesSourceId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{1,40}$"
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "netCash": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "commission": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "commissionStatus": {
+            "type": "string",
+            "enum": [
+              "REPORTED",
+              "NOT_REPORTED"
+            ]
+          },
+          "fees": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "feesStatus": {
+            "type": "string",
+            "enum": [
+              "NOT_REPORTED",
+              "PARTIALLY_REPORTED",
+              "REPORTED_COMPONENTS_COMPLETE",
+              "REPORTED_TOTAL"
+            ]
+          },
+          "otherCharge": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "description": "Exact signed decimal string; null means unreported, not zero."
+          },
+          "normalization": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "QUALIFIED"
+            ]
+          },
+          "feeComponents": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "clearing-fees",
+              "regulatory-fees",
+              "proprietary-index-option-fees",
+              "currency-conversion-fees"
+            ],
+            "properties": {
+              "clearing-fees": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+                "description": "Exact signed decimal string; null means unreported, not zero."
+              },
+              "regulatory-fees": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+                "description": "Exact signed decimal string; null means unreported, not zero."
+              },
+              "proprietary-index-option-fees": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+                "description": "Exact signed decimal string; null means unreported, not zero."
+              },
+              "currency-conversion-fees": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+                "description": "Exact signed decimal string; null means unreported, not zero."
+              }
+            }
+          },
+          "estimatedFee": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$",
+            "description": "Existing immutable Account ID; no ID migration."
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/TransactionProvenance"
+          },
+          "correctionStatus": {
+            "type": "string",
+            "enum": [
+              "NONE_OBSERVED",
+              "CHANGED_OBSERVATION"
+            ]
+          },
+          "reversesTransactionId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reversalStatus": {
+            "type": "string",
+            "enum": [
+              "NONE_REPORTED",
+              "LINKED",
+              "UNRESOLVED"
+            ]
+          },
+          "sourceIdentityStatus": {
+            "type": "string",
+            "enum": [
+              "BROKER_TRANSACTION_ID",
+              "ROW_EQUIVALENCE_ONLY"
+            ]
+          }
+        }
+      },
+      "AccountTransactionCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "provider",
+          "environment",
+          "asOf",
+          "checkedAt",
+          "requestedFrom",
+          "requestedThrough",
+          "observedFrom",
+          "observedThrough",
+          "evidenceMode",
+          "freshness",
+          "acquisitionOutcome",
+          "providerTraversal",
+          "normalization",
+          "providerSnapshotConsistency",
+          "lifetimeCoverage",
+          "latestAttemptId",
+          "latestAttemptPages",
+          "complete",
+          "recordCount",
+          "transactions",
+          "lastImportedAt",
+          "identityBasis"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$",
+            "description": "Existing immutable Account ID; no ID migration."
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "TASTYTRADE",
+              "FIDELITY"
+            ]
+          },
+          "environment": {
+            "const": "PRODUCTION"
+          },
+          "asOf": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "checkedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "requestedFrom": {
+            "type": "null"
+          },
+          "requestedThrough": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "observedFrom": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "observedThrough": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "evidenceMode": {
+            "type": "string",
+            "enum": [
+              "ACQUIRED",
+              "RETAINED",
+              "UNAVAILABLE"
+            ]
+          },
+          "freshness": {
+            "type": "string",
+            "enum": [
+              "REUSABLE",
+              "STALE",
+              "UNAVAILABLE",
+              "UNVERIFIED"
+            ]
+          },
+          "acquisitionOutcome": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "REUSED",
+              "INCOMPLETE",
+              "UNAVAILABLE",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "providerTraversal": {
+            "type": "string",
+            "enum": [
+              "COMPLETE_AT_LAST_SUCCESS",
+              "INCOMPLETE",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "normalization": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "QUALIFIED"
+            ]
+          },
+          "providerSnapshotConsistency": {
+            "const": "UNVERIFIED"
+          },
+          "lifetimeCoverage": {
+            "const": "UNKNOWN"
+          },
+          "latestAttemptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "latestAttemptPages": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "recordCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25000
+          },
+          "transactions": {
+            "type": "array",
+            "maxItems": 25000,
+            "items": {
+              "$ref": "#/components/schemas/AccountTransaction"
+            }
+          },
+          "lastImportedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Fidelity processing time; never brokerage freshness."
+          },
+          "identityBasis": {
+            "type": "string",
+            "enum": [
+              "BROKER_TRANSACTION_ID",
+              "RETAINED_ROW_OBSERVATION"
+            ]
+          }
+        },
+        "description": "Bounded Account history. complete describes available normalized result, not lifetime history or atomic provider snapshot. Fidelity uses admitted activity rows with row-equivalence identity, unknown currency/freshness and no upstream acquisition."
+      },
+      "AccountTransactionDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "provider",
+          "environment",
+          "asOf",
+          "checkedAt",
+          "requestedFrom",
+          "requestedThrough",
+          "observedFrom",
+          "observedThrough",
+          "evidenceMode",
+          "freshness",
+          "acquisitionOutcome",
+          "providerTraversal",
+          "normalization",
+          "providerSnapshotConsistency",
+          "lifetimeCoverage",
+          "latestAttemptId",
+          "latestAttemptPages",
+          "complete",
+          "recordCount",
+          "transaction",
+          "lastImportedAt",
+          "identityBasis"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$",
+            "description": "Existing immutable Account ID; no ID migration."
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "TASTYTRADE",
+              "FIDELITY"
+            ]
+          },
+          "environment": {
+            "const": "PRODUCTION"
+          },
+          "asOf": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "checkedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "requestedFrom": {
+            "type": "null"
+          },
+          "requestedThrough": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "observedFrom": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "observedThrough": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "evidenceMode": {
+            "type": "string",
+            "enum": [
+              "ACQUIRED",
+              "RETAINED",
+              "UNAVAILABLE"
+            ]
+          },
+          "freshness": {
+            "type": "string",
+            "enum": [
+              "REUSABLE",
+              "STALE",
+              "UNAVAILABLE",
+              "UNVERIFIED"
+            ]
+          },
+          "acquisitionOutcome": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "REUSED",
+              "INCOMPLETE",
+              "UNAVAILABLE",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "providerTraversal": {
+            "type": "string",
+            "enum": [
+              "COMPLETE_AT_LAST_SUCCESS",
+              "INCOMPLETE",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "normalization": {
+            "type": "string",
+            "enum": [
+              "SUPPORTED",
+              "QUALIFIED"
+            ]
+          },
+          "providerSnapshotConsistency": {
+            "const": "UNVERIFIED"
+          },
+          "lifetimeCoverage": {
+            "const": "UNKNOWN"
+          },
+          "latestAttemptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "latestAttemptPages": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "recordCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 25000,
+            "description": "Count of the available Account history collection, not the single selected transaction."
+          },
+          "transaction": {
+            "$ref": "#/components/schemas/AccountTransaction"
+          },
+          "lastImportedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Fidelity processing time; never brokerage freshness."
+          },
+          "identityBasis": {
+            "type": "string",
+            "enum": [
+              "BROKER_TRANSACTION_ID",
+              "RETAINED_ROW_OBSERVATION"
+            ]
+          }
+        },
+        "description": "Bounded Account history. complete describes available normalized result, not lifetime history or atomic provider snapshot. Fidelity uses admitted activity rows with row-equivalence identity, unknown currency/freshness and no upstream acquisition."
       }
     },
     "responses": {
@@ -2277,7 +3176,7 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
             }
           }
         }

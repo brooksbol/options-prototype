@@ -1,0 +1,71 @@
+WW-HISTORY(1)               Wheelwright Manual               WW-HISTORY(1)
+
+NAME
+    ww history — inspect brokerage transaction evidence
+
+SYNOPSIS
+    ww history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl]
+               [-v | --verbose] [--no-color]
+    ww history --help | -h | --man
+
+DESCRIPTION
+    Show trades and money movements through Account-scoped backend history.
+    Without --account, discover authorized Accounts and compose their nested
+    history reads. With --account, select a nickname such as tt1 or pts;
+    operators never need GUIDs. Backend grants enforce each Account's access.
+    One failed Account does not suppress successful independent results.
+
+    tastytrade: backend policy may acquire and persist history when needed;
+    reuse eligible retained evidence otherwise. No separate ww fetch is
+    needed. Source paging, OAuth, evidence admission and persistence belong
+    to the backend. Read-through must be enabled there; the CLI never contacts
+    a brokerage. Unavailable/stale results and failed refreshes remain explicit.
+
+    Fidelity: read previously admitted activity CSV evidence. No hidden
+    local CSV import or brokerage fetch. The last import time is not broker
+    freshness. Exact row-equivalence identity does not establish unique broker
+    events, corrections or reversals. Missing currency/amounts remain unknown.
+    Use existing ww sync account ACCOUNT to submit available supported CSVs.
+
+OUTPUT
+    Terminal: compact table, signed cash values, separate commissions and
+    reported fees, preserved order references for multi-leg trade records.
+    No strategy grouping, realized P/L, tax or performance accounting.
+    Unknown is ?, never zero. Cash credits/debits are not profit/loss.
+    Aliases cyan, Fidelity green, tastytrade red, symbols yellow, prices orange;
+    neutral cash signs, white details and alternating dark row backgrounds.
+
+    Default pipe: headerless TSV, one transaction per record; tabs/newlines
+    and control characters are escaped. --csv: RFC-style quoting, header,
+    exact decimal strings and provenance; aggregate output has one header.
+    --jsonl: one transaction per line with per-Account history context.
+    --table forces human output; --verbose includes complete human details
+    unless an explicit machine format is selected. --no-color, NO_COLOR or
+    TERM=dumb disables human color. Machine output is uncolored.
+
+    Context/diagnostics go to stderr. Successful empty history emits no
+    TSV/JSONL records; CSV retains its header. Independent acquisition clocks,
+    observed date span, source lineage and status survive machine formats.
+    A complete bounded result never establishes complete lifetime history.
+    Source snapshot consistency remains unverified even after full paging.
+
+LIMITS
+    Backend full scans: at most 100 pages / 25,000 source records / 16 MiB,
+    with a shared bounded provider deadline. Complete admission is atomic;
+    failed scans preserve prior admitted evidence and retain safe source pages.
+    Oversized responses fail explicitly; there is no silent truncation or
+    public continuation cursor in this slice. No local transaction ledger.
+
+EXIT STATUS
+    0  Complete available bounded results, or empty authorized Account scope.
+    1  Incomplete result or operational failure; successful Account records
+       may still be present. Read stderr and each record's history context.
+    2  Usage/configuration error.
+
+EXAMPLES
+    ww history
+    ww history --account tt1
+    ww history --account pts --verbose
+    ww history --csv > history.csv
+    ww history --account tt1 --jsonl > tt1-history.jsonl
+    ww history --account tt1 --table | less -SR
