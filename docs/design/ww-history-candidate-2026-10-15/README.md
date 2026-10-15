@@ -1,5 +1,7 @@
 # WW transaction-history implementation candidate
 
+**Principal acceptance-path rejection:** The isolated preview is insufficient for Product acceptance. The required gate is the installed, real-evidence workflow `ww pull && ww history`. Checkpoint dc19cdd remains component implementation/author-test evidence only; it is not end-to-end acceptance-ready. See the current PL-CLI-01 reconciliation below.
+
 October 15, 2026. Engineering implementation and author verification complete; **independent review, Principal Product acceptance and deployment are not claimed**. Existing PL-CLI-01 scope; approved design/checkpoint remains unchanged.
 
 ## Operator preview
