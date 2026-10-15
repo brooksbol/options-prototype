@@ -15,6 +15,7 @@ The Principal commissioned a bounded local data audit and experimental protocol,
 - [PROTOCOL.md](PROTOCOL.md): smallest conditional experiment, cohort and management rules, forecast/economic tests and falsifiers. Not a frozen preregistration.
 - [MUSE-PROMPT.md](MUSE-PROMPT.md): original self-contained primary-source research assignment for the Principal to relay; returned evidence is tracked separately below.
 - [ROUND-1-VERIFICATION.md](ROUND-1-VERIFICATION.md): October 15 partial verification of the first returned Muse report; remaining investigations pending, protocol unchanged.
+- [ROUND-2-VERIFICATION.md](ROUND-2-VERIFICATION.md): second-report checks, counterexamples to broad literature-absence claims, and narrow draft-0.2 dispositions; no empirical run.
 - [evidence/inventory.json](evidence/inventory.json): measured counts, hashes, source coverage and dated terminal connection result.
 - [code/audit.py](code/audit.py): reproducible inventory. `python3 docs/research/eva-001/code/audit.py` reads retained sources and writes only this package's inventory. Optional `--probe-theta-existing` makes one read-only stock-EOD request to an already running terminal; it never starts a process, reads credentials or verifies option entitlement by inference from stocks.
 
@@ -28,4 +29,4 @@ Strategic fit is exploratory support for Evidence Trust and Position Reassessmen
 
 ## Completion and continuation
 
-Data sufficiency is **UNRESOLVED**, current options subscription access is **UNVERIFIED**, and the protocol is **DRAFT**. The first Muse prior-art report has been returned and partially source-checked; remaining investigations are pending. No economic results exist. The concrete continuation is reconciliation of the remaining research, preserving the round-one corrections and original protocol scope. A subsequent empirical run requires a verified dataset, frozen protocol, independent challenge and separate execution authorization; audit completion does not supply them.
+Data sufficiency is **UNRESOLVED**, current options subscription access is **UNVERIFIED**, and the protocol is **DRAFT 0.2**. Two Muse reports have been returned and partially source-checked; no collective acceptance or complete source verification is claimed. No economic results exist. The concrete empirical dependency is an actual historical-option coverage specimen within an established retrieval envelope, preserving the original entry-under-fixed-policy scope. A subsequent empirical run requires a verified dataset, frozen protocol, independent challenge and separate execution authorization; audit/research completion does not supply them.

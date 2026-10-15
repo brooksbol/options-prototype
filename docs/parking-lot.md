@@ -74,7 +74,7 @@
 
 | ID | Name | Blocker | Concept Home |
 |---|---|---|---|
-| `PL-EVID-04` | Market-Priced Risk | Historical quote/IV sufficiency remains unresolved. Bounded retained production SPY specimens contain distinct IV fields; that does not establish historical paths or current account access. EVA-001 audit complete/protocol draft, with Muse primary-source research pending via Principal relay; see October 14 refinement in `parking-lot-10.md`. | `foundations/market-priced-risk.md`; `research/eva-001/README.md` |
+| `PL-EVID-04` | Market-Priced Risk | Historical quote/IV sufficiency remains unresolved. Bounded retained production SPY specimens contain distinct IV fields; that does not establish historical paths or current account access. EVA-001 audit complete; two Muse reports partially source-checked; protocol draft 0.2 adds an RV-only baseline and preserves separate forecast/economic tests. No empirical run; see October 14 refinements in `parking-lot-10.md`. | `foundations/market-priced-risk.md`; `research/eva-001/README.md` |
 | `PL-EVID-05` | Recommendation Set Analysis | Needs enrichment data (sector, industry classification) | `foundations/recommendation-set-analysis.md` |
 | `PL-RESEARCH-04` | Instrument Catalog Evolution | Needs provider/data-source for programmatic enrichment (sector, issuer, structural classification). Prerequisite for set analysis grouping and richer governance. | Code + catalog generation scripts, Governance golden-data family |
 

@@ -1,7 +1,7 @@
 # EVA-001 — Empirical Expected Value Feasibility Protocol
 
-Version: DRAFT 0.1, October 14, 2026. Author: Codex, investigating actor.
-Current authorization: data-feasibility audit and protocol drafting only. This is not a frozen preregistration, approved management policy, backtest result or authorization to acquire a bulk dataset. Muse primary-source research and independent protocol challenge are pending.
+Version: DRAFT 0.2, October 14, 2026. Author: Codex, investigating actor. Revision incorporates the bounded dispositions in [Muse report-two verification](ROUND-2-VERIFICATION.md); version 0.1 remains recoverable from commit `59afdfc6a1b1b580f03e18fb9740eea47a59a7da`.
+Current authorization: data-feasibility audit, returned-research reconciliation and protocol drafting only. This is not a frozen preregistration, approved management policy, backtest result or authorization to acquire a bulk dataset. Two Muse reports have been received; outstanding source checks, actual data access and independent protocol challenge remain explicit.
 
 ## 1. Question and independent tests
 
@@ -17,6 +17,8 @@ Neither test proves alpha. Neither assumes that a complete physical or risk-neut
 ## 2. Conditional scope and data pilot
 
 **Primary proposed population:** SPY, standard unadjusted 100-share physically settled options, one-unit equal-quantity short iron condors, single expiration. XLE and EWZ are predeclared secondary replications when they pass identical data tests. This is a specified ETF panel, not all liquid ETFs or an options-selling population. Population choice comes from the commissioning request, not historical profitability.
+
+Literature absence is not an exclusion rule. A smaller spread or European index option may reduce some burdens, but instrument changes require demonstrated data/identification benefit rather than a universal simplicity claim. In particular SPX would inherit the existing locally unresolved retail execution-calibration issue and require exact class/settlement conventions. No population change is made by the literature review.
 
 Before labels/model fitting, freeze a coverage manifest listing candidate dates, expirations, sources, rights, adjusted-contract exclusions and coverage failures. Assess missingness by date/symbol/volatility state using only coverage and contemporaneous features, not later profits. Do not quietly move the start date past adverse markets or retain only contracts with complete successful exits.
 
@@ -71,6 +73,8 @@ For one unit, multiplier m=100:
 
 All four legs are observed on a common decision/execution schedule. These formulas are a **quoted-side scenario**, not proof of simultaneous complex-order execution, capacity or guaranteed fill. Legging risk and complex-market improvement remain uncalibrated. Midpoint results are an optimistic diagnostic only, never the headline executable finding. An additional adverse slippage ladder must be frozen from source evidence/explicit assumptions before running; report the break-even extra cost rather than selecting a profitable rung.
 
+A published reduction relative to conventional effective-spread measurement is not automatically a discount to the quoted spread for our packages. Any narrower-spread case is explicitly hypothetical unless population/method/order evidence supports it. Delayed quotes or trade-through observations do not certify our order's fill, and the scenario ladder is not a proven upper/lower bound on real costs.
+
 Freeze dated broker commissions, exchange/clearing/regulatory fees by leg/side/event. Current fee schedules cannot silently price the full historical window. No numeric fee scalar is certified by this audit; Muse's research assignment covers the evidence and gaps. Fees must be counted once. Display gross and net separately. Historical exercise/dividend treatment must travel with the population.
 
 Normalize the primary forecast target by contractual entry maximum expiration loss plus entry fees, recording this as a risk-capital proxy, not broker buying power. It does not bound execution/assignment-related liquidity needs. Report dollar error and return on this proxy as separate quantities. Capital efficiency includes capital-days, idle cash, turnover and liquidity obligations, not merely annualized per-trade ROI.
@@ -84,8 +88,11 @@ No full probability-density engine is required. All models estimate the same fix
 | Model | Proposed inputs | Role |
 |---|---|---|
 | B0 | Prior completed-trade mean of normalized net P/L; prior target-event frequency | Minimal historical benchmark; no fitted market features |
-| B1 | Entry credit/risk ratio, side widths/spot, DTE and identified entry IV | Small fixed regularized regression for managed net P/L; corresponding simple probability model for target-before-time-exit |
-| B2 | B1 plus trailing realized variance and an implied-versus-forecast-realized variance feature | Incremental volatility-compensation hypothesis, not proof of a risk premium or a reconstructed physical density |
+| B1-RV | Entry credit/risk ratio, side widths/spot, DTE and a fixed trailing/EWMA realized-variance definition | Historical-volatility baseline with the same non-volatility features as B1-IV |
+| B1-IV | Same non-volatility features as B1-RV, replacing historical variance with identified entry IV on a declared coherent scale | Option-implied-volatility baseline; small fixed regression for net P/L and corresponding probability model |
+| B2 | B1-IV plus trailing realized variance and an implied-versus-forecast-realized variance feature | Incremental option/volatility-compensation hypothesis, not proof of a risk premium or a reconstructed physical density |
+
+Compare all models on the identical covered candidate panel; report what this coverage conditioning excludes. B1-RV is not a data-free model: its shared entry credit is already a market observation. Its purpose is to isolate incremental volatility information while holding construction/economics constant. A successful comparison must not come from different missing-data populations. SVIX/utility-bound methods forecast different objects or require additional inputs and are not mandatory models for the first experiment.
 
 Use a fixed, transparent low-dimensional estimator; a proposed starting choice is standardized ridge regression and regularized logistic regression, fixed penalty, no feature search. Estimator definitions, IV construction and penalty must be frozen after data/schema inspection and independent challenge. No model is fitted in this stage.
 
@@ -105,7 +112,7 @@ Predeclare regime diagnostics using entry-known trailing realized volatility rel
 
 ## 8. Outcomes, benchmarks and falsifiers
 
-**Forecast primary:** paired out-of-sample squared-error difference for normalized net P/L, B2 versus B1; report B1 versus B0, dollar MAE, bias and uncertainty as secondary diagnostics. **Probability secondary:** target-before-time-exit Brier score, calibration and event counts, with unresolved labels disclosed. One realized P/L does not reveal the true conditional EV; forecast evaluation is across an adequately specified cohort.
+**Forecast primary:** paired out-of-sample squared-error difference for normalized net P/L, B2 versus B1-RV, to test incremental information beyond the shared economics and historical-volatility baseline. Report B2 versus B1-IV, both B1 variants versus B0, dollar MAE, bias and uncertainty as secondary diagnostics. **Probability secondary:** target-before-time-exit Brier score, calibration and event counts, with unresolved labels disclosed. One realized P/L does not reveal the true conditional EV; forecast evaluation is across an adequately specified cohort.
 
 **Economic primary:** one-position-at-a-time B2-filtered policy (enter only when predicted net P/L >0) versus the identical unfiltered policy, at matched cash/cost assumptions. No threshold optimization. Report total net wealth difference, trade count, exposure/capital-days, drawdown, worst loss, tail-loss summaries and an explicit simple benchmark adjustment. Flat cash is a second comparator. A risk-adjusted-return statistic or positive raw wealth difference alone is not alpha. Risk benchmarks and economic minimum-relevance threshold must be fixed before execution, with the chosen rationale exposed rather than inferred from test results.
 
@@ -118,6 +125,8 @@ Disposition rules:
 - **Conditional continuation:** robust out-of-sample results justify independent replication, not production adoption. Missingness, cost calibration or regime dependence can still limit the conclusion.
 
 Confidence intervals spanning zero are inconclusive evidence, not proof of equivalence. A model advantage is evaluated against the frozen relevance threshold and cost/assumption sensitivities. A failed variant does not authorize searching structures, symbols, thresholds or dates until profits appear.
+
+Negative strategy P/L does not by itself falsify forecasting skill. A filter that avoids every loss-making trade may provide avoidance information but has not demonstrated profitable trading; distinguish it from positive results on deployed capital. Sparse tail observations qualify tail conclusions rather than automatically rejecting the mean test. Quantile/expected-shortfall estimation can be direct; no full-density reconstruction is required. Volatility perturbations must identify absolute percentage points versus relative changes, and arbitrary event-count/sensitivity thresholds cannot be promoted from another population's dispute.
 
 ## 9. Freeze checklist and division of work
 
