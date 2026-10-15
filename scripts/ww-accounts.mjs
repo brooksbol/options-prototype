@@ -37,7 +37,7 @@ List the accounts you can access, including the alias used in other commands.
 Examples:
   ww ls accounts
   ww sync account pts
-  ww show positions --account pts --verbose
+  ww positions --account pts --verbose
 
 Terminal output is a table; redirected output is headerless TSV.
 Use --table to keep the colored table when redirecting, or --jsonl for one Account per line.

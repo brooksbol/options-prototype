@@ -16,7 +16,7 @@ WORKING COMMANDS
     ls accounts [--table | --tsv | --jsonl] [--no-color]
         List accounts you can access, with their aliases, names, broker
         associations and immutable IDs. Start with 'ww ls accounts', then
-        'ww sync account pts' or 'ww show positions --account pts --verbose'.
+        'ww sync account pts' or 'ww positions --account pts --verbose'.
         Terminal table; redirected headerless TSV; --jsonl emits one Account
         per line. --table preserves the table when redirected.
         Run 'ww ls accounts --help' for examples.
@@ -32,13 +32,15 @@ WORKING COMMANDS
         means discovered content processed, not continuous brokerage history.
         See 'ww sync --help' and docs/cli/ww-account-evidence.md.
 
-    show positions --account ACCOUNT [--verbose | --jsonl | --table] [--no-color]
+    positions --account ACCOUNT [--verbose | --jsonl | --table] [--no-color]
+        Canonical Position command; ww show positions remains a fully functional
+        compatibility alias with identical arguments, output and exit status.
         Read backend-held Position snapshots with explicit evidence gaps.
         --verbose includes constituents, provenance and separate close/order
         sections; it requests terminal layout even when redirected. Default
         redirected output is one complete JSONL backend read representation.
         Friendly aliases resolve through backend Account discovery.
-        Requires account.read:ID and account.positions.read:ID. See 'ww show positions --help'.
+        Requires account.read:ID and account.positions.read:ID. See 'ww positions --help'.
 
     show SUBJECT... | --quotes [OPTIONS]
     show --fields
@@ -164,7 +166,7 @@ SEE ALSO
 
 HISTORICAL POSITION OBSERVATIONS
     ww ls position-observations --account pts [--table | --tsv | --jsonl] [--verbose] [--no-color]
-    ww show positions --account pts --snapshot SNAPSHOT_ID [--verbose | --jsonl | --table] [--no-color]
+    ww positions --account pts --snapshot SNAPSHOT_ID [--verbose | --jsonl | --table] [--no-color]
     Listing is complete retained admitted evidence, not complete brokerage history.
     Full opaque snapshot IDs select exact Account-local observations. No prefixes,
     as-of, automatic predecessor or lifecycle inference. Default show is unchanged.

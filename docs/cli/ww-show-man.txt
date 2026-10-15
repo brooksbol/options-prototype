@@ -11,8 +11,9 @@ SYNOPSIS
     ww show --help | -h | --man
 
 SEMANTICS
-    The positions subject reads the account-scoped backend Position capability.
-    It does not run the quote query grammar below. See 'ww show positions --help'
+    Prefer ww positions for account-scoped backend Position inspection.
+    ww show positions is a compatibility alias with identical arguments and output.
+    It does not run the quote query grammar below. See 'ww positions --help'
     and docs/cli/ww-account-evidence.md for snapshot identity and evidence limits.
 
     Read held complete canonical observations only. Never acquire, refresh,

@@ -1,7 +1,8 @@
 import { canonicalAccountId } from './ww-accounts.mjs';
 import { ShowError, showConfig, parseShowJson, humanShowNumber } from './ww-show.mjs';
 
-export const POSITIONS_HELP = `Usage: ww show positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table] [--no-color]
+export const POSITIONS_HELP = `Usage: ww positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table] [--no-color]
+Compatibility alias: ww show positions (same arguments and output).
 Read admitted backend Positions; never reads a client database or contacts a broker.
 --verbose  Aligned terminal presentation with constituents and evidence, also when piped.
 --table    Compact aligned presentation, also when piped.

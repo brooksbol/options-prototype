@@ -2,7 +2,7 @@
 
 Start with `ww ls accounts` to discover authorized Account aliases, names,
 broker associations and immutable IDs. Use an alias from that list in
-`ww sync account pts` and `ww show positions --account pts --verbose`.
+`ww sync account pts` and `ww positions --account pts --verbose`.
 Account discovery reads the backend's existing authorized collection; it does
 not acquire brokerage evidence. `ww show accounts` directs operators to
 `ww ls accounts`. Use `ww show -- accounts` for a literal quote symbol.
@@ -34,7 +34,7 @@ at `POST /v2/position-acquisitions?accountId=ID`. The backend alone exchanges
 OAuth tokens, acquires and retains JSON, and admits a complete holdings snapshot.
 The independent `account.positions.acquire:ID` grant is required; ordinary read,
 artifact-write and quote-acquisition permissions do not imply it. Fidelity keeps
-its existing CSV path. `ww show positions --account tt1` remains a retained-state
+its existing CSV path. `ww positions --account tt1` remains a retained-state
 read. No historical CSV operational import is introduced for tastytrade.
 
 Position tables now use standing CONV-UX colors, with signed quantities visible
@@ -46,6 +46,8 @@ functionally and visually by the Principal on October 11, 2026. The ordinary
 actual holdings, with unsupported lifecycle/economic claims withheld. See
 [delivery and recovery evidence](../design/pl-conv-01-step5-candidate.md).
 The following Fidelity acceptance history remains applicable to its CSV path.
+Historical acceptance examples retain their original compatibility spelling;
+current usage prefers `ww positions`.
 
 Implemented and Principal-accepted bounded slice, October 11, 2026. Principal explicitly reported **acceptance PASSED** after inspecting Account discovery, synchronization and Sawdust Position output. Automated verification and Principal acceptance are separate evidence; no independent review is claimed.
 
@@ -141,3 +143,6 @@ without connection overrides. Fidelity pts/sawdust and tastytrade tt1 are
 authorized and discoverable; BUG-035 is Resolved. See
 [`pl-conv-01-step3-candidate.md`](../design/pl-conv-01-step3-candidate.md) for
 frozen identity, independent verification, deployment/recovery and Operator acceptance.
+
+Command grammar: `ww positions` is canonical. `ww show positions` remains a
+fully functional compatibility alias with the same options, output and exit codes.

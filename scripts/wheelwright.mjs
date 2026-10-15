@@ -26,8 +26,9 @@ Working commands:
       Discover retained Position observations; display order is not brokerage chronology.
   sync account ACCOUNT
       Acquire tastytrade holdings through the backend, or synchronize Fidelity CSVs.
-  show positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table]
+  positions --account ACCOUNT [--snapshot SNAPSHOT_ID] [--verbose | --jsonl | --table]
       Inspect backend Positions, constituents, qualifications and source provenance.
+      show positions remains a compatibility alias.
   fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
       Acquire direct quotes for named subjects.
   ls quotes [--type TYPE]... [-v | --verbose] [--tsv] [--jsonl]
@@ -152,7 +153,7 @@ const SHOW_HELP = `Usage: ww show SUBJECT... [--quote] [OPTIONS]
        ww show --help | -h | --man
 
 Accounts: use 'ww ls accounts' to find account aliases.
-Positions: 'ww show positions --help' describes backend account evidence inspection.
+Positions: use 'ww positions --help'; 'ww show positions' is a compatibility alias.
 
 Read canonical held direct quotes only; never acquire or refresh.
 --quotes inspects the complete held inventory; conflicts with explicit subjects.
@@ -222,12 +223,13 @@ export function parseArgs(args) {
     const parsed = parseSync(rest);
     return parsed.help ? { command: "help", help: SYNC_HELP } : { command: "sync-account", ...parsed };
   }
+  // Normalize both spellings before retrieval or presentation dispatch.
+  if (command === "positions" || command === "show" && rest[0] === "positions") {
+    const parsed = parsePositions(command === "positions" ? rest : rest.slice(1));
+    return parsed.help ? { command: "help", help: POSITIONS_HELP } : { command: "show-positions", ...parsed };
+  }
   if (command === "show") {
     if (rest[0] === "accounts") usage("show accounts: use 'ww ls accounts' to list your accounts");
-    if (rest[0] === "positions") {
-      const parsed = parsePositions(rest.slice(1));
-      return parsed.help ? { command: "help", help: POSITIONS_HELP } : { command: "show-positions", ...parsed };
-    }
     const parsed = parseShow(rest);
     if (parsed.help) return { command: "help", help: SHOW_HELP };
     if (parsed.man) return { command: "command-man", page: "show" };
