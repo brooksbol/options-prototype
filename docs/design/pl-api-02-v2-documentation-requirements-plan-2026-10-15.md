@@ -70,6 +70,19 @@ Apply the existing RECOVER → REUSE → COMPOSE → EXTEND → INVENT mandate (
 
 **AGENT-06 (PRINCIPAL-SELECTED TEST CLIENT):** Kiro is the designated independent agent-consumption test client for the initial documentation release. Codex implements the documentation and conducts a separate adversarial review; Kiro tests the agent-facing OAS and linked authoritative contracts from a fresh context. Kiro must discover accepted v2 operations, recover request/response/error and domain semantics, construct synthetic requests, identify authorization/execution boundaries, and report missing or ambiguous documentation. **Kiro must not compensate for gaps by reverse-engineering backend implementation or relying on previous conversational knowledge.** The test is read-only: no live broker access, API mutations, web-client changes, or execution grants. Preserve Kiro's findings for Principal assessment and later web-client-to-v2 migration; the migration itself remains separately authorized.
 
+
+### Kiro black-box acceptance rule
+
+Principal decision: Kiro must test API documentation as an external consumer, using only the supplied public documentation surface. This stricter test supersedes earlier AGENT-06 wording allowing internal OAS and linked contracts as Kiro's test inputs.
+
+- Start Kiro in a fresh context with only the test instructions and documentation entry point.
+- Do not search repository code, internal documents, design records, tests, or source OAS outside the documentation supplied to external consumers. Do not use prior Wheelwright conversational knowledge.
+- Do not probe live APIs, execute operations, or access brokerages.
+- Discover endpoints, explain semantics and errors, and compose synthetic requests using documentation alone.
+- If information is absent or ambiguous, report a documentation usability failure; do not reconstruct it from implementation or other sources.
+- Preserve test inputs, observed results, gaps and independent review. Codex may compare Kiro's results with authoritative internal contracts only after the isolated test.
+- This does not replace separate OAS conformance verification or authorize web-client migration.
+
 **Scope guardrail:** No MCP server, custom agent tool registry, web-client migration, or agent execution framework is part of this documentation workstream. The same authoritative OAS serves human rendering and agent understanding.
 
 ## Completion criteria
