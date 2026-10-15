@@ -68,6 +68,16 @@ public class PositionReadService {
             }
         }
     }
+    Map<String,PositionMarketEvidence.ReportedUnderlying> reportedUnderlyingSymbols(String account,String snapshotId)throws Exception {
+        try(var c=DriverManager.getConnection(url)) {
+            try(var p=c.createStatement()){p.execute("PRAGMA query_only=ON");}c.setAutoCommit(false);
+            try(var q=c.prepareStatement("SELECT payload_json FROM account_position_snapshot WHERE account=? AND snapshot_id=?")) {
+                q.setString(1,account);q.setString(2,snapshotId);
+                try(var rs=q.executeQuery()){if(!rs.next())return Map.of();var s=mapper.readValue(rs.getString(1),PositionSnapshot.class);
+                    return s.observation()==null?PositionMarketEvidence.underlyingSymbols(c,s,mapper):Map.of();}
+            }
+        }
+    }
     /** One complete committed read view. Metadata only; no market enrichment or provider dependency. */
     public List<PositionSnapshot.ObservationSummary> observations(Set<String> authorizedAccounts, String requestId) throws Exception {
         var result = new ArrayList<PositionSnapshot.ObservationSummary>();

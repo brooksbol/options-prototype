@@ -34,18 +34,26 @@ public class MarketEvidenceSubjects {
             if(!user.hasGrant("account.positions.read:"+account.id()))continue;
             var read=positions.read(account.id(),request,selected);
             if(read.isEmpty()) {complete=false;coverage.add(new Coverage("HOLDINGS",account.id(),"UNAVAILABLE",null,null,null,List.of("No admitted holdings observation; absence is not an empty Account.")));continue;}
-            var snapshot=read.get();var issues=new ArrayList<String>();
+            var snapshot=read.get();var issues=new ArrayList<String>();var notes=new ArrayList<String>();int nonEquity=0;
+            var reported=positions.reportedUnderlyingSymbols(account.id(),snapshot.snapshotId());
             for(var position:snapshot.positions())for(var leg:position.constituents()) {
                 if(++holdings>25000)throw new IllegalStateException("selection capacity exceeded");
                 var h=leg.holding();if(h.quantity()==null){issues.add("Holding quantity unavailable: "+h.holdingId());continue;}
                 if(h.quantity().signum()==0)continue;
+                if("Bonds/Fixed income".equals(h.kind())){nonEquity++;continue;} // Treasury/CUSIP has no equity underlying.
                 String symbol=underlying(h,account.brokerAssociation().broker());
+                if(symbol==null&&"FIDELITY".equals(account.brokerAssociation().broker())&&"Options".equals(h.kind())) {
+                    var adjusted=Pattern.compile("-?([A-Z.]+[0-9]+)[0-9]{6}[CP][0-9]+(?:\\.[0-9]+)?").matcher(h.contract());
+                    if(adjusted.matches()) {var identity=reported.get(adjusted.group(1));if(identity!=null){symbol=identity.symbol();notes.add("Adjusted option underlying explicitly reported by same-day broker summary; artifact "+identity.provenance().artifactId()+"; rows "+identity.provenance().sourceRows());}}
+                }
                 if(symbol==null){issues.add("Underlying identity unresolved: "+h.holdingId());continue;}
                 symbols.computeIfAbsent(symbol,k->new TreeSet<>()).add("HOLDINGS");
             }
             if(!issues.isEmpty())complete=false;
+            if(nonEquity>0)notes.add(nonEquity+" fixed-income holdings have no equity underlying; no stock-symbol acquisition requested.");
+            notes.addAll(issues);if(issues.isEmpty())notes.add("Latest admitted retained holdings; brokerage freshness and atomic portfolio snapshot are not established.");
             coverage.add(new Coverage("HOLDINGS",account.id(),issues.isEmpty()?"AVAILABLE":"INCOMPLETE",snapshot.snapshotId(),snapshot.evidenceDate(),snapshot.recordedAt(),
-                    issues.isEmpty()?List.of("Latest admitted retained holdings; brokerage freshness and atomic portfolio snapshot are not established."):List.copyOf(issues)));
+                    List.copyOf(notes)));
         }
         var monitored=store.getMonitoredSymbols();String status;
         if(monitored.isEmpty())status="EMPTY";

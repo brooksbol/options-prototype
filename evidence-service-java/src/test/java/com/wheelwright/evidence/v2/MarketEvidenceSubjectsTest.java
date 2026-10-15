@@ -42,6 +42,23 @@ class MarketEvidenceSubjectsTest {
             var hidden=new MarketEvidenceSubjects(store,accounts,positions,"usr_"+"b".repeat(32)).select(new BearerAuthenticator.Principal(USER,Set.of()),request());assertThat(hidden.complete()).isTrue();assertThat(hidden.subjects()).isEmpty();assertThat(hidden.coverage().getFirst().status()).isEqualTo("NOT_AUTHORIZED");
         }
     }
+    @Test void fixedIncomeHasNoEquityUnderlyingAndAdjustedRootsRequireUnambiguousSameDayBrokerIdentity()throws Exception {
+        try(var store=new SqliteEvidenceStore(temp.resolve("adjusted.db").toString())) {
+            var accounts=new AccountDirectory(store,"");String a=accounts.bind("one","FIDELITY","SYNTH01");var positions=new PositionReadService(store,json);
+            var artifacts=new BrokerageArtifacts(store.getConnection().getMetaData().getURL(),json,positions);
+            String body="SYNTH01,Test,Options,-DEMO1261116C20.5,Adjusted call,-1,-5,--,Cash\nSYNTH01,Test,Bonds/Fixed income,912797ABC,Treasury,100,100,--,Cash\n";
+            artifacts.ingest(a,"positions.csv","POSITIONS",PositionsTest.csv(body,"Oct-15-2026").getBytes(java.nio.charset.StandardCharsets.UTF_8),request());
+            var caller=new BearerAuthenticator.Principal(USER,Set.of("account.positions.read:"+a));var selector=new MarketEvidenceSubjects(store,accounts,positions,USER);
+            assertThat(selector.select(caller,request()).complete()).isFalse();
+            String summary="Fidelity Investments - Option Summary SYNTH01\nQuote data as of 10/15/2026.\nSymbol,Description,Strategy,Expiration & Strike,Quantity,Bid,Ask,Margin requirements\nDEMO1,Demo,Covered Call,Shares (DEMO),100,1,2,0\n";
+            var source=artifacts.ingest(a,"summary.csv","OPTION_SUMMARY",summary.getBytes(java.nio.charset.StandardCharsets.UTF_8),request());assertThat(source.status()).isEqualTo("ACCEPTED");
+            var selected=selector.select(caller,request());assertThat(selected.complete()).isTrue();assertThat(selected.subjects()).extracting(MarketEvidenceSubjects.Subject::symbol).containsExactly("DEMO");
+            assertThat(selected.coverage().getFirst().qualifications()).anyMatch(q->q.contains(source.artifactId())).anyMatch(q->q.contains("fixed-income"));
+            String conflicting=summary+"DEMO1,Other,Covered Call,Shares (OTHER),100,1,2,0\n";
+            artifacts.ingest(a,"conflict.csv","OPTION_SUMMARY",conflicting.getBytes(java.nio.charset.StandardCharsets.UTF_8),request());
+            assertThat(selector.select(caller,request()).complete()).isFalse();assertThat(selector.select(caller,request()).subjects()).isEmpty();
+        }
+    }
     @Test void emptyScopeIsNoOpAndControllerEnforcesUserAndQuoteScopeWithoutAcquisition()throws Exception {
         try(var store=new SqliteEvidenceStore(temp.resolve("auth.db").toString())) {
             var accounts=new AccountDirectory(store,"");var positions=new PositionReadService(store,json);var selector=new MarketEvidenceSubjects(store,accounts,positions,"");
