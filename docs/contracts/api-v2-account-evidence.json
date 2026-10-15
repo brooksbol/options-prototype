@@ -17,9 +17,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -128,9 +129,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -206,7 +208,7 @@
       "post": {
         "operationId": "retainAndProcessAccountArtifact",
         "summary": "retainAndProcessAccountArtifact",
-        "description": "Transactionally retain exact bytes and original filename before parsing. Same account/hash reuses generated immutable artifact identity; every upload records a filename/processing attempt. REJECTED processing is HTTP 200, source survives and prior admitted evidence remains. Positions admit snapshots. Other files admit source-row observations; History appends/matches exact row occurrences without deleting prior observations. Corrections, lifecycle projection and continuous-history coverage are unresolved. Interrupted calls may leave PENDING; inspect inventory then retry retained processing. File-type/source-period interpretations are bounded; filename account attribution is qualified when History/Balances omit account ID. Content/admission deduplicates; import-attempt identities do not. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "description": "Transactionally retain exact bytes and original filename before parsing. Same account/hash reuses generated immutable artifact identity; every upload records a filename/processing attempt. REJECTED processing is HTTP 200, source survives and prior admitted evidence remains. Positions admit snapshots. Other files admit source-row observations; History appends/matches exact row occurrences without deleting prior observations. Corrections, lifecycle projection and continuous-history coverage are unresolved. Interrupted calls may leave PENDING; inspect inventory then retry retained processing. File-type/source-period interpretations are bounded; filename account attribution is qualified when History/Balances omit account ID. Content/admission deduplicates; import-attempt identities do not. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Upload requires filename-bearing Content-Disposition and X-Brokerage-File-Type; missing or invalid upload inputs return INVALID_REQUEST/422 before retaining bytes. The body media type must be text/csv (compatible parameters are allowed).",
         "security": [
           {
             "bearerAuth": []
@@ -237,6 +239,14 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProcessedArtifact"
+                },
+                "example": {
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "artifactId": "22222222-2222-4222-8222-222222222222",
+                  "importId": "33333333-3333-4333-8333-333333333333",
+                  "newlyPersisted": true,
+                  "status": "ACCEPTED",
+                  "result": "Synthetic activity rows admitted; history coverage UNKNOWN."
                 }
               }
             }
@@ -270,6 +280,34 @@
               "pattern": "^acct_[a-f0-9]{32}$"
             },
             "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+          },
+          {
+            "name": "Content-Disposition",
+            "in": "header",
+            "required": true,
+            "description": "A parseable Content-Disposition containing filename or RFC 5987 filename*. The decoded original filename must be nonblank, at most 255 characters, and contain no slash, backslash, C0 controls or DEL. It is retained provenance, not identity. Missing/invalid disposition or filename returns 422 before retention.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "[Ff][Ii][Ll][Ee][Nn][Aa][Mm][Ee]\\*?\\s*="
+            },
+            "example": "attachment; filename=\"History_for_Account_SYNTHETIC.csv\""
+          },
+          {
+            "name": "X-Brokerage-File-Type",
+            "in": "header",
+            "required": true,
+            "description": "Supported CSV interpretation. API_POSITIONS and API_TRANSACTIONS describe backend-acquired retained sources and are not upload types. Missing/unsupported values return 422 before retention.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "POSITIONS",
+                "BALANCES",
+                "ACTIVITY",
+                "OPTION_SUMMARY"
+              ]
+            },
+            "example": "ACTIVITY"
           }
         ],
         "requestBody": {
@@ -280,7 +318,8 @@
                 "type": "string",
                 "format": "binary",
                 "description": "Exact UTF-8 CSV bytes, 1..16MiB."
-              }
+              },
+              "example": "Run Date,Action,Symbol,Amount ($)\n10/15/2026,DIVIDEND,DEMO,1.00\n"
             }
           }
         }
@@ -292,9 +331,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         },
         {
           "name": "artifactId",
@@ -371,9 +411,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         },
         {
           "name": "artifactId",
@@ -412,6 +453,14 @@
                 "required": true,
                 "schema": {
                   "const": "private, no-store"
+                }
+              },
+              "Content-Disposition": {
+                "required": true,
+                "description": "Original source is an attachment; the response does not supply the original filename.",
+                "schema": {
+                  "type": "string",
+                  "const": "attachment"
                 }
               }
             },
@@ -457,9 +506,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         },
         {
           "name": "artifactId",
@@ -537,8 +587,9 @@
           "in": "header",
           "schema": {
             "type": "string",
-            "format": "uuid"
-          }
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+          },
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -616,8 +667,9 @@
           "in": "header",
           "schema": {
             "type": "string",
-            "format": "uuid"
-          }
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+          },
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -686,8 +738,9 @@
           "in": "header",
           "schema": {
             "type": "string",
-            "format": "uuid"
-          }
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+          },
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -765,8 +818,9 @@
           "in": "header",
           "schema": {
             "type": "string",
-            "format": "uuid"
-          }
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+          },
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -835,8 +889,9 @@
           "in": "header",
           "schema": {
             "type": "string",
-            "format": "uuid"
-          }
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+          },
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -902,9 +957,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "post": {
@@ -983,9 +1039,10 @@
           "name": "X-Request-Id",
           "in": "header",
           "schema": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; invalid or repeated values are 422 after authorization. Blank generates one."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
         }
       ],
       "get": {
@@ -1087,9 +1144,9 @@
             "in": "header",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
             },
-            "description": "Single optional correlation UUID; never Account authority."
+            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
           }
         ],
         "responses": {
@@ -1177,9 +1234,9 @@
             "in": "header",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
             },
-            "description": "Single optional correlation UUID; never Account authority."
+            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
           }
         ],
         "responses": {
@@ -1470,7 +1527,8 @@
         "properties": {
           "importId": {
             "type": "string",
-            "format": "uuid"
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(?:-[0-9]+)?$",
+            "description": "Opaque retained processing-attempt identity. CSV imports and holdings acquisitions use a UUID; transaction source pages use acquisition UUID plus hyphen and zero-based page offset. Not an idempotency key."
           },
           "originalFilename": {
             "type": "string"
@@ -1480,7 +1538,9 @@
               "POSITIONS",
               "BALANCES",
               "ACTIVITY",
-              "OPTION_SUMMARY"
+              "OPTION_SUMMARY",
+              "API_POSITIONS",
+              "API_TRANSACTIONS"
             ]
           },
           "importedAt": {
@@ -1548,7 +1608,12 @@
             "pattern": "^[a-f0-9]{64}$"
           },
           "contentType": {
-            "const": "text/csv"
+            "type": "string",
+            "enum": [
+              "text/csv",
+              "application/json"
+            ],
+            "description": "Exact retained source media type: imported Fidelity CSV or backend-acquired tastytrade JSON."
           },
           "sizeBytes": {
             "type": "integer",
@@ -3126,7 +3191,19 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+              "allOf": [
+                {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": 401
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -3151,7 +3228,19 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+              "allOf": [
+                {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": 403
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -3176,7 +3265,19 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+              "allOf": [
+                {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": 404
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -3201,7 +3302,19 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+              "allOf": [
+                {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": 422
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -3226,7 +3339,19 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+              "allOf": [
+                {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": 500
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -3251,7 +3376,19 @@
         "content": {
           "application/problem+json": {
             "schema": {
-              "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+              "allOf": [
+                {
+                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/Problem"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": 503
+                    }
+                  }
+                }
+              ]
             }
           }
         }

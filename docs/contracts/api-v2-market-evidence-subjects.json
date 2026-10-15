@@ -15,7 +15,7 @@
       "get": {
         "operationId": "listRelevantMarketEvidenceSubjects",
         "summary": "Discover authorized holdings underlyings union explicitly configured monitoring subjects",
-        "description": "Pure GET, no query/body, provider contact or persistence. Requires quote.acquire; holdings only from explicit account.positions.read grants. Reads latest admitted snapshots via the Position domain service. Failed synchronization never removes prior retained holdings. Nonzero holdings only; supported standard option roots resolve to their underlying, adjusted/unrecognized roots report incomplete coverage. Uppercase canonical underlying identity deduplicates. Monitoring reads the existing declared set only with backend wheelwright.market-evidence.monitoring-users visibility binding to immutable User IDs. Nonempty unbound monitoring is unavailable, not silently omitted. Each source retains its clocks/qualifications; selection is not an atomic portfolio snapshot or freshness verdict. Empty complete subjects is a legitimate no-op. Client may transport-batch these subjects through existing POST /v2/quotes; explicit acquisition contract is unchanged.",
+        "description": "Pure GET, no query/body, provider contact or persistence. Requires quote.acquire; holdings only from explicit account.positions.read grants. Reads latest admitted snapshots via the Position domain service. Failed synchronization never removes prior retained holdings. Nonzero holdings only; supported standard option roots resolve to their underlying. Adjusted Fidelity option roots resolve only through unambiguous same-day retained broker root-to-share mappings with artifact/row provenance; no suffix stripping. Unresolved or conflicting identities report incomplete coverage. Fixed-income holdings have no equity underlying and their exclusion is explicitly qualified. Uppercase canonical underlying identity deduplicates. Monitoring reads the existing declared set only with backend wheelwright.market-evidence.monitoring-users visibility binding to immutable User IDs. Nonempty unbound monitoring is unavailable, not silently omitted. Each source retains its clocks/qualifications; selection is not an atomic portfolio snapshot or freshness verdict. Empty complete subjects is a legitimate no-op. Client may transport-batch these subjects through existing POST /v2/quotes; explicit acquisition contract is unchanged.",
         "security": [
           {
             "bearerAuth": []
@@ -76,7 +76,19 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                  "allOf": [
+                    {
+                      "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "const": 401
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -101,7 +113,19 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                  "allOf": [
+                    {
+                      "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "const": 403
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -126,7 +150,19 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                  "allOf": [
+                    {
+                      "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "const": 422
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -151,12 +187,36 @@
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                  "allOf": [
+                    {
+                      "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/schemas/HeldQuoteReadProblem"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "const": 503
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+            },
+            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values return 422 after authentication and quote.acquire authorization; errors use a generated UUID. Correlation only, not idempotency."
+          }
+        ]
       }
     }
   },

@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Principal decisions recorded; bounded implementation authorized; no claim of implementation, independent approval, or publication.  
+**Status:** Principal decisions recorded; Step 1 contracts corrected and author-verified; later steps are not delivered by this checkpoint. No independent approval or publication claimed.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -70,3 +70,42 @@ A reader can browse all accepted v2 REST methods and truthful schemas/errors/exa
 - `docs/75-pl-api-02-http-boundary-classification-2026-10-05.md` (investigation evidence)
 - `docs/design/ww-history-approved-checkpoint-2026-10-15.md`
 - GitHub issues #39, #40, #41.
+
+## Step 1 — contract corrections and author verification
+
+**Date:** October 15, 2026. Implemented against remotely verified `891465878434f8eadb13a23ea68d554b97385e95` in an isolated worktree. This is bounded implementation/author evidence, not an independent review or permission to skip Step 3. Backend source, Java tests, runtime behavior, migrations, operational data/grants/services and unrelated work remain unchanged. No Redocly, preview, CI workflow, Pages or End-of-Session Protocol work is included.
+
+### Revalidated discrepancies
+
+- **#40 confirmed, corrected in OAS:** actual synthetic HTTP metadata for accepted tastytrade holdings failed the original `text/csv` constraint and missing `API_POSITIONS` enum. Transaction-history page metadata additionally failed missing `API_TRANSACTIONS` and UUID-only `importId`; the runtime uses `<attempt UUID>-<zero-based page offset>`. Artifact detail/inventory now admit both retained media types and actual attempt forms. Upload type restrictions remain the four supported CSV interpretations; backend source types do not become upload types.
+- **#41 confirmed, corrected in OAS:** the old documented CSV/Account-only request, and requests omitting each header separately, return 422 without retention. OAS now requires filename-bearing `Content-Disposition` and `X-Brokerage-File-Type`, documents decoded filename restrictions and provides a coherent synthetic activity example. Invalid names and API-only types remain rejected.
+- Error response schemas bind each HTTP response to the actual status/code/type/title grammar and require nonempty validation details for 422. Negative specimens reject cross-status and internally mixed Problems. No runtime error behavior changed.
+- Optional correlation headers accurately allow omitted/blank generation and trimmed UUIDs; the selection header is now specified. Artifact content formally requires `Content-Disposition: attachment`. Selection prose includes supported same-day broker-evidenced adjusted identities and qualified fixed-income exclusion.
+- The obsolete two-path assertion and whole-common-contract equality assumptions are replaced by current local-reference resolution and targeted preservation checks. Quote success bodies, acquisition input body, held reads, security and grant behavior remain unchanged. Only intended error/correlation documentation corrections differ.
+
+GitHub #40/#41 were read and reproduced; their confirmed contract discrepancies are corrected by this delivery. The GitHub issues themselves remain open and unmodified. No new defect registry, issue comment or closure is introduced. Issue #39 remains deferred to the selected later step.
+
+### Verification and reproduction
+
+Use an engineer-local Python environment containing PyYAML, jsonschema, referencing and openapi-spec-validator; no backend dependency was introduced.
+
+```sh
+python scripts/v2-oas-conformance-test.py
+cd evidence-service-java
+./gradlew --offline test --tests 'com.wheelwright.evidence.v2.*'
+cd ..
+python scripts/ww-show-oas-validation.py
+python scripts/ww-ls-oas-validation.py
+```
+
+- Seven focused synthetic test groups pass, including negative media/type/identity/header/Problem/correlation cases. All three OAS documents and local references validate. Independent production-controller inventory matches all **19 operations / 17 paths** with unique operation IDs; legacy mappings are excluded by the approved boundary, not used as a publication dependency.
+- Existing v2 backend suite: **176 tests, 175 passed, one optional private-reference skip**, zero failures/errors. Held-detail validator: **25 actual specimens**, all seven statuses and codec cases. Held-discovery validator: **62 actual specimens**, all six statuses and complete ordered empty/nonempty results.
+- Existing `integratedUpdateFixture` plus `scripts/v2-oas-http-validation.py`: **37 actual synthetic HTTP specimens** pass, covering missing/invalid upload headers, successful admission, no retention on invalid upload, exact CSV content/attachment, JSON Artifact metadata/detail/inventory from actual holdings/history acquisition, Account history list/detail/errors, correlation and response headers. Transaction originals remain fail-closed. Original OAS was independently applied to those actual JSON metadata bodies and rejected the confirmed fields.
+- Repaired history and selection validators pass the extracted eight history and six selection HTTP specimens with actual headers. These reuse the same HTTP run, not extra independent specimens.
+- Scope-preserving parking-lot/journal/index reconciliation is included. The derived Roadmap was regenerated; freshness and all **58 integrity/freshness tests** pass. `git diff --check` passes. No new Product/architecture decision, horizon or workstream is created by this closeout.
+
+To reproduce the HTTP check, create a fresh temporary directory, start `./gradlew --offline integratedUpdateFixture -PfixtureReady=ABSOLUTE_TEMP_DIRECTORY/ready.json`, then run `python scripts/v2-oas-http-validation.py ABSOLUTE_TEMP_DIRECTORY/ready.json ABSOLUTE_TEMP_DIRECTORY/http-samples.json` from repository root. Stop the fixture afterward. It uses only disposable SQLite and loopback synthetic providers; no Downloads writes or operational configuration. To exercise JSON metadata, the harness temporarily sets and restores one existing **fixture-only** Artifact-read grant after verifying the fixture User identity; no operational grants or schema are touched. Outputs remain local synthetic test evidence, not publication content.
+
+The shared local resolver is `scripts/v2_oas.py`. Existing validators duplicated fragment resolution, assumed frozen whole-entry equality and lacked relational header checks. The bounded gap is common handling of this repository's three local OAS documents and HTTP specimens. The helper composes existing PyYAML, referencing, jsonschema and openapi-spec-validator; it is not a new schema engine or CI framework. It rejects references outside the three declared local contracts, verifies body schemas and documented headers, and checks header/body correlation. Structural OAS validity alone remains insufficient. Resource navigation, renderer/public filtering, publication security, CI and independently reviewed generated output belong to Steps 2–4.
+
+Pre-push synchronization recovered documentation-only remote advancement `f6681c392c248b64e90d97721ca5a3c0128df6ac` adding COTS-first acceptance checks. That addition is preserved; it does not change the reviewed backend or OAS baseline. The implementation uses the focused project-specific conformance/coverage integration allowed by those checks.
