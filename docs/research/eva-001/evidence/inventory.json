@@ -1,0 +1,1207 @@
+{
+  "schema": "eva-001-evidence-audit/v1",
+  "checked_utc": "2026-10-15T01:21:35.133963+00:00",
+  "repository_head": "c2bf81c26ebeb00d0f9390de66dd28d9157947ce",
+  "scope": "Named retained research archives, partial-collar source data and one offline backup; not a machine-wide or live-service census.",
+  "theta_history": {
+    "manifest": "docs/research/partial-collar-test1/data/theta_history_manifest.json",
+    "manifest_sha256": "7ab2cd3f909cc5d0aa2c46d4a483aefabde8298505db814a140d4a828fd792f4",
+    "recorded_retrieved_utc": "2026-10-08T21:51:58.102891+00:00",
+    "recorded_rows": {
+      "IWM": 841,
+      "RVX": 692
+    },
+    "checks": [
+      {
+        "file": "IWM_202306.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202307.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202308.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 23,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202309.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202310.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202311.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202312.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202401.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202402.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202403.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202404.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202405.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202406.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202407.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202408.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202409.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202410.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 23,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202411.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202412.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202501.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202502.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202503.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202504.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202505.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202506.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202507.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202508.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202509.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202510.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 23,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202511.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202512.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202601.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202602.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202603.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202604.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202605.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202606.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202607.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202608.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202609.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": null
+      },
+      {
+        "file": "IWM_202610.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 5,
+        "recorded_status": null
+      },
+      {
+        "file": "RVX_202306.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202307.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202308.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202309.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202310.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202311.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202312.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 0,
+        "recorded_status": 403
+      },
+      {
+        "file": "RVX_202401.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202402.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202403.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202404.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202405.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202406.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202407.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202408.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202409.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202410.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 23,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202411.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202412.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202501.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202502.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202503.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202504.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202505.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202506.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202507.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202508.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202509.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202510.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 23,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202511.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202512.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202601.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202602.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 19,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202603.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202604.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202605.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 20,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202606.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202607.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 22,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202608.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202609.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 21,
+        "recorded_status": 200
+      },
+      {
+        "file": "RVX_202610.json",
+        "exists": true,
+        "hash_matches": true,
+        "recorded_rows": 5,
+        "recorded_status": 200
+      }
+    ]
+  },
+  "theta_comparison": {
+    "iwm": {
+      "matched_sessions": 841,
+      "max_abs_close_difference": 1.4599999985875911e-05,
+      "differences_gt_0_02": 0,
+      "max_relative_difference": 5.517554435372381e-08,
+      "off_reference_dates": [],
+      "theta_first": "2023-06-01",
+      "theta_last": "2026-10-07"
+    },
+    "rvx": {
+      "matched_sessions": 692,
+      "max_abs_close_difference": 0.0,
+      "differences_gt_0_02": 0,
+      "max_relative_difference": 0.0,
+      "off_reference_dates": [],
+      "theta_first": "2024-01-02",
+      "theta_last": "2026-10-07"
+    }
+  },
+  "archives": [
+    {
+      "file": "data/research/pass-minus-one-v0-2026-09-30/evidence.tar.gz",
+      "files": 6140,
+      "sha256": "1a43983917a7e2b2f96f291afe2c8a7859042e5ec12b9a3ad6630374d8694e25",
+      "hash_matches": true
+    },
+    {
+      "file": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "files": 94,
+      "sha256": "6dd068e94c650815172b75768c8646e60b79dbf45fd7a268c40ac8cf9bb86105",
+      "hash_matches": true
+    },
+    {
+      "file": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "files": 81,
+      "sha256": "7fa69cd3dec0a32b5dd4ec3ee9a805c781088a2c7a9019f7cd6d80e387e6bfdc",
+      "hash_matches": true
+    }
+  ],
+  "chains": [
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./DRAM/chain-2026-11-20.body",
+      "sha256": "5fcf507191da8fbc60e4738b80a89c7fc720e94400ed368abe1ec174c343e87f",
+      "rows": 80,
+      "underlyings": [
+        "DRAM"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 40,
+        "call": 40
+      },
+      "bid_ask_present": 80,
+      "mid_iv_present": 80,
+      "smv_vol_present": 80,
+      "delta_present": 80,
+      "quote_timestamp_min": 1790879736000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./DRAM/chain-2026-11-13.body",
+      "sha256": "e6be60b57c136966572f029ee050b3266f711f0c18fba8f7679a13983d3d3d6a",
+      "rows": 48,
+      "underlyings": [
+        "DRAM"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "call": 24,
+        "put": 24
+      },
+      "bid_ask_present": 48,
+      "mid_iv_present": 48,
+      "smv_vol_present": 48,
+      "delta_present": 48,
+      "quote_timestamp_min": 1790885635000,
+      "quote_timestamp_max": 1790885699000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./TSLL/chain-2026-11-20.body",
+      "sha256": "86f309d4d55aa2cb1cf2c4fcabad2b4dc62069b269298df8cdf847471ee50f72",
+      "rows": 50,
+      "underlyings": [
+        "TSLL"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 25,
+        "call": 25
+      },
+      "bid_ask_present": 50,
+      "mid_iv_present": 50,
+      "smv_vol_present": 50,
+      "delta_present": 50,
+      "quote_timestamp_min": 1790862298000,
+      "quote_timestamp_max": 1790884800000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./TSLL/chain-2026-11-13.body",
+      "sha256": "15c846b6729463f3b303919ded6528f47db15c2d0500612c7ec9b921576e5156",
+      "rows": 34,
+      "underlyings": [
+        "TSLL"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "put": 17,
+        "call": 17
+      },
+      "bid_ask_present": 34,
+      "mid_iv_present": 34,
+      "smv_vol_present": 34,
+      "delta_present": 34,
+      "quote_timestamp_min": 1790884610000,
+      "quote_timestamp_max": 1790884803000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./XSP/chain-2026-11-20.body",
+      "sha256": "39693943510a3a2db3fb4acf8ac2112e82640167107d7221a91f2be74e46b921",
+      "rows": 618,
+      "underlyings": [
+        "XSP"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 309,
+        "call": 309
+      },
+      "bid_ask_present": 618,
+      "mid_iv_present": 618,
+      "smv_vol_present": 618,
+      "delta_present": 618,
+      "quote_timestamp_min": 1790886233000,
+      "quote_timestamp_max": 1790888399000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./XSP/chain-2026-11-13.body",
+      "sha256": "4a6e70413a2c14a91dc3d8cdc4bddf6173be6f6b913ba77c9744cf688344183c",
+      "rows": 204,
+      "underlyings": [
+        "XSP"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "put": 102,
+        "call": 102
+      },
+      "bid_ask_present": 204,
+      "mid_iv_present": 204,
+      "smv_vol_present": 204,
+      "delta_present": 204,
+      "quote_timestamp_min": 1790886313000,
+      "quote_timestamp_max": 1790888399000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./TLT/chain-2026-11-20.body",
+      "sha256": "77c2876a1d7278fc27f6707539a90833a9a972521cd2288df9b451118fcbaebe",
+      "rows": 96,
+      "underlyings": [
+        "TLT"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 48,
+        "call": 48
+      },
+      "bid_ask_present": 96,
+      "mid_iv_present": 96,
+      "smv_vol_present": 96,
+      "delta_present": 96,
+      "quote_timestamp_min": 1790885630000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./TLT/chain-2026-11-13.body",
+      "sha256": "f5fe00ebc052a77622b4cbeac095225e6c270045174ba48faaec91d6548ab4f9",
+      "rows": 48,
+      "underlyings": [
+        "TLT"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "put": 24,
+        "call": 24
+      },
+      "bid_ask_present": 48,
+      "mid_iv_present": 48,
+      "smv_vol_present": 48,
+      "delta_present": 48,
+      "quote_timestamp_min": 1790885642000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./QQQ/chain-2026-11-20.body",
+      "sha256": "bfca03926678fbce5a4c2ef8ff7acf06eb2ba6c034c47cb45dec693623f79b3b",
+      "rows": 496,
+      "underlyings": [
+        "QQQ"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 248,
+        "call": 248
+      },
+      "bid_ask_present": 496,
+      "mid_iv_present": 496,
+      "smv_vol_present": 496,
+      "delta_present": 496,
+      "quote_timestamp_min": 1790885393000,
+      "quote_timestamp_max": 1790885699000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./QQQ/chain-2026-11-13.body",
+      "sha256": "5038f9f0b70fa454777553379a412423610b7614079d7969e1ffd970d88005a1",
+      "rows": 62,
+      "underlyings": [
+        "QQQ"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "put": 31,
+        "call": 31
+      },
+      "bid_ask_present": 62,
+      "mid_iv_present": 62,
+      "smv_vol_present": 62,
+      "delta_present": 62,
+      "quote_timestamp_min": 1790885695000,
+      "quote_timestamp_max": 1790885699000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./BRK_B/chain-2026-11-20.body",
+      "sha256": "412bf77cd4d833c4c41a8b1a39e3c48fc3eaac89ceb3890a514885248a42666d",
+      "rows": 144,
+      "underlyings": [
+        "BRK/B"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 72,
+        "call": 72
+      },
+      "bid_ask_present": 144,
+      "mid_iv_present": 144,
+      "smv_vol_present": 144,
+      "delta_present": 144,
+      "quote_timestamp_min": 1790861434000,
+      "quote_timestamp_max": 1790884801000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./BRK_B/chain-2026-11-13.body",
+      "sha256": "336d350c344fa5fa054edbab7a226f6b52421c721c91b99203472c331ab952c0",
+      "rows": 58,
+      "underlyings": [
+        "BRK/B"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "put": 29,
+        "call": 29
+      },
+      "bid_ask_present": 58,
+      "mid_iv_present": 58,
+      "smv_vol_present": 58,
+      "delta_present": 58,
+      "quote_timestamp_min": 1790884771000,
+      "quote_timestamp_max": 1790884799000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./SPX/chain-2026-11-20.body",
+      "sha256": "ba5772424d46ad4dacd7ce36293c264efd3a7353939f00c5e1ea4f665ddb4980",
+      "rows": 1784,
+      "underlyings": [
+        "SPX"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 892,
+        "call": 892
+      },
+      "bid_ask_present": 1784,
+      "mid_iv_present": 1784,
+      "smv_vol_present": 1784,
+      "delta_present": 1784,
+      "quote_timestamp_min": 1790886183000,
+      "quote_timestamp_max": 1790888399000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./SPX/chain-2026-11-13.body",
+      "sha256": "776730f065c04efa13514037abf990e0dce21776d659259c6929d1341b2da614",
+      "rows": 244,
+      "underlyings": [
+        "SPX"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "call": 122,
+        "put": 122
+      },
+      "bid_ask_present": 244,
+      "mid_iv_present": 244,
+      "smv_vol_present": 244,
+      "delta_present": 244,
+      "quote_timestamp_min": 1790886184000,
+      "quote_timestamp_max": 1790888399000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./SPY/chain-2026-11-20.body",
+      "sha256": "112cf738c21d6210dd99e2cb60eb93162a1d9661b9889fe2c1777c5bc8e33137",
+      "rows": 442,
+      "underlyings": [
+        "SPY"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 221,
+        "call": 221
+      },
+      "bid_ask_present": 442,
+      "mid_iv_present": 442,
+      "smv_vol_present": 442,
+      "delta_present": 442,
+      "quote_timestamp_min": 1790864701000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-coordinate-comparison-2026-10-01/evidence.tar.gz",
+      "member": "./SPY/chain-2026-11-13.body",
+      "sha256": "faa0c684916c53caa9586aebd617299740ca3b5a25f2690ee647ddf7f9f3499c",
+      "rows": 84,
+      "underlyings": [
+        "SPY"
+      ],
+      "expirations": [
+        "2026-11-13"
+      ],
+      "rights": {
+        "put": 42,
+        "call": 42
+      },
+      "bid_ask_present": 84,
+      "mid_iv_present": 84,
+      "smv_vol_present": 84,
+      "delta_present": 84,
+      "quote_timestamp_min": 1790885480000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./DRAM/chain.body",
+      "sha256": "5fcf507191da8fbc60e4738b80a89c7fc720e94400ed368abe1ec174c343e87f",
+      "rows": 80,
+      "underlyings": [
+        "DRAM"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 40,
+        "call": 40
+      },
+      "bid_ask_present": 80,
+      "mid_iv_present": 80,
+      "smv_vol_present": 80,
+      "delta_present": 80,
+      "quote_timestamp_min": 1790879736000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./TSLL/chain-2027-01-15.body",
+      "sha256": "c32577164a1c2c4b4c7a5bff62fddfeb251115a037ebf8c0b85dd9e1fed30553",
+      "rows": 194,
+      "underlyings": [
+        "TSLL"
+      ],
+      "expirations": [
+        "2027-01-15"
+      ],
+      "rights": {
+        "put": 97,
+        "call": 97
+      },
+      "bid_ask_present": 194,
+      "mid_iv_present": 70,
+      "smv_vol_present": 70,
+      "delta_present": 70,
+      "quote_timestamp_min": 1790861400000,
+      "quote_timestamp_max": 1790884799000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./TSLL/chain.body",
+      "sha256": "86f309d4d55aa2cb1cf2c4fcabad2b4dc62069b269298df8cdf847471ee50f72",
+      "rows": 50,
+      "underlyings": [
+        "TSLL"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 25,
+        "call": 25
+      },
+      "bid_ask_present": 50,
+      "mid_iv_present": 50,
+      "smv_vol_present": 50,
+      "delta_present": 50,
+      "quote_timestamp_min": 1790862298000,
+      "quote_timestamp_max": 1790884800000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./XSP/chain.body",
+      "sha256": "03850e8c585eefb50b257f51b820c659e4edecdcbc1d532786f0f4dc3c688651",
+      "rows": 618,
+      "underlyings": [
+        "XSP"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 309,
+        "call": 309
+      },
+      "bid_ask_present": 618,
+      "mid_iv_present": 618,
+      "smv_vol_present": 618,
+      "delta_present": 618,
+      "quote_timestamp_min": 1790886233000,
+      "quote_timestamp_max": 1790887166000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./TLT/chain.body",
+      "sha256": "77c2876a1d7278fc27f6707539a90833a9a972521cd2288df9b451118fcbaebe",
+      "rows": 96,
+      "underlyings": [
+        "TLT"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 48,
+        "call": 48
+      },
+      "bid_ask_present": 96,
+      "mid_iv_present": 96,
+      "smv_vol_present": 96,
+      "delta_present": 96,
+      "quote_timestamp_min": 1790885630000,
+      "quote_timestamp_max": 1790885700000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./QQQ/chain.body",
+      "sha256": "bfca03926678fbce5a4c2ef8ff7acf06eb2ba6c034c47cb45dec693623f79b3b",
+      "rows": 496,
+      "underlyings": [
+        "QQQ"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 248,
+        "call": 248
+      },
+      "bid_ask_present": 496,
+      "mid_iv_present": 496,
+      "smv_vol_present": 496,
+      "delta_present": 496,
+      "quote_timestamp_min": 1790885393000,
+      "quote_timestamp_max": 1790885699000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./BRK_B/chain.body",
+      "sha256": "412bf77cd4d833c4c41a8b1a39e3c48fc3eaac89ceb3890a514885248a42666d",
+      "rows": 144,
+      "underlyings": [
+        "BRK/B"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 72,
+        "call": 72
+      },
+      "bid_ask_present": 144,
+      "mid_iv_present": 144,
+      "smv_vol_present": 144,
+      "delta_present": 144,
+      "quote_timestamp_min": 1790861434000,
+      "quote_timestamp_max": 1790884801000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./SPX/chain.body",
+      "sha256": "6510bbc34c24fdc19ba6e5fe1ba4eaaf8b897d9e569ea9d076a42eae906f5fdf",
+      "rows": 1784,
+      "underlyings": [
+        "SPX"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 892,
+        "call": 892
+      },
+      "bid_ask_present": 1784,
+      "mid_iv_present": 1784,
+      "smv_vol_present": 1784,
+      "delta_present": 1784,
+      "quote_timestamp_min": 1790886183000,
+      "quote_timestamp_max": 1790887169000
+    },
+    {
+      "archive": "data/research/specimen-selection-pilot-2026-10-01/evidence.tar.gz",
+      "member": "./SPY/chain.body",
+      "sha256": "112cf738c21d6210dd99e2cb60eb93162a1d9661b9889fe2c1777c5bc8e33137",
+      "rows": 442,
+      "underlyings": [
+        "SPY"
+      ],
+      "expirations": [
+        "2026-11-20"
+      ],
+      "rights": {
+        "put": 221,
+        "call": 221
+      },
+      "bid_ask_present": 442,
+      "mid_iv_present": 442,
+      "smv_vol_present": 442,
+      "delta_present": 442,
+      "quote_timestamp_min": 1790864701000,
+      "quote_timestamp_max": 1790885700000
+    }
+  ],
+  "theta_terminal": {
+    "url": "http://127.0.0.1:25503/v3/stock/history/eod?symbol=SPY&start_date=20260901&end_date=20260901&format=json",
+    "checked_utc": "2026-10-15T01:21:35.182282+00:00",
+    "current_entitlement": "UNVERIFIED",
+    "status": "UNAVAILABLE",
+    "error_class": "URLError",
+    "reason_class": "ConnectionRefusedError"
+  },
+  "muse": {
+    "handoff": "Principal relays prompts and returned research",
+    "result": "PENDING"
+  },
+  "offline_backup": {
+    "path_relative_to_home": ".local/share/wheelwright/pl-conv-01-step5/operational-r2/final-pre-migration.sqlite3",
+    "sha256": "0cb069fca6da67c31992b891ce67bb12759a2f0803af964173f534cd63153ce4",
+    "read_mode": "read-only immutable; offline backup only",
+    "table_counts": {
+      "evidence": 0,
+      "spot_history": 0,
+      "direct_quote": 0,
+      "brokerage_artifact": 316,
+      "account_position_snapshot": 28
+    }
+  }
+}
