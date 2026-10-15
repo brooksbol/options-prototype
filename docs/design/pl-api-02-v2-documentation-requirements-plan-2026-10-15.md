@@ -57,6 +57,19 @@ Apply the existing RECOVER → REUSE → COMPOSE → EXTEND → INVENT mandate (
 
 **Acceptance:** Predominantly standards, configuration, reused tools and documentation content, with only justified Wheelwright-specific integration. See also `docs/principles.md`, `docs/foundations/technology-quality-constitution-v1.md`, and `docs/technology-quality-fitness-controls-v1.md`.
 
+
+## Agent usability goal and first validation
+
+**Principal clarification:** API documentation is human-first but must also be effective for AI agents consuming the authoritative v2 REST contracts. The first meaningful downstream test will be agent-assisted migration of the existing Wheelwright web client to API v2. This is a **future validation use case, not authorization to migrate the web client within PL-API-02**.
+
+- **AGENT-01 (MUST):** An agent can discover all accepted v2 operations, stable operation IDs, parameters, request/response/error schemas, and relevant HTTP semantics from repository-owned OAS without scraping generated HTML.
+- **AGENT-02 (MUST):** OAS descriptions and linked authoritative contracts preserve capability meaning, evidence provenance, freshness/completeness limits, and acquisition-versus-read distinctions; an agent must not infer business authority or execution permission from the presence of an operation.
+- **AGENT-03 (MUST):** The agent-facing authoritative OAS retains accurate security and grant semantics even though the public human-facing site omits authentication/authorization instructions and has no interactive API calls.
+- **AGENT-04 (SHOULD):** Independent Codex review exercises a bounded read-only agent-consumption specimen: locate representative v2 operations, reconstruct their valid request and response/error shapes, and identify governing semantic constraints without CLI or rendered-site dependence.
+- **AGENT-05 (FUTURE ACCEPTANCE):** During a separately authorized web-client-to-v2 migration, test whether an agent can plan and implement client integration from OAS and governing contracts without inventing endpoints, duplicating backend business logic, or treating web-client state as authoritative. Record documentation gaps discovered then as feedback into PL-API-02.
+
+**Scope guardrail:** No MCP server, custom agent tool registry, web-client migration, or agent execution framework is part of this documentation workstream. The same authoritative OAS serves human rendering and agent understanding.
+
 ## Completion criteria
 
 A reader can browse all accepted v2 REST methods and truthful schemas/errors/examples without Wheelwright running, without credentials, and without the documentation sending API requests. Source and publication are reproducible and traceable internally. First publication is independently approved by Codex and passes release gates. Legacy v1 remains out of scope. No unrelated work is modified.
