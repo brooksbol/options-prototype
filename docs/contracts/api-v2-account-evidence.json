@@ -20,13 +20,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "readAccountPositions",
-        "summary": "readAccountPositions",
-        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Three request forms only: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.",
+        "summary": "Read retained Position snapshots",
+        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Three request forms only: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.\n\n<!-- internal-only:start -->\nCollections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -64,6 +65,15 @@
                       "$ref": "#/components/schemas/PositionObservationCollection"
                     }
                   ]
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "snapshots": []
+                    }
+                  }
                 }
               }
             }
@@ -96,7 +106,8 @@
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$"
             },
-            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account.",
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           {
             "name": "view",
@@ -120,6 +131,20 @@
             },
             "description": "Nonblank exact opaque identity within required accountId. Cannot combine with view. No global lookup."
           }
+        ],
+        "tags": [
+          "Positions"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/positions' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
         ]
       }
     },
@@ -132,13 +157,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "listAccountArtifacts",
-        "summary": "listAccountArtifacts",
-        "description": "Complete account-scoped artifact inventory with every recorded import attempt, ordered by receipt. No body or provider contact. Processing ACCEPTED does not establish continuous history; historyCoverage is UNKNOWN. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "List retained Artifacts",
+        "description": "Complete account-scoped artifact inventory with every recorded import attempt, ordered by receipt. No body or provider contact. Processing ACCEPTED does not establish continuous history; historyCoverage is UNKNOWN. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs.\n\n<!-- internal-only:start -->\nCollections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -169,6 +195,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ArtifactInventory"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "brokerAccount": "SYNTHETIC01",
+                      "historyCoverage": "UNKNOWN",
+                      "artifacts": [
+                        {
+                          "artifactId": "22222222-2222-4222-8222-222222222222",
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "sha256": "8b839a6a1e56f3bc5c4bca100ed203547dd339016f29b501230b463c56611bee",
+                          "contentType": "text/csv",
+                          "sizeBytes": 266,
+                          "receivedAt": "2026-10-15T20:00:00Z",
+                          "imports": [
+                            {
+                              "importId": "22222222-2222-4222-8222-222222222222",
+                              "originalFilename": "History_for_Account_UPDATESYNTHECF2D271.csv",
+                              "fileType": "ACTIVITY",
+                              "importedAt": "2026-10-15T20:00:00Z",
+                              "status": "ACCEPTED",
+                              "result": "2 broker evidence rows admitted; ledger observations added=2, exact matches=0. History coverage UNKNOWN; corrections and lifecycle reconciliation not established. Account attribution uses original filename (content omits account identifier).",
+                              "sourcePeriod": null
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -201,14 +259,29 @@
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$"
             },
-            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account.",
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "tags": [
+          "Artifacts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/artifacts' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
           }
         ]
       },
       "post": {
         "operationId": "retainAndProcessAccountArtifact",
-        "summary": "retainAndProcessAccountArtifact",
-        "description": "Transactionally retain exact bytes and original filename before parsing. Same account/hash reuses generated immutable artifact identity; every upload records a filename/processing attempt. REJECTED processing is HTTP 200, source survives and prior admitted evidence remains. Positions admit snapshots. Other files admit source-row observations; History appends/matches exact row occurrences without deleting prior observations. Corrections, lifecycle projection and continuous-history coverage are unresolved. Interrupted calls may leave PENDING; inspect inventory then retry retained processing. File-type/source-period interpretations are bounded; filename account attribution is qualified when History/Balances omit account ID. Content/admission deduplicates; import-attempt identities do not. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Collections include only backend-authorized Account scope. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Upload requires filename-bearing Content-Disposition and X-Brokerage-File-Type; missing or invalid upload inputs return INVALID_REQUEST/422 before retaining bytes. The body media type must be text/csv (compatible parameters are allowed).",
+        "summary": "Retain and process a CSV Artifact",
+        "description": "Transactionally retain exact bytes and original filename before parsing. Same account/hash reuses generated immutable artifact identity; every upload records a filename/processing attempt. REJECTED processing is HTTP 200, source survives and prior admitted evidence remains. Positions admit snapshots. Other files admit source-row observations; History appends/matches exact row occurrences without deleting prior observations. Corrections, lifecycle projection and continuous-history coverage are unresolved. Interrupted calls may leave PENDING; inspect inventory then retry retained processing. File-type/source-period interpretations are bounded; filename account attribution is qualified when History/Balances omit account ID. Content/admission deduplicates; import-attempt identities do not. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Upload requires filename-bearing Content-Disposition and X-Brokerage-File-Type; missing or invalid upload inputs return INVALID_REQUEST/422 before retaining bytes. The body media type must be text/csv (compatible parameters are allowed).\n\n<!-- internal-only:start -->\nPositions processing admits only target-account rows and does not grant access to other Accounts. Collections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -240,13 +313,18 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProcessedArtifact"
                 },
-                "example": {
-                  "requestId": "11111111-1111-4111-8111-111111111111",
-                  "artifactId": "22222222-2222-4222-8222-222222222222",
-                  "importId": "33333333-3333-4333-8333-333333333333",
-                  "newlyPersisted": true,
-                  "status": "ACCEPTED",
-                  "result": "Synthetic activity rows admitted; history coverage UNKNOWN."
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "artifactId": "22222222-2222-4222-8222-222222222222",
+                      "importId": "22222222-2222-4222-8222-222222222222",
+                      "newlyPersisted": true,
+                      "status": "ACCEPTED",
+                      "result": "2 broker evidence rows admitted; ledger observations added=2, exact matches=0. History coverage UNKNOWN; corrections and lifecycle reconciliation not established. Account attribution uses original filename (content omits account identifier)."
+                    }
+                  }
                 }
               }
             }
@@ -279,7 +357,8 @@
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$"
             },
-            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account."
+            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account.",
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           {
             "name": "Content-Disposition",
@@ -322,7 +401,21 @@
               "example": "Run Date,Action,Symbol,Amount ($)\n10/15/2026,DIVIDEND,DEMO,1.00\n"
             }
           }
-        }
+        },
+        "tags": [
+          "Artifacts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request POST 'https://api.example.invalid/v2/artifacts?accountId=acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111' \\\n  --header 'Content-Disposition: attachment; filename=\"History_for_Account_SYNTHETIC.csv\"' \\\n  --header 'X-Brokerage-File-Type: ACTIVITY' \\\n  --header 'Content-Type: text/csv' \\\n  --data-raw 'Run Date,Action,Symbol,Amount ($)\n10/15/2026,DIVIDEND,DEMO,1.00\n'"
+          }
+        ]
       }
     },
     "/v2/artifacts/{artifactId}": {
@@ -334,7 +427,8 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         },
         {
           "name": "artifactId",
@@ -343,13 +437,14 @@
           "schema": {
             "type": "string",
             "format": "uuid"
-          }
+          },
+          "example": "22222222-2222-4222-8222-222222222222"
         }
       ],
       "get": {
         "operationId": "readAccountArtifact",
-        "summary": "readAccountArtifact",
-        "description": "Immutable artifact metadata and append-only processing-attempt history. No query/body. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "Read Artifact metadata",
+        "description": "Immutable artifact metadata and append-only processing-attempt history. No query/body.\n\n<!-- internal-only:start -->\nBearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -380,6 +475,30 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Artifact"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "artifactId": "22222222-2222-4222-8222-222222222222",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "sha256": "8b839a6a1e56f3bc5c4bca100ed203547dd339016f29b501230b463c56611bee",
+                      "contentType": "text/csv",
+                      "sizeBytes": 266,
+                      "receivedAt": "2026-10-15T20:00:00Z",
+                      "imports": [
+                        {
+                          "importId": "22222222-2222-4222-8222-222222222222",
+                          "originalFilename": "History_for_Account_UPDATESYNTHECF2D271.csv",
+                          "fileType": "ACTIVITY",
+                          "importedAt": "2026-10-15T20:00:00Z",
+                          "status": "ACCEPTED",
+                          "result": "2 broker evidence rows admitted; ledger observations added=2, exact matches=0. History coverage UNKNOWN; corrections and lifecycle reconciliation not established. Account attribution uses original filename (content omits account identifier).",
+                          "sourcePeriod": null
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -402,7 +521,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Artifacts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/artifacts/22222222-2222-4222-8222-222222222222' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/artifacts/{artifactId}/content": {
@@ -414,7 +547,8 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         },
         {
           "name": "artifactId",
@@ -423,13 +557,14 @@
           "schema": {
             "type": "string",
             "format": "uuid"
-          }
+          },
+          "example": "22222222-2222-4222-8222-222222222222"
         }
       ],
       "get": {
         "operationId": "retrieveAccountArtifactBytes",
-        "summary": "retrieveAccountArtifactBytes",
-        "description": "Exact original bytes, including BOM/line endings. Content-Disposition attachment. No query/body. Original sources containing multiple accounts require the corresponding artifact grant for every source account; unregistered source scopes are denied. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "Retrieve original source bytes",
+        "description": "Exact original bytes, including BOM/line endings. Content-Disposition attachment. No query/body.\n\n<!-- internal-only:start -->\nOriginal sources containing multiple accounts require the corresponding artifact grant for every source account; unregistered source scopes are denied. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -469,12 +604,24 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": "Run Date,Action,Amount ($)\n10/15/2026,DIVIDEND,1.00\n"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": "{\"data\":{\"items\":[]}}"
+                  }
                 }
               }
             }
@@ -497,7 +644,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Artifacts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/artifacts/22222222-2222-4222-8222-222222222222/content' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/artifacts/{artifactId}/imports": {
@@ -509,7 +670,8 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         },
         {
           "name": "artifactId",
@@ -518,13 +680,14 @@
           "schema": {
             "type": "string",
             "format": "uuid"
-          }
+          },
+          "example": "22222222-2222-4222-8222-222222222222"
         }
       ],
       "post": {
         "operationId": "retryRetainedArtifactProcessing",
-        "summary": "retryRetainedArtifactProcessing",
-        "description": "Append a processing attempt from retained bytes and most recent recorded filename/type. No body/query/reupload. Exact source/evidence identities make admission repeatable; prior statuses and source remain retained. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Positions processing admits only target-account rows and does not grant access to other Accounts. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. This CSV processing capability does not replay tastytrade API acquisition artifacts or contact a brokerage. API acquisition attempts remain inspectable as retained artifact imports; resynchronization is an explicitly authorized new acquisition.",
+        "summary": "Retry retained CSV processing",
+        "description": "Append a processing attempt from retained bytes and most recent recorded filename/type. No body/query/reupload. Exact source/evidence identities make admission repeatable; prior statuses and source remain retained. Import requires artifact write authority for the target Account only. Exact mixed-account originals are retained privately. Formats without supported row-level Account attribution are retained with REJECTED processing rather than admitting mixed rows. Complete original-file retrieval separately requires artifact read authority for every source Account; unregistered source scopes deny retrieval. This CSV processing capability does not replay tastytrade API acquisition artifacts or contact a brokerage.\n\n<!-- internal-only:start -->\nPositions processing admits only target-account rows and does not grant access to other Accounts. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. API acquisition attempts remain inspectable as retained artifact imports; resynchronization is an explicitly authorized new acquisition.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -555,6 +718,19 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProcessedArtifact"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "artifactId": "22222222-2222-4222-8222-222222222222",
+                      "importId": "22222222-2222-4222-8222-222222222222",
+                      "newlyPersisted": true,
+                      "status": "ACCEPTED",
+                      "result": "2 broker evidence rows admitted; ledger observations added=2, exact matches=0. History coverage UNKNOWN; corrections and lifecycle reconciliation not established. Account attribution uses original filename (content omits account identifier)."
+                    }
+                  }
                 }
               }
             }
@@ -577,7 +753,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Artifacts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request POST 'https://api.example.invalid/v2/artifacts/22222222-2222-4222-8222-222222222222/imports' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/accounts": {
@@ -589,13 +779,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "listAccounts",
-        "summary": "listAccounts",
-        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. Authentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "List Accounts",
+        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability.\n\n<!-- internal-only:start -->\nAuthentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -626,6 +817,25 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountInventory"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accounts": [
+                        {
+                          "id": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "alias": "demo",
+                          "displayName": "Synthetic demo Account",
+                          "brokerAssociation": {
+                            "broker": "FIDELITY",
+                            "accountNumber": "SYNTHETIC01"
+                          }
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -648,7 +858,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Accounts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/77-api-v2-architectural-guardrails.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/accounts' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/accounts/{accountId}": {
@@ -660,7 +884,8 @@
           "schema": {
             "type": "string",
             "pattern": "^acct_[a-f0-9]{32}$"
-          }
+          },
+          "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         {
           "name": "X-Request-Id",
@@ -669,13 +894,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "readAccount",
-        "summary": "readAccount",
-        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. Authentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "Read an Account",
+        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability.\n\n<!-- internal-only:start -->\nAuthentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -706,6 +932,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountDetail"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "account": {
+                        "id": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "alias": "demo",
+                        "displayName": "Synthetic demo Account",
+                        "brokerAssociation": {
+                          "broker": "FIDELITY",
+                          "accountNumber": "SYNTHETIC01"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -728,7 +971,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Accounts"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/77-api-v2-architectural-guardrails.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/users": {
@@ -740,13 +997,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "listUsers",
-        "summary": "listUsers",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "List Users",
+        "description": "Reads immutable User identity and backend-established capability metadata. No User-management CRUD, query parameters or request body. No query/body. No user-management CRUD. User names and Account access imply no administrator privilege.\n\n<!-- internal-only:start -->\nAuthentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. User IDs are opaque, immutable and confer no authority. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -777,6 +1035,22 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserInventory"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "users": [
+                        {
+                          "id": "usr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "displayName": "Synthetic operator",
+                          "administrator": false,
+                          "accountAccess": []
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -799,7 +1073,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Users"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/77-api-v2-architectural-guardrails.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/users' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/users/{userId}": {
@@ -811,7 +1099,8 @@
           "schema": {
             "type": "string",
             "pattern": "^usr_[a-f0-9]{32}$"
-          }
+          },
+          "example": "usr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         {
           "name": "X-Request-Id",
@@ -820,13 +1109,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "readUser",
-        "summary": "readUser",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. User names and Account access imply no administrator privilege. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "Read a User",
+        "description": "Reads immutable User identity and backend-established capability metadata. No User-management CRUD, query parameters or request body. No query/body. No user-management CRUD. User names and Account access imply no administrator privilege.\n\n<!-- internal-only:start -->\nAuthentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. User IDs are opaque, immutable and confer no authority. Requires explicitly backend-established users.admin, including inspection of one\u2019s own User through /users/{userId}. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -857,6 +1147,20 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDetail"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "user": {
+                        "id": "usr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "displayName": "Synthetic operator",
+                        "administrator": false,
+                        "accountAccess": []
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -879,7 +1183,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Users"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/77-api-v2-architectural-guardrails.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/users/usr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/me": {
@@ -891,13 +1209,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "readCurrentUser",
-        "summary": "readCurrentUser",
-        "description": "Authentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. No query/body. User IDs are opaque, immutable and confer no authority. No user-management CRUD. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.",
+        "summary": "Read the current User",
+        "description": "Reads immutable User identity and backend-established capability metadata. No User-management CRUD, query parameters or request body. No query/body. No user-management CRUD.\n\n<!-- internal-only:start -->\nAuthentication identifies an immutable User, never an Account. Backend authorization establishes explicit administrator authority and many-to-many User\u2013Account capabilities. User IDs are opaque, immutable and confer no authority. Returns only the authenticated User; arbitrary headers, Account selection or client filtering cannot select a different identity. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -926,6 +1245,20 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDetail"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "user": {
+                        "id": "usr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "displayName": "Synthetic operator",
+                        "administrator": false,
+                        "accountAccess": []
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -948,7 +1281,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Users"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/77-api-v2-architectural-guardrails.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/me' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/position-acquisitions": {
@@ -960,13 +1307,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "post": {
         "operationId": "acquireAccountPositions",
-        "summary": "Acquire one complete tastytrade Account holdings observation",
-        "description": "Explicit backend-only OAuth and holdings acquisition. Exactly one canonical accountId selector, no request body or other query. Authentication then exact Account acquisition authority before source/storage access. Account reads, artifact writes, quote acquisition and ID possession do not grant acquisition. Unconfigured provider or unsupported brokerage is 503. No orders/history/quotes/scheduler. Successful JSON bodies pass credential-safety checks before immutable exact-byte retention. Interpretation is all-or-nothing; accepted snapshot and attempt outcome commit together. Failed refresh preserves previous evidence and its clock. Pagination requiring more than one page is retained/rejected rather than misreported as complete. OAuth responses, headers and upstream errors are not retained or disclosed. Every response has X-Request-Id and private,no-store.",
+        "summary": "Acquire a holdings observation",
+        "description": "Explicit backend holdings acquisition for one canonical Account. No request body, orders, history or quote acquisition. Exactly one canonical accountId selector, no request body or other query. Unconfigured provider or unsupported brokerage is 503. No orders/history/quotes/scheduler. Interpretation is all-or-nothing; accepted snapshot and attempt outcome commit together. Failed refresh preserves previous evidence and its clock. Pagination requiring more than one page is retained/rejected rather than misreported as complete. Every response has X-Request-Id and private,no-store.\n\n<!-- internal-only:start -->\nExplicit backend-only OAuth and holdings acquisition. Authentication then exact Account acquisition authority before source/storage access. Account reads, artifact writes, quote acquisition and ID possession do not grant acquisition. Successful JSON bodies pass credential-safety checks before immutable exact-byte retention. OAuth responses, headers and upstream errors are not retained or disclosed.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -983,7 +1331,8 @@
             "schema": {
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$"
-            }
+            },
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           }
         ],
         "responses": {
@@ -1008,6 +1357,23 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PositionAcquisition"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "acquisitionId": "22222222-2222-4222-8222-222222222222",
+                      "status": "ACCEPTED",
+                      "artifactId": "22222222-2222-4222-8222-222222222222",
+                      "snapshotId": "snapshot-22222222-2222-4222-8222-222222222222",
+                      "startedAt": "2026-10-15T20:00:00Z",
+                      "receivedAt": "2026-10-15T20:00:00Z",
+                      "completedAt": "2026-10-15T20:00:00Z",
+                      "result": "Holdings observation admitted. Occurrence, opening economics, orders and Program applicability unresolved."
+                    }
+                  }
                 }
               }
             }
@@ -1030,7 +1396,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Positions"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request POST 'https://api.example.invalid/v2/position-acquisitions?accountId=acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/portfolio-capital-observations": {
@@ -1042,13 +1422,14 @@
             "type": "string",
             "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
           },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
         }
       ],
       "get": {
         "operationId": "readPortfolioCapitalObservations",
-        "summary": "Read retained Fidelity Portfolio Capital export-minute composites",
-        "description": "Pure read of accepted retained originals in one committed inventory. Required canonical accountId and existing account.artifacts.read grant; CLI resolves nicknames with account.read. Every original must have established single requested Account source scope, with existing original-disclosure protections, else whole read is 403. One row per admitted Balances artifact; unique identical reported export-minute Option Summary produces Portfolio Capital = Total Account Value minus aggregate short-option MTM. This is a two-source composite, not an atomic brokerage observation. No same-day/nearest/predecessor pairing, daily collapse, interpolation, historical knowledge replay or NAV claim. Missing, malformed, ambiguous or unmatched required values remain null with explicit row status. Complete parsed Summary without short options establishes zero; missing MTM never does. ExportedAt has MINUTE precision in America/New_York, independently of quoteDate and receipt time. Every row preserves both source hashes/IDs/rows. Duplicate timestamps retain all Balance rows with AMBIGUOUS_EXPORT_MINUTE. Response order exportMinute ASC NULLS LAST then artifactId ASC. Coverage remains UNKNOWN. Complete collection with 10000 artifact/32MiB input limit; capacity or hash failure returns 503 without partial output. Only accountId is allowed, exactly once; all other/repeated/blank params and nonempty GET bodies are 422 after authentication and applicable Account authorization. Non-Fidelity Account is 422. Known authorized empty Account returns 200 empty.",
+        "summary": "Read Portfolio Capital observations",
+        "description": "Pure read of accepted retained originals in one committed inventory. One row per admitted Balances artifact; unique identical reported export-minute Option Summary produces Portfolio Capital = Total Account Value minus aggregate short-option MTM. This is a two-source composite, not an atomic brokerage observation. No same-day/nearest/predecessor pairing, daily collapse, interpolation, historical knowledge replay or NAV claim. Missing, malformed, ambiguous or unmatched required values remain null with explicit row status. Complete parsed Summary without short options establishes zero; missing MTM never does. ExportedAt has MINUTE precision in America/New_York, independently of quoteDate and receipt time. Every row preserves both source hashes/IDs/rows. Duplicate timestamps retain all Balance rows with AMBIGUOUS_EXPORT_MINUTE. Response order exportMinute ASC NULLS LAST then artifactId ASC. Coverage remains UNKNOWN. Complete collection with 10000 artifact/32MiB input limit; capacity or hash failure returns 503 without partial output. Non-Fidelity Account is 422.\n\n<!-- internal-only:start -->\nRequired canonical accountId and existing account.artifacts.read grant; CLI resolves nicknames with account.read. Every original must have established single requested Account source scope, with existing original-disclosure protections, else whole read is 403. Only accountId is allowed, exactly once; all other/repeated/blank params and nonempty GET bodies are 422 after authentication and applicable Account authorization. Known authorized empty Account returns 200 empty.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -1079,6 +1460,22 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CapitalObservationCollection"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "measure": "PORTFOLIO_CAPITAL_V1",
+                      "formula": "totalAccountValue - shortOptionMtm",
+                      "pairingBasis": "UNIQUE_IDENTICAL_EXPORT_MINUTE_COMPOSITE",
+                      "historyCoverage": "UNKNOWN",
+                      "balanceArtifacts": 0,
+                      "optionSummaryArtifacts": 0,
+                      "observations": []
+                    }
+                  }
                 }
               }
             }
@@ -1110,7 +1507,22 @@
             "schema": {
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$"
-            }
+            },
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ],
+        "tags": [
+          "Portfolio capital"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/foundations/portfolio-capital.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/portfolio-capital-observations?accountId=acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
           }
         ]
       }
@@ -1118,8 +1530,8 @@
     "/v2/accounts/{accountId}/transactions": {
       "get": {
         "operationId": "readAccountTransactions",
-        "summary": "Read selected Account transaction evidence",
-        "description": "Explicit account.transactions.read grant required. Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No query parameters or GET body. Account and transaction IDs confer no permission. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.",
+        "summary": "Read Account transaction history",
+        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No query parameters or GET body. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -1137,7 +1549,8 @@
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$",
               "description": "Existing immutable Account ID; no ID migration."
-            }
+            },
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           {
             "name": "X-Request-Id",
@@ -1146,7 +1559,8 @@
               "type": "string",
               "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
             },
-            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+            "example": "11111111-1111-4111-8111-111111111111"
           }
         ],
         "responses": {
@@ -1171,6 +1585,140 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountTransactionCollection"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "provider": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "asOf": null,
+                      "checkedAt": null,
+                      "lastImportedAt": "2026-10-15T20:00:00Z",
+                      "requestedFrom": null,
+                      "requestedThrough": null,
+                      "observedFrom": "2026-10-14",
+                      "observedThrough": "2026-10-15",
+                      "evidenceMode": "RETAINED",
+                      "freshness": "UNVERIFIED",
+                      "acquisitionOutcome": "NOT_APPLICABLE",
+                      "providerTraversal": "NOT_APPLICABLE",
+                      "providerSnapshotConsistency": "UNVERIFIED",
+                      "lifetimeCoverage": "UNKNOWN",
+                      "identityBasis": "RETAINED_ROW_OBSERVATION",
+                      "latestAttemptId": null,
+                      "latestAttemptPages": 0,
+                      "normalization": "SUPPORTED",
+                      "complete": true,
+                      "recordCount": 2,
+                      "transactions": [
+                        {
+                          "sourceTransactionId": null,
+                          "executedAt": null,
+                          "sourceCreatedAt": null,
+                          "sourceSubType": null,
+                          "underlyingSymbol": null,
+                          "instrumentType": null,
+                          "multiplier": null,
+                          "orderId": null,
+                          "reversesSourceId": null,
+                          "otherCharge": null,
+                          "estimatedFee": null,
+                          "transactionDate": "2026-10-14",
+                          "settlementDate": "2026-10-15",
+                          "kind": "OTHER",
+                          "sourceType": "Fidelity Activity",
+                          "action": "YOU SOLD",
+                          "sourceAction": "YOU SOLD",
+                          "symbol": "SPY",
+                          "description": "Synthetic shares",
+                          "currency": null,
+                          "quantity": "-2",
+                          "price": "1.2345678901234567",
+                          "value": null,
+                          "netCash": "2.3491357802469134",
+                          "commission": "-0.10",
+                          "fees": "-0.02",
+                          "commissionStatus": "REPORTED",
+                          "feesStatus": "REPORTED_TOTAL",
+                          "feeComponents": {
+                            "clearing-fees": null,
+                            "regulatory-fees": null,
+                            "proprietary-index-option-fees": null,
+                            "currency-conversion-fees": null
+                          },
+                          "normalization": "SUPPORTED",
+                          "sourceIdentityStatus": "ROW_EQUIVALENCE_ONLY",
+                          "transactionId": "00000003-3333-4333-8333-333333333333",
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "provenance": {
+                            "artifactId": "22222222-2222-4222-8222-222222222222",
+                            "sha256": "8b839a6a1e56f3bc5c4bca100ed203547dd339016f29b501230b463c56611bee",
+                            "observationId": "00000005-5555-4555-8555-555555555555",
+                            "receivedAt": "2026-10-15T20:00:00Z",
+                            "previousObservationId": null,
+                            "rowNumber": 2
+                          },
+                          "correctionStatus": "NONE_OBSERVED",
+                          "reversesTransactionId": null,
+                          "reversalStatus": "NONE_REPORTED"
+                        },
+                        {
+                          "sourceTransactionId": null,
+                          "executedAt": null,
+                          "sourceCreatedAt": null,
+                          "sourceSubType": null,
+                          "underlyingSymbol": null,
+                          "instrumentType": null,
+                          "multiplier": null,
+                          "orderId": null,
+                          "reversesSourceId": null,
+                          "otherCharge": null,
+                          "estimatedFee": null,
+                          "transactionDate": "2026-10-15",
+                          "settlementDate": null,
+                          "kind": "OTHER",
+                          "sourceType": "Fidelity Activity",
+                          "action": "CASH TRANSFER",
+                          "sourceAction": "CASH TRANSFER",
+                          "symbol": null,
+                          "description": "Synthetic deposit",
+                          "currency": null,
+                          "quantity": null,
+                          "price": null,
+                          "value": null,
+                          "netCash": "250.00",
+                          "commission": null,
+                          "fees": null,
+                          "commissionStatus": "NOT_REPORTED",
+                          "feesStatus": "NOT_REPORTED",
+                          "feeComponents": {
+                            "clearing-fees": null,
+                            "regulatory-fees": null,
+                            "proprietary-index-option-fees": null,
+                            "currency-conversion-fees": null
+                          },
+                          "normalization": "SUPPORTED",
+                          "sourceIdentityStatus": "ROW_EQUIVALENCE_ONLY",
+                          "transactionId": "00000004-3333-4333-8333-333333333333",
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "provenance": {
+                            "artifactId": "22222222-2222-4222-8222-222222222222",
+                            "sha256": "8b839a6a1e56f3bc5c4bca100ed203547dd339016f29b501230b463c56611bee",
+                            "observationId": "00000006-5555-4555-8555-555555555555",
+                            "receivedAt": "2026-10-15T20:00:00Z",
+                            "previousObservationId": null,
+                            "rowNumber": 3
+                          },
+                          "correctionStatus": "NONE_OBSERVED",
+                          "reversesTransactionId": null,
+                          "reversalStatus": "NONE_REPORTED"
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -1193,14 +1741,28 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Transactions"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/design/ww-history-approved-checkpoint-2026-10-15.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/transactions' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     },
     "/v2/accounts/{accountId}/transactions/{transactionId}": {
       "get": {
         "operationId": "readAccountTransaction",
-        "summary": "Read selected Account transaction evidence",
-        "description": "Explicit account.transactions.read grant required. Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No query parameters or GET body. Account and transaction IDs confer no permission. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.",
+        "summary": "Read an Account transaction",
+        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No query parameters or GET body. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -1218,7 +1780,8 @@
               "type": "string",
               "pattern": "^acct_[a-f0-9]{32}$",
               "description": "Existing immutable Account ID; no ID migration."
-            }
+            },
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
           },
           {
             "name": "transactionId",
@@ -1227,7 +1790,8 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "example": "22222222-2222-4222-8222-222222222222"
           },
           {
             "name": "X-Request-Id",
@@ -1236,7 +1800,8 @@
               "type": "string",
               "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
             },
-            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication."
+            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+            "example": "11111111-1111-4111-8111-111111111111"
           }
         ],
         "responses": {
@@ -1261,6 +1826,87 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountTransactionDetail"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "provider": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "asOf": null,
+                      "checkedAt": null,
+                      "lastImportedAt": "2026-10-15T20:00:00Z",
+                      "requestedFrom": null,
+                      "requestedThrough": null,
+                      "observedFrom": "2026-10-14",
+                      "observedThrough": "2026-10-15",
+                      "evidenceMode": "RETAINED",
+                      "freshness": "UNVERIFIED",
+                      "acquisitionOutcome": "NOT_APPLICABLE",
+                      "providerTraversal": "NOT_APPLICABLE",
+                      "providerSnapshotConsistency": "UNVERIFIED",
+                      "lifetimeCoverage": "UNKNOWN",
+                      "identityBasis": "RETAINED_ROW_OBSERVATION",
+                      "latestAttemptId": null,
+                      "latestAttemptPages": 0,
+                      "normalization": "SUPPORTED",
+                      "complete": true,
+                      "recordCount": 2,
+                      "transaction": {
+                        "sourceTransactionId": null,
+                        "executedAt": null,
+                        "sourceCreatedAt": null,
+                        "sourceSubType": null,
+                        "underlyingSymbol": null,
+                        "instrumentType": null,
+                        "multiplier": null,
+                        "orderId": null,
+                        "reversesSourceId": null,
+                        "otherCharge": null,
+                        "estimatedFee": null,
+                        "transactionDate": "2026-10-14",
+                        "settlementDate": "2026-10-15",
+                        "kind": "OTHER",
+                        "sourceType": "Fidelity Activity",
+                        "action": "YOU SOLD",
+                        "sourceAction": "YOU SOLD",
+                        "symbol": "SPY",
+                        "description": "Synthetic shares",
+                        "currency": null,
+                        "quantity": "-2",
+                        "price": "1.2345678901234567",
+                        "value": null,
+                        "netCash": "2.3491357802469134",
+                        "commission": "-0.10",
+                        "fees": "-0.02",
+                        "commissionStatus": "REPORTED",
+                        "feesStatus": "REPORTED_TOTAL",
+                        "feeComponents": {
+                          "clearing-fees": null,
+                          "regulatory-fees": null,
+                          "proprietary-index-option-fees": null,
+                          "currency-conversion-fees": null
+                        },
+                        "normalization": "SUPPORTED",
+                        "sourceIdentityStatus": "ROW_EQUIVALENCE_ONLY",
+                        "transactionId": "00000003-3333-4333-8333-333333333333",
+                        "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "provenance": {
+                          "artifactId": "22222222-2222-4222-8222-222222222222",
+                          "sha256": "8b839a6a1e56f3bc5c4bca100ed203547dd339016f29b501230b463c56611bee",
+                          "observationId": "00000005-5555-4555-8555-555555555555",
+                          "receivedAt": "2026-10-15T20:00:00Z",
+                          "previousObservationId": null,
+                          "rowNumber": 2
+                        },
+                        "correctionStatus": "NONE_OBSERVED",
+                        "reversesTransactionId": null,
+                        "reversalStatus": "NONE_REPORTED"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1283,7 +1929,21 @@
           "503": {
             "$ref": "#/components/responses/Problem503"
           }
-        }
+        },
+        "tags": [
+          "Transactions"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/design/ww-history-approved-checkpoint-2026-10-15.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/transactions/22222222-2222-4222-8222-222222222222' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          }
+        ]
       }
     }
   },
@@ -3204,6 +3864,19 @@
                   }
                 }
               ]
+            },
+            "examples": {
+              "synthetic": {
+                "summary": "Invented data only",
+                "value": {
+                  "type": "urn:wheelwright:problem:unauthenticated",
+                  "title": "Unauthenticated",
+                  "status": 401,
+                  "code": "UNAUTHENTICATED",
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "detail": "Synthetic 401 example."
+                }
+              }
             }
           }
         }
@@ -3241,6 +3914,19 @@
                   }
                 }
               ]
+            },
+            "examples": {
+              "synthetic": {
+                "summary": "Invented data only",
+                "value": {
+                  "type": "urn:wheelwright:problem:forbidden",
+                  "title": "Forbidden",
+                  "status": 403,
+                  "code": "FORBIDDEN",
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "detail": "Synthetic 403 example."
+                }
+              }
             }
           }
         }
@@ -3278,6 +3964,19 @@
                   }
                 }
               ]
+            },
+            "examples": {
+              "synthetic": {
+                "summary": "Invented data only",
+                "value": {
+                  "type": "urn:wheelwright:problem:not_found",
+                  "title": "Not found",
+                  "status": 404,
+                  "code": "NOT_FOUND",
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "detail": "Synthetic 404 example."
+                }
+              }
             }
           }
         }
@@ -3315,6 +4014,25 @@
                   }
                 }
               ]
+            },
+            "examples": {
+              "synthetic": {
+                "summary": "Invented data only",
+                "value": {
+                  "type": "urn:wheelwright:problem:invalid_request",
+                  "title": "Invalid request",
+                  "status": 422,
+                  "code": "INVALID_REQUEST",
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "detail": "Synthetic 422 example.",
+                  "invalidParams": [
+                    {
+                      "name": "request",
+                      "reason": "Synthetic invalid input"
+                    }
+                  ]
+                }
+              }
             }
           }
         }
@@ -3352,6 +4070,19 @@
                   }
                 }
               ]
+            },
+            "examples": {
+              "synthetic": {
+                "summary": "Invented data only",
+                "value": {
+                  "type": "urn:wheelwright:problem:internal_error",
+                  "title": "Internal error",
+                  "status": 500,
+                  "code": "INTERNAL_ERROR",
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "detail": "Synthetic 500 example."
+                }
+              }
             }
           }
         }
@@ -3389,6 +4120,19 @@
                   }
                 }
               ]
+            },
+            "examples": {
+              "synthetic": {
+                "summary": "Invented data only",
+                "value": {
+                  "type": "urn:wheelwright:problem:capability_unavailable",
+                  "title": "Capability unavailable",
+                  "status": 503,
+                  "code": "CAPABILITY_UNAVAILABLE",
+                  "requestId": "11111111-1111-4111-8111-111111111111",
+                  "detail": "Synthetic 503 example."
+                }
+              }
             }
           }
         }

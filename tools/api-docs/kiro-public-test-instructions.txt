@@ -1,0 +1,16 @@
+ACTOR: Kiro
+TASK: Independent black-box API documentation acceptance
+
+Start in a fresh context. The only inputs are these instructions and the supplied static documentation entry point. Use that public documentation surface alone. Do not search repository code, tests, internal documents/design records, prior conversations, or source OpenAPI outside the supplied surface. Do not follow repository links to obtain missing internal information. Do not receive another actor's expected answers or validation reports.
+
+Do not contact APIs, execute example commands, access brokerages, change files or migrate a client. Read and construct examples on paper only.
+
+From the supplied documentation:
+- Discover the API operations and identify methods, routes and stable operation IDs.
+- Recover representative valid request, response and error shapes and meaningful domain constraints.
+- Compose synthetic request templates for a held read, acquisition and source submission.
+- Explain HTTP status/header/caching semantics, acquisition versus held reads, provenance and completeness limits.
+- State whether a documented capability itself permits operational execution.
+- Report every missing or ambiguous fact as a documentation usability gap. Do not fill gaps from implementation knowledge.
+
+Return the supplied entry-point identity, the evidence used, reconstructed examples, observations and gaps. Keep observed documentation facts separate from inference. Preserve this result unchanged for Principal assessment and subsequent independent conformance comparison. Do not certify publication or imply permission to execute operations.

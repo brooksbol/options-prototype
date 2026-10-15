@@ -1,0 +1,6 @@
+extends:
+  - minimal
+rules:
+  no-unused-components: off
+  # `not: {required: [failure]}` is valid JSON Schema; this rule treats it as undefined.
+  no-required-schema-properties-undefined: off

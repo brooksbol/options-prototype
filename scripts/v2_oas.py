@@ -19,6 +19,25 @@ SELECTION = 'api-v2-market-evidence-subjects.json'
 METHODS = {'get', 'post', 'put', 'patch', 'delete', 'head', 'options'}
 
 
+def without_documentation(value, property_names=False):
+    """Compare wire constraints while allowing descriptions and synthetic examples.
+
+    Preserve literal property names such as `description` inside schema properties.
+    """
+    annotations = {'description', 'summary', 'example', 'examples', 'tags', 'externalDocs', 'x-codeSamples'}
+    # Historical YAML flow-map descriptions split at unquoted commas. These exact
+    # null keys are prose fragments, corrected by quoting in the documentation build.
+    prose_fragments = {'RFC 3339 UTC when known.', 'if supplied.', 'not Wheelwright-derived.',
+                       'e.g. tradier.', 'RFC 3339 UTC.'}
+    if isinstance(value, list):
+        return [without_documentation(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    return {key: without_documentation(item, key == 'properties')
+            for key, item in value.items()
+            if property_names or (key not in annotations and not (key in prose_fragments and item is None))}
+
+
 class Contracts:
     def __init__(self):
         self.documents = {}
@@ -158,8 +177,8 @@ def assert_preserved_quote_contract(contracts):
             # Only that header's schema/description may differ from the baseline.
             for key in ('schema', 'description'):
                 after['parameters'][0][key] = before['parameters'][0][key]
-        assert before == after, 'Quote request/success/read contract changed'
-    assert old['paths']['/v2/quotes/{symbol}'] == current['paths']['/v2/quotes/{symbol}']
+        assert without_documentation(before) == without_documentation(after), 'Quote request/success/read contract changed'
+    assert without_documentation(old['paths']['/v2/quotes/{symbol}']) == without_documentation(current['paths']['/v2/quotes/{symbol}'])
     for name, schema in old['components']['schemas'].items():
         if name != 'Problem':
-            assert schema == current['components']['schemas'][name], name
+            assert without_documentation(schema) == without_documentation(current['components']['schemas'][name]), name

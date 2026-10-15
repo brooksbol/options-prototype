@@ -1,0 +1,14 @@
+{
+  "name": "wheelwright-api-reference",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": "24.18.0",
+    "npm": "11.16.0"
+  },
+  "devDependencies": {
+    "@redocly/cli": "2.64.0",
+    "playwright": "1.56.1",
+    "redoc": "2.5.4"
+  }
+}

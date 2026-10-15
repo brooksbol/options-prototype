@@ -14,8 +14,8 @@
     "/v2/market-evidence-subjects": {
       "get": {
         "operationId": "listRelevantMarketEvidenceSubjects",
-        "summary": "Discover authorized holdings underlyings union explicitly configured monitoring subjects",
-        "description": "Pure GET, no query/body, provider contact or persistence. Requires quote.acquire; holdings only from explicit account.positions.read grants. Reads latest admitted snapshots via the Position domain service. Failed synchronization never removes prior retained holdings. Nonzero holdings only; supported standard option roots resolve to their underlying. Adjusted Fidelity option roots resolve only through unambiguous same-day retained broker root-to-share mappings with artifact/row provenance; no suffix stripping. Unresolved or conflicting identities report incomplete coverage. Fixed-income holdings have no equity underlying and their exclusion is explicitly qualified. Uppercase canonical underlying identity deduplicates. Monitoring reads the existing declared set only with backend wheelwright.market-evidence.monitoring-users visibility binding to immutable User IDs. Nonempty unbound monitoring is unavailable, not silently omitted. Each source retains its clocks/qualifications; selection is not an atomic portfolio snapshot or freshness verdict. Empty complete subjects is a legitimate no-op. Client may transport-batch these subjects through existing POST /v2/quotes; explicit acquisition contract is unchanged.",
+        "summary": "Select relevant market-evidence subjects",
+        "description": "Pure GET, no query/body, provider contact or persistence. Reads latest admitted snapshots via the Position domain service. Failed synchronization never removes prior retained holdings. Nonzero holdings only; supported standard option roots resolve to their underlying. Adjusted Fidelity option roots resolve only through unambiguous same-day retained broker root-to-share mappings with artifact/row provenance; no suffix stripping. Unresolved or conflicting identities report incomplete coverage. Fixed-income holdings have no equity underlying and their exclusion is explicitly qualified. Uppercase canonical underlying identity deduplicates. Nonempty unbound monitoring is unavailable, not silently omitted. Each source retains its clocks/qualifications; selection is not an atomic portfolio snapshot or freshness verdict. Empty complete subjects is a legitimate no-op. Client may transport-batch these subjects through existing POST /v2/quotes; explicit acquisition contract is unchanged.\n\n<!-- internal-only:start -->\nRequires quote.acquire; holdings only from explicit account.positions.read grants. Monitoring reads the existing declared set only with backend wheelwright.market-evidence.monitoring-users visibility binding to immutable User IDs.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -46,6 +46,66 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MarketEvidenceSubjectSelection"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "selectedAt": "2026-10-15T20:00:00Z",
+                      "policy": "AUTHORIZED_HOLDINGS_UNION_CONFIGURED_MONITORING",
+                      "complete": false,
+                      "subjects": [
+                        {
+                          "symbol": "EWZ",
+                          "sources": [
+                            "MONITORING"
+                          ]
+                        },
+                        {
+                          "symbol": "XLE",
+                          "sources": [
+                            "HOLDINGS"
+                          ]
+                        }
+                      ],
+                      "coverage": [
+                        {
+                          "source": "HOLDINGS",
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "status": "UNAVAILABLE",
+                          "snapshotId": null,
+                          "evidenceDate": null,
+                          "recordedAt": null,
+                          "qualifications": [
+                            "No admitted holdings observation; absence is not an empty Account."
+                          ]
+                        },
+                        {
+                          "source": "HOLDINGS",
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "status": "AVAILABLE",
+                          "snapshotId": "snapshot-22222222-2222-4222-8222-222222222222",
+                          "evidenceDate": "2026-10-15",
+                          "recordedAt": "2026-10-15T20:00:00Z",
+                          "qualifications": [
+                            "Latest admitted retained holdings; brokerage freshness and atomic portfolio snapshot are not established."
+                          ]
+                        },
+                        {
+                          "source": "MONITORING",
+                          "accountId": null,
+                          "status": "AVAILABLE",
+                          "snapshotId": null,
+                          "evidenceDate": null,
+                          "recordedAt": null,
+                          "qualifications": [
+                            "Explicit last-declared monitoring membership; source freshness unknown. Visibility is configured in the backend; no holdings-only substitution."
+                          ]
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -89,6 +149,19 @@
                       }
                     }
                   ]
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "type": "urn:wheelwright:problem:unauthenticated",
+                      "title": "Unauthenticated",
+                      "status": 401,
+                      "code": "UNAUTHENTICATED",
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "detail": "Synthetic 401 example."
+                    }
+                  }
                 }
               }
             }
@@ -126,6 +199,19 @@
                       }
                     }
                   ]
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "type": "urn:wheelwright:problem:forbidden",
+                      "title": "Forbidden",
+                      "status": 403,
+                      "code": "FORBIDDEN",
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "detail": "Synthetic 403 example."
+                    }
+                  }
                 }
               }
             }
@@ -163,6 +249,25 @@
                       }
                     }
                   ]
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "type": "urn:wheelwright:problem:invalid_request",
+                      "title": "Invalid request",
+                      "status": 422,
+                      "code": "INVALID_REQUEST",
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "detail": "Synthetic 422 example.",
+                      "invalidParams": [
+                        {
+                          "name": "request",
+                          "reason": "Synthetic invalid input"
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -200,6 +305,19 @@
                       }
                     }
                   ]
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented data only",
+                    "value": {
+                      "type": "urn:wheelwright:problem:capability_unavailable",
+                      "title": "Capability unavailable",
+                      "status": 503,
+                      "code": "CAPABILITY_UNAVAILABLE",
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "detail": "Synthetic 503 example."
+                    }
+                  }
                 }
               }
             }
@@ -214,7 +332,22 @@
               "type": "string",
               "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
             },
-            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values return 422 after authentication and quote.acquire authorization; errors use a generated UUID. Correlation only, not idempotency."
+            "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values return 422 after authentication and quote.acquire authorization; errors use a generated UUID. Correlation only, not idempotency.",
+            "example": "11111111-1111-4111-8111-111111111111"
+          }
+        ],
+        "tags": [
+          "Market evidence"
+        ],
+        "externalDocs": {
+          "description": "Product and domain contract",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/design/ww-integrated-update-candidate-2026-10-15/README.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/market-evidence-subjects' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
           }
         ]
       }
