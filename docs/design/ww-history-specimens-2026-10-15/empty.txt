@@ -1,0 +1,5 @@
+DESIGN SPECIMEN — authorized Account, successful empty result
+tt1 — tastytrade transaction history | 0 records | ACQUIRED / REUSABLE
+No transactions reported for the requested scope; lifetime coverage unverified.
+TSV/JSONL stdout: zero bytes; CSV stdout: header only.
+stderr: history: 0 records; provider traversal complete; lifetime coverage unverified; exit 0

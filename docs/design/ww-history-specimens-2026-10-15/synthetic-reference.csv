@@ -1,0 +1,22 @@
+Date,Type,Sub Type,Action,Symbol,Instrument Type,Description,Value,Quantity,Average Price,Commissions,Fees,Multiplier,Root Symbol,Underlying Symbol,Expiration Date,Strike Price,Call or Put,Order #,Total,Currency
+2026-09-29T09:00:00-06:00,Money Movement,Deposit,,,,Synthetic opening deposit,4000.00,0,,--,0.00,,,,,,,,4000.00,USD
+2026-09-29T10:01:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120P00095000,Equity Option,Synthetic option execution,150.00,1,1.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,95,P,s-order-01,148.88,USD
+2026-09-29T10:01:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120P00090000,Equity Option,Synthetic option execution,-50.00,1,0.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,90,P,s-order-01,-51.12,USD
+2026-09-29T10:01:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120C00105000,Equity Option,Synthetic option execution,125.00,1,1.25,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,105,C,s-order-01,123.88,USD
+2026-09-29T10:01:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120C00110000,Equity Option,Synthetic option execution,-40.00,1,0.40,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,110,C,s-order-01,-41.12,USD
+2026-10-01T10:02:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120P00095000,Equity Option,Synthetic option execution,150.00,1,1.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,95,P,s-order-02,148.88,USD
+2026-10-01T10:02:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120P00090000,Equity Option,Synthetic option execution,-50.00,1,0.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,90,P,s-order-02,-51.12,USD
+2026-10-01T10:02:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120C00105000,Equity Option,Synthetic option execution,125.00,1,1.25,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,105,C,s-order-02,123.88,USD
+2026-10-01T10:02:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120C00110000,Equity Option,Synthetic option execution,-40.00,1,0.40,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,110,C,s-order-02,-41.12,USD
+2026-10-06T10:03:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120P00095000,Equity Option,Synthetic option execution,150.00,1,1.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,95,P,s-order-03,148.88,USD
+2026-10-06T10:03:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120P00090000,Equity Option,Synthetic option execution,-50.00,1,0.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,90,P,s-order-03,-51.12,USD
+2026-10-06T10:03:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120C00105000,Equity Option,Synthetic option execution,125.00,1,1.25,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,105,C,s-order-03,123.88,USD
+2026-10-06T10:03:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120C00110000,Equity Option,Synthetic option execution,-40.00,1,0.40,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,110,C,s-order-03,-41.12,USD
+2026-10-09T10:04:00-06:00,Trade,Sell to Open,SELL_TO_OPEN,DEMO 261120P00095000,Equity Option,Synthetic option execution,150.00,1,1.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,95,P,s-order-04,148.88,USD
+2026-10-09T10:04:00-06:00,Trade,Buy to Open,BUY_TO_OPEN,DEMO 261120P00090000,Equity Option,Synthetic option execution,-50.00,1,0.50,-1.00,-0.12,100,DEMO,DEMO,2026-11-20,90,P,s-order-04,-51.12,USD
+2026-10-12T09:00:00-06:00,Money Movement,Balance Adjustment,,,,Synthetic balance adjustment,-0.25,0,,--,0.00,,,,,,,,-0.25,USD
+2026-10-14T09:00:00-06:00,Money Movement,Deposit,,,,Synthetic later deposit,1500.00,0,,--,0.00,,,,,,,,1500.00,USD
+2026-10-15T10:05:00-06:00,Trade,Buy to Close,BUY_TO_CLOSE,DEMO 261120P00095000,Equity Option,Synthetic option execution,-60.00,1,0.60,0.00,-0.12,100,DEMO,DEMO,2026-11-20,95,P,s-order-05,-60.12,USD
+2026-10-15T10:05:00-06:00,Trade,Sell to Close,SELL_TO_CLOSE,DEMO 261120P00090000,Equity Option,Synthetic option execution,10.00,1,0.10,0.00,-0.12,100,DEMO,DEMO,2026-11-20,90,P,s-order-05,9.88,USD
+2026-10-15T10:05:00-06:00,Trade,Buy to Close,BUY_TO_CLOSE,DEMO 261120C00105000,Equity Option,Synthetic option execution,-45.00,1,0.45,0.00,-0.12,100,DEMO,DEMO,2026-11-20,105,C,s-order-05,-45.12,USD
+2026-10-15T10:05:00-06:00,Trade,Sell to Close,SELL_TO_CLOSE,DEMO 261120C00110000,Equity Option,Synthetic option execution,5.00,1,0.05,0.00,-0.12,100,DEMO,DEMO,2026-11-20,110,C,s-order-05,4.88,USD

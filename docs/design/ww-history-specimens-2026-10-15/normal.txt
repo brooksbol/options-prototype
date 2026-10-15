@@ -1,0 +1,26 @@
+DESIGN SPECIMEN — synthetic data, not installed ww output
+tt1 — tastytrade transaction history | 21 records | RETAINED / REUSABLE
+Observed Sep 29–Oct 15, 2026 | as of Oct 15 10:10 MDT | provider traversal complete; source consistency / lifetime unverified
+DATE (MDT)   TYPE / ACTION       SYMBOL / DESCRIPTION          QTY  PRICE     VALUE  COMMISSION   FEES  NET CASH  CCY  ORDER
+09-29 09:00  Deposit             Synthetic opening deposit       0      ?  +4000.00           ?   0.00  +4000.00  USD  ?
+09-29 10:01  Sell to Open        DEMO 261120P00095000            1   1.50   +150.00       -1.00  -0.12   +148.88  USD  s-order-01
+09-29 10:01  Buy to Open         DEMO 261120P00090000            1   0.50    -50.00       -1.00  -0.12    -51.12  USD  s-order-01
+09-29 10:01  Sell to Open        DEMO 261120C00105000            1   1.25   +125.00       -1.00  -0.12   +123.88  USD  s-order-01
+09-29 10:01  Buy to Open         DEMO 261120C00110000            1   0.40    -40.00       -1.00  -0.12    -41.12  USD  s-order-01
+10-01 10:02  Sell to Open        DEMO 261120P00095000            1   1.50   +150.00       -1.00  -0.12   +148.88  USD  s-order-02
+10-01 10:02  Buy to Open         DEMO 261120P00090000            1   0.50    -50.00       -1.00  -0.12    -51.12  USD  s-order-02
+10-01 10:02  Sell to Open        DEMO 261120C00105000            1   1.25   +125.00       -1.00  -0.12   +123.88  USD  s-order-02
+10-01 10:02  Buy to Open         DEMO 261120C00110000            1   0.40    -40.00       -1.00  -0.12    -41.12  USD  s-order-02
+10-06 10:03  Sell to Open        DEMO 261120P00095000            1   1.50   +150.00       -1.00  -0.12   +148.88  USD  s-order-03
+10-06 10:03  Buy to Open         DEMO 261120P00090000            1   0.50    -50.00       -1.00  -0.12    -51.12  USD  s-order-03
+10-06 10:03  Sell to Open        DEMO 261120C00105000            1   1.25   +125.00       -1.00  -0.12   +123.88  USD  s-order-03
+10-06 10:03  Buy to Open         DEMO 261120C00110000            1   0.40    -40.00       -1.00  -0.12    -41.12  USD  s-order-03
+10-09 10:04  Sell to Open        DEMO 261120P00095000            1   1.50   +150.00       -1.00  -0.12   +148.88  USD  s-order-04
+10-09 10:04  Buy to Open         DEMO 261120P00090000            1   0.50    -50.00       -1.00  -0.12    -51.12  USD  s-order-04
+10-12 09:00  Balance Adjustment  Synthetic balance adjustment    0      ?     -0.25           ?   0.00     -0.25  USD  ?
+10-14 09:00  Deposit             Synthetic later deposit         0      ?  +1500.00           ?   0.00  +1500.00  USD  ?
+10-15 10:05  Buy to Close        DEMO 261120P00095000            1   0.60    -60.00        0.00  -0.12    -60.12  USD  s-order-05
+10-15 10:05  Sell to Close       DEMO 261120P00090000            1   0.10    +10.00        0.00  -0.12     +9.88  USD  s-order-05
+10-15 10:05  Buy to Close        DEMO 261120C00105000            1   0.45    -45.00        0.00  -0.12    -45.12  USD  s-order-05
+10-15 10:05  Sell to Close       DEMO 261120C00110000            1   0.05     +5.00        0.00  -0.12     +4.88  USD  s-order-05
+? = not reported; cash signs are not trading P/L. ORDER repeats are source references, not strategy identities.

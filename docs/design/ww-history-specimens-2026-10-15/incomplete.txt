@@ -1,0 +1,6 @@
+DESIGN SPECIMEN — synthetic retained fallback
+tt1 — tastytrade transaction history | 21 retained records | RETAINED / STALE
+Last success Oct 15 10:10 MDT | latest revalidation INCOMPLETE: provider page unavailable
+Showing prior admitted history; current requested coverage not established.
+[the same 21 retained rows follow; no partial new scan is merged]
+stderr: history: incomplete acquisition; retained prior evidence shown; exit 1
