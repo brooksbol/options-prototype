@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Principal decisions recorded; Step 1 contracts corrected and author-verified; later steps are not delivered by this checkpoint. No independent approval or publication claimed.
+**Status:** Steps 1–2 implemented and author-verified; unpublished human/agent specimens ready for independent Step 3 review. No independent acceptance or publication claimed.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -137,3 +137,41 @@ To reproduce the HTTP check, create a fresh temporary directory, start `./gradle
 The shared local resolver is `scripts/v2_oas.py`. Existing validators duplicated fragment resolution, assumed frozen whole-entry equality and lacked relational header checks. The bounded gap is common handling of this repository's three local OAS documents and HTTP specimens. The helper composes existing PyYAML, referencing, jsonschema and openapi-spec-validator; it is not a new schema engine or CI framework. It rejects references outside the three declared local contracts, verifies body schemas and documented headers, and checks header/body correlation. Structural OAS validity alone remains insufficient. Resource navigation, renderer/public filtering, publication security, CI and independently reviewed generated output belong to Steps 2–4.
 
 Pre-push synchronization recovered documentation-only remote advancement `f6681c392c248b64e90d97721ca5a3c0128df6ac` adding COTS-first acceptance checks. That addition is preserved; it does not change the reviewed backend or OAS baseline. The implementation uses the focused project-specific conformance/coverage integration allowed by those checks.
+
+
+## Step 2 — joint human and agent documentation delivery
+
+**October 15, 2026; author evidence, independent acceptance pending.** Remote main was verified at `450106a2849f6c11eb3220a1c6f20bfc46764be5`; completed Step 1 `3ee1a5ce3c8141e3d72e8f5dea21d0fb3624f04d` is its ancestor. No accepted work was repeated. Remote decisions `0d11646` and `65bbd48` were recovered before delivery: Kiro's isolated public-only black-box test supersedes its earlier internal-contract input permission. Implementation candidate **`4b049f22b4294f4efae42069f3c20d7fd517f056`** contains the bounded source/tooling changes; this following documentation commit records delivery evidence. Both remain distinct from independent approval.
+
+### Delivered boundary and reuse
+
+- [Repository agent entry](../api-v2/README.md) links the authoritative common/account/market OAS and existing Product/domain contracts. All **19 accepted v2 operations / 17 paths**, stable operation IDs, request/response/error/header/security constraints and acquisition-versus-held-evidence semantics are preserved. **134 synthetic request/response/error examples** plus parameter examples and copyable cURL samples are validated without executing API calls.
+- [Pinned tooling and reproduction](../../tools/api-docs/README.md) composes Redocly CLI **2.64.0**, Redoc **2.5.4**, Playwright **1.56.1**, Node **24.18.0**, npm **11.16.0** and pinned Python validation dependencies. No custom frontend, search, agent framework, tool registry, backend runtime or publication infrastructure is added.
+- The public reference derives from the same OAS. Security/grant instructions are suppressed only in its temporary projection; authoritative internal security remains intact. Ordinary 401/403 errors and HTTP headers remain. Public output has exactly **index.html and LICENSES.txt**; internal bundles, projections, provenance and test reports remain private. No downloadable OAS offer, credential entry or live API execution exists.
+- Offline packaging embeds the verified pinned COTS script and native logo and disables remote fonts. Native `Redoc.init` avoids the CLI prerender/hydration errors observed on this graph. Native navigation, search, schemas, examples and responsive layout are reused. Eight pre-existing YAML flow-map description commas were quoted after structural lint exposed stray null annotation keys; focused wire/security preservation checks exclude only those exact historical prose fragments.
+- Native dark mode is unavailable in pinned Redoc. **Principal clarification: dark mode is not important; this is a nonblocking COTS limitation**, with no substitute commissioned. Deterministic cross-file response component renaming is verified after bundling. The one disabled lint rule is a false positive on the existing legitimate `not: {required: [failure]}` pattern; structural/example validation remains enabled.
+
+### Author verification and frozen specimen
+
+Two builds from clean committed candidate `4b049f2`, with a fresh locked `npm ci --ignore-scripts` between them, produced byte-identical public files:
+
+| Public file | SHA-256 |
+|---|---|
+| index.html | `357dc6f4f30a14d31ab83ee0e17ce7d0736d2692fab50333c6daf5d9b534cdb7` |
+| LICENSES.txt | `56872a8c6112765251a061ad17fd179d42dae5c9eae53b28eab4ed187ea4f377` |
+
+- Step 1's seven focused synthetic groups pass. Source controller/OAS coverage, local references, all examples, stable IDs and unchanged wire/security constraints pass. No backend behavior was changed or backend test suite result newly claimed by Step 2.
+- Read-only author agent reconstruction passes for all 19 operations: request/response/errors/headers, security, linked domain semantics, provenance/completeness and acquisition-versus-held-read distinctions. OAS availability is explicitly separated from permission to execute. `dist/private/agent-specimen.json` is verification evidence, not another agent contract format or independent acceptance.
+- Chromium opens the actual **file://** reference with HTTP/HTTPS blocked: all operations discoverable, native search, schemas, copyable cURL and visible 422 error example pass. Desktop 1440px and mobile 390px layout/navigation pass; screenshots visually inspected. **Zero page errors, zero HTTP/HTTPS requests**, no backend required, no authentication instructions or interactive execution controls.
+- Documentation index, canonical intake and journal are reconciled; derived Roadmap regeneration/freshness and all 58 integrity/freshness tests pass. `git diff --check` passes.
+- Locked npm dependency audit reports zero advisories. Bundled third-party CLI code is not claimed exhaustively audited by npm; notices are retained. Source inputs, versions, source SHA/dirty state and artifact hashes are recorded privately in `dist/private/provenance.json`.
+
+Default local preview: **`tools/api-docs/dist/site/index.html`**. Build, validation and browser reproduction commands are in the tooling README. Generated output is ignored by Git, reproducible from committed sources and remains unpublished. Final synchronization SHA is reported at handoff; private provenance can record that final documentation commit without changing the frozen public bytes.
+
+### Exact independent Step 3 handoff
+
+1. Give fresh-context Kiro **only** `tools/api-docs/kiro-public-test-instructions.txt` and the frozen public `index.html` entry point. Do not provide this plan, internal OAS/contracts/source/tests, author reports, expected operation counts/answers or earlier conversation. Kiro discovers operations, composes written synthetic requests and reports gaps from the supplied public documentation alone; no network/API probing or execution. Preserve results unchanged, including missing authorization guidance required to be absent publicly.
+2. A fresh independent Codex reviewer separately verifies the committed OAS/linked contracts, clean reproduction, frozen hashes, human specimen and COTS/security claims. Only after Kiro's isolated test may Codex compare its results with internal authority. Author reconstruction is not a substitute for either independent exercise.
+3. Assess both consumption methods before any publication. This delivery makes no independent approval claim and starts no Step 3 review, Pages configuration, CI publication, web-client migration, operational change, issue closure or End-of-Session Protocol amendment.
+
+**Remaining state:** Kiro black-box and independent Codex acceptance are pending. Existing later publication gates remain in force. No Principal decision is required to hand off this Step 2 specimen; dark mode is explicitly nonblocking.

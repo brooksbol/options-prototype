@@ -31,7 +31,7 @@ The pinned CLI prerender/hydrate pair emitted React hydration errors on this com
 
 ## COTS limits and validation
 
-- Native search and responsive layout are verified. **Native dark mode is unavailable** in the pinned Redoc 2.5.4 renderer; no replacement is built. The CLI advertises a future Redoc 3 transition, so upgrades require a fresh specimen.
+- Native search and responsive layout are verified. **Native dark mode is unavailable** in the pinned Redoc 2.5.4 renderer; no replacement is built. The Principal clarified that dark mode is not important, so this is nonblocking. The CLI advertises a future Redoc 3 transition, so upgrades require a fresh specimen.
 - Redocly deterministically renames colliding cross-file response components, such as Problem401-2; operation IDs, resolved schemas and semantics are preserved and validated.
 - The `no-required-schema-properties-undefined` lint rule is disabled for the legitimate `not: {required: [failure]}` JSON Schema pattern. Structural lint and source/example conformance remain enabled. No broad lint ignore file is used.
 - Rendering exposed eight old unquoted flow-map description commas. Those prose-only YAML errors are quoted; no wire constraints change. The wire comparison recognizes only the exact historical null prose fragments.

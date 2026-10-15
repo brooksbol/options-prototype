@@ -666,6 +666,8 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 
 
+> **October 15 — Step 2 author delivery:** The linked requirements plan records the unpublished static reference and repository-agent specimen for all 19 accepted v2 operations, 134 validated examples, locked reproducibility and human browser verification. Kiro public-only black-box acceptance and separate independent Codex review remain pending. Dark mode is nonblocking per Principal clarification. No publication, backend change, issue closure or broader weak-typing resolution.
+
 **Date:** October 5, 2026  
 **State:** INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized  
 **Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.
