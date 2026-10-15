@@ -1533,3 +1533,9 @@ Principal reported that the originating dirty-tree session was gone, prohibited 
 **Why-state and deliverables:** [EVA-001 package](research/eva-001/README.md), [data audit](research/eva-001/DATA-AUDIT.md), [protocol draft](research/eva-001/PROTOCOL.md), [Muse research prompt](research/eva-001/MUSE-PROMPT.md) and machine inventory. No Muse report or independent protocol acceptance exists yet. The audit/protocol handoff does not authorize an empirical run, subscription change, terminal/service start, production change, strategy admission or release.
 
 **Next authorized mode:** Principal-relayed Muse primary-source research and reconciliation of its returned evidence within this research-design concern. Experimental execution remains uncommissioned. This record does not activate WW-GATE-001 or resurrect any other historical workflow.
+
+### `PL-EVID-04` / EVA-001 — First Muse Report Partially Verified
+
+**Date:** October 14, 2026
+
+**State:** first Muse report received (report dated October 15 UTC); remaining research pending; protocol unchanged. Codex directly checked the published Goyal–Saretto paper/linked appendix, Option Alpha study/methodology and Bliss–Panigirtzoglou working paper. [Round-one verification](research/eva-001/ROUND-1-VERIFICATION.md) records scope limits, an incorrect transformation direction and evidence-grade corrections. Net returns versus factor alpha and empirical calibration versus pricing consistency remain distinct. The current experiment draft tests entry forecasts under fixed exits; lifecycle action comparison is a separate unresolved scope. No economic run or independent collective conclusion follows from this first report. Continue reconciliation of the remaining Muse evidence; no backtest or production authority changes.
