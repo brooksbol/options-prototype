@@ -14,7 +14,7 @@ test('history grammar is local, consistent and rejects ambiguous forms',()=>{
  assert.equal(parseHistory(['--account','tt1','--csv','--csv']).format,'csv');
  assert.deepEqual(parseArgs(['history','--man']),{command:'command-man',page:'history'});
  for(const flag of ['--help','-h','--man'])assert.deepEqual(parseArgs(['pull',flag]),{command:'command-man',page:'pull'});
- assert.throws(()=>parseArgs(['pull']),/not implemented/);
+ assert.equal(parseArgs(['pull']).command,'pull');
 });
 test('one backend Account-nested history GET; no provider pagination or fetch choreography',async()=>{
  let calls=0;

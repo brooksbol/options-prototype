@@ -34,8 +34,8 @@ test("argument parsing and help need no backend", () => {
     { command: "fetch", symbols: ["QQQ", "SPY"], quiet: true, verbose: false, mode: "ORDINARY" });
   assert.deepEqual(parseArgs(["fetch", "-v", "qqq"]),
     { command: "fetch", symbols: ["QQQ"], quiet: false, verbose: true, mode: "ORDINARY" });
-  assert.throws(() => parseArgs(["fetch"]), /at least one explicit symbol/);
-  assert.throws(() => parseArgs(["fetch", "-q"]), /at least one explicit symbol/);
+  assert.deepEqual(parseArgs(["fetch"]).symbols,[]);
+  assert.deepEqual(parseArgs(["fetch", "-q"]).symbols,[]);
   assert.equal(parseArgs(["fetch", "SPY", "--force"]).mode, "FORCE");
   assert.deepEqual(parseArgs(["observed-prices", "--", "-TEST"]).symbols, ["-TEST"]);
   assert.deepEqual(parseArgs(["sort", "--by", "price", "--descending"]),
@@ -80,7 +80,7 @@ test("argument parsing and help need no backend", () => {
   assert.equal(retired.status, 2);
   assert.equal(retired.stdout, "");
   assert.match(retired.stderr, /unknown command 'refresh'/);
-  assert.equal(run(["fetch"]).status, 2);
+  assert.deepEqual(parseArgs(["fetch"]).symbols, []);
   assert.equal(run(["fetch", "--bad", "QQQ"]).status, 2);
   assert.equal(run(["prices"]).status, 2);
   const conflicting = run(["fetch", "-q", "--verbose", "QQQ"]);

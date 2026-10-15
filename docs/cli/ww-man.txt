@@ -21,10 +21,10 @@ WORKING COMMANDS
         separate freshness/coverage, no strategy/P&L/tax accounting.
         See ww history --help and ww history --man.
 
-    pull --help | --man
+    pull [-v | --verbose] [--no-color]
         ww pull — Update WW with everything so I can start doing stuff.
-        Product workflow: SYNC -> DISCOVER -> FETCH -> REPORT. Execution is
-        deferred; help/manual are available and bare pull performs no update.
+        SYNC -> DISCOVER -> FETCH -> REPORT. Concise truthful source report;
+        partial failure is nonzero. Normal workflow: ww pull && ww history.
 
     ls accounts [--table | --tsv | --jsonl] [--no-color]
         List accounts you can access, with their aliases, names, broker
@@ -34,7 +34,10 @@ WORKING COMMANDS
         per line. --table preserves the table when redirected.
         Run 'ww ls accounts --help' for examples.
 
-    sync account ACCOUNT
+    sync [account ACCOUNT] [-v | --verbose] [--no-color]
+        Omitted selector processes applicable authorized Accounts. Includes
+        authorized history updates through backend policy; per-Account failures
+        preserve retained evidence and independent work continues.
         tastytrade: backend-owned API holdings acquisition; requires explicit
         account.positions.acquire:ID. No brokerage credentials in this client.
         Position reads never contact a brokerage.
@@ -81,8 +84,10 @@ WORKING COMMANDS
         Run 'ww ls quotes --help' or 'ww ls quotes --man'.
 
     fetch [-q | --quiet | -v | --verbose] [--force] [--] SYMBOL...
+    fetch [-q | --quiet | -v | --verbose] [--force]
         Acquire canonical direct quotes for explicit named subjects through
-        API v2. Bare fetch is a usage error. One invocation is one batch request.
+        API v2. Bare fetch uses backend-selected holdings underlyings UNION monitoring subjects;
+        empty is a no-op, incomplete coverage fails. Explicit operands use one batch.
         Ordinary fetch may reuse backend-eligible evidence; --force requests an
         upstream acquisition attempt subject to backend authorization/policy.
         Exit 0 only when every subject is fulfilled. A retained prior quote

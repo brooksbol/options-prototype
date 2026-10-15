@@ -4,50 +4,68 @@ NAME
     ww pull — Update WW with everything so I can start doing stuff.
 
 SYNOPSIS
+    ww pull [-v | --verbose] [--no-color]
     ww pull --help | -h | --man
-    ww pull                    (execution deferred; not implemented)
 
-PRODUCT CONTRACT
-    Update Wheelwright's retained evidence and domain state from all
-    applicable authorized sources before beginning work. Wheelwright is
-    the destination. Intended routine: ww pull, then ww show ..., ww ls ...,
-    and ww history ... . Targeted sync and fetch remain useful separately.
+DESCRIPTION
+    Update Wheelwright from applicable authorized sources, then report what
+    happened. The routine workflow is exactly:
 
-    The agreed sequence is SYNC -> DISCOVER -> FETCH -> REPORT:
-      SYNC      Update applicable authorized brokerage Account evidence.
-      DISCOVER  Backend selects authorized holdings' underlyings UNION
-                explicitly configured monitoring subjects, using latest
-                admitted holdings after synchronization.
-      FETCH     Acquire applicable market evidence through backend capabilities.
-      REPORT    Summarize updates, reuse, failures and incomplete coverage.
+        ww pull && ww history
 
-    Deduplicate by canonical instrument identity. Preserve configured
-    monitoring subjects even when not held. Closed holdings are excluded
-    unless independently relevant through monitoring. Failed sync does
-    not erase retained holdings. Empty default subjects are a valid no-op.
+    SYNC -> DISCOVER -> FETCH -> REPORT:
+      SYNC      Synchronize all applicable authorized Account evidence, using
+                existing Fidelity CSV submission and tastytrade backend holdings
+                acquisition; include history updates under backend policy.
+      DISCOVER  Backend selects authorized holdings' underlyings UNION explicitly
+                configured monitoring subjects using latest admitted holdings.
+      FETCH     Acquire those subjects through existing direct-quote acquisition.
+      REPORT    Concise Git-style source outcomes, reuse, failures and limitations.
+
+    All Account synchronization attempts finish before subject discovery. A newly
+    admitted holding is eligible in the same pull. Failed sync preserves prior
+    holdings; independent authorized work continues. No atomic portfolio snapshot
+    is manufactured. Keep source clocks separate. No position/transaction deltas
+    are invented: history counts are available records, not new transactions.
+
+    Default subjects are deduplicated by backend canonical underlying identity.
+    Closed holdings are excluded unless monitoring independently retains relevance.
+    Unheld monitoring subjects remain. An empty complete selection is a no-op.
+    Unavailable/ambiguous source coverage is incomplete, never silently empty.
     Watchlists, strategy candidates and other sources are outside this default.
 
-OUTPUT CONTRACT
-    A concise Git-style change report, not a dashboard, holdings table,
-    transaction listing or quote dump. Report authoritative outcomes only:
-    sources updated or reused, failures, prior retained evidence and coverage
-    or freshness limitations. Do not fabricate position/transaction deltas.
-    Preserve independent source timestamps and meaningful partial-failure
-    exit status. Completion never implies an atomic portfolio snapshot,
-    universal freshness or complete historical coverage.
+    Fidelity remains limited to supported CSVs already available in Downloads
+    and retained imports; pull does not download new Fidelity files. Processing
+    available files does not establish current broker state or complete history.
+    tastytrade history may reuse eligible backend evidence or acquire/persist it
+    under enabled backend read-through policy. No manual ww sync or ww fetch step
+    is required. Lower-level commands remain independently available.
 
-STATUS
-    Product direction and default-subject policy are accepted. Execution
-    remains deferred. Help and this manual are local and need no backend
-    or credentials. Bare ww pull exits with a clear limitation and performs
-    no synchronization or acquisition. No successful-update exit contract
-    is implemented yet.
+OUTPUT
+    Normal output is a concise change report: Account evidence updated/reused,
+    available history counts, quote acquisition/reuse/failures, retained evidence
+    and missing coverage. It is not a dashboard, quote dump or transaction list.
+    --verbose includes source clocks and file diagnostics. Terminal Account aliases
+    are cyan, neutral text bright white and incomplete states amber. --no-color,
+    NO_COLOR or TERM=dumb disables color. Redirected reports contain no ANSI.
 
-    Missing primitives include backend default-subject selection with
-    authorized monitoring evidence and adequate aggregate sync/reporting.
-    Pull must compose public capabilities, never add a second acquisition
-    engine, read SQLite, call providers or reconstruct relevance in the CLI.
+EXIT STATUS
+    0  All applicable authorized work fulfilled; no required source is incomplete.
+       Empty authorized scope/default subjects may succeed without acquisition.
+    1  Partial failure, unavailable required evidence or incomplete coverage.
+       Successful independent updates remain retained. && prevents history running.
+    2  Usage/configuration error.
+
+    Success does not certify universal freshness or lifetime history completeness.
+    ww history subsequently reads authorized Account-scoped domain representations.
+
+ENGINEERING / DELIVERY STATUS
+    Integrated implementation is a candidate pending independent review and
+    Principal acceptance. Operational installation, database/grant/configuration
+    changes, service restart and live acquisition require separate authorization.
+    Configured source credentials and User capabilities are backend-owned.
+    Nonempty legacy monitoring requires an explicit backend User-visibility binding;
+    missing binding is reported rather than substituted with holdings-only selection.
 
 SEE ALSO
-    ww sync --help, ww fetch --man, ww history --man
-    docs/cli/ww-update-product-clarifications-2026-10-15.md
+    ww sync --man, ww fetch --man, ww history --man

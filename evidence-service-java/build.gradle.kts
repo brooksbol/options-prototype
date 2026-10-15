@@ -103,3 +103,11 @@ tasks.register<JavaExec>("transactionHistoryPreview") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("previewReady") as? String)
 }
+
+// Engineering-only integrated installation. Normal CLI talks to this isolated public API.
+tasks.register<JavaExec>("integratedUpdateFixture") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.IntegratedUpdateFixture")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("fixtureReady") as? String)
+}
