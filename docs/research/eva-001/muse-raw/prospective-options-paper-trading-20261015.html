@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650;8..60,750&display=swap" rel="stylesheet" />
+  <title>Prospective Options Paper Trading</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #f5f4ef;
+      --surface: #ffffff;
+      --ink: #161c1a;
+      --muted: #56605c;
+      --faint: #747e79;
+      --line: #c9d0cc;
+      --line-strong: #9ca7a1;
+      --green: #0d684a;
+      --green-soft: #dcebe4;
+      --red: #9f352f;
+      --red-soft: #f6dfdc;
+      --amber: #8b5b05;
+      --amber-soft: #f5e8c8;
+      --blue: #235c85;
+      --blue-soft: #deebf3;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --serif: "Source Serif 4", Georgia, serif;
+      --shadow: 0 12px 35px rgba(24, 33, 29, .08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #111614;
+        --surface: #181f1c;
+        --ink: #edf1ee;
+        --muted: #b5c0ba;
+        --faint: #909b95;
+        --line: #37423d;
+        --line-strong: #53625b;
+        --green: #74d4aa;
+        --green-soft: #173b2c;
+        --red: #ffaaa2;
+        --red-soft: #4a2623;
+        --amber: #f0c16c;
+        --amber-soft: #43351b;
+        --blue: #91c6eb;
+        --blue-soft: #213746;
+        --shadow: 0 14px 42px rgba(0, 0, 0, .28);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.58;
+    }
+    a { color: var(--blue); text-underline-offset: 3px; }
+    button, input { font: inherit; }
+    .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .skip { position: fixed; left: 1rem; top: -5rem; z-index: 20; padding: .6rem .9rem; background: var(--ink); color: var(--paper); }
+    .skip:focus { top: 1rem; }
+    .shell { max-width: 1480px; margin: 0 auto; display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+    .rail {
+      position: sticky; top: 0; height: 100vh; padding: 28px 22px 30px;
+      border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 26px;
+      background: color-mix(in srgb, var(--paper) 90%, transparent);
+    }
+    .rail-meta { font: 500 11px/1.45 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+    .rail-meta strong { display: block; margin-top: 4px; color: var(--ink); font-size: 12px; letter-spacing: .03em; }
+    .rail nav { display: grid; gap: 2px; }
+    .rail nav a { text-decoration: none; color: var(--muted); font: 500 12px/1.3 var(--mono); padding: 9px 10px; border-left: 2px solid transparent; }
+    .rail nav a:hover, .rail nav a.active { color: var(--ink); border-color: var(--green); background: var(--green-soft); }
+    .rail-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); font: 400 11px/1.55 var(--mono); color: var(--faint); }
+    .content { min-width: 0; padding: 0 clamp(24px, 5vw, 80px) 90px; }
+    .hero { min-height: 84vh; padding: clamp(48px, 8vw, 110px) 0 64px; display: grid; align-content: center; border-bottom: 1px solid var(--line-strong); }
+    .eyebrow { font: 600 12px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--green); margin-bottom: 22px; }
+    h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.04; margin: 0; text-wrap: balance; }
+    h1 { max-width: 900px; font-size: clamp(45px, 7.1vw, 92px); letter-spacing: -.045em; font-weight: 650; }
+    .deck { max-width: 890px; margin: 28px 0 0; font-size: clamp(20px, 2.1vw, 29px); line-height: 1.35; color: var(--muted); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(250px, .75fr); gap: 42px; align-items: end; margin-top: 58px; }
+    .verdict-line { border-top: 3px solid var(--ink); padding-top: 18px; font-size: clamp(22px, 2.4vw, 32px); line-height: 1.28; }
+    .hero-stamp { border: 1px solid var(--line-strong); padding: 18px 20px; box-shadow: 7px 7px 0 var(--line); font: 500 12px/1.6 var(--mono); }
+    .hero-stamp strong { display: block; font-size: 14px; color: var(--green); margin-bottom: 6px; }
+    section { scroll-margin-top: 20px; padding: 82px 0; border-bottom: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 28px; align-items: start; margin-bottom: 42px; }
+    .section-no { font: 600 12px/1.4 var(--mono); color: var(--faint); letter-spacing: .08em; padding-top: 8px; }
+    h2 { font-size: clamp(34px, 4.8vw, 62px); letter-spacing: -.035em; }
+    h3 { font-size: clamp(24px, 3vw, 35px); letter-spacing: -.025em; }
+    h4 { font-size: 19px; }
+    .lede { max-width: 820px; font-size: 21px; color: var(--muted); margin: 18px 0 0; line-height: 1.48; }
+    .callout { padding: 24px 28px; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--line); background: var(--surface); margin: 34px 0; }
+    .callout strong { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--green); }
+    .callout p { margin: 10px 0 0; font-size: 21px; }
+    .rank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .rank-card { position: relative; padding: 30px 26px 26px; background: var(--surface); border-top: 5px solid var(--green); box-shadow: var(--shadow); }
+    .rank-card:nth-child(2) { border-color: var(--blue); margin-top: 22px; }
+    .rank-card:nth-child(3) { border-color: var(--amber); margin-top: 44px; }
+    .rank { font: 600 52px/1 var(--mono); color: var(--line-strong); margin-bottom: 20px; }
+    .rank-card h3 { margin-bottom: 8px; }
+    .role { font: 600 11px/1.45 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--faint); min-height: 34px; }
+    .rank-card ul { margin: 22px 0 0; padding: 0; list-style: none; }
+    .rank-card li { padding: 10px 0 10px 20px; border-top: 1px solid var(--line); position: relative; font-size: 15px; }
+    .rank-card li::before { content: "—"; position: absolute; left: 0; color: var(--green); }
+    .risk { margin-top: 20px; padding-top: 15px; border-top: 2px solid var(--red); font-size: 14px; color: var(--muted); }
+    .risk strong { color: var(--red); font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+    .evidence-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 36px; }
+    .tag { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 1px solid var(--line); font: 600 10px/1 var(--mono); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+    .tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+    .tag.verified::before { background: var(--green); }
+    .tag.claimed::before { background: var(--amber); }
+    .tag.inferred::before { background: var(--blue); }
+    .tag.unknown::before { background: var(--red); }
+    .platform-list { border-top: 1px solid var(--line-strong); }
+    details.platform { border-bottom: 1px solid var(--line); background: transparent; }
+    details.platform[open] { background: var(--surface); }
+    details.platform summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1.3fr 1fr auto; gap: 22px; align-items: center; padding: 24px 18px; }
+    details.platform summary::-webkit-details-marker { display: none; }
+    details.platform summary::after { content: "+"; font: 500 25px/1 var(--mono); color: var(--green); }
+    details.platform[open] summary::after { content: "−"; }
+    .platform-name { font: 650 clamp(20px, 2.3vw, 28px)/1.15 var(--serif); }
+    .platform-class { font: 500 11px/1.4 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .platform-body { padding: 0 64px 30px 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .platform-body p, .platform-body li { font-size: 15px; }
+    .platform-body ul { padding-left: 17px; margin: 10px 0 0; }
+    .platform-body h4 { font: 600 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .tabs { margin-top: 18px; }
+    .tablist { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--line-strong); }
+    .tablist button { border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); padding: 12px 16px; cursor: pointer; font: 600 11px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+    .tablist button[aria-selected="true"] { color: var(--ink); border-color: var(--green); background: var(--green-soft); }
+    .tabpanel { padding-top: 20px; }
+    .tabpanel[hidden] { display: none; }
+    .table-wrap { width: 100%; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; line-height: 1.4; }
+    th { text-align: left; font: 600 10px/1.25 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); padding: 12px 11px; border-bottom: 2px solid var(--line-strong); vertical-align: bottom; }
+    td { padding: 14px 11px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+    tbody tr:hover { background: var(--surface); }
+    td:first-child { font-weight: 650; }
+    .yes { color: var(--green); font-weight: 650; }
+    .no { color: var(--red); font-weight: 650; }
+    .maybe { color: var(--amber); font-weight: 650; }
+    .unknown { color: var(--red); font-family: var(--mono); font-size: .9em; }
+    .small { font-size: 13px; color: var(--muted); }
+    .split { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 44px; align-items: start; }
+    .workflow { counter-reset: flow; list-style: none; margin: 0; padding: 0; }
+    .workflow li { counter-increment: flow; display: grid; grid-template-columns: 54px 1fr; gap: 18px; padding: 22px 0; border-top: 1px solid var(--line); }
+    .workflow li::before { content: counter(flow, decimal-leading-zero); font: 600 17px/1.2 var(--mono); color: var(--green); }
+    .workflow strong { display: block; font-size: 20px; margin-bottom: 5px; }
+    .workflow p { margin: 0; color: var(--muted); }
+    .scenario { position: sticky; top: 24px; padding: 26px; background: var(--surface); border-top: 4px solid var(--ink); box-shadow: var(--shadow); }
+    .scenario h3 { font-size: 28px; }
+    .scenario dl { margin: 24px 0 0; display: grid; gap: 16px; }
+    .scenario div { border-top: 1px solid var(--line); padding-top: 12px; }
+    .scenario dt { font: 600 10px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
+    .scenario dd { margin: 5px 0 0; }
+    .nonqual { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .nonqual article { padding: 22px; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 60%, transparent); }
+    .nonqual h3 { font-size: 23px; }
+    .nonqual p { margin-bottom: 0; font-size: 15px; color: var(--muted); }
+    .poc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 34px; counter-reset: poc; }
+    .poc article { counter-increment: poc; padding: 22px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
+    .poc article::before { content: counter(poc); width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line-strong); font: 600 12px var(--mono); }
+    .poc h3 { font-size: 20px; margin-bottom: 6px; }
+    .poc p { margin: 0; font-size: 15px; color: var(--muted); }
+    .pass { display: inline-block; margin-top: 8px; font: 600 10px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--green); }
+    .unknowns { columns: 2; column-gap: 42px; padding-left: 1.2rem; }
+    .unknowns li { break-inside: avoid; margin: 0 0 14px; padding-left: 5px; }
+    .conclusion { padding: clamp(42px, 7vw, 78px); background: var(--ink); color: var(--paper); margin-top: 20px; }
+    .conclusion .eyebrow { color: #8edcb9; }
+    .conclusion h2 { max-width: 950px; }
+    .conclusion p { max-width: 870px; font-size: 21px; color: color-mix(in srgb, var(--paper) 78%, transparent); }
+    .conclusion ol { margin: 36px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: color-mix(in srgb, var(--paper) 25%, transparent); }
+    .conclusion li { padding: 22px; background: var(--ink); }
+    .conclusion li strong { display: block; font: 600 12px/1.3 var(--mono); color: #8edcb9; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .sources { font-size: 14px; }
+    .source-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 28px; padding: 0; list-style: none; counter-reset: src; }
+    .source-list li { counter-increment: src; position: relative; padding: 12px 0 12px 42px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+    .source-list li::before { content: "[" counter(src) "]"; position: absolute; left: 0; top: 13px; font: 500 11px var(--mono); color: var(--faint); }
+    .source-list span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .mobile-jump { display: none; }
+    footer { padding: 30px 0 0; font: 400 11px/1.6 var(--mono); color: var(--faint); }
+    @media (max-width: 980px) {
+      .shell { display: block; }
+      .rail { display: none; }
+      .mobile-jump { display: block; position: sticky; top: 0; z-index: 10; padding: 10px 16px; background: var(--paper); border-bottom: 1px solid var(--line); }
+      .mobile-jump select { width: 100%; padding: 10px 12px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 500 12px var(--mono); }
+      .content { padding-inline: clamp(18px, 5vw, 46px); }
+      .hero { min-height: auto; }
+      .rank-grid { grid-template-columns: 1fr; }
+      .rank-card:nth-child(2), .rank-card:nth-child(3) { margin-top: 0; }
+      .platform-body { grid-template-columns: 1fr; gap: 16px; }
+      .split { grid-template-columns: 1fr; }
+      .scenario { position: static; }
+      .conclusion ol { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      body { font-size: 16px; }
+      .content { padding-inline: 16px; }
+      .hero { padding: 54px 0 42px; }
+      .hero-grid, .section-head { grid-template-columns: 1fr; gap: 20px; }
+      .hero-stamp { box-shadow: 5px 5px 0 var(--line); }
+      section { padding: 58px 0; }
+      .section-no { padding: 0; }
+      .nonqual, .poc, .source-list { grid-template-columns: 1fr; }
+      .unknowns { columns: 1; }
+      details.platform summary { grid-template-columns: 1fr auto; gap: 8px 14px; }
+      .platform-class { grid-column: 1; }
+      details.platform summary::after { grid-column: 2; grid-row: 1 / span 2; }
+      .platform-body { padding: 0 18px 24px; }
+      .tablist { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .tablist button { border: 1px solid var(--line); margin: -1px 0 0 -1px; }
+      .tablist button[aria-selected="true"] { border-color: var(--green); }
+      table.responsive thead { display: none; }
+      table.responsive, table.responsive tbody, table.responsive tr, table.responsive td { display: block; width: 100%; }
+      table.responsive tr { padding: 16px 0; border-bottom: 1px solid var(--line-strong); }
+      table.responsive td { display: grid; grid-template-columns: 112px 1fr; gap: 12px; padding: 7px 4px; border: 0; }
+      table.responsive td::before { content: attr(data-label); font: 600 9px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+      table.responsive td:first-child { font-size: 19px; }
+      .conclusion { padding: 34px 22px; margin-inline: -16px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      .rail, .mobile-jump, .tablist { display: none !important; }
+      .shell { display: block; }
+      .content { padding: 0; }
+      .hero { min-height: auto; }
+      .tabpanel[hidden] { display: block; }
+      section { break-inside: avoid; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to report</a>
+<div class="mobile-jump">
+  <label><span class="visually-hidden">Jump to section</span><select id="jump">
+    <option value="">Jump to…</option>
+    <option value="#verdict">Verdict</option><option value="#brokerages">Brokerage comparison</option>
+    <option value="#matrices">Evidence matrices</option><option value="#lifecycle">Order lifecycle</option>
+    <option value="#poc">Proof of concept</option><option value="#recommendation">Recommendation</option>
+    <option value="#sources">Sources</option>
+  </select></label>
+</div>
+<div class="shell">
+  <aside class="rail">
+    <div class="rail-meta">Independent product research<strong>Prospective simulation only</strong></div>
+    <nav aria-label="Report sections">
+      <a href="#verdict">01 · Verdict</a><a href="#brokerages">02 · Brokerages</a>
+      <a href="#third-party">03 · Third-party</a><a href="#matrices">04 · Matrices</a>
+      <a href="#lifecycle">05 · Lifecycle</a><a href="#research-fit">06 · Research fit</a>
+      <a href="#poc">07 · Proof of concept</a><a href="#recommendation">08 · Recommendation</a>
+      <a href="#unknowns">09 · Unknowns</a><a href="#sources">10 · Sources</a>
+    </nav>
+    <div class="rail-bottom">Research snapshot<br>15 October 2026<br><br>SPX primary · SPY/XSP secondary</div>
+  </aside>
+  <main id="main" class="content">
+    <header class="hero">
+      <div class="eyebrow">Platform evaluation · prospective options paper trading</div>
+      <h1>The simulator is part of the experiment.</h1>
+      <p class="deck">For defined-risk SPX spreads, a paper fill is evidence only when the platform preserves the order, exposes the execution rule, and lets the result be independently reconstructed.</p>
+      <div class="hero-grid">
+        <div class="verdict-line"><strong>No single platform clears every requirement.</strong> Use an API-first primary venue, an execution-fidelity cross-check, and a manual index-options check rather than treating one paper account as ground truth.</div>
+        <div class="hero-stamp"><strong>Evidence date</strong>15 Oct 2026 (UTC)<br>Primary docs + API specs<br>Hands-on validation: not performed</div>
+      </div>
+    </header>
+
+    <section id="verdict">
+      <div class="section-head"><div class="section-no">01 / EXECUTIVE SUMMARY</div><div><h2>Three leaders, three different jobs.</h2><p class="lede">Alpaca is the strongest programmable research environment; IBKR is the most documented brokerage-native baseline; Tradier has the cleanest native API lifecycle. None has proven realistic SPX package fills and complete simulated fee accounting.</p></div></div>
+      <div class="rank-grid">
+        <article class="rank-card"><div class="rank">01</div><div class="role">Primary programmatic venue</div><h3>Alpaca</h3><ul><li>Free paper accounts; REST + WebSocket records</li><li>Atomic 2–4 leg <code>mleg</code> orders</li><li>SPX and XSP in paper and live</li><li>Honest, explicit simulation limits</li></ul><div class="risk"><strong>Critical caveat</strong><br>No index market-data feed yet; regulatory fees are not modeled; expiration settlement is unknown.</div></article>
+        <article class="rank-card"><div class="rank">02</div><div class="role">Execution-fidelity baseline</div><h3>Interactive Brokers</h3><ul><li>Real prices and sizes; top-of-book rule documented</li><li>Real margin model and daily statements</li><li>Paper account API access</li><li>$1M starting equity and reset support</li></ul><div class="risk"><strong>Critical caveat</strong><br>“Limited combo trading”; third-party measurement reports synthetic midpoint fills for limits.</div></article>
+        <article class="rank-card"><div class="rank">03</div><div class="role">Lifecycle/API benchmark</div><h3>Tradier</h3><ul><li>Full trading API with paper money</li><li>2–4 leg credit/debit/even combos</li><li>GTC plus OCO/OTO/OTOCO brackets</li><li>Preview returns fees and margin impact</li></ul><div class="risk"><strong>Critical caveat</strong><br>The sandbox fill-price rule is undocumented; XSP acceptance and persistence guarantees are unknown.</div></article>
+      </div>
+      <div class="callout"><strong>The central limitation</strong><p>Current quotes do not make a simulator realistic. Package-level fill semantics, queue position, spread crossing, size, and fees remain unverified at every leading venue.</p></div>
+      <div class="evidence-legend" aria-label="Evidence labels"><span class="tag verified">Verified</span><span class="tag claimed">Claimed</span><span class="tag inferred">Inferred</span><span class="tag unknown">Unknown</span></div>
+    </section>
+
+    <section id="brokerages">
+      <div class="section-head"><div class="section-no">02 / BROKERAGE-NATIVE</div><div><h2>Practice account, sandbox, or no simulator?</h2><p class="lede">Those categories are not interchangeable. Expand each platform for what the evidence actually supports.</p></div></div>
+      <div class="platform-list">
+        <details class="platform" open><summary><span class="platform-name">Interactive Brokers</span><span class="platform-class">Genuine brokerage-native · strongest documentation</span></summary><div class="platform-body"><div><h4>Verified</h4><ul><li>Most order types; all TWS instruments.</li><li>Real prices and sizes; top-of-book only.</li><li>Real margin model, persistent paper account, daily statements.</li><li>TWS and Client Portal APIs target paper accounts.</li></ul></div><div><h4>Limits</h4><ul><li>Limited combo trading.</li><li>No deep book; US-option penny trading unsupported.</li><li>Stops and complex orders remain simulated.</li></ul></div><div><h4>Unknown / claimed</h4><ul><li>Package-level SPX vertical fills: unknown.</li><li>Real commission schedule in paper: third-party claim only.</li><li>Midpoint limit fills: third-party measurement.</li></ul></div></div></details>
+        <details class="platform"><summary><span class="platform-name">Webull</span><span class="platform-class">Genuine brokerage-native · best manual SPX/XSP practice</span></summary><div class="platform-body"><div><h4>Verified</h4><ul><li>Paper options mirror all live strategies.</li><li>Index options list SPX/SPXW and XSP.</li><li>Level 3 includes credit spreads and iron condors.</li><li>Rolling, legging, OCO/OTO/OTOCO; order-record export.</li></ul></div><div><h4>Execution rule</h4><ul><li>Fill uses last traded price.</li><li>Requires trading volume after placement.</li><li>No volume means no fill.</li></ul></div><div><h4>Limits</h4><ul><li>No public trading API.</li><li>One paper account; reset erases positions, orders and history.</li><li>GTC and simulated fees unknown.</li></ul></div></div></details>
+        <details class="platform"><summary><span class="platform-name">Schwab thinkorswim paperMoney</span><span class="platform-class">Genuine brokerage-native · manual only</span></summary><div class="platform-body"><div><h4>Verified</h4><ul><li>Real-time data and $100,000 virtual buying power.</li><li>Free for Schwab clients; 30-day Guest Pass for non-clients.</li><li>Official live fee: $0 base + $0.65/contract.</li></ul></div><div><h4>Reported behavior</h4><ul><li>Favorable midpoint fills when spreads widen.</li><li>No early assignment in paperMoney.</li><li>Exports and reset reported by third parties.</li></ul></div><div><h4>Research verdict</h4><ul><li>No Trader API route to paperMoney found.</li><li>Good mechanics practice.</li><li>Not credible as sole profitability evidence.</li></ul></div></div></details>
+        <details class="platform"><summary><span class="platform-name">TradeStation SIM</span><span class="platform-class">Genuine brokerage-native · native automation</span></summary><div class="platform-body"><div><h4>Verified</h4><ul><li>Stocks, options and futures simulation.</li><li>Unlimited paper dollars and resets.</li><li>Real-time data for non-professionals.</li><li>EasyLanguage forward automation; OptionStation Pro multi-leg.</li></ul></div><div><h4>Access</h4><ul><li>Funding an account is required to start.</li><li>Paper/live toggle; SIM-prefixed accounts.</li></ul></div><div><h4>Unknown</h4><ul><li>Fill rule and partial-fill handling.</li><li>API access to SIM.</li><li>SPX/XSP specifics, fees in sim and export.</li></ul></div></div></details>
+        <details class="platform"><summary><span class="platform-name">Tradier</span><span class="platform-class">Developer sandbox · full API with paper money</span></summary><div class="platform-body"><div><h4>Verified</h4><ul><li>Full trading API on sandbox host.</li><li>2–4 leg multileg credit/debit/even orders.</li><li>GTC, modify/cancel, partial/rejected status states.</li><li>Preview returns commission, fees, cost, margin change.</li></ul></div><div><h4>Data</h4><ul><li>15-minute delayed Level 1 data.</li><li>No delayed streaming in sandbox.</li><li>Balances, positions, orders, gain/loss and history via REST.</li></ul></div><div><h4>Unknown</h4><ul><li>Fill-price and size/queue logic.</li><li>Fees charged to simulated P/L.</li><li>XSP, expiry processing and persistence guarantees.</li></ul></div></div></details>
+        <details class="platform"><summary><span class="platform-name">tastytrade</span><span class="platform-class">No paper trading · non-qualifying</span></summary><div class="platform-body"><div><h4>Official position</h4><p>“At this time, tastytrade does not offer any demo or simulated trading environment.”</p></div><div><h4>What exists</h4><p>An unfunded live account can be used to explore the interface; quotes become delayed after 14+ unfunded days.</p></div><div><h4>Out of scope</h4><p>Its historical backtesting tool is not prospective paper trading.</p></div></div></details>
+      </div>
+    </section>
+
+    <section id="third-party">
+      <div class="section-head"><div class="section-no">03 / THIRD-PARTY</div><div><h2>One qualifying API-first alternative.</h2><p class="lede">Alpaca is the only additional candidate in this evidence set that established meaningful forward options paper trading for the target instruments.</p></div></div>
+      <div class="split">
+        <div><h3>Alpaca</h3><p><span class="tag verified">Verified</span></p><p>Free paper trading uses the same API specification as live with separate keys and hosts. Index-option access includes SPX, SPXW and XSP; 2–4-leg <code>mleg</code> orders are atomic. REST and WebSocket outputs can preserve order, fill, position and activity evidence.</p><p>Its candor is a strength: the vendor says paper does <strong>not</strong> model market impact, latency slippage, order queue position or regulatory fees. A completed order demonstrates workflow, not a likely live fill.</p><div class="callout"><strong>Blocking dependency</strong><p>Alpaca does not yet provide index market data. An SPX experiment therefore needs a separate quote source, synchronized timestamps, and a pre-registered reconciliation rule.</p></div></div>
+        <aside class="scenario"><h3>Qualifying test</h3><dl><div><dt>Persistent state</dt><dd>Paper account and machine-readable positions: yes.</dd></div><div><dt>Ongoing market orders</dt><dd>Simulated, not routed. Execution fidelity remains limited.</dd></div><div><dt>Target instruments</dt><dd>SPX, SPY and XSP verified.</dd></div><div><dt>Combination orders</dt><dd>Atomic 2–4 leg <code>mleg</code>.</dd></div><div><dt>Evidence export</dt><dd>REST/WebSocket orders, positions and activities.</dd></div></dl></aside>
+      </div>
+      <h3 style="margin-top:52px">Classified, not promoted</h3>
+      <div class="nonqual"><article><h3>PowerOptions</h3><p>Manual position journal and tracking for “paper-trading accounts”; no simulated order execution or fills.</p></article><article><h3>OptionStrat / payoff calculators</h3><p>Strategy analysis and risk diagrams, not persistent simulated brokerage accounts.</p></article><article><h3>QuantConnect LEAN</h3><p>Paper capability exists generally, but options suitability for this SPX use case was not established in the reviewed evidence.</p></article><article><h3>Contest simulators</h3><p>MarketWatch, Investopedia and Wall Street Survivor did not establish multi-leg index-option support.</p></article><article><h3>ETNA</h3><p>B2B white-label simulator; individual-researcher access not established.</p></article><article><h3>Fidelity</h3><p>No paper-trading capability found. Its live fee schedule is relevant only for external reconciliation.</p></article></div>
+    </section>
+
+    <section id="matrices">
+      <div class="section-head"><div class="section-no">04 / EVIDENCE MATRICES</div><div><h2>Support is not the same as fidelity.</h2><p class="lede">Choose a lens. On mobile, each table reflows into platform records rather than scrolling sideways.</p></div></div>
+      <div class="tabs">
+        <div class="tablist" role="tablist" aria-label="Comparison matrices">
+          <button role="tab" aria-selected="true" aria-controls="instrument-panel" id="instrument-tab">Instruments</button>
+          <button role="tab" aria-selected="false" aria-controls="execution-panel" id="execution-tab">Execution</button>
+          <button role="tab" aria-selected="false" aria-controls="fees-panel" id="fees-tab">Fees</button>
+          <button role="tab" aria-selected="false" aria-controls="research-panel" id="research-tab">Research fit</button>
+          <button role="tab" aria-selected="false" aria-controls="pricing-panel" id="pricing-tab">Pricing</button>
+        </div>
+        <div class="tabpanel" id="instrument-panel" role="tabpanel" aria-labelledby="instrument-tab">
+          <table class="responsive"><thead><tr><th>Platform</th><th>SPX</th><th>SPY</th><th>XSP</th><th>Qualification</th></tr></thead><tbody>
+            <tr><td data-label="Platform">Alpaca</td><td data-label="SPX" class="yes">Verified</td><td data-label="SPY" class="yes">Verified</td><td data-label="XSP" class="yes">Verified</td><td data-label="Qualification">Paper + live API; atomic multi-leg.</td></tr>
+            <tr><td data-label="Platform">IBKR</td><td data-label="SPX" class="yes">Verified</td><td data-label="SPY" class="yes">Verified</td><td data-label="XSP" class="maybe">Inferred</td><td data-label="Qualification">All TWS instruments; limited combos.</td></tr>
+            <tr><td data-label="Platform">Tradier</td><td data-label="SPX" class="maybe">Inferred</td><td data-label="SPY" class="yes">Verified</td><td data-label="XSP" class="unknown">Unknown</td><td data-label="Qualification">Sandbox acceptance not directly tested.</td></tr>
+            <tr><td data-label="Platform">Webull</td><td data-label="SPX" class="maybe">Inferred</td><td data-label="SPY" class="yes">Verified</td><td data-label="XSP" class="maybe">Inferred</td><td data-label="Qualification">Index roots listed; Level 3 spreads.</td></tr>
+            <tr><td data-label="Platform">Schwab</td><td data-label="SPX" class="maybe">Inferred</td><td data-label="SPY" class="maybe">Inferred</td><td data-label="XSP" class="maybe">Inferred</td><td data-label="Qualification">Platform parity; not directly verified.</td></tr>
+            <tr><td data-label="Platform">TradeStation</td><td data-label="SPX" class="maybe">Inferred</td><td data-label="SPY" class="yes">Verified</td><td data-label="XSP" class="unknown">Unknown</td><td data-label="Qualification">OptionStation multi-leg; roots unverified.</td></tr>
+            <tr><td data-label="Platform">tastytrade</td><td data-label="SPX" class="no">N/A</td><td data-label="SPY" class="no">N/A</td><td data-label="XSP" class="no">N/A</td><td data-label="Qualification">No paper trading.</td></tr>
+          </tbody></table>
+          <p class="small">At every venue, simulated handling of European exercise, cash settlement, settlement values, DNE cutoffs, AM/PM conventions and index exchange fees remains unknown. Contract properties do not prove simulator behavior.</p>
+        </div>
+        <div class="tabpanel" id="execution-panel" role="tabpanel" aria-labelledby="execution-tab" hidden>
+          <table class="responsive"><thead><tr><th>Platform</th><th>Fill basis</th><th>Can remain unfilled?</th><th>Depth / queue</th><th>Package semantics</th></tr></thead><tbody>
+            <tr><td data-label="Platform">IBKR</td><td data-label="Fill basis">Official: real prices/sizes, top-of-book. Third party: midpoint limit fills.</td><td data-label="Unfilled" class="yes">Yes</td><td data-label="Depth / queue">Top-of-book only</td><td data-label="Package">Limited combos; unknown</td></tr>
+            <tr><td data-label="Platform">Webull</td><td data-label="Fill basis">Last traded price + later trading volume</td><td data-label="Unfilled" class="yes">Yes, explicit</td><td data-label="Depth / queue">Volume gate only</td><td data-label="Package">Strategies supported; mechanics unknown</td></tr>
+            <tr><td data-label="Platform">Tradier</td><td data-label="Fill basis" class="unknown">Unknown</td><td data-label="Unfilled" class="maybe">Inferred from statuses</td><td data-label="Depth / queue" class="unknown">Unknown</td><td data-label="Package">Package submission; fill atomicity unknown</td></tr>
+            <tr><td data-label="Platform">Alpaca</td><td data-label="Fill basis">Simulated; market impact, latency slippage, queue absent</td><td data-label="Unfilled" class="maybe">Inferred</td><td data-label="Depth / queue" class="no">Explicitly not modeled</td><td data-label="Package">Atomic live docs; paper parity unproven</td></tr>
+            <tr><td data-label="Platform">Schwab</td><td data-label="Fill basis">Real-time data; favorable midpoint behavior reported</td><td data-label="Unfilled" class="maybe">Inferred</td><td data-label="Depth / queue" class="unknown">Unknown</td><td data-label="Package" class="unknown">Unknown</td></tr>
+            <tr><td data-label="Platform">TradeStation</td><td data-label="Fill basis" class="unknown">Unknown</td><td data-label="Unfilled" class="maybe">Inferred</td><td data-label="Depth / queue" class="unknown">Unknown</td><td data-label="Package" class="unknown">Unknown</td></tr>
+          </tbody></table>
+        </div>
+        <div class="tabpanel" id="fees-panel" role="tabpanel" aria-labelledby="fees-tab" hidden>
+          <table class="responsive"><thead><tr><th>Platform</th><th>Commissions in sim</th><th>Exchange / regulatory fees</th><th>Published schedule</th></tr></thead><tbody>
+            <tr><td data-label="Platform">IBKR</td><td data-label="Commissions">Claimed by third party; official unknown</td><td data-label="Exchange / regulatory" class="unknown">Unknown</td><td data-label="Schedule">$0.65 fixed or $0.15–$0.65 tiered + pass-throughs</td></tr>
+            <tr><td data-label="Platform">Tradier</td><td data-label="Commissions" class="unknown">Unknown</td><td data-label="Exchange / regulatory" class="unknown">Unknown</td><td data-label="Schedule">Plan pricing is secondary; preview returns fee fields</td></tr>
+            <tr><td data-label="Platform">Schwab</td><td data-label="Commissions">Third-party claim</td><td data-label="Exchange / regulatory" class="unknown">Unknown</td><td data-label="Schedule">$0.65/contract, official</td></tr>
+            <tr><td data-label="Platform">TradeStation</td><td data-label="Commissions" class="unknown">Unknown</td><td data-label="Exchange / regulatory" class="unknown">Unknown</td><td data-label="Schedule">$0.60/contract, secondary; promo volatile</td></tr>
+            <tr><td data-label="Platform">Webull</td><td data-label="Commissions" class="unknown">Unknown</td><td data-label="Exchange / regulatory" class="unknown">Unknown</td><td data-label="Schedule">Live options commission $0</td></tr>
+            <tr><td data-label="Platform">Alpaca</td><td data-label="Commissions">Index $0.50/contract in live; paper accrual unknown</td><td data-label="Exchange / regulatory" class="no">Regulatory fees explicitly not modeled</td><td data-label="Schedule">TAF $0.00329 sell; ORF $0.02375; OCC $0.025/contract</td></tr>
+          </tbody></table>
+          <p class="small">External reconciliation is acceptable only if every fill is exportable. Do not add a slippage proxy to fills already worsened by an execution model; that would double-count the same cost.</p>
+        </div>
+        <div class="tabpanel" id="research-panel" role="tabpanel" aria-labelledby="research-tab" hidden>
+          <table class="responsive"><thead><tr><th>Platform</th><th>History</th><th>Paper API</th><th>Parallel portfolios</th><th>Persistence concern</th></tr></thead><tbody>
+            <tr><td data-label="Platform">Alpaca</td><td data-label="History" class="yes">API orders / activities</td><td data-label="Paper API" class="yes">REST + WebSocket</td><td data-label="Parallel">Inferred, not verified</td><td data-label="Persistence">Balance/reset details inferred</td></tr>
+            <tr><td data-label="Platform">IBKR</td><td data-label="History" class="yes">Daily statements</td><td data-label="Paper API" class="yes">TWS / Client Portal</td><td data-label="Parallel" class="unknown">Unknown</td><td data-label="Persistence">One paper account per client; reset next-day</td></tr>
+            <tr><td data-label="Platform">Tradier</td><td data-label="History" class="yes">REST orders / gain-loss</td><td data-label="Paper API" class="yes">Full trading API</td><td data-label="Parallel" class="unknown">Unknown</td><td data-label="Persistence">Guarantees and retention unknown</td></tr>
+            <tr><td data-label="Platform">Webull</td><td data-label="History" class="yes">Order-record export</td><td data-label="Paper API" class="no">None</td><td data-label="Parallel" class="no">One account</td><td data-label="Persistence">Reset erases all; legacy 180-day inactivity wipe</td></tr>
+            <tr><td data-label="Platform">Schwab</td><td data-label="History">Third-party reported</td><td data-label="Paper API" class="no">None found</td><td data-label="Parallel" class="unknown">Unknown</td><td data-label="Persistence">Guest Pass lasts 30 days</td></tr>
+            <tr><td data-label="Platform">TradeStation</td><td data-label="History" class="unknown">Unknown</td><td data-label="Paper API" class="unknown">Unknown for SIM</td><td data-label="Parallel">Third-party claim</td><td data-label="Persistence">Funding required</td></tr>
+          </tbody></table>
+        </div>
+        <div class="tabpanel" id="pricing-panel" role="tabpanel" aria-labelledby="pricing-tab" hidden>
+          <table class="responsive"><thead><tr><th>Platform</th><th>Paper cost</th><th>Access / funding</th><th>Market data</th></tr></thead><tbody>
+            <tr><td data-label="Platform">Alpaca</td><td data-label="Paper cost" class="yes">Free</td><td data-label="Access">No minimum historically; current requirement inferred</td><td data-label="Market data">No index feed yet</td></tr>
+            <tr><td data-label="Platform">IBKR</td><td data-label="Paper cost" class="yes">Free</td><td data-label="Access">Approved production account; free trial route without funding</td><td data-label="Market data">Real-time OPRA may need subscription</td></tr>
+            <tr><td data-label="Platform">Tradier</td><td data-label="Paper cost">API free; sandbox signup not re-verified</td><td data-label="Access">Production parity needs brokerage account</td><td data-label="Market data">15-min delayed, Level 1</td></tr>
+            <tr><td data-label="Platform">Webull</td><td data-label="Paper cost" class="yes">Free</td><td data-label="Access">App account; paper approval requirement inferred</td><td data-label="Market data">Real-time</td></tr>
+            <tr><td data-label="Platform">Schwab</td><td data-label="Paper cost" class="yes">Free</td><td data-label="Access">$0 minimum; 30-day Guest Pass</td><td data-label="Market data">Real-time in paperMoney</td></tr>
+            <tr><td data-label="Platform">TradeStation</td><td data-label="Paper cost">Platform free</td><td data-label="Access">Funding required; no official minimum stated</td><td data-label="Market data">Free real-time for non-pros</td></tr>
+            <tr><td data-label="Platform">tastytrade</td><td data-label="Paper cost" class="no">N/A</td><td data-label="Access">No paper trading</td><td data-label="Market data">—</td></tr>
+          </tbody></table>
+          <p class="small">Tradier live plan prices were available only from secondary evidence: Lite $0, Pro $10/month, Pro Plus $35/month, with index-option per-contract charges varying by tier. Verify on Tradier before relying on those amounts.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="lifecycle">
+      <div class="section-head"><div class="section-no">05 / ORDER LIFECYCLE</div><div><h2>Can the 50% target survive overnight?</h2><p class="lede">The representative workflow is a 30–60 DTE two-leg credit spread, a buy-to-close order at 50% of the opening credit, and a time exit at 21 DTE. Those are test controls, not a trade recommendation.</p></div></div>
+      <div class="split">
+        <div><ol class="workflow"><li><div><strong>Enter as one package</strong><p>Tradier verifies net credit/debit multileg submission. Alpaca documents atomic <code>mleg</code>. IBKR, Schwab, TradeStation and Webull require hands-on package-fill validation.</p></div></li><li><div><strong>Keep the target working</strong><p>Tradier verifies GTC plus OTOCO. IBKR supports GTC and native limits. Webull verifies conditional groups but not GTC in reviewed docs. Alpaca can manage the lifecycle by API.</p></div></li><li><div><strong>Close at 21 DTE</strong><p>IBKR, Tradier and Alpaca can implement a time check by API. TradeStation can use EasyLanguage automation. Schwab and Webull require manual intervention on present evidence.</p></div></li><li><div><strong>Roll only with an audit trail</strong><p>Webull explicitly supports rolling; IBKR and TradeStation provide native workflows; API venues can cancel/replace or submit a new package. Preserve both the original and replacement orders.</p></div></li></ol></div>
+        <aside class="scenario"><h3>Lifecycle verdict</h3><dl><div><dt>Best native bracket</dt><dd>Tradier OTO/OCO/OTOCO.</dd></div><div><dt>Best documented paper behavior</dt><dd>IBKR, with combo caveat.</dd></div><div><dt>Best manual index workflow</dt><dd>Webull new paper system.</dd></div><div><dt>Best programmatic orchestration</dt><dd>Alpaca, pending fill/settlement PoC.</dd></div><div><dt>Hard rule</dt><dd>A submitted order must be allowed to remain unfilled.</dd></div></dl></aside>
+      </div>
+    </section>
+
+    <section id="research-fit">
+      <div class="section-head"><div class="section-no">06 / PARALLEL EXPERIMENTS</div><div><h2>Separate decision records from brokerage state.</h2><p class="lede">A credible control-versus-treatment comparison needs equal opportunity sets and execution assumptions, but independent positions, balances and P/L. No platform fully verified multiple simultaneous paper portfolios.</p></div></div>
+      <div class="callout"><strong>Minimum evidentiary design</strong><p>Record every eligible opportunity and the no-trade decision before the outcome; timestamp the selection rule; submit identical order types under comparable capital constraints; preserve the raw simulator output; reconcile fees separately.</p></div>
+      <table class="responsive"><thead><tr><th>Requirement</th><th>Alpaca</th><th>IBKR</th><th>Tradier</th><th>Webull</th></tr></thead><tbody>
+        <tr><td data-label="Requirement">Machine-readable decisions & fills</td><td data-label="Alpaca" class="yes">Strong</td><td data-label="IBKR" class="yes">Strong</td><td data-label="Tradier" class="yes">Strong</td><td data-label="Webull">Manual export</td></tr>
+        <tr><td data-label="Requirement">Independent simultaneous portfolios</td><td data-label="Alpaca" class="maybe">Inferred</td><td data-label="IBKR" class="unknown">Unknown</td><td data-label="Tradier" class="unknown">Unknown</td><td data-label="Webull" class="no">No — one account</td></tr>
+        <tr><td data-label="Requirement">No-trade observation</td><td data-label="Alpaca">External record</td><td data-label="IBKR">External record</td><td data-label="Tradier">External record</td><td data-label="Webull">External record</td></tr>
+        <tr><td data-label="Requirement">Reset isolation</td><td data-label="Alpaca" class="unknown">Unknown</td><td data-label="IBKR" class="unknown">Unknown</td><td data-label="Tradier" class="unknown">Unknown</td><td data-label="Webull" class="no">Reset erases sole account</td></tr>
+        <tr><td data-label="Requirement">Longitudinal evidence risk</td><td data-label="Alpaca">Retention unknown</td><td data-label="IBKR">Daily statements</td><td data-label="Tradier">Retention unknown</td><td data-label="Webull">Legacy inactivity wipe</td></tr>
+      </tbody></table>
+      <p class="small">Practical implication: even when using platform-separated paper accounts, preserve an external, append-only experiment log. The simulator should be the execution venue, not the only record of the protocol.</p>
+    </section>
+
+    <section id="poc">
+      <div class="section-head"><div class="section-no">07 / MINIMUM PROOF OF CONCEPT</div><div><h2>Ten observations before trusting a result.</h2><p class="lede">Run this no-real-money trial on each shortlisted venue using one small 30–45 DTE SPX or XSP put credit spread. Pass means observed behavior, not a checkbox in documentation.</p></div></div>
+      <div class="poc">
+        <article><div><h3>Package entry</h3><p>Submit two legs as one net-credit limit.</p><span class="pass">Pass · One parent order ID; legs not submitted independently.</span></div></article>
+        <article><div><h3>Working-order persistence</h3><p>Leave a non-marketable GTC order; sign out; return after 24 hours.</p><span class="pass">Pass · Still working and not auto-filled at mid.</span></div></article>
+        <article><div><h3>Fill behavior</h3><p>Move the limit to marketable; record package and leg quotes at the event.</p><span class="pass">Pass · Fill sits within the touch and matches the stated rule.</span></div></article>
+        <article><div><h3>Closing combo</h3><p>Place buy-to-close at 50% of opening credit.</p><span class="pass">Pass · Persists and fills or cancels as one package.</span></div></article>
+        <article><div><h3>Fee accounting</h3><p>Inspect open and close fills after the round trip.</p><span class="pass">Pass · Commissions and exchange/regulatory fees are itemized, or their absence is explicit.</span></div></article>
+        <article><div><h3>Position persistence</h3><p>Close the client and reopen in the next session.</p><span class="pass">Pass · Cash, buying power, orders and P/L are intact.</span></div></article>
+        <article><div><h3>Export evidence</h3><p>Download or query orders, fills and position history.</p><span class="pass">Pass · Timestamps, OCC IDs, limits, fills, fees and P/L are reconstructable.</span></div></article>
+        <article><div><h3>Parallel portfolios</h3><p>Create an independent second portfolio with a different exit rule.</p><span class="pass">Pass · Positions and P/L do not mix; reset is isolated.</span></div></article>
+        <article><div><h3>Expiration</h3><p>Hold one small ITM and one OTM index option through expiration.</p><span class="pass">Pass · Cash settlement matches the contract’s settlement value.</span></div></article>
+        <article><div><h3>Fee reconciliation</h3><p>Recompute costs from the current published schedule.</p><span class="pass">Pass · Simulator and reconstruction match within rounding; gaps are explicit adjustments.</span></div></article>
+      </div>
+    </section>
+
+    <section id="recommendation">
+      <div class="conclusion"><div class="eyebrow">Final recommendation</div><h2>Use a combination, not a winner-take-all platform.</h2><p>Run the primary programmable experiment at <strong>Alpaca</strong>, cross-check fill and buying-power assumptions at <strong>Interactive Brokers</strong>, and use <strong>Webull</strong> as a manual SPX/XSP mechanics check. Tradier becomes a serious alternative only after its undocumented fill rule passes the proof of concept.</p><ol><li><strong>Primary record</strong>Alpaca for atomic multi-leg API orders and exportable, time-stamped evidence.</li><li><strong>Fidelity check</strong>IBKR for documented top-of-book simulation, real margin logic and daily statements.</li><li><strong>Manual check</strong>Webull for explicit volume-gated unfilled orders, rolling and index-option workflows.</li></ol><p>Do not use Schwab paperMoney as profitability evidence, because reported midpoint behavior is systematically favorable to short premium. Do not treat tastytrade, Fidelity, payoff calculators or historical backtesters as prospective simulators.</p></div>
+    </section>
+
+    <section id="unknowns">
+      <div class="section-head"><div class="section-no">09 / OPEN QUESTIONS</div><div><h2>What documentation did not establish.</h2><p class="lede">Unknown is a result. These gaps must be converted into observed pass/fail checks before a platform can be an evidence source.</p></div></div>
+      <ol class="unknowns"><li>Tradier sandbox and TradeStation SIM fill-price rules.</li><li>Exchange, regulatory and clearing fees applied to simulated P/L at any venue, beyond Alpaca’s explicit omission.</li><li>Official confirmation that IBKR paper statements apply the real commission schedule.</li><li>Tradier and Alpaca starting balance, reset and history-retention guarantees.</li><li>XSP acceptance in Tradier sandbox and TradeStation SIM.</li><li>Expiration, exercise, DNE and cash-settlement behavior at every venue.</li><li>Package-level versus leg-level fills at IBKR, Schwab, TradeStation and Webull.</li><li>Multiple simultaneous paper portfolios at all venues.</li><li>Current Tradier prices and sandbox signup requirements.</li><li>Direct verification of Schwab midpoint and assignment behavior.</li><li>Webull paper-options approval level and GTC support.</li></ol>
+    </section>
+
+    <section id="sources" class="sources">
+      <div class="section-head"><div class="section-no">10 / SOURCES</div><div><h2>Primary documents first.</h2><p class="lede">All sources accessed 15 October 2026 unless noted. Third-party claims remain labeled as such.</p></div></div>
+      <ol class="source-list">
+        <li><a href="https://support.tastytrade.com/support/s/solutions/articles/43000498775" target="_blank" rel="noopener">tastytrade support: paper trading availability</a><span>Primary</span></li>
+        <li><a href="https://docs.tradier.com/docs/faq" target="_blank" rel="noopener">Tradier API FAQ</a><span>Primary · sandbox and delayed data</span></li>
+        <li><a href="https://docs.tradier.com/docs/trading" target="_blank" rel="noopener">Tradier trading guide</a><span>Primary · multileg, brackets, GTC, preview</span></li>
+        <li><a href="https://documentation.tradier.com" target="_blank" rel="noopener">Tradier API documentation</a><span>Primary</span></li>
+        <li><a href="https://www.ibkrguides.com/clientportal/aboutpapertradingaccounts.htm" target="_blank" rel="noopener">IBKR: About Paper Trading Accounts</a><span>Primary · updated 11 Feb 2026</span></li>
+        <li><a href="https://www.ibkr.com.hk/en/pricing/commissions-options.php" target="_blank" rel="noopener">IBKR options commissions</a><span>Primary</span></li>
+        <li><a href="https://www.schwab.com/trading/thinkorswim/paper-trading" target="_blank" rel="noopener">Schwab thinkorswim paperMoney</a><span>Primary</span></li>
+        <li><a href="https://www.schwab.com/pricing" target="_blank" rel="noopener">Schwab pricing</a><span>Primary</span></li>
+        <li><a href="http://tradestation.com/platforms-and-tools/simulated-trading/" target="_blank" rel="noopener">TradeStation simulated trading</a><span>Primary</span></li>
+        <li><a href="https://www.webull.com/help/faq/11069-Paper-Trading" target="_blank" rel="noopener">Webull paper trading FAQ</a><span>Primary · fill logic, exports, reset</span></li>
+        <li><a href="https://www.webull.com/help/faq/10980-Available-Options-Strategies" target="_blank" rel="noopener">Webull options strategies</a><span>Primary</span></li>
+        <li><a href="https://www.webull.com/help/faq/10781-Understanding-Index-Options" target="_blank" rel="noopener">Webull index options</a><span>Primary</span></li>
+        <li><a href="https://www.webull.com/learn/courseware/OHG3xb" target="_blank" rel="noopener">Webull: SPX and SPY options</a><span>Primary</span></li>
+        <li><a href="https://alpaca.markets/blog/paper-trading-and-live-portfolio-monitoring-now-available-in-chatgpt-with-alpaca/" target="_blank" rel="noopener">Alpaca on paper-trading fidelity limits</a><span>Primary</span></li>
+        <li><a href="https://files.alpaca.markets/disclosures/library/BrokFeeSched.pdf" target="_blank" rel="noopener">Alpaca brokerage fee schedule</a><span>Primary · Feb 2026</span></li>
+        <li><a href="https://www.financemagnates.com/institutional-forex/alpaca-moves-index-options-from-paper-trading-to-live-api-access/" target="_blank" rel="noopener">Alpaca index-options launch coverage</a><span>Secondary · 2 Sep 2026</span></li>
+        <li><a href="https://github.com/jaylamping/market-mate/blob/HEAD/docs/research/paper-execution-venue-selection-and-fidelity.md" target="_blank" rel="noopener">Paper execution venue research</a><span>Secondary</span></li>
+        <li><a href="https://github.com/jaylamping/market-mate/blob/HEAD/docs/research/alpaca-primary-platform-assessment.md" target="_blank" rel="noopener">Alpaca platform assessment</a><span>Secondary</span></li>
+        <li><a href="https://github.com/vishnu-0011/conviction-spread-agent/blob/HEAD/docs/research/alpaca-platform-research.md" target="_blank" rel="noopener">Alpaca options/API research</a><span>Secondary</span></li>
+        <li><a href="https://github.com/aaltaay/nova/blob/HEAD/architecture/practice-account.md" target="_blank" rel="noopener">IBKR practice-account research</a><span>Secondary</span></li>
+        <li><a href="https://medium.com/pfolio-io/a-simple-policy-for-placing-trades-measured-on-live-broker-fills-53714f09a3e2" target="_blank" rel="noopener">IBKR paper fill measurement</a><span>Secondary · Jun 2026</span></li>
+        <li><a href="https://www.brokerage-review.com/online-broker-reviews/tradier-review.aspx" target="_blank" rel="noopener">Tradier pricing review</a><span>Secondary · verify before purchase</span></li>
+        <li><a href="https://www.poweropt.com/why-poweroptions.asp" target="_blank" rel="noopener">PowerOptions capabilities</a><span>Vendor</span></li>
+        <li><a href="https://github.com/mega-byte2600/hedge-desk/blob/HEAD/docs/SCHWAB_TRADER_V1_VERIFICATION.md" target="_blank" rel="noopener">Schwab Trader API verification</a><span>Secondary</span></li>
+      </ol>
+      <footer>Scope: prospective paper trading only. No trades, accounts, subscriptions, historical backtests or strategy optimization were performed. Documentation verification is not hands-on execution validation.</footer>
+    </section>
+  </main>
+</div>
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) {
+        var panel = document.getElementById(t.getAttribute('aria-controls'));
+        var selected = t === tab;
+        t.setAttribute('aria-selected', selected ? 'true' : 'false');
+        panel.hidden = !selected;
+      });
+    });
+    tab.addEventListener('keydown', function (event) {
+      if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+      event.preventDefault();
+      var index = tabs.indexOf(tab);
+      var next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+      tabs[next].focus();
+      tabs[next].click();
+    });
+  });
+
+  var jump = document.getElementById('jump');
+  jump.addEventListener('change', function () {
+    if (jump.value) document.querySelector(jump.value).scrollIntoView({ behavior: 'smooth' });
+    jump.value = '';
+  });
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail nav a'));
+  var sections = links.map(function (link) { return document.querySelector(link.getAttribute('href')); });
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      links.forEach(function (link) { link.classList.remove('active'); });
+      var index = sections.indexOf(entry.target);
+      if (links[index]) links[index].classList.add('active');
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (section) { if (section) observer.observe(section); });
+})();
+</script>
+</body>
+</html>
