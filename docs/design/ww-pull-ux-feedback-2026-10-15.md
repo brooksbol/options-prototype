@@ -30,3 +30,11 @@ Git prints concise no-op output, but when there is actual work it can provide pr
 Inspect the existing `ww pull` result model to determine whether it can **truthfully distinguish** no-op, newly observed but unchanged evidence, reused held evidence, and actual changes. The Git analogy is a human-output benchmark, **not** an assertion that Wheelwright has Git's completeness/synchronization guarantees. Verify real no-op and changed-work specimens before recommending any code changes.
 
 **Next step:** Principal will run `git pull` after this documentation-only commit to provide a real changed-work comparison. Capture that observation separately before settling exact output wording.
+
+## Observed Git changed-work comparison
+
+On October 15 the Principal ran `git pull` after the earlier documentation commit. The terminal showed a fast-forward of `main` from `36e7d6f` to `c1a60d6`, remote enumeration and transfer progress, then a concise summary: one new Markdown file, 32 insertions. The shell prompt returned immediately. This is observed behavior, not a mockup.
+
+Combined with the observed no-op `Already up to date.`, the UX principle is: **default verbosity should be proportional to meaningful work and exceptions**. Report progress and changed resources when work occurs; keep routine no-ops quiet; report failures specifically. Git's progressive output is a useful precedent but does not mandate streaming infrastructure in Wheelwright.
+
+The comparison is about human presentation only. Git's completeness guarantees do not transfer to brokerage history, observation clocks, or retained evidence. A truthful Wheelwright no-op requires a defined evidence-state test; reused evidence and unknown lifetime coverage must not be misrepresented as fully synchronized. This is feedback, not implementation authorization.
