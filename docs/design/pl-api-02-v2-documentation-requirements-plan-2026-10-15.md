@@ -34,9 +34,9 @@
 
 **Step 1 — Correct contracts.** Bootstrap at current accepted main, protect unrelated work, inventory all implemented accepted `/v2` operations. Fix only OAS/docs discrepancies and focused validators/tests. Reproduce and disposition #40/#41 with evidence. No Java/controller/database/brokerage changes.
 
-**Step 2 — Build preview.** Add minimal pinned Redocly build and validation tooling, resource navigation, synthetic examples, guide/glossary/links and conditional native search/dark mode. Generate static HTML locally. Confirm no public auth instructions or live interactivity; retain full security semantics in authoritative internal OAS.
+**Step 2 — Build joint human/agent preview.** Add minimal pinned Redocly build and validation tooling, resource navigation, synthetic examples, guide/glossary/links and conditional native search/dark mode. Generate static HTML locally. Confirm no public auth instructions or live interactivity; retain full security semantics in authoritative internal OAS.
 
-**Step 3 — Independently falsify.** Separate Codex review of exact generated artifact: route coverage, OAS/runtime fidelity, security disclosure, render/navigation, offline/static behavior, and reproducibility. Correct bounded defects and repeat review if needed; no premature publication.
+**Step 3 — Independently falsify both audiences.** Separate Codex review of the exact generated human artifact and authoritative agent-consumed OAS/contracts, including read-only agent request/schema/semantic reconstruction: route coverage, OAS/runtime fidelity, security disclosure, render/navigation, offline/static behavior, and reproducibility. Correct bounded defects and repeat review if needed; no premature publication.
 
 **Step 4 — Publish and automate.** On favorable independent review and green gates, configure restricted GitHub Pages deployment from the validated artifact. Validate live site. Add automatic regeneration/publication on accepted v2 OAS changes, with fail-closed publishing on validation/security failure.
 
@@ -60,19 +60,19 @@ Apply the existing RECOVER → REUSE → COMPOSE → EXTEND → INVENT mandate (
 
 ## Agent usability goal and first validation
 
-**Principal clarification:** API documentation is human-first but must also be effective for AI agents consuming the authoritative v2 REST contracts. The first meaningful downstream test will be agent-assisted migration of the existing Wheelwright web client to API v2. This is a **future validation use case, not authorization to migrate the web client within PL-API-02**.
+**Principal decision (October 15):** Human and agent usability are simultaneous, coequal acceptance goals for the initial API v2 documentation release. Build one authoritative OAS and linked semantic reference for both audiences; Redocly HTML is the human projection, and repository-owned OAS/contracts are the agent projection. Neither audience is deferred. The first substantial downstream integration test will be agent-assisted migration of the existing Wheelwright web client to API v2. This is a **future validation use case, not authorization to migrate the web client within PL-API-02**.
 
 - **AGENT-01 (MUST):** An agent can discover all accepted v2 operations, stable operation IDs, parameters, request/response/error schemas, and relevant HTTP semantics from repository-owned OAS without scraping generated HTML.
 - **AGENT-02 (MUST):** OAS descriptions and linked authoritative contracts preserve capability meaning, evidence provenance, freshness/completeness limits, and acquisition-versus-read distinctions; an agent must not infer business authority or execution permission from the presence of an operation.
 - **AGENT-03 (MUST):** The agent-facing authoritative OAS retains accurate security and grant semantics even though the public human-facing site omits authentication/authorization instructions and has no interactive API calls.
-- **AGENT-04 (SHOULD):** Independent Codex review exercises a bounded read-only agent-consumption specimen: locate representative v2 operations, reconstruct their valid request and response/error shapes, and identify governing semantic constraints without CLI or rendered-site dependence.
+- **AGENT-04 (MUST, initial release gate):** Independent Codex review exercises a bounded read-only agent-consumption specimen: locate representative v2 operations, reconstruct their valid request and response/error shapes, and identify governing semantic constraints without CLI or rendered-site dependence.
 - **AGENT-05 (FUTURE ACCEPTANCE):** During a separately authorized web-client-to-v2 migration, test whether an agent can plan and implement client integration from OAS and governing contracts without inventing endpoints, duplicating backend business logic, or treating web-client state as authoritative. Record documentation gaps discovered then as feedback into PL-API-02.
 
 **Scope guardrail:** No MCP server, custom agent tool registry, web-client migration, or agent execution framework is part of this documentation workstream. The same authoritative OAS serves human rendering and agent understanding.
 
 ## Completion criteria
 
-A reader can browse all accepted v2 REST methods and truthful schemas/errors/examples without Wheelwright running, without credentials, and without the documentation sending API requests. Source and publication are reproducible and traceable internally. First publication is independently approved by Codex and passes release gates. Legacy v1 remains out of scope. No unrelated work is modified.
+A human can browse all accepted v2 REST methods, and an independent agent can recover those operations and governing semantics directly from OAS/contracts, without scraping HTML. A reader can browse all accepted v2 REST methods and truthful schemas/errors/examples without Wheelwright running, without credentials, and without the documentation sending API requests. Source and publication are reproducible and traceable internally. First publication is independently approved by Codex and passes release gates. Legacy v1 remains out of scope. No unrelated work is modified.
 
 ## Reference artifacts
 
