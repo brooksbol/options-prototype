@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Independent release review REJECT on IRR-01, registered as BUG-042. Publication on hold; bounded BUG-042 correction authorized and author-verified, separate independent verification pending. Earlier accepted documentation corrections and usability evidence remain preserved.
+**Status:** Independent re-review ACCEPT of `6126afddc6c0e95d2fb496e31e4e86d28320577d`; BUG-042 Resolved and Step 3 independent gate satisfied. Publication unperformed; existing Step 4/5 gates remain separate.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -209,3 +209,8 @@ October 15 Principal supplied the independent verdict: coverage 19/19, human doc
 ## BUG-042 Decision A approved — bounded correction candidate
 
 Principal explicitly approved remediation of only the Portfolio Capital non-Fidelity 422 validation-details discrepancy, focused regression, actual response/OAS validation, applicable tests and commit/push. [BUG-042](../bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) records red-before-fix proof, one-branch correction, 177 backend tests (176 passed/one optional skip), seven conformance groups and 38 actual synthetic HTTP specimens passing unchanged OAS. No unrelated backend changes, OAS weakening or publication. The independent REJECT remains until a separate reviewer verifies this new candidate; the bug remains Open. Earlier pending-authorization statements describe the preserved historical state and are superseded only by this explicit Decision A grant.
+
+
+## Independent re-review ACCEPT — BUG-042 resolved
+
+Principal supplied the independent ACCEPT of `6126afddc6c0e95d2fb496e31e4e86d28320577d`. [Durable reconciliation](../reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md) preserves original/corrected reproductions, exact evidence/artifact identities and all passed verification areas. BUG-042 is Resolved on that separate review. The previously rejected runtime/OAS gate is satisfied, with no remaining material findings. Earlier REJECT/Open/pending statements remain historical evidence, superseded for current state by this record. This establishes independent readiness, not publication. No Pages/workflow/deployment/protocol or issue39/40/41 action is included; existing later gates remain in force.

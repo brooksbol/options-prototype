@@ -1,6 +1,6 @@
 # BUG-042 — Portfolio Capital non-Fidelity 422 omits required validation details
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** S2 — major, matching the independent reviewer’s MAJOR contract-fidelity classification; not remediation priority
 - **Area:** Backend / v2 Portfolio Capital HTTP error contract
 - **Provenance:** Principal-supplied independent PL-API-02 release review REJECT, finding IRR-01, October 15, 2026
@@ -42,7 +42,7 @@ IRR-02 is a nondefect input transcription observation: one supplied prompt used 
 
 ## Consequence
 
-A schema-validating human/agent client can reject this error representation. Runtime/OAS fidelity fails although coverage, rendering and synthetic example tests pass. No financial arithmetic error, disclosure or operational deployment failure is established. Independent release verdict remains REJECT and publication is on hold.
+A schema-validating human/agent client can reject this error representation. Runtime/OAS fidelity fails although coverage, rendering and synthetic example tests pass. No financial arithmetic error, disclosure or operational deployment failure is established. This consequence caused the original independent REJECT; the subsequent independent ACCEPT and resolution are recorded below. Publication remains unperformed.
 
 ## Diagnosis / root cause
 
@@ -61,7 +61,7 @@ Registering this defect is authorized by the Principal's supplied next action. T
 
 ## Remediation history
 
-October 15 — Principal-approved bounded author correction adds one accountId validation entry only to the non-Fidelity Portfolio Capital 422 branch. Status, code, detail, request correlation and no-store behavior are unchanged. Focused regression and existing integrated synthetic fixture/harness cover the branch. **Status remains Open pending separate independent verification; release is still REJECTED.**
+October 15 — Principal-approved bounded author correction adds one accountId validation entry only to the non-Fidelity Portfolio Capital 422 branch. Status, code, detail, request correlation and no-store behavior are unchanged. Focused regression and existing integrated synthetic fixture/harness cover the branch. At author handoff, status remained Open and release remained REJECTED pending separate independent verification; the subsequent ACCEPT below resolves that state.
 
 ## Verification
 
@@ -82,7 +82,11 @@ cd ..
 tools/api-docs/.venv/bin/python scripts/v2-oas-conformance-test.py
 ```
 
-For actual HTTP verification, create a fresh temporary directory, start `./gradlew --offline integratedUpdateFixture -PfixtureReady=ABSOLUTE_TEMP_DIRECTORY/ready.json` from `evidence-service-java`, then run `tools/api-docs/.venv/bin/python scripts/v2-oas-http-validation.py ABSOLUTE_TEMP_DIRECTORY/ready.json ABSOLUTE_TEMP_DIRECTORY/http-samples.json` from repository root. Stop the owned fixture afterward. The harness validates this branch against the authoritative OAS rather than merely testing a synthetic example. Separate independent verification remains required; these are author results only.
+For actual HTTP verification, create a fresh temporary directory, start `./gradlew --offline integratedUpdateFixture -PfixtureReady=ABSOLUTE_TEMP_DIRECTORY/ready.json` from `evidence-service-java`, then run `tools/api-docs/.venv/bin/python scripts/v2-oas-http-validation.py ABSOLUTE_TEMP_DIRECTORY/ready.json ABSOLUTE_TEMP_DIRECTORY/http-samples.json` from repository root. Stop the owned fixture afterward. The harness validates this branch against the authoritative OAS rather than merely testing a synthetic example. These are author results only; separate independent verification subsequently completed as recorded below.
+
+### Independent resolution — October 15, 2026
+
+Principal supplied independent re-review **ACCEPT** of remote `6126afddc6c0e95d2fb496e31e4e86d28320577d`, containing correction `7b654994c40833a862419d9c4ae23b0b35d79057`. The reviewer reproduced original `f201853` failure, original-controller regression failure and unchanged-OAS rejection, then independently verified the corrected actual response, focused regression, 177-test backend suite, seven OAS groups, 38 HTTP responses and seven additional MockMvc cases. Both supplied/generated request IDs, prior 401/403/200/422 behavior and financial/source-scope semantics remain correct. No remaining material findings. **BUG-042 is Resolved on independent evidence**, not author test results. [Re-review reconciliation](../reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md) preserves identities, evidence hashes, other passed gates and the distinction between readiness and publication. No deployment/publication is claimed.
 
 ## Related
 

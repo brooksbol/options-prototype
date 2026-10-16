@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-16T00:34:36.909Z",
+    "generatedAt": "2026-10-16T00:47:16.392Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4296,7 +4296,7 @@
       "id": "PL-API-02",
       "name": "Machine-readable HTTP contract and explicit API-boundary semantics",
       "section": "Reconciliation / continuation record",
-      "description": "> **Independent release review — REJECT:** IRR-01 is registered as [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md): non-Fidelity Portfolio Capital 422 lacks required invalidParams. Publication is on hold. Principal subsequently approved Decision A; the one-branch correction is author-verified and awaits separate independent verification. BUG-042 remains Open and accepted documentation/usability work remains preserved.",
+      "description": "> **Independent release re-review — ACCEPT:** Reviewer verified `6126afd`, including original-failure/corrected-response OAS comparisons. [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) is Resolved; Step 3 independent gate is satisfied. [Reconciliation](reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md) preserves rejected history and verification identities. Publication unperformed; existing Step 4/5 gates remain separate.",
       "descriptionTruncated": true,
       "state": "INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized",
       "sourceFile": "parking-lot-10.md",
@@ -4306,7 +4306,7 @@
         {
           "heading": "",
           "level": 0,
-          "content": "> **Independent release review — REJECT:** IRR-01 is registered as [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md): non-Fidelity Portfolio Capital 422 lacks required invalidParams. Publication is on hold. Principal subsequently approved Decision A; the one-branch correction is author-verified and awaits separate independent verification. BUG-042 remains Open and accepted documentation/usability work remains preserved.\n\n\n> **October 15, 2026 Principal decision — API documentation publication surface:** APPROVED: static browsable reference generated from authoritative OpenAPI, with Redocly preferred and GitHub Pages as host; no live API documentation UI or documentation runtime in the Wheelwright backend. Version-controlled OAS remains authoritative; generated pages are derived, validated and safe for publication. Verify Pages visibility/privacy before enabling publication. This resolves the publication-surface choice, **not** the broader PL-API-02 HTTP-boundary reconciliation or an implementation/deployment authorization. Fresh-thread handoff and bounded acceptance: [API documentation GitHub Pages checkpoint](design/api-documentation-github-pages-product-checkpoint-2026-10-15.md).\n\n> **October 15 subsequent Principal decisions and Step 1 delivery:** The [v2 documentation requirements/plan](design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md) supersedes the earlier execution boundary for its bounded documentation scope: only accepted `/v2` operations; legacy `/api` is out of scope; internal OAS retains security semantics. Step 1 corrects confirmed Artifact metadata/upload, response-error and header discrepancies with synthetic conformance evidence, preserving backend behavior. The linked Step 1 record contains reproduction, issue #40/#41 disposition and verification. No preview, renderer, publication, workflow or closeout-protocol change is delivered by Step 1; later steps remain distinct. The original broader weak-typing investigation below is not silently resolved by these corrections.\n\n\n\n> **October 15 — Step 2 author delivery:** The linked requirements plan records the unpublished static reference and repository-agent specimen for all 19 accepted v2 operations, 134 validated examples, locked reproducibility and human browser verification. Kiro public-only black-box usability exercise is complete; Principal accepted all ten dispositions and bounded corrections #5/#7/#9. Separate independent release review remains pending; see [accepted triage](reviews/pl-api-02-kiro-triage-2026-10-15.md). Dark mode is nonblocking per Principal clarification. No publication, backend change, issue closure or broader weak-typing resolution.\n\n**Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.",
+          "content": "> **Independent release re-review — ACCEPT:** Reviewer verified `6126afd`, including original-failure/corrected-response OAS comparisons. [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) is Resolved; Step 3 independent gate is satisfied. [Reconciliation](reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md) preserves rejected history and verification identities. Publication unperformed; existing Step 4/5 gates remain separate.\n\n\n> **October 15, 2026 Principal decision — API documentation publication surface:** APPROVED: static browsable reference generated from authoritative OpenAPI, with Redocly preferred and GitHub Pages as host; no live API documentation UI or documentation runtime in the Wheelwright backend. Version-controlled OAS remains authoritative; generated pages are derived, validated and safe for publication. Verify Pages visibility/privacy before enabling publication. This resolves the publication-surface choice, **not** the broader PL-API-02 HTTP-boundary reconciliation or an implementation/deployment authorization. Fresh-thread handoff and bounded acceptance: [API documentation GitHub Pages checkpoint](design/api-documentation-github-pages-product-checkpoint-2026-10-15.md).\n\n> **October 15 subsequent Principal decisions and Step 1 delivery:** The [v2 documentation requirements/plan](design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md) supersedes the earlier execution boundary for its bounded documentation scope: only accepted `/v2` operations; legacy `/api` is out of scope; internal OAS retains security semantics. Step 1 corrects confirmed Artifact metadata/upload, response-error and header discrepancies with synthetic conformance evidence, preserving backend behavior. The linked Step 1 record contains reproduction, issue #40/#41 disposition and verification. No preview, renderer, publication, workflow or closeout-protocol change is delivered by Step 1; later steps remain distinct. The original broader weak-typing investigation below is not silently resolved by these corrections.\n\n\n\n> **October 15 — Step 2 author delivery:** The linked requirements plan records the unpublished static reference and repository-agent specimen for all 19 accepted v2 operations, 134 validated examples, locked reproducibility and human browser verification. Kiro public-only black-box usability exercise is complete; Principal accepted all ten dispositions and bounded corrections #5/#7/#9. Separate independent release review remains pending; see [accepted triage](reviews/pl-api-02-kiro-triage-2026-10-15.md). Dark mode is nonblocking per Principal clarification. No publication, backend change, issue closure or broader weak-typing resolution.\n\n**Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.",
           "truncated": false,
           "tables": []
         },
@@ -10225,9 +10225,9 @@
       "title": "Portfolio Capital non-Fidelity 422 omits required validation details",
       "area": "Backend / v2 Portfolio Capital HTTP contract",
       "severity": "S2",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-042-portfolio-capital-422-missing-validation-details.md",
-      "provenance": "Independent release REJECT / IRR-01; authorized author correction verified, separate independent verification pending",
+      "provenance": "IRR-01 corrected; independent re-review ACCEPT of 6126afd, 2026-10-15",
       "recordTitle": "BUG-042 — Portfolio Capital non-Fidelity 422 omits required validation details",
       "sections": [
         {
@@ -10261,7 +10261,7 @@
         {
           "heading": "Consequence",
           "level": 2,
-          "content": "A schema-validating human/agent client can reject this error representation. Runtime/OAS fidelity fails although coverage, rendering and synthetic example tests pass. No financial arithmetic error, disclosure or operational deployment failure is established. Independent release verdict remains REJECT and publication is on hold.",
+          "content": "A schema-validating human/agent client can reject this error representation. Runtime/OAS fidelity fails although coverage, rendering and synthetic example tests pass. No financial arithmetic error, disclosure or operational deployment failure is established. This consequence caused the original independent REJECT; the subsequent independent ACCEPT and resolution are recorded below. Publication remains unperformed.",
           "truncated": false,
           "tables": []
         },
@@ -10289,7 +10289,7 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "October 15 — Principal-approved bounded author correction adds one accountId validation entry only to the non-Fidelity Portfolio Capital 422 branch. Status, code, detail, request correlation and no-store behavior are unchanged. Focused regression and existing integrated synthetic fixture/harness cover the branch. **Status remains Open pending separate independent verification; release is still REJECTED.**",
+          "content": "October 15 — Principal-approved bounded author correction adds one accountId validation entry only to the non-Fidelity Portfolio Capital 422 branch. Status, code, detail, request correlation and no-store behavior are unchanged. Focused regression and existing integrated synthetic fixture/harness cover the branch. At author handoff, status remained Open and release remained REJECTED pending separate independent verification; the subsequent ACCEPT below resolves that state.",
           "truncated": false,
           "tables": []
         },
@@ -10297,6 +10297,13 @@
           "heading": "Verification",
           "level": 2,
           "content": "Registration evidence remains preserved above. Author remediation verification:\n\n- Added `PortfolioCapitalHistoryTest.nonFidelityValidationIncludesAccountDetails`; ran against unchanged production code at `9ef78e6f14203def52008683481a1721c9fdc3de` and observed failure because invalidParams is not an array (field absent). Then made the one-branch correction; the test passes with exact status/code/detail, one accountId reason, content type, correlation and no-store assertions. The rejected candidate is preserved in Git; disposable red-run XML is `/tmp/ww-bug042-red.xml`.\n- Existing v2 suite: **177 tests, 176 passed, one optional skip, zero failures/errors**.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Independent resolution — October 15, 2026",
+          "level": 3,
+          "content": "Principal supplied independent re-review **ACCEPT** of remote `6126afddc6c0e95d2fb496e31e4e86d28320577d`, containing correction `7b654994c40833a862419d9c4ae23b0b35d79057`. The reviewer reproduced original `f201853` failure, original-controller regression failure and unchanged-OAS rejection, then independently verified the corrected actual response, focused regression, 177-test backend suite, seven OAS groups, 38 HTTP responses and seven additional MockMvc cases. Both supplied/generated request IDs, prior 401/403/200/422 behavior and financial/source-scope semantics remain correct. No remaining material findings. **BUG-042 is Resolved on independent evidence**, not author test results.",
           "truncated": true,
           "tables": []
         },

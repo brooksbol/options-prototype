@@ -1,5 +1,8 @@
 # PL-API-02 — Separate independent release-review handoff
 
+**Current disposition:** Completed with independent re-review ACCEPT of `6126afd`; see [reconciliation](pl-api-02-independent-rereview-acceptance-2026-10-15.md). Instructions and pending-state wording below are preserved historical handoff evidence, not current unresolved status. Publication unperformed.
+
+
 **Assigned role:** Fresh independent Codex reviewer. Codex author verification is not independent release approval. **Publication remains on hold.** Review and report only; do not remediate, publish, change Pages/CI, amend the End-of-Session Protocol or close issues #39/#40/#41.
 
 Bootstrap from current remote main through AGENTS.md, docs/AGENTS.md, docs/README.md and Codex cold-start routing. Record exact reviewed SHA and protect unrelated work. Verify that correction implementation **`655c18e97cc9bcf25fba891f256b16557dd50110`** is an ancestor; subsequent delivery-record commits do not change its OAS/tooling inputs. Read the requirements plan and [accepted ten-finding triage](pl-api-02-kiro-triage-2026-10-15.md). Independently assess, without treating author claims as conclusions.
