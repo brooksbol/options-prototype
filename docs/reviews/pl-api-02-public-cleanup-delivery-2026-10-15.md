@@ -1,5 +1,8 @@
 # PL-API-02 — Bounded Principal public-reference cleanup
 
+**Current status:** Published and engineering-verified; final Principal Product reinspection pending. Initial pending checkpoints below are preserved as history.
+
+
 **Authority:** Principal's [full live-site walkthrough](pl-api-02-principal-live-site-review-2026-10-15.md) and explicit bounded implementation/publication directive. Remotely verified baseline `c2f44a38ab3bc2b8ef974ca3a08bb328a2cdd451`; initial shared checkout clean. Existing isolated worktree protects unrelated work. No backend/OAS/agent-contract change, Artifact documentation edit, domain redesign, protocol amendment or PL closure.
 
 ## Delivered boundary
@@ -34,3 +37,17 @@ This content intentionally differs from the first published 19-operation artifac
 Local publication candidate passes identity gate and validation. Actual deployment/live observations are pending at the implementation commit and must be recorded before success. Principal reinspection/final Product acceptance remains pending; Step 5 and PL closure have not begun.
 
 **Remaining COTS limits:** Empty introductory right pane remains nonblocking (UX-01); no custom layout. Native shared-schema selector behavior is preserved. Artifact selectors/content remain as previously published by explicit scope. Native dark mode remains previously accepted as unimportant. No deferred backend/domain change is needed for this cleanup.
+
+## Observed deployment and live verification — SUCCESS
+
+The initial pending checkpoint above is superseded by actual observation. [Actions run 38840860205](https://github.com/brooksbol/options-prototype/actions/runs/38840860205) successfully built/validated/deployed source **`011defb0297b679fc63161de0282b66e6a6d0c4f`**. GitHub Pages deployment **7109396744** reports success at **https://brooksbol.github.io/options-prototype/**. CI's Linux artifact, clean committed local rebuild and live HTTPS bytes have the exact new index/license hashes in the table above. This is a newly reviewed-scope artifact, not byte-identical to the previous 19-operation publication.
+
+Live embedded OAS reports version **0.5.0-contract**, **15 operations across 13 paths**. GET /v2/me uses Identity. The four excluded route strings/operation IDs are absent from HTML. Native unused-component pruning plus independent reachability validation leaves no orphaned components or examples. Internal 19-operation OAS and all source/agent contracts remain byte-identical to the approved baseline.
+
+Fresh live Chromium checks pass all 15 remaining operation sections, native Account/held-quote status/title selectors, eight-paragraph Portfolio Capital introduction, Identity navigation, search, synthetic request/response/error/cURL examples, schemas and 1440px/390px layout. Private live specimen records exactly two expected document GETs, zero other HTTP/HTTPS requests and zero page errors. No credential entry, interactive API execution or advertised OAS download. Live screenshots were visually inspected during verification; evidence remains in `/tmp/ww-cleanup-committed/private/live-specimen.json` and screenshots. Live file captures: `/tmp/ww-cleanup-live-index.html` and `/tmp/ww-cleanup-live-LICENSES.txt`.
+
+A separate raw comparison against the **previous published** public specification confirms every Artifact path and all **12 reachable Artifact components** are exactly unchanged, including descriptions/examples/titles/schema/header metadata. This complements resolved fidelity checks against authoritative source. No Artifact change is hidden by title normalization.
+
+Downloaded Pages artifact **12021297254**, platform archive digest `sha256:1ab7a865be03cbcd9405013285329e0c421aa2d52da496df2444bdd2bff0a841`, contains only regular index.html/LICENSES.txt files, with the same live hashes and no links/private output. Archive inspected at `/tmp/ww-cleanup-upload/artifact.tar`. Existing workflow/environment permissions and allowlist are unchanged. No deployment failure observed. Seven conformance groups, internal 19/134 validation, public 15/106 response-example validation, negative exclusion/orphan probes, native rendering/browser/security checks, clean-source reproduction and 58 Roadmap checks pass.
+
+**Current state:** Bounded cleanup is published and engineering-verified. Final evidence-only synchronization commit does not change deployed source/artifact identity. Principal final Product reinspection remains pending; PL-API-02 stays open, Step 5/protocol amendment has not begun, deferred REST/domain observations remain deferred. No new independent verdict or Principal acceptance is invented.

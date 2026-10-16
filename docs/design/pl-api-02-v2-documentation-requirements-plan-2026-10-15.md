@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Principal live-site review requests bounded public cleanup: 15 public / 19 internal operations. Implementation/publication underway under explicit directive; final Product reinspection pending. Step 5/protocol amendment and PL closure remain deferred.
+**Status:** Principal-scoped cleanup published from `011defb`: 15 public / 19 internal operations; engineering/live verification passes. Final Principal Product reinspection pending. Step 5/protocol amendment and PL closure remain deferred.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -203,7 +203,7 @@ Only #5 (opaque authorityEpoch meaning), #7 (FORCE bypasses reuse without overri
 
 ## Independent release REJECT — IRR-01 / BUG-042
 
-October 15 Principal supplied the independent verdict: coverage 19/19, human documentation, Kiro usability, #5/#7/#9, reproducibility, inspected-artifact security and COTS compliance pass; runtime/OAS fidelity fails on the non-Fidelity Portfolio Capital 422 branch. These are reviewer results as supplied by the Principal, not a new author certification. [BUG-042](../bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) is the single durable defect identity; IRR-01 remains review provenance. Registering it does not authorize backend correction. The directive explicitly leaves that decision pending; the proposed one-branch correction/test is recorded without implementing it. Preserve the unchanged OAS convention and require a fresh immutable candidate and separate independent verification after authorized remediation. No publication.
+October 15 Principal supplied the independent verdict: coverage 19/ 19, human documentation, Kiro usability, #5/#7/#9, reproducibility, inspected-artifact security and COTS compliance pass; runtime/OAS fidelity fails on the non-Fidelity Portfolio Capital 422 branch. These are reviewer results as supplied by the Principal, not a new author certification. [BUG-042](../bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) is the single durable defect identity; IRR-01 remains review provenance. Registering it does not authorize backend correction. The directive explicitly leaves that decision pending; the proposed one-branch correction/test is recorded without implementing it. Preserve the unchanged OAS convention and require a fresh immutable candidate and separate independent verification after authorized remediation. No publication.
 
 
 ## BUG-042 Decision A approved — bounded correction candidate
@@ -241,3 +241,8 @@ Principal completed first live-site walkthrough. **Product acceptance remains pe
 ## Bounded public cleanup implementation
 
 [Delivery evidence](../reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md) records the exact public 15/internal 19 boundary, native component pruning/error titles, Identity self-inspection, whitespace-only Portfolio Capital readability, exact Artifact preservation, focused negative/fidelity/browser checks and new artifact identities. Publication is authorized through the existing controlled workflow under this Principal directive; live observation and final Product reinspection remain separate. No deferred domain/API/status redesign, backend/OAS/agent-contract change or protocol/PL closeout.
+
+
+## Bounded cleanup live verification complete
+
+[Successful deployment evidence](../reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md#observed-deployment-and-live-verification--success) records source 011defb, Actions 38840860205/deployment 7109396744 and exact artifact hashes. Live reference has 15 public operations; full internal OAS retains 19. Four exclusions, Identity self-inspection, native error titles, paragraph readability, no-orphan validation and exact prior Artifact preservation pass. Current public HTML is intentionally different from the original accepted publication. No backend/source-contract/status/domain redesign or protocol/PL closeout. Principal reinspects the revised site for final Product acceptance before Step 5.
