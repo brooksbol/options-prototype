@@ -9,18 +9,22 @@ const output=resolve(process.argv[2]??resolve(tool,'dist'));
 const site=resolve(output,'site/index.html'), evidence=resolve(output,'private');
 await mkdir(evidence,{recursive:true});
 const agent=JSON.parse(await readFile(resolve(evidence,'agent-specimen.json'),'utf8'));
+const provenance=JSON.parse(await readFile(resolve(evidence,'provenance.json'),'utf8'));
+const entry=process.argv[3]??pathToFileURL(site).href;
+const live=entry.startsWith('https://');
+if(live) assert.equal(new URL(entry).hostname,'brooksbol.github.io');
 const browser=await chromium.launch();
 const context=await browser.newContext({viewport:{width:1440,height:1000}});
 const requests=[],errors=[],violations=[];
 await context.route('**/*',route=>{
  const request=route.request(),url=new URL(request.url());
- if(['http:','https:'].includes(url.protocol)){violations.push(request.url());return route.abort();}
+ if(['http:','https:'].includes(url.protocol) && !(live && request.method()==='GET' && request.url()===entry)){violations.push(request.url());return route.abort();}
  return route.continue();
 });
 const page=await context.newPage();
 page.on('request',r=>requests.push({method:r.method(),url:r.url()}));
 page.on('pageerror',e=>errors.push(e.message));
-await page.goto(pathToFileURL(site).href);
+await page.goto(entry);
 await page.waitForSelector('input[aria-label="Search"]');
 await page.waitForFunction(()=>!!window.Redoc);
 await page.waitForTimeout(1000);
@@ -29,7 +33,8 @@ assert.equal(await page.getByRole('link',{name:/download/i}).count(),0);
 assert.equal(await page.getByRole('button',{name:/try it|send request|authorize/i}).count(),0);
 const body=await page.locator('body').innerText();
 assert.doesNotMatch(body,/\b(?:authentication|authorization|credentials?|grants?)\b|quote\.(?:read|acquire|force)|account\.\w+\.\w+|\b(?:read|write|administrator|acquisition) authority\b|expand authority|source scopes? deny/i);
-assert.match(body,/Last publication:\s*not published/);
+if(provenance.publicationDate) assert.ok(body.includes('Last publication: '+provenance.publicationDate));
+else assert.match(body,/Last publication:\s*not published/);
 for(const op of agent.operations){
  assert.equal(await page.locator(`[data-section-id="operation/${op.operationId}"]`).count(),1,op.operationId);
 }
@@ -66,7 +71,7 @@ assert.match(await upload.innerText(),/Content-Disposition/);
 await upload.locator('[role="tabpanel"]:visible').last().scrollIntoViewIfNeeded();
 await page.screenshot({path:resolve(evidence,'upload-error.png')});
 await page.setViewportSize({width:390,height:844});
-await page.goto(pathToFileURL(site).href);await page.waitForTimeout(200);
+await page.goto(entry);await page.waitForTimeout(200);
 assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
 await page.screenshot({path:resolve(evidence,'mobile.png')});
 // Native floating navigation control observed at this pinned mobile viewport.
@@ -75,13 +80,13 @@ assert.equal(await page.getByRole('textbox',{name:'Search'}).isVisible(),true);
 await page.screenshot({path:resolve(evidence,'mobile-menu.png')});
 assert.equal(violations.length,0,JSON.stringify(violations));
 assert.equal(errors.length,0,JSON.stringify(errors));
-assert.ok(requests.every(r=>r.method==='GET' && /^(?:file:|blob:|data:)/.test(r.url)));
+assert.ok(requests.every(r=>r.method==='GET' && (/^(?:file:|blob:|data:)/.test(r.url) || (live && r.url===entry))));
 await browser.close();
-const report={mode:'AUTHOR_BROWSER_VERIFICATION_NOT_INDEPENDENT_REVIEW',browser:'Chromium 141 / Playwright 1.56.1',
+const report={mode:'AUTHOR_BROWSER_VERIFICATION_NOT_INDEPENDENT_REVIEW',entry,live,browser:'Chromium 141 / Playwright 1.56.1',
  operationCount:agent.operationCount,nativeSearch:'PASS',nativeResponsiveLayout:'PASS at 1440 and 390px',
  schemasAndSyntheticCurl:'PASS',visibleErrorExample:'422 INVALID_REQUEST',publicAuthInstructions:'ABSENT',
  liveApiControls:'ABSENT',downloadOffer:'ABSENT',networkRequests:requests,unexpectedRequests:violations,
  pageErrors:errors,backendRequired:false,staticFileHydration:'PASS',acceptedTriageCorrections:'PASS: opaque provenance, FORCE contact policy, four CSV formats/rejection',
  nativeDarkMode:'UNAVAILABLE in pinned Redoc 2.5.4'};
-await writeFile(resolve(evidence,'human-specimen.json'),JSON.stringify(report,null,2)+'\n');
-console.log('PASS: local-file human specimen, all operations, native search/responsive layout, cURL/error/schema, no HTTP requests or execution UI');
+await writeFile(resolve(evidence,live?'live-specimen.json':'human-specimen.json'),JSON.stringify(report,null,2)+'\n');
+console.log('PASS: human specimen; all operations/search/responsive/cURL/error/schema; no unintended requests or execution UI');

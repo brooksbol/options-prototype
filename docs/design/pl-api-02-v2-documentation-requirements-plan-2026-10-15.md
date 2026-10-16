@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Independent re-review ACCEPT of `6126afddc6c0e95d2fb496e31e4e86d28320577d`; BUG-042 Resolved and Step 3 independent gate satisfied. Publication unperformed; existing Step 4/5 gates remain separate.
+**Status:** Step 4 explicitly Principal-authorized after independent ACCEPT; Pages/workflow implementation in progress. Publication observation and Principal Product review pending. Step 5/protocol amendment and PL closure are not part of this task.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -214,3 +214,8 @@ Principal explicitly approved remediation of only the Portfolio Capital non-Fide
 ## Independent re-review ACCEPT — BUG-042 resolved
 
 Principal supplied the independent ACCEPT of `6126afddc6c0e95d2fb496e31e4e86d28320577d`. [Durable reconciliation](../reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md) preserves original/corrected reproductions, exact evidence/artifact identities and all passed verification areas. BUG-042 is Resolved on that separate review. The previously rejected runtime/OAS gate is satisfied, with no remaining material findings. Earlier REJECT/Open/pending statements remain historical evidence, superseded for current state by this record. This establishes independent readiness, not publication. No Pages/workflow/deployment/protocol or issue39/40/41 action is included; existing later gates remain in force.
+
+
+## Step 4 authorization and implementation
+
+Principal explicitly authorized GitHub Pages configuration/publication, minimal Actions workflow, automatic publication for accepted inputs, live verification and bounded commit/push. [Publication evidence](../reviews/pl-api-02-pages-publication-2026-10-15.md) records eligibility/admin permission, destination/branch restriction, restricted permissions, identity gate, exact public allowlist and metadata-only publication-date transformation. Backend/OAS/content/security remain unchanged. Deployment/live results must be observed before success; Principal Product review precedes Step 5. No protocol amendment or PL closure.

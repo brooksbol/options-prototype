@@ -1,4 +1,4 @@
-# Wheelwright static API reference — unpublished Step 2
+# Wheelwright static API reference — preview and GitHub Pages publication
 
 One authoritative API contract serves two audiences. Agents enter through [repository OAS and linked contracts](../../docs/api-v2/README.md). Humans open the generated static Redoc reference. Generated output is derived, ignored by Git and not an alternative contract authority.
 
@@ -46,3 +46,16 @@ Review the exact committed candidate, `dist/private/provenance.json` and the has
 The subsequent Principal decision designates **Kiro's separate fresh-context black-box test**. Supply only test instructions and the public static documentation entry point. Withhold this internal README, the author answer table, private reports, internal source/OAS/contracts and prior conversation. No API probing is allowed. Preserve Kiro's discoveries, synthetic requests and gaps unchanged, then let the separate Codex reviewer compare with internal authority. Kiro completed that test on October 15; its original standalone report is preserved unchanged. The accepted ten-finding triage and three bounded corrections are recorded in `docs/reviews/pl-api-02-kiro-triage-2026-10-15.md`. Final independent release review remains pending.
 
 This is Step 2 author evidence only. Independent approval is pending. Do not configure Pages, publish, amend the End-of-Session Protocol, close #39/#40/#41, or migrate the web client as part of this handoff.
+
+
+## Step 4 — authorized publication
+
+Principal authorized Step 4 after independent ACCEPT of `6126afd`. `.github/workflows/api-v2-pages.yml` validates pull requests and publishes accepted main-branch documentation changes; manual dispatch is restricted to main for deployment. Earlier Step 2/3 publication holds above describe their historical phase. Step 5 and Principal Product review remain separate.
+
+Generate a publication candidate locally with `tools/api-docs/.venv/bin/python tools/api-docs/build.py --publish`, then run the existing validation/browser commands. Default builds remain unpublished previews. `release.json` records the independent accepted source, preview/license hashes, accepted contract-input hashes and explicit publication date. Publishing verifies the preview first, then replaces only the three native copies of "not published — local preview" with that date. API/schema/example/security content is unchanged. Public release HTML therefore has a new recorded hash; the accepted preview hash remains the baseline. The build never claims deployment success.
+
+For a future accepted documentation change, reproduce and review the preview/linked contracts, then update `acceptedSource`, accepted preview/license/input hashes and publication date in `release.json` from that evidence. Main alone does not prove Product acceptance. CI automatically regenerates and publishes when the acceptance record matches; otherwise it fails closed. These records are review evidence, not a new Product approval ceremony or independently enforced authority system.
+
+CI uses pinned Node/npm, CPython 3.12.15 on Ubuntu 24.04 and SHA-pinned GitHub actions. Its build job has contents:read; only the deploy job receives pages:write and id-token:write. Pull requests cannot deploy. A main-only github-pages environment policy limits deployments. The public artifact is staged by explicit filename; no private evidence is uploaded. CI verifies the live index/license hashes after deployment. No backend service is started or changed by publication.
+
+To exercise the same browser checks against the live destination, run `node tools/api-docs/human-specimen.mjs tools/api-docs/dist https://brooksbol.github.io/options-prototype/` after generating/validating the candidate. Only exact GETs for that entry point are permitted; other HTTP requests fail the specimen. Live results go to private `live-specimen.json`. This is author/deployment evidence, not Principal Product acceptance. Native dark mode remains nonblocking.

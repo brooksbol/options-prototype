@@ -660,6 +660,9 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 ## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
 
+> **Step 4 — authorized:** Principal commissioned bounded Pages publication and live verification after independent ACCEPT. [Evidence](reviews/pl-api-02-pages-publication-2026-10-15.md) distinguishes configuration/build from observed deployment. Principal Product review, Step 5/protocol amendment and PL closure remain separate.
+
+
 > **Independent release re-review — ACCEPT:** Reviewer verified `6126afd`, including original-failure/corrected-response OAS comparisons. [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) is Resolved; Step 3 independent gate is satisfied. [Reconciliation](reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md) preserves rejected history and verification identities. Publication unperformed; existing Step 4/5 gates remain separate.
 
 

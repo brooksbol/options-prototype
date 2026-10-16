@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Pinned Redocly build with a derived public presentation and private provenance.
-No server, CI framework or second authored API contract. Output is unpublished.
+No server, CI framework or second authored API contract. Publication requires accepted identity.
 """
+import argparse
 import base64
 import copy
 import hashlib
@@ -60,7 +61,11 @@ def digest(path):
 
 
 def main():
-    output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else TOOL / 'dist'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('output', nargs='?', default=str(TOOL / 'dist'))
+    parser.add_argument('--publish', action='store_true', help='Require accepted preview identity; update publication metadata only')
+    args = parser.parse_args()
+    output = Path(args.output).resolve()
     site, private = output / 'site', output / 'private'
     site.mkdir(parents=True, exist_ok=True); private.mkdir(parents=True, exist_ok=True)
     if {p.name for p in site.iterdir()} - ALLOWLIST:
@@ -77,8 +82,6 @@ def main():
     public = public_projection(copy.deepcopy(spec))
     release = json.loads((TOOL / 'release.json').read_text())
     overview = (TOOL / 'overview.md').read_text().replace('2026-10-15', release['previewDate'])
-    if release['publicationDate'] is not None:
-        raise ValueError('Step 2 must remain unpublished')
     history = run('git', 'log', '-5', '--date=short', '--format=%ad — %s', '--', 'docs/contracts')
     public['info']['title'] = 'Wheelwright API v2'
     public['info']['description'] = overview + '\n# Recent contract changes\n\n' + '\n'.join(
@@ -128,18 +131,38 @@ def main():
     bundle_notice = asset.with_name(asset.name + '.LICENSE.txt')
     if bundle_notice.exists(): licenses.append(bundle_notice)
     (site / 'LICENSES.txt').write_text('\n\n'.join(p.read_text() for p in licenses))
+    preview_hash = digest(site / 'index.html')
+    if args.publish:
+        subprocess.run(['git', 'merge-base', '--is-ancestor', release['acceptedSource'], 'HEAD'], cwd=ROOT, check=True)
+        for name, expected in release['acceptedContractInputs'].items():
+            if digest(ROOT / name) != expected:
+                raise ValueError('Publication blocked: unaccepted contract input ' + name)
+        if preview_hash != release['acceptedPreviewSha256'] or digest(site / 'LICENSES.txt') != release['acceptedLicensesSha256']:
+            raise ValueError('Publication blocked: generated preview differs from accepted artifact; reconcile acceptance record first')
+        date = release['publicationDate']
+        if not isinstance(date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
+            raise ValueError('Publication requires an explicit reproducible ISO date')
+        marker = 'not published — local preview'
+        if html.count(marker) != 3:
+            raise ValueError('Publication metadata layout differs from accepted renderer')
+        # Only the three native prerender/state copies of this label may change.
+        (site / 'index.html').write_text(html.replace(marker, date))
+        public['info']['description'] = public['info']['description'].replace(marker, date)
+        projection.write_text(json.dumps(public, indent=2) + '\n')
     inputs = list((ROOT / 'docs/contracts').glob('api-v2-*')) + [ROOT / 'scripts/v2_oas.py']
     inputs += [p for p in TOOL.iterdir() if p.is_file()]
     manifest = dict(sourceCommit=run('git', 'rev-parse', 'HEAD'),
-                    sourceDirty=bool(run('git', 'status', '--porcelain')), publication='NOT_PUBLISHED',
-                    independentReview='PENDING', node=run('node', '--version'), npm=run('npm', '--version'),
+                    sourceDirty=bool(run('git', 'status', '--porcelain')), publication='PUBLICATION_CANDIDATE' if args.publish else 'NOT_PUBLISHED',
+                    publicationDate=release['publicationDate'] if args.publish else None,
+                    acceptedPreviewSha256=preview_hash, acceptedSource=release['acceptedSource'],
+                    independentReview='ACCEPTED_PREVIEW' if args.publish else 'PENDING', node=run('node', '--version'), npm=run('npm', '--version'),
                     packages=package['devDependencies'], rendererAssetIntegrity=sri,
                     python=sys.version, packagedRendererSha256=hashlib.sha256(renderer.encode()).hexdigest(),
                     inputs={str(p.relative_to(ROOT)): digest(p) for p in sorted(inputs)},
                     publicFiles={p.name: digest(p) for p in sorted(site.iterdir())},
                     authoritativeBundleSha256=digest(internal), projectionSha256=digest(projection))
     (private / 'provenance.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    print('Unpublished artifact:', site)
+    print('Publication candidate:' if args.publish else 'Unpublished artifact:', site)
 
 
 if __name__ == '__main__':

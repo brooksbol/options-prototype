@@ -1,0 +1,33 @@
+# PL-API-02 — Step 4 GitHub Pages publication evidence
+
+**Principal authorization:** October 15, 2026 Step 4 directive explicitly authorizes Pages configuration, bounded workflow implementation, publication, live verification and commit/push. No backend/brokerage/operational change, v1 documentation, OAS download, End-of-Session Protocol amendment or PL-API-02 closure. Principal Product review precedes Step 5.
+
+**Initial state:** Remotely verified main `9460f2707f3424946fcadffe54b6da1af4e10eb5`, clean shared workspace. Reused isolated worktree and protected unrelated worktrees. Independent ACCEPT of `6126afd`, correction `7b65499` and resolved BUG-042 are recovered from the [acceptance reconciliation](pl-api-02-independent-rereview-acceptance-2026-10-15.md). Gate Experiment remains staged/inactive.
+
+## Eligibility and destination
+
+Authenticated GitHub API confirms public repository `brooksbol/options-prototype`, default main, admin/push/maintain permission, Actions enabled, default workflow token read permission. No pre-existing Pages site (404, has_pages=false). Principal-authorized creation uses workflow publishing. Pages API returns public HTTPS URL **https://brooksbol.github.io/options-prototype/**, build_type workflow and https_enforced=true. Automatically created github-pages environment has custom branch policy allowing **main only**. No custom domain, repository visibility change, backend exposure or authenticated execution is introduced. GitHub's [custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) establishes public-repository eligibility and OIDC/Pages deployment permissions.
+
+## Reused implementation and identity
+
+`.github/workflows/api-v2-pages.yml` uses SHA-pinned official checkout/setup-node/setup-python/upload-pages-artifact/deploy-pages actions. Build runs on pinned Ubuntu 24.04, Node 24.18.0/npm11.16.0, Python 3.12.15, existing locked Redocly/Redoc/Playwright and pinned validation dependencies. Build has contents:read only; isolated deployment job has pages:write and id-token:write only. Pull requests validate without deployment. Main input changes and manual main dispatch validate, regenerate and publish. Concurrency serializes each ref. No custom server/frontend/search/agent framework or backend dependency.
+
+Existing source/OAS/example validation and native file-browser checks run before upload. Deployment staging copies **only index.html and LICENSES.txt by explicit filename**; private bundles/specimens/provenance/screenshots remain outside the uploaded directory. Post-deployment CI checks exact live file hashes with bounded cache-propagation retry. Main-only environment policy and workflow condition restrict deployment. No long-lived secret is added.
+
+`release.json` records independent accepted source, accepted preview/license/contract-input hashes and explicit publication date 2026-10-15 (Principal's local project date). The publication build requires those identities and accepted-source ancestry. Unaccepted main content fails closed until the recorded acceptance evidence is reconciled. Main itself does not establish Product acceptance. Future accepted changes update this same small record; generation/publication then run automatically. This is source/artifact identity enforcement, not a claim that CI independently ratifies Product semantics.
+
+The accepted preview's "not published — local preview" label cannot be displayed as the publication date. The sole release HTML difference is replacement of its **three native copies** with 2026-10-15; a byte comparison confirms everything else identical. No OAS, domain content, schema/example/security/renderer asset is changed. Default builds remain previews; `--publish` gates the metadata-only candidate. Browser checks support the live entry point while permitting only exact document GETs and rejecting unintended requests.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Independently accepted preview index.html | `eba04ae021122b6103ae19024190de9d0c60eb833f7da424271fe3183d9c09eb` |
+| Publication index.html (date metadata only) | `3bb997c683e6f11a583651a2abaf2e1ac9889295656819997d1c34241831634f` |
+| Unchanged LICENSES.txt | `56872a8c6112765251a061ad17fd179d42dae5c9eae53b28eab4ed187ea4f377` |
+
+## Local author verification before deployment
+
+Seven OAS conformance groups pass; 19 operations/134 examples and unchanged wire/security authority validate. Publication candidate passes desktop/mobile navigation/search, schemas/cURL/error examples, #5/#7/#9, public instruction/control suppression and zero page errors/unintended requests. Explicit byte comparison establishes metadata-only change. Workflow YAML parses. Negative identity specimen rejects an altered accepted-preview hash. No backend runtime/API test or operational call is required for these publication-only changes; prior independent runtime verification remains preserved.
+
+## Deployment observation
+
+Workflow deployment and live observations are pending at the implementation commit. Configuration/build success alone is not publication success. Append actual run/source/deployment identifiers, live file hashes, fresh browser/network results and any failure/recovery evidence after observation. Principal Product acceptance remains pending regardless of engineering deployment verification.
