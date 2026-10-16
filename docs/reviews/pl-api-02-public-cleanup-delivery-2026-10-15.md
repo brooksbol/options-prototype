@@ -1,5 +1,7 @@
 # PL-API-02 — Bounded Principal public-reference cleanup
 
+> **Subsequent Principal disposition — October 15, 2026:** Product acceptance PASSED for this revised 15-public/19-internal reference. Native limitations are nonblocking; broader domain observations remain deferred. Step 5 is now authorized under the governing requirements plan. Earlier pending-review statements below preserve delivery-time history.
+
 **Current status:** Published and engineering-verified; final Principal Product reinspection pending. Initial pending checkpoints below are preserved as history.
 
 

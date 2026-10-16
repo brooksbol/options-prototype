@@ -80,13 +80,13 @@ Read the entire changed-path list and relevant pending diffs; a filename filter 
 
 **Branches:**
 
-- **No relevant change, no outstanding attempt:** section 4 builds the current publication candidate and compares it with live bytes. If green, record `NO_UPDATE_REQUIRED`, old deployed source/run and current source/final SYNC separately; do not refresh dates/hashes, create an empty commit or dispatch a redundant deployment. If that build fails or bytes differ, section 6 applies; it was not a verified no-op.
+- **No relevant change, no outstanding attempt:** first execute section 3's common tool provisioning, then skip its accepted-change-only checks/identity refresh and proceed to section 4. Section 4 builds the current publication candidate and compares it with live bytes. If green, record `NO_UPDATE_REQUIRED`, old deployed source/run and current source/final SYNC separately; do not refresh dates/hashes, create an empty commit or dispatch a redundant deployment. If that build fails or bytes differ, section 6 applies; it was not a verified no-op.
 - **Relevant and accepted:** verify OAS matches runtime, reuse workstream conformance evidence and run section 3. A backend-only correction may reproduce identical public bytes, but still run the affected fidelity checks; existing push CI may deploy identical bytes. Do not rewrite release metadata if the existing identity gate passes.
 - **Acceptance pending or ambiguous:** record `ACCEPTANCE_PENDING`, exact affected paths and missing authority. Do not refresh `release.json`, dispatch or claim current docs. Preserve authorized work under parent closeout; this procedure does not forbid an otherwise authorized source push, but warn that its existing automatic publication build must fail closed if accepted identity differs. If unchanged artifact bytes would allow automatic publication yet acceptance is unresolved, do not push that publication-triggering candidate until its workstream authority resolves the ambiguity. No change to workflow permissions/guards to evade the boundary.
 
-## 3. Verify an accepted change; refresh identity only when necessary
+## 3. Common tool provisioning; accepted-change verification and identity refresh
 
-Install/reuse the pinned tools in the isolated checkout (network is for locked package/browser downloads, not operational API access). Verify `node --version` and `npm --version` equal the versions above; provision through existing environment tooling or delegate if unavailable. From root:
+**Common prerequisite for BOTH no-op and accepted-update paths:** Install/reuse the pinned tools in the isolated checkout (network is for locked package/browser downloads, not operational API access). Verify `node --version` and `npm --version` equal the versions above; provision through existing environment tooling or delegate if unavailable. From root:
 
 ```sh
 python3 -m venv tools/api-docs/.venv
@@ -94,6 +94,8 @@ tools/api-docs/.venv/bin/python -m pip install -r tools/api-docs/requirements.tx
 npm ci --prefix tools/api-docs --ignore-scripts
 tools/api-docs/node_modules/.bin/playwright install chromium
 ```
+
+After provisioning, the no-op path goes directly to section 4; it must not refresh release metadata or dispatch. The remaining section 3 checks and identity refresh apply only to accepted changes.
 
 On Linux, use the CI command `playwright install --with-deps chromium` through the existing authorized environment, not an unreviewed sudo script. Missing browser/OS prerequisites are capability failures; hand off rather than skip browser checks. The following blocks require **every command exit 0**. Execute sequentially; on the first failure stop that block and use section 6 (do not paste a multiline block and assume the last exit code proves all commands passed).
 

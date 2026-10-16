@@ -660,6 +660,8 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 ## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
 
+> **October 15, 2026 — Principal Product acceptance PASSED; Step 5 authorized:** The revised 15-public/19-internal API v2 documentation is accepted, including human/agent usability, static Redocly, automated Pages, COTS-first delivery and preserved security boundaries. Native presentation limitations are nonblocking; broader REST/domain-model concerns remain deferred. [Plan](design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md) now directs a precise executable documentation-closeout procedure, separate Codex adversarial review and cold-start execution before protocol adoption. This bounded documentation work remains open pending Step 5 verification; original broader intake below is not silently closed.
+
 > **Principal review — cleanup published:** Revised [live reference](https://brooksbol.github.io/options-prototype/) has 15 public operations and preserves 19 internal contracts. [Evidence](reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md) records source 011defb, successful deployment, native rendering/pruning/readability, exact Artifact preservation and hashes. Final Product reinspection pending; Step 5 and PL closure remain deferred.
 
 
