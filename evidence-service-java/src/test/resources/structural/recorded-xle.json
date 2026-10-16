@@ -1,0 +1,128 @@
+{
+  "source": "scripts/fixtures/tt-live-economic-observed.json",
+  "sha256": "7f6788c4fb6fb92a27c3bc4f2a61316c9718e8b2f0cf534eb7915f94784dc8e9",
+  "holdings": [
+    {
+      "pointer": "/holdings/10",
+      "record": {
+        "account-number": "TEST1234",
+        "instrument-type": "Equity Option",
+        "symbol": "XLE   261016P00059000",
+        "underlying-symbol": "XLE",
+        "quantity": 1,
+        "average-daily-market-close-price": "0.0001",
+        "close-price": "0.0001",
+        "multiplier": "100.0",
+        "quantity-direction": "Long",
+        "expires-at": "2026-10-16T20:15:00.000Z",
+        "updated-at": "2026-09-30T16:49:10.725Z"
+      }
+    },
+    {
+      "pointer": "/holdings/11",
+      "record": {
+        "account-number": "TEST1234",
+        "instrument-type": "Equity Option",
+        "symbol": "XLE   261016P00059500",
+        "underlying-symbol": "XLE",
+        "quantity": 1,
+        "average-daily-market-close-price": "0.0001",
+        "close-price": "0.0001",
+        "multiplier": "100.0",
+        "quantity-direction": "Short",
+        "expires-at": "2026-10-16T20:15:00.000Z",
+        "updated-at": "2026-09-30T16:49:10.744Z"
+      }
+    },
+    {
+      "pointer": "/holdings/12",
+      "record": {
+        "account-number": "TEST1234",
+        "instrument-type": "Equity Option",
+        "symbol": "XLE   261016C00064500",
+        "underlying-symbol": "XLE",
+        "quantity": 1,
+        "average-daily-market-close-price": "2.78",
+        "close-price": "2.78",
+        "multiplier": "100.0",
+        "quantity-direction": "Short",
+        "expires-at": "2026-10-16T20:15:00.000Z",
+        "updated-at": "2026-09-30T16:49:10.752Z"
+      }
+    },
+    {
+      "pointer": "/holdings/13",
+      "record": {
+        "account-number": "TEST1234",
+        "instrument-type": "Equity Option",
+        "symbol": "XLE   261016C00065000",
+        "underlying-symbol": "XLE",
+        "quantity": 1,
+        "average-daily-market-close-price": "2.32",
+        "close-price": "2.32",
+        "multiplier": "100.0",
+        "quantity-direction": "Long",
+        "expires-at": "2026-10-16T20:15:00.000Z",
+        "updated-at": "2026-09-30T16:49:10.734Z"
+      }
+    }
+  ],
+  "instruments": [
+    {
+      "pointer": "/instruments/9",
+      "record": {
+        "expiration-date": "2026-10-16",
+        "expires-at": "2026-10-16T20:15:00.000+00:00",
+        "instrument-type": "Equity Option",
+        "option-chain-type": "Standard",
+        "option-type": "P",
+        "shares-per-contract": 100,
+        "strike-price": "59.0",
+        "symbol": "XLE   261016P00059000",
+        "underlying-symbol": "XLE"
+      }
+    },
+    {
+      "pointer": "/instruments/10",
+      "record": {
+        "expiration-date": "2026-10-16",
+        "expires-at": "2026-10-16T20:15:00.000+00:00",
+        "instrument-type": "Equity Option",
+        "option-chain-type": "Standard",
+        "option-type": "P",
+        "shares-per-contract": 100,
+        "strike-price": "59.5",
+        "symbol": "XLE   261016P00059500",
+        "underlying-symbol": "XLE"
+      }
+    },
+    {
+      "pointer": "/instruments/12",
+      "record": {
+        "expiration-date": "2026-10-16",
+        "expires-at": "2026-10-16T20:15:00.000+00:00",
+        "instrument-type": "Equity Option",
+        "option-chain-type": "Standard",
+        "option-type": "C",
+        "shares-per-contract": 100,
+        "strike-price": "64.5",
+        "symbol": "XLE   261016C00064500",
+        "underlying-symbol": "XLE"
+      }
+    },
+    {
+      "pointer": "/instruments/13",
+      "record": {
+        "expiration-date": "2026-10-16",
+        "expires-at": "2026-10-16T20:15:00.000+00:00",
+        "instrument-type": "Equity Option",
+        "option-chain-type": "Standard",
+        "option-type": "C",
+        "shares-per-contract": 100,
+        "strike-price": "65.0",
+        "symbol": "XLE   261016C00065000",
+        "underlying-symbol": "XLE"
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: Wheelwright v2 canonical evidence — quotes and accounts
-  version: 0.5.0-contract
+  version: 0.7.0
   description: >-
     Authoritative specification: accepted synchronous POST acquisition plus the
     Principal-selected GET held-discovery and canonical path-token instance-read
@@ -47,6 +47,10 @@ paths:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1position-acquisitions'
   /v2/portfolio-capital-observations:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1portfolio-capital-observations'
+  /v2/position-associations:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1position-associations
+  /v2/position-associations/{associationId}:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1position-associations~1{associationId}
   /v2/positions:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1positions'
   /v2/artifacts:

@@ -165,4 +165,24 @@ class TastytradeAcquisitionTest {
             assertThat(mvc.perform(post(path).header("Authorization","Bearer acquirer")).andReturn().getResponse().getStatus()).isEqualTo(403);
         }
     }
+    @Test void contractDefinitionHttpUsesOneOauthAndCachesWithoutHoldingsContact()throws Exception {
+        var optionRequests=new AtomicInteger();var underlyingRequests=new AtomicInteger();var received=new ArrayList<String>();
+        server.createContext("/instruments/equity-options/",x->{
+            optionRequests.incrementAndGet();credentialsCorrect &= ("Bearer "+TOKEN).equals(x.getRequestHeaders().getFirst("Authorization"))&&x.getRequestMethod().equals("GET")&&x.getRequestURI().getPath().endsWith("XLE   261016P00059000");
+            byte[] b="{\"data\":{\"symbol\":\"XLE   261016P00059000\"}}".getBytes(StandardCharsets.UTF_8);
+            x.getResponseHeaders().set("Content-Type","application/json");x.sendResponseHeaders(200,b.length);x.getResponseBody().write(b);x.close();
+        });
+        server.createContext("/instruments/equities/",x->{
+            underlyingRequests.incrementAndGet();credentialsCorrect &= ("Bearer "+TOKEN).equals(x.getRequestHeaders().getFirst("Authorization"))&&x.getRequestURI().getPath().equals("/instruments/equities/XLE");
+            byte[] b="{\"data\":{\"symbol\":\"XLE\",\"instrument-type\":\"Equity\"}}".getBytes(StandardCharsets.UTF_8);
+            x.getResponseHeaders().set("Content-Type","application/json");x.sendResponseHeaders(200,b.length);x.getResponseBody().write(b);x.close();
+        });
+        var attempted=client().contractDefinitions(List.of(new TastytradeClient.DefinitionSubject("h1","XLE   261016P00059000","XLE"),new TastytradeClient.DefinitionSubject("h2","XLE   261016P00059000","XLE")),(subject,kind,bytes)->received.add(subject.holdingId()+":"+kind));
+        assertThat(attempted).containsExactlyInAnyOrder("h1","h2");assertThat(received).containsExactly("h1:OPTION","h1:UNDERLYING","h2:OPTION","h2:UNDERLYING");assertThat(oauth.get()).isEqualTo(1);assertThat(optionRequests.get()).isEqualTo(1);assertThat(underlyingRequests.get()).isEqualTo(1);assertThat(requests.get()).isZero();assertThat(credentialsCorrect).isTrue();
+        server.removeContext("/instruments/equity-options/");server.createContext("/instruments/equity-options/",x->{
+            byte[] b=("{\"data\":{\"diagnostic\":\""+TOKEN+"\"}}").getBytes(StandardCharsets.UTF_8);x.getResponseHeaders().set("Content-Type","application/json");x.sendResponseHeaders(200,b.length);x.getResponseBody().write(b);x.close();
+        });
+        received.clear();client().contractDefinitions(List.of(new TastytradeClient.DefinitionSubject("h1","XLE   261016P00059000","XLE")),(subject,kind,bytes)->received.add(kind));assertThat(received).isEmpty();assertThat(underlyingRequests.get()).isEqualTo(1);
+    }
+
 }

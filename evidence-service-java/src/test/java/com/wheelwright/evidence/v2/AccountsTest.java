@@ -27,6 +27,9 @@ class AccountsTest {
             var c=store.getConnection();c.setAutoCommit(false);
             try(var q=c.createStatement()) {
                 q.execute("PRAGMA defer_foreign_keys=ON");
+                // Rewind the new dependent tables before reconstructing a pre-canonical database.
+                for(String table:List.of("position_contract_evidence","position_contract_acquisition","position_association"))q.execute("DROP TABLE "+table);
+                q.execute("DELETE FROM _migrations WHERE id='021_position_structure.sql'");
                 for(String table:List.of("account_history_page","account_history_state","account_transaction_observation","account_transaction","account_history_attempt"))q.execute("DROP TABLE "+table);
                 q.execute("DELETE FROM _migrations WHERE id='020_transaction_history.sql'");
                 q.execute("DROP TABLE brokerage_position_acquisition");

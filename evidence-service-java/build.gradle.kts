@@ -111,3 +111,11 @@ tasks.register<JavaExec>("integratedUpdateFixture") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("fixtureReady") as? String)
 }
+
+// Test-only integrated retained structural preview; no operational configuration/providers.
+tasks.register<JavaExec>("structuralLivePreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.StructuralLivePreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}

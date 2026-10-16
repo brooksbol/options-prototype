@@ -104,6 +104,42 @@ public class TastytradeClient {
         catch(Exception e){throw new IllegalStateException("brokerage acquisition unavailable");}
     }
 
+    public record DefinitionSubject(String holdingId,String symbol,String underlying) {}
+    @FunctionalInterface public interface DefinitionSink { void accept(DefinitionSubject subject,String kind,byte[] bytes)throws Exception; }
+
+    /** Explicit bounded metadata acquisition using the existing OAuth/security boundary.
+     * No holdings/orders contact. Retention callback runs outside provider-error handling. */
+    public Set<String> contractDefinitions(List<DefinitionSubject> subjects,DefinitionSink sink)throws Exception {
+        if(!configured())throw new IllegalStateException("contract acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();String token=accessToken(expires);
+        var options=new HashMap<String,byte[]>();var equities=new HashMap<String,byte[]>();var attempted=new LinkedHashSet<String>();long totalBytes=0;
+        for(var subject:subjects) {
+            if(System.nanoTime()>=expires)break;
+            if(!subject.symbol().matches("[A-Z][A-Z0-9.]{0,9} +[0-9]{6}[CP][0-9]{8}")||!subject.underlying().matches("[A-Z][A-Z0-9.]{0,9}"))continue;
+            attempted.add(subject.holdingId());
+            byte[] option=options.get(subject.symbol());
+            if(option==null){option=definition("/instruments/equity-options/"+encode(subject.symbol()).replace("+","%20"),token,expires);if(option!=null){totalBytes+=option.length;if(totalBytes>BrokerageArtifacts.MAX_BYTES)break;options.put(subject.symbol(),option);}}
+            if(option==null)continue;sink.accept(subject,"OPTION",option);
+            byte[] equity=equities.get(subject.underlying());
+            if(equity==null){equity=definition("/instruments/equities/"+encode(subject.underlying()),token,expires);if(equity!=null){totalBytes+=equity.length;if(totalBytes>BrokerageArtifacts.MAX_BYTES)break;equities.put(subject.underlying(),equity);}}
+            if(equity!=null)sink.accept(subject,"UNDERLYING",equity);
+        }
+        return Set.copyOf(attempted);
+    }
+    private byte[] definition(String path,String token,long expires) {
+        try {
+            var request=HttpRequest.newBuilder(base.resolve(path)).timeout(deadline).header("Accept","application/json")
+                    .header("User-Agent","Wheelwright/option-contract-v1").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))return null;
+            byte[] bytes=reply.body();String content=new String(bytes,StandardCharsets.UTF_8);
+            for(String secret:List.of(clientId,clientSecret,refreshToken,token))if(content.contains(secret))return null;
+            if(!safeDocument(TastytradeHoldings.document(bytes),List.of(clientId,clientSecret,refreshToken,token)))return null;
+            return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();return null;}
+        catch(Exception e){return null;}
+    }
+
     /** Read-only per-underlying volatility metrics (tastytrade {@code /market-metrics}).
      *
      * <p>INTERIM v1 market-data read. Deliberately SEPARATE from {@link #holdings} and

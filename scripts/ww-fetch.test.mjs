@@ -20,7 +20,7 @@ test("default and targeted fetch with missing credentials fail before backend/pr
   const isolatedCli = join(isolated, "scripts", "wheelwright.mjs");
   await mkdir(join(isolated, "scripts"));
   await copyFile(cli, isolatedCli);
-  for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs", "ww-update.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
+  for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs", "ww-update.mjs", "ww-sync.mjs", "ww-accounts.mjs", "ww-live.mjs", "tastytrade-live-render.mjs", "tastytrade-payoff-render.mjs"])
     await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
   const actualCli = await realpath(isolatedCli);
   try {
@@ -234,7 +234,7 @@ test("ww fetch works with a private .ww.env credential and no exported token", a
   try {
     await mkdir(join(isolated, "scripts"));
     await copyFile(cli, join(isolated, "scripts", "wheelwright.mjs"));
-    for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs", "ww-update.mjs", "ww-sync.mjs", "ww-accounts.mjs"])
+    for (const module of ["ww-show.mjs", "ww-show-fields.mjs", "ww-positions.mjs", "ww-capital.mjs", "ww-history.mjs", "ww-update.mjs", "ww-sync.mjs", "ww-accounts.mjs", "ww-live.mjs", "tastytrade-live-render.mjs", "tastytrade-payoff-render.mjs"])
       await copyFile(new URL(module, import.meta.url), join(isolated, "scripts", module));
     const actualCli = await realpath(join(isolated, "scripts", "wheelwright.mjs"));
     const { writeFile } = await import("node:fs/promises");
