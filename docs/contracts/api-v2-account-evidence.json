@@ -2,8 +2,8 @@
   "openapi": "3.1.1",
   "info": {
     "title": "Wheelwright v2 Account evidence, Positions and transaction history",
-    "version": "0.6.0",
-    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization. Account-nested transaction history is a retained-first backend facade with one explicit Account history grant and policy-bounded source acquisition. No strategy/tax/P&L interpretation."
+    "version": "0.7.0",
+    "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization. Account-nested transaction history is a retained-first backend facade with one explicit Account history grant and policy-bounded source acquisition. No strategy/tax/P&L interpretation. Includes the Principal-approved bounded P2 structural implementation candidate; independent implementation conformance review remains required."
   },
   "servers": [
     {
@@ -27,7 +27,7 @@
       "get": {
         "operationId": "readAccountPositions",
         "summary": "Read retained Position snapshots",
-        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Three request forms only: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.\n\n<!-- internal-only:start -->\nCollections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty.\n<!-- internal-only:end -->",
+        "description": "Existing default inventory, observations catalog and accountId+snapshotId historical forms retain their current contracts. In those existing views constituents appear once and managed occurrence/quantity allocation remain unresolved. New view=option-structure returns OptionStructureCollection and may divide a holding into conserved allocated/residual integer quantities. It consumes only retained evidence in one query-only transaction, including Fidelity ledger rows without a prior history read. New snapshot-bound authenticated associations establish current membership; automatic brokerage grouping, occurrence continuity and opening attribution are unavailable in P2. Source/admission rules, exact payoff basis, errors and acquisition boundaries are specified in P2. No terminal presentation semantics. Existing common errors, exact Account authorization and no-store headers apply. Invalid selectors/repeated queries/GET bodies are422. Structural domain uncertainty is200; storage or16MiB response capacity failure503. No partial/truncated success.",
         "security": [
           {
             "bearerAuth": []
@@ -63,6 +63,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/PositionObservationCollection"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OptionStructureCollection"
                     }
                   ]
                 },
@@ -116,10 +119,11 @@
             "schema": {
               "type": "string",
               "enum": [
-                "observations"
+                "observations",
+                "option-structure"
               ]
             },
-            "description": "Complete authorized retained observation catalog. Optional accountId narrows scope. Cannot combine with snapshotId."
+            "description": "observations selects the unchanged retained catalog; option-structure selects P2 current option structures. Both exclude snapshotId. Optional canonical accountId narrows authority."
           },
           {
             "name": "snapshotId",
@@ -1314,7 +1318,7 @@
       "post": {
         "operationId": "acquireAccountPositions",
         "summary": "Acquire a holdings observation",
-        "description": "Explicit backend holdings acquisition for one canonical Account. No request body, orders, history or quote acquisition. Exactly one canonical accountId selector, no request body or other query. Unconfigured provider or unsupported brokerage is 503. No orders/history/quotes/scheduler. Interpretation is all-or-nothing; accepted snapshot and attempt outcome commit together. Failed refresh preserves previous evidence and its clock. Pagination requiring more than one page is retained/rejected rather than misreported as complete. Every response has X-Request-Id and private,no-store.\n\n<!-- internal-only:start -->\nExplicit backend-only OAuth and holdings acquisition. Authentication then exact Account acquisition authority before source/storage access. Account reads, artifact writes, quote acquisition and ID possession do not grant acquisition. Successful JSON bodies pass credential-safety checks before immutable exact-byte retention. OAuth responses, headers and upstream errors are not retained or disclosed.\n<!-- internal-only:end -->",
+        "description": "Existing absent-mode holdings acquisition semantics/result remain unchanged. P2 adds explicit mode=contract-terms with required accountId+snapshotId, same exact account.positions.acquire authority. Uses existing backend tastytrade client/OAuth custody to acquire native option AND underlying product definitions for selected snapshot option subjects and retain original responses; works for Fidelity and tastytrade subjects after backend identity qualification. No new credentials/client-side broker contact. Contract scope is not added implicitly to holdings calls or ww pull. Every option holding receives a result including unsupported/failure/budget exhaustion; COMPLETE only if all required inputs admitted. Source failure is qualified200, storage503; original-source confidentiality retained. New mode body unsupported; repeated/unknown/incompatible queries422. Source/admission rules and existing-budget reuse in P2. No mode supported for public monitoring GET.",
         "security": [
           {
             "bearerAuth": []
@@ -1333,6 +1337,25 @@
               "pattern": "^acct_[a-f0-9]{32}$"
             },
             "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "const": "contract-terms"
+            },
+            "description": "Absent preserves existing holdings acquisition. Present selects explicit contract definitions only, with required snapshotId; no holdings or order contact."
+          },
+          {
+            "name": "snapshotId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Required only with mode=contract-terms; exact retained snapshot in selected Account. Forbidden with legacy holdings mode."
           }
         ],
         "responses": {
@@ -1356,7 +1379,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PositionAcquisition"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PositionAcquisition"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ContractEvidenceAcquisition"
+                    }
+                  ]
                 },
                 "examples": {
                   "synthetic": {
@@ -1944,6 +1974,207 @@
             "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/transactions/22222222-2222-4222-8222-222222222222' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
           }
         ]
+      }
+    },
+    "/v2/position-associations": {
+      "post": {
+        "operationId": "createPositionAssociation",
+        "summary": "Record current snapshot-bound managed membership assertion",
+        "description": "Authenticated operator intent is authoritative Wheelwright association evidence, not a brokerage lifecycle fact. Exact account.positions.associate grant required before private lookups. All requested allocations must identify current selected snapshot option holdings, preserve sign and fit available quantities across all active claims. Same expiration and qualified same underlying required; otherwise422. Atomic assertion/supersession with immutable author/time stored internally. No financial event, brokerage contact or implicit acquisition. submissionId deduplicates per Account+User: exact retry200 same record; changed body422. New record201 with Location. Supersession must identify active same-Account/snapshot assertion; withdrawal supersedes without asserting executed close. Old snapshot associations never automatically carry forward. No occurrence identity or opening timestamp is established. Maximum128 allocations; exceeding limits422. Unsupported broker-derived claims remain unknown in reads. Exact retries are resolved before current-snapshot applicability checks, allowing the same response after a newer snapshot. Duplicate holding IDs are rejected; distinct equivalent holdings retain lineage but do not establish units/classification. No automatic propagation to later snapshots.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.positions.associate:{accountId}"
+        ],
+        "parameters": [
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\s*(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?\\s*$"
+            },
+            "required": false,
+            "description": "Blank generates a UUID; whitespace-padded UUID is trimmed and echoed. Invalid nonblank UUID is rejected."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionAssociationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "New immutable assertion recorded.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              },
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Canonical /v2/position-associations/{associationId}"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAssociationResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Exact submission retry; no duplicate record.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAssociationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          },
+          "415": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/Problem415"
+          },
+          "400": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/Problem400"
+          }
+        }
+      }
+    },
+    "/v2/position-associations/{associationId}": {
+      "get": {
+        "operationId": "readPositionAssociation",
+        "summary": "Inspect immutable membership assertion",
+        "description": "Pure retained read; account.positions.read for owning Account required; no administrator bypass. Opaque ID has no authority. Unknown ID404; known unauthorized owner403. Original source bytes and User identity directory data are not disclosed. No GET body/query.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.positions.read:{owningAccountId}"
+        ],
+        "parameters": [
+          {
+            "name": "associationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\s*(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?\\s*$"
+            },
+            "required": false,
+            "description": "Blank generates a UUID; whitespace-padded UUID is trimmed and echoed. Invalid nonblank UUID is rejected."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Immutable assertion, not current applicability verdict.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionAssociationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
       }
     }
   },
@@ -3822,6 +4053,2114 @@
           }
         },
         "description": "Bounded Account history. complete describes available normalized result, not lifetime history or atomic provider snapshot. Fidelity uses admitted activity rows with row-equivalence identity, unknown currency/freshness and no upstream acquisition."
+      },
+      "StructuralRational": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "numerator",
+          "denominator"
+        ],
+        "properties": {
+          "numerator": {
+            "type": "string",
+            "pattern": "^(?:0|-?[1-9][0-9]*)$"
+          },
+          "denominator": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          }
+        },
+        "description": "Exact reduced rational; denominator positive. Scalar decoding and viewport interpolation are presentation, not option valuation."
+      },
+      "StructuralEvidence": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidenceId",
+          "kind",
+          "recordId",
+          "artifactId",
+          "sha256",
+          "sourceRows",
+          "sourceEffectiveAt",
+          "sourceDate",
+          "recordedAt",
+          "acquisitionStartedAt",
+          "acquisitionReceivedAt"
+        ],
+        "properties": {
+          "evidenceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "HOLDINGS_SNAPSHOT",
+              "EXPLICIT_ASSOCIATION",
+              "ARTIFACT_ROW",
+              "TRANSACTION_OBSERVATION",
+              "CONTRACT_TERMS",
+              "COVERAGE_ASSERTION"
+            ]
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "artifactId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceRows": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "uniqueItems": true
+          },
+          "sourceEffectiveAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acquisitionStartedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "acquisitionReceivedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "Account-scoped evidence references only; no original payload, raw brokerage identifier, order detail or transaction money. IDs confer no artifact/history access. Time precision is not synthesized."
+      },
+      "StructuralIdentity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "value",
+          "evidenceIds",
+          "reasons"
+        ],
+        "properties": {
+          "status": {
+            "const": "UNKNOWN"
+          },
+          "value": {
+            "type": "null"
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "const": "OCCURRENCE_NOT_ESTABLISHED"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          }
+        },
+        "description": "P2 does not expose affirmative occurrence identity or infer continuity. subjectId and association IDs identify current snapshot projection/claims only; not economic occurrences."
+      },
+      "StructuralUnderlying": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "symbol",
+                  "priceCurrency"
+                ],
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "priceCurrency": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  }
+                }
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
+      },
+      "StructuralExpiration": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "date",
+                  "expiresAt"
+                ],
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "expiresAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
+      },
+      "StructuralOpening": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "value",
+          "evidenceIds",
+          "reasons"
+        ],
+        "properties": {
+          "status": {
+            "const": "UNKNOWN"
+          },
+          "value": {
+            "type": "null"
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "const": "OPENING_ATTRIBUTION_NOT_IMPLEMENTED"
+            },
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      },
+      "StructuralUnits": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*$"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ],
+        "description": "Primitive-ratio units of current allocated integer option quantities, not Position count or opening quantity. Established only when constituent contract identities are distinct and allocation encoding is unambiguous. Equivalent held contracts or conflicting allocations withhold units and strategy classification. No arbitrary GCD claim across split/equivalent holdings."
+      },
+      "StructuralTerms": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "contractKey",
+                  "underlyingSymbol",
+                  "expiration",
+                  "right",
+                  "quotedStrike",
+                  "priceMultiplier",
+                  "deliverableShares",
+                  "deliverableCash",
+                  "exerciseAmount",
+                  "currency",
+                  "adjustment",
+                  "settlement"
+                ],
+                "properties": {
+                  "contractKey": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "underlyingSymbol": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expiration": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "right": {
+                    "type": "string",
+                    "enum": [
+                      "CALL",
+                      "PUT"
+                    ]
+                  },
+                  "quotedStrike": {
+                    "type": "string",
+                    "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)$"
+                  },
+                  "priceMultiplier": {
+                    "type": "string",
+                    "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)$"
+                  },
+                  "deliverableShares": {
+                    "type": "string",
+                    "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)$"
+                  },
+                  "deliverableCash": {
+                    "type": "string",
+                    "pattern": "^(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+                  },
+                  "exerciseAmount": {
+                    "type": "string",
+                    "pattern": "^(?:[1-9][0-9]*(?:\\.[0-9]+)?|0\\.[0-9]*[1-9][0-9]*)$"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  "adjustment": {
+                    "type": "string",
+                    "enum": [
+                      "STANDARD",
+                      "ADJUSTED"
+                    ]
+                  },
+                  "settlement": {
+                    "const": "PHYSICAL_SINGLE_UNDERLYING"
+                  }
+                },
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "adjustment": {
+                          "const": "STANDARD"
+                        }
+                      },
+                      "required": [
+                        "adjustment"
+                      ]
+                    },
+                    "then": {
+                      "properties": {
+                        "priceMultiplier": {
+                          "const": "100"
+                        },
+                        "deliverableShares": {
+                          "const": "100"
+                        },
+                        "deliverableCash": {
+                          "const": "0"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ],
+        "description": "Bounded standard-us-equity-v1 admission requires integrity-checked native option and underlying definitions: exact identity/terms, Standard, 100 shares, matching Equity underlying, explicit is-index=false, supported US listing MIC and no contradictory product/settlement evidence. Missing classification is UNKNOWN, cash-index/adjusted terms UNSUPPORTED, contradictions CONFLICTING. No universal physical-equity eligibility claim. No fabricated deliverables; see ContractEvidence implementation and source specimens."
+      },
+      "StructuralConstituent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "holdingId",
+          "observedContract",
+          "custody",
+          "signedQuantity",
+          "allocationEvidenceIds",
+          "terms",
+          "observedHoldingQuantity",
+          "quantityReasons"
+        ],
+        "properties": {
+          "holdingId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observedContract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "custody": {
+            "type": "string",
+            "minLength": 1
+          },
+          "signedQuantity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?[1-9][0-9]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allocationEvidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "terms": {
+            "$ref": "#/components/schemas/StructuralTerms"
+          },
+          "observedHoldingQuantity": {
+            "type": "string",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$",
+            "description": "Exact source snapshot holding quantity before allocation; not strategy units or an admitted whole-contract allocation."
+          },
+          "quantityReasons": {
+            "type": "array",
+            "items": {
+              "const": "NON_WHOLE_OBSERVED_OPTION_QUANTITY"
+            },
+            "uniqueItems": true
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "signedQuantity": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "signedQuantity"
+              ]
+            },
+            "then": {
+              "properties": {
+                "quantityReasons": {
+                  "minItems": 1
+                },
+                "observedHoldingQuantity": {
+                  "pattern": "^-?(?:0|[1-9][0-9]*)\\.[0-9]*[1-9][0-9]*$"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "quantityReasons": {
+                  "maxItems": 0
+                },
+                "observedHoldingQuantity": {
+                  "pattern": "^-?[1-9][0-9]*(?:\\.0+)?$"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Whole allocated quantities remain strict integers. An inadmissible fractional retained observation is preserved with signedQuantity=null, explicit observedHoldingQuantity and quantityReasons; units, strategy and financial payoff are withheld. Fractional signedQuantity never admitted."
+      },
+      "StructuralMembership": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "basis",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "basis": {
+                "const": "EXPLICIT_ASSOCIATION"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "basis",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING"
+                ]
+              },
+              "basis": {
+                "const": "UNASSOCIATED_INVENTORY"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
+      },
+      "StructuralStrategy": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "optionLegCount",
+                  "complexityRank"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "IRON_CONDOR",
+                      "PUT_CREDIT_VERTICAL",
+                      "CALL_CREDIT_VERTICAL",
+                      "SINGLE_OPTION",
+                      "NONSTANDARD"
+                    ]
+                  },
+                  "optionLegCount": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "complexityRank": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ],
+        "description": "Construction classification only; credit in a name does not prove opening credit. NONSTANDARD with established terms is a valid shape, not failed recognition."
+      },
+      "StructuralKnot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "underlyingPrice",
+          "terminalValue"
+        ],
+        "properties": {
+          "underlyingPrice": {
+            "$ref": "#/components/schemas/StructuralRational"
+          },
+          "terminalValue": {
+            "$ref": "#/components/schemas/StructuralRational"
+          }
+        }
+      },
+      "StructuralPayoff": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "basis",
+                  "quantityBasis",
+                  "currency",
+                  "domainMinimum",
+                  "knots",
+                  "rightTailSlope",
+                  "includesAssociatedShares"
+                ],
+                "properties": {
+                  "basis": {
+                    "const": "GROSS_EXPIRATION_EXERCISE_VALUE_BEFORE_PREMIUM_AND_BASIS"
+                  },
+                  "quantityBasis": {
+                    "const": "TOTAL_CURRENT_ALLOCATED_QUANTITIES"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  "domainMinimum": {
+                    "const": "0"
+                  },
+                  "knots": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/StructuralKnot"
+                    },
+                    "minItems": 1
+                  },
+                  "rightTailSlope": {
+                    "$ref": "#/components/schemas/StructuralRational"
+                  },
+                  "includesAssociatedShares": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ],
+        "description": "Knots include x=0 and every positive slope-change point in strictly increasing order; y and right tail determine the continuous function on S>=0. No left/negative-price domain. Premium, basis, fees, tax, funding, cash collateral and execution excluded. Total actual allocated quantity, not per unit. Complete compatible terms required; no partial package payoff."
+      },
+      "StructuralRange": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "lower",
+                      "upper"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "const": "SHORT_STRIKE_INTERVAL"
+                      },
+                      "lower": {
+                        "type": "string",
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+                      },
+                      "upper": {
+                        "type": "string",
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "boundary",
+                      "direction"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "const": "SHORT_STRIKE_HALF_LINE"
+                      },
+                      "boundary": {
+                        "type": "string",
+                        "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+                      },
+                      "direction": {
+                        "type": "string",
+                        "enum": [
+                          "AT_OR_ABOVE",
+                          "AT_OR_BELOW"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ],
+        "description": "Verified ordinary short-strike region for supported standard constructions; never breakevens. Nonstandard/adjusted structures may have established payoff with UNSUPPORTED range."
+      },
+      "StructuralCollateralItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "symbol",
+          "quantity",
+          "currency",
+          "evidenceIds"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "SHARES",
+              "CASH"
+            ]
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        }
+      },
+      "StructuralCollateral": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "const": "ESTABLISHED"
+              },
+              "value": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/StructuralCollateralItem"
+                }
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "value",
+              "evidenceIds",
+              "reasons"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "UNKNOWN",
+                  "CONFLICTING",
+                  "UNSUPPORTED"
+                ]
+              },
+              "value": {
+                "type": "null"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
+      },
+      "OptionStructure": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subjectId",
+          "inventoryPositionIds",
+          "identity",
+          "membership",
+          "constituents",
+          "underlying",
+          "expiration",
+          "remainingDte",
+          "openingFillAt",
+          "units",
+          "strategy",
+          "payoff",
+          "range",
+          "collateral",
+          "qualifications",
+          "associationId"
+        ],
+        "properties": {
+          "subjectId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inventoryPositionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "identity": {
+            "$ref": "#/components/schemas/StructuralIdentity"
+          },
+          "membership": {
+            "$ref": "#/components/schemas/StructuralMembership"
+          },
+          "constituents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructuralConstituent"
+            },
+            "minItems": 1
+          },
+          "underlying": {
+            "$ref": "#/components/schemas/StructuralUnderlying"
+          },
+          "expiration": {
+            "$ref": "#/components/schemas/StructuralExpiration"
+          },
+          "remainingDte": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "openingFillAt": {
+            "$ref": "#/components/schemas/StructuralOpening"
+          },
+          "units": {
+            "$ref": "#/components/schemas/StructuralUnits"
+          },
+          "strategy": {
+            "$ref": "#/components/schemas/StructuralStrategy"
+          },
+          "payoff": {
+            "$ref": "#/components/schemas/StructuralPayoff"
+          },
+          "range": {
+            "$ref": "#/components/schemas/StructuralRange"
+          },
+          "collateral": {
+            "$ref": "#/components/schemas/StructuralCollateral"
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "associationId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "subjectId is a response/snapshot-scoped projection key, never lifecycle identity. identity is established only from proven occurrence + construction boundaries. Unknown expiration remains represented; remainingDte null means unavailable. Clients do not reconstruct membership, identity, quantities or payoff.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "membership": {
+                  "properties": {
+                    "status": {
+                      "const": "ESTABLISHED"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              },
+              "required": [
+                "membership"
+              ]
+            },
+            "then": {
+              "properties": {
+                "associationId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "associationId": {
+                  "type": "null"
+                },
+                "constituents": {
+                  "maxItems": 1
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "constituents": {
+                  "contains": {
+                    "properties": {
+                      "signedQuantity": {
+                        "type": "null"
+                      }
+                    },
+                    "required": [
+                      "signedQuantity"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "constituents"
+              ]
+            },
+            "then": {
+              "properties": {
+                "membership": {
+                  "properties": {
+                    "status": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                "associationId": {
+                  "type": "null"
+                },
+                "payoff": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "UNKNOWN",
+                        "CONFLICTING",
+                        "UNSUPPORTED"
+                      ]
+                    },
+                    "value": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "units": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "UNKNOWN",
+                        "CONFLICTING",
+                        "UNSUPPORTED"
+                      ]
+                    },
+                    "value": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "strategy": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "UNKNOWN",
+                        "CONFLICTING",
+                        "UNSUPPORTED"
+                      ]
+                    },
+                    "value": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "StructuralSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "snapshotId",
+          "evidenceDate",
+          "recordedAt",
+          "observation",
+          "observationContext"
+        ],
+        "properties": {
+          "snapshotId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HoldingsObservation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observationContext": {
+            "$ref": "#/components/schemas/PositionObservationContext"
+          }
+        }
+      },
+      "StructuralAccount": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "accountId",
+              "availability",
+              "snapshot",
+              "evidenceSetId",
+              "evidenceQualification",
+              "structures",
+              "evidence",
+              "excludedExpiredHoldingIds",
+              "refreshReasons",
+              "qualifications"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "pattern": "^acct_[a-f0-9]{32}$"
+              },
+              "availability": {
+                "const": "RETAINED"
+              },
+              "snapshot": {
+                "$ref": "#/components/schemas/StructuralSnapshot"
+              },
+              "evidenceSetId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidenceQualification": {
+                "type": "string",
+                "enum": [
+                  "QUALIFIED",
+                  "INCOMPLETE",
+                  "CONFLICTING"
+                ]
+              },
+              "structures": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OptionStructure"
+                }
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/StructuralEvidence"
+                }
+              },
+              "excludedExpiredHoldingIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "refreshReasons": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "EXPIRED_OPTIONS_IN_RETAINED_FIDELITY_SNAPSHOT"
+                  ]
+                },
+                "uniqueItems": true
+              },
+              "qualifications": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "accountId",
+              "availability",
+              "snapshot",
+              "evidenceSetId",
+              "evidenceQualification",
+              "structures",
+              "evidence",
+              "excludedExpiredHoldingIds",
+              "refreshReasons",
+              "qualifications"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "pattern": "^acct_[a-f0-9]{32}$"
+              },
+              "availability": {
+                "const": "NO_RETAINED_SNAPSHOT"
+              },
+              "snapshot": {
+                "type": "null"
+              },
+              "evidenceSetId": {
+                "type": "null"
+              },
+              "evidenceQualification": {
+                "const": "UNAVAILABLE"
+              },
+              "structures": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "evidence": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "excludedExpiredHoldingIds": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "refreshReasons": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "qualifications": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              }
+            }
+          }
+        ]
+      },
+      "OptionStructureCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "view",
+          "evaluatedAt",
+          "evaluationBasis",
+          "interpretationVersion",
+          "accounts"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "view": {
+            "const": "option-structure"
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evaluationBasis": {
+            "const": "RETAINED_INSPECTION"
+          },
+          "interpretationVersion": {
+            "const": "option-structure-v1"
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructuralAccount"
+            }
+          }
+        },
+        "description": "P2 pure current snapshot structure projection. Occurrence/opening attribution explicitly unavailable. One query-only SQLite transaction and one evaluation instant; no provider contact, history GET, normalization writes or hidden identity creation. Database consistency is not broker atomicity."
+      },
+      "AssociationAllocation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "holdingId",
+          "signedQuantity"
+        ],
+        "properties": {
+          "holdingId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "signedQuantity": {
+            "type": "string",
+            "pattern": "^-?[1-9][0-9]*$",
+            "maxLength": 30
+          }
+        }
+      },
+      "PositionAssociationInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "accountId",
+              "snapshotId",
+              "submissionId",
+              "action",
+              "supersedesAssociationId",
+              "allocations",
+              "declaration"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "pattern": "^acct_[a-f0-9]{32}$"
+              },
+              "snapshotId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "submissionId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "action": {
+                "const": "ASSERT"
+              },
+              "supersedesAssociationId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "allocations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AssociationAllocation"
+                },
+                "minItems": 1,
+                "maxItems": 128
+              },
+              "declaration": {
+                "const": "THESE_ALLOCATIONS_FORM_ONE_CURRENT_MANAGED_OPTION_POSITION"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "accountId",
+              "snapshotId",
+              "submissionId",
+              "action",
+              "supersedesAssociationId",
+              "allocations",
+              "declaration"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "pattern": "^acct_[a-f0-9]{32}$"
+              },
+              "snapshotId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "submissionId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "action": {
+                "const": "WITHDRAW"
+              },
+              "supersedesAssociationId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "allocations": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "declaration": {
+                "const": "WITHDRAW_CURRENT_MEMBERSHIP_ASSERTION"
+              }
+            }
+          }
+        ]
+      },
+      "PositionAssociationRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "associationId",
+          "accountId",
+          "snapshotId",
+          "action",
+          "supersedesAssociationId",
+          "allocations",
+          "authority",
+          "recordedAt",
+          "submissionId"
+        ],
+        "properties": {
+          "associationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "snapshotId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "ASSERT",
+              "WITHDRAW"
+            ]
+          },
+          "supersedesAssociationId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssociationAllocation"
+            }
+          },
+          "authority": {
+            "const": "AUTHENTICATED_OPERATOR_ASSERTION"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "submissionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "action": {
+                  "const": "ASSERT"
+                }
+              },
+              "required": [
+                "action"
+              ]
+            },
+            "then": {
+              "properties": {
+                "allocations": {
+                  "minItems": 1
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "allocations": {
+                  "maxItems": 0
+                },
+                "supersedesAssociationId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PositionAssociationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "association"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "association": {
+            "$ref": "#/components/schemas/PositionAssociationRecord"
+          }
+        }
+      },
+      "ContractEvidenceResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "holdingId",
+          "status",
+          "artifactId",
+          "reason"
+        ],
+        "properties": {
+          "holdingId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ADMITTED",
+              "UNAVAILABLE",
+              "UNSUPPORTED",
+              "CONFLICTING",
+              "NOT_ATTEMPTED"
+            ]
+          },
+          "artifactId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "ADMITTED"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "artifactId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reason": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ContractEvidenceAcquisition": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "acquisitionId",
+          "mode",
+          "snapshotId",
+          "startedAt",
+          "completedAt",
+          "results",
+          "coverage"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "acquisitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "const": "contract-terms"
+          },
+          "snapshotId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContractEvidenceResult"
+            }
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "INCOMPLETE"
+            ]
+          }
+        },
+        "description": "One result per nonzero option holding in selected snapshot, including failed/unattempted subjects; zero options permits COMPLETE empty. COMPLETE means all required contract inputs admitted, never current holdings/history completeness. Does not acquire holdings or orders. Source failures preserve previous admitted evidence."
       }
     },
     "responses": {

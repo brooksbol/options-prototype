@@ -1,5 +1,5 @@
 // Terminal projection only. No broker reads, recognition, valuation or management decisions.
-import { silhouette } from "./tastytrade-payoff-render.mjs";
+import { silhouette, piecewiseSilhouette } from "./tastytrade-payoff-render.mjs";
 import { stripVTControlCharacters } from "node:util";
 const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
 export function cellWidth(text) {
@@ -132,7 +132,9 @@ function manualSpan(position, { width, dteWidth, ascii, color }) {
   return `${track} ${pad(dteLabel(position,ascii),dteWidth,true)}d`;
 }
 
-export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false, showPnl = false } = {}) {
+export function renderPanel({ accountLabel, positions }, { color = false, columns = 157, ascii = false, showPnl = false,
+  leadingColumns = [], subjectHeader = 'SYMBOL', heading, emptyMessage = 'No live trades.',
+  narrowFormat = '--tsv', defaultForeground = false, minimumWidths = {}, afterSubjectColumns = [], footerLines = [] } = {}) {
   const limit = Number.isInteger(columns) && columns > 1 ? columns - 1 : 156;
   const mono = s => ascii ? s.replaceAll("—","--").replaceAll("−","-").replaceAll("–","-").replaceAll("≥",">=").replaceAll("≤","<=") : s;
   const ink = (s,code) => color && code ? `\x1b[${code}m${s}\x1b[97m` : s;
@@ -144,19 +146,19 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
   const dteWidth = Math.max(5,...positions.map(p=>cellWidth(dteLabel(p,ascii))));
   const rowAge = p => observationAge({ ageMs: Math.max(...[p.optionEvidence.ageMs,
     ...(p.spot.value === null ? [] : [p.spot.ageMs])].filter(Number.isFinite)) });
-  const profitCell = (p, colored = false) => `${exitTrack(p,{...exitOptions,color:colored})}${
+  const profitCell = (p, colored = false) => p.exitProgressLabel !== undefined ? mono(p.exitProgressLabel) : `${exitTrack(p,{...exitOptions,color:colored})}${
     p.transition ? colored ? ink(" T","93") : " T" : ""}`;
   const displayedPnl = p => p.pnl === null ? null : Math.sign(p.pnl) * Math.round(Math.abs(p.pnl)*100)/100;
-  const payoff = (p, colored = false) => Object.hasOwn(p, "payoffUnavailableLabel") && !p.payoff ?
+  const payoff = (p, colored = false) => p.payoffGeometry ? piecewiseSilhouette(p.payoffGeometry,{ascii,spot:p.spot.value}).text : Object.hasOwn(p, "payoffUnavailableLabel") && !p.payoff ?
     ink(mono(p.payoffUnavailableLabel), colored ? "37" : null) : silhouette(p,{ascii,color:colored}).text;
-  const rows = positions.map(p=>({ SYMBOL:p.symbol, "TRADE SHAPE":payoff(p),
+  const rows = positions.map(p=>({ ...p.leadingCells, [subjectHeader]:p.symbol, "TRADE SHAPE":payoff(p),
     RANGE:p.rangeLabel ?? (p.range ? `${p.range.lower}–${p.range.upper}` : "—"),
     SPOT:p.spot.value === null ? "—" : spotPrice(p.spot.value),
-    DTE:spanTrack(p,{ascii,dteWidth}), "EXIT PROGRESS":profitCell(p),
+    DTE:p.dteLabel ?? spanTrack(p,{ascii,dteWidth}), "EXIT PROGRESS":profitCell(p),
     "P/L":p.pnl === null ? "—" : dollars(displayedPnl(p)), QUOTE:rowAge(p), p }));
-  const specs = [["SYMBOL",6],["TRADE SHAPE",31],["RANGE",11],["SPOT",9],["DTE",11+dteWidth+2],
+  const specs = [...leadingColumns.map(c=>[c.key,c.width ?? c.key.length]),[subjectHeader,Math.max(6,cellWidth(subjectHeader))],...afterSubjectColumns.map(c=>[c.key,c.width??c.key.length]),["TRADE SHAPE",31],["RANGE",11],["SPOT",9],["DTE",11+dteWidth+2],
     ["EXIT PROGRESS",29],["P/L",9],["QUOTE",5]];
-  const widths = Object.fromEntries(specs.map(([k,w])=>[k,Math.max(w,...rows.map(r=>cellWidth(mono(r[k]))))]));
+  const widths = Object.fromEntries(specs.map(([k,w])=>[k,Math.max(minimumWidths[k]??w,cellWidth(k),...rows.map(r=>cellWidth(mono(r[k]))))]));
   const gap = k => k === "EXIT PROGRESS" ? "  " : ["DTE","P/L"].includes(k) ? "    " : k === "QUOTE" ? "   " : "  ";
   const size = keys => keys.reduce((n,k,i)=>n+widths[k]+(i ? gap(k).length : 0),0);
   let keys = specs.map(([k])=>k).filter(k=>showPnl || k!=="P/L"), compact=false;
@@ -164,28 +166,33 @@ export function renderPanel({ accountLabel, positions }, { color = false, column
     if(size(keys)<=limit)break;
     keys=keys.filter(key=>key!==k);compact=true;
   }
-  if(size(keys)>limit)return wrap(`Terminal too narrow: ${positions.length} positions not displayed; use --tsv.`,limit).join("\n")+"\n";
+  if(size(keys)>limit)return wrap(`Terminal too narrow: ${positions.length} positions not displayed; use ${narrowFormat}.`,limit).join("\n")+"\n";
   const numeric = new Set(["SPOT","P/L","QUOTE"]);
   const join = values => values.map((v,i)=>(i ? gap(keys[i]) : "")+v).join("").trimEnd();
-  const heading = `Account ${accountLabel}${compact ? " | narrow view" : ""}`;
+  const title = `${heading ?? `Account ${accountLabel}`}${compact ? " | narrow view" : ""}`;
   const header = join(keys.map(k=>["TRADE SHAPE","DTE","EXIT PROGRESS"].includes(k) ? pad(" ".repeat(Math.floor((widths[k]-k.length)/2))+k,widths[k]) : pad(k,widths[k],numeric.has(k))));
-  const lines = [...wrap(heading,limit),header];
+  const lines = [...wrap(title,limit),header];
   for(const r of rows) {
     const p=r.p;
     lines.push(join(keys.map(k=>{
       const value=mono(r[k]);
-      const code=k === "P/L" ? displayedPnl(p) === null || displayedPnl(p) === 0 ? null : displayedPnl(p)>0 ? "92" : "91" :
+      const code=p.leadingColors?.[k] ?? (k === "P/L" ? displayedPnl(p) === null || displayedPnl(p) === 0 ? null : displayedPnl(p)>0 ? "92" : "91" :
         k === "SPOT" ? silhouette(p,{ascii}).spotRegionCode?.replace("2;","") ?? (p.spot.value === null ? "37" : "97") :
         k === "QUOTE" ? p.market.closeDebit === null || p.market.valuationSource === "broker mark" || p.optionEvidence.stale || p.spot.stale || p.optionEvidence.retained || p.spot.retained ? "93" : null :
-        value === mono("—") ? "37" : null;
-      const decorated=k === "TRADE SHAPE" ? payoff(p,color) : k === "EXIT PROGRESS" ? profitCell(p,color) : k === "DTE" ? spanTrack(p,{ascii,dteWidth,color}) : ink(value,code);
+        value === mono("—") ? "37" : null);
+      const decorated=k === "TRADE SHAPE" ? payoff(p,color) : k === "EXIT PROGRESS" ? profitCell(p,color) : k === "DTE" ? p.dteLabel !== undefined ? ink(mono(p.dteLabel),null) : spanTrack(p,{ascii,dteWidth,color}) : ink(value,code);
       return pad(decorated,widths[k],numeric.has(k));
     })));
   }
-  if(positions.length===0)lines.push("No live trades.");
+  if(positions.length===0)lines.push(...wrap(emptyMessage,limit));
   for (const p of positions) for (const issue of p.issues ?? []) {
     lines.push(...wrap(`${p.symbol}: ${p.status === "recognized" ? issue : `${p.status}: ${issue}`}`, limit));
   }
+  for(const note of footerLines)lines.push(...wrap(note,limit));
   const output=lines.join("\n");
-  return color ? `\n\x1b[97m${output}\x1b[0m\n` : `\n${output}\n`;
+  const rendered = color ? `\n\x1b[97m${output}\x1b[0m\n` : `\n${output}\n`;
+  // A caller may use the terminal's own foreground for neutral text. Preserve
+  // the accepted TT theme by default; never set or assume a background color.
+  return defaultForeground ? rendered.replace(/\x1b\[([0-9;]*)m/g, (sequence, codes) =>
+    `\x1b[${codes.split(';').map(code => ['37','97'].includes(code) ? '39' : code).join(';')}m`) : rendered;
 }

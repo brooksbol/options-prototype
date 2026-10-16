@@ -47,6 +47,9 @@ public class PositionReadService {
         }
         return changed != 0;
     }
+    public StructuralModel.CollectionRead structure(Set<String> authorized,String request,Instant now)throws Exception {
+        return new StructuralPositions(url,mapper).read(authorized,request,now);
+    }
     public Optional<PositionSnapshot.Read> read(String account, String requestId, Instant now) throws Exception {
         return read(account, null, requestId, now);
     }

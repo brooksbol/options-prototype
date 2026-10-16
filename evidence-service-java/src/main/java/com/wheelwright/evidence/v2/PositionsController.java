@@ -16,8 +16,13 @@ public class PositionsController {
     private final PositionReadService service;
     private final BearerAuthenticator auth;
     private final ObjectMapper mapper;
+    private final java.time.Clock clock;
+    @org.springframework.beans.factory.annotation.Autowired
     public PositionsController(AccountDirectory accounts, PositionReadService service, BearerAuthenticator auth, ObjectMapper mapper) {
-        this.accounts = accounts; this.service = service; this.auth = auth; this.mapper = mapper;
+        this(accounts,service,auth,mapper,java.time.Clock.systemUTC());
+    }
+    PositionsController(AccountDirectory accounts,PositionReadService service,BearerAuthenticator auth,ObjectMapper mapper,java.time.Clock clock){
+        this.accounts=accounts;this.service=service;this.auth=auth;this.mapper=mapper;this.clock=clock;
     }
     @GetMapping("/v2/positions")
     public ResponseEntity<String> read(@RequestParam(required=false) String accountId,
@@ -36,7 +41,7 @@ public class PositionsController {
         if (badId) invalid.add(new ProblemDetails.InvalidParam("X-Request-Id", "must be a single UUID"));
         if (accountId != null && !AccountDirectory.validId(accountId)) invalid.add(new ProblemDetails.InvalidParam("accountId", "canonical Account ID required"));
         if (body != null && body.length > 0) invalid.add(new ProblemDetails.InvalidParam("body", "GET body unsupported"));
-        if (view != null && !view.equals("observations")) invalid.add(new ProblemDetails.InvalidParam("view", "only observations is supported"));
+        if (view != null && !Set.of("observations","option-structure").contains(view)) invalid.add(new ProblemDetails.InvalidParam("view", "unsupported Position view"));
         if (snapshotId != null && (snapshotId.isBlank() || accountId == null || view != null))
             invalid.add(new ProblemDetails.InvalidParam("snapshotId", "nonblank exact snapshotId requires accountId and excludes view"));
         for (String name : Collections.list(request.getParameterNames()))
@@ -50,6 +55,11 @@ public class PositionsController {
                     if (accounts.get(accountId).isEmpty()) return problem(ProblemCode.NOT_FOUND, id, "Account not found", null);
                     authorized.add(accountId);
                 } else for (var a : accounts.list()) if (caller.get().hasGrant("account.positions.read:" + a.id())) authorized.add(a.id());
+                if(view.equals("option-structure")){
+                    var value=service.structure(authorized,id,clock.instant());
+                    if(mapper.writeValueAsBytes(value).length>BrokerageArtifacts.MAX_BYTES)return problem(ProblemCode.CAPABILITY_UNAVAILABLE,id,"complete structural response exceeds capacity",null);
+                    return response(200,id,MediaType.APPLICATION_JSON,value);
+                }
                 return response(200, id, MediaType.APPLICATION_JSON, new ObservationCollection(id, service.observations(authorized, id)));
             }
             var snapshots=new ArrayList<PositionSnapshot.Read>();

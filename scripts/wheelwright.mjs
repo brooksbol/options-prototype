@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import {parseHistory,readHistory,renderHistory,readHistories,renderHistories,historyDiagnostic,HISTORY_HELP} from './ww-history.mjs';
+import {parseLive,readOpenOptions,renderLive,LIVE_HELP} from './ww-live.mjs';
 
 import { parseCapital,readCapital,renderCapital,CAPITAL_HELP } from "./ww-capital.mjs";
 import { readFile } from "node:fs/promises";
@@ -21,6 +22,8 @@ Account history uses backend policy-bounded read-through with explicit outcomes.
 Acquisition never claims suitability. Pipe commands without a format flag.
 
 Working commands:
+  live [--account ACCOUNT] [--table | --jsonl] [--width COLUMNS] [--ascii] [--no-color]
+      Inspect retained open-option constructions and qualified payoff geometry.
   pull [-v | --verbose] [--no-color]
       Update WW with everything so I can start doing stuff.
   history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl] [--verbose]
@@ -229,6 +232,10 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === 'live') {
+    const parsed=parseLive(rest);
+    return parsed.help?{command:'help',help:LIVE_HELP}:{command:'live',...parsed};
+  }
   if (command === "pull") {
     if(rest.length===1&&["--help","-h","--man"].includes(rest[0]))return {command:"command-man",page:"pull"};
     if(rest.some(a=>!['-v','--verbose','--no-color'].includes(a)))usage('pull: see ww pull --help');
@@ -755,8 +762,21 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
-  const usesBackend=['pull','history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const usesBackend=['live','pull','history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
+  if(parsed.command==='live') {
+    const token=await readApiToken();
+    const accounts=await readAccounts(token,{base});
+    let snapshots;
+    if(parsed.account===undefined)snapshots=await readOpenOptions(token,{base});
+    else {
+      const account=accounts.find(a=>a.alias===parsed.account);
+      if(!account)throw new WwError('live: nickname unavailable in authorized Account scope; run ww ls accounts');
+      snapshots=await readOpenOptions(token,{base,account:account.id});
+    }
+    process.stdout.write(renderLive(snapshots,{...parsed,accounts,tty:!!process.stdout.isTTY,columns:process.stdout.columns}));
+    return;
+  }
   if(parsed.command==='history') {
     const token=await readApiToken();
     if(parsed.account===undefined) {

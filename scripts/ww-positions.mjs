@@ -88,8 +88,8 @@ export async function readPositionCollection(token, options = {}) {
   }
   return data.snapshots;
 }
-async function positionRequest(account, token, {base = process.env.WW_BASE_URL, fetchImpl = fetch, snapshotId, view} = {}) {
-  const command = view ? 'ls position-observations' : 'show positions';
+export async function positionRequest(account, token, {base = process.env.WW_BASE_URL, fetchImpl = fetch, snapshotId, view} = {}) {
+  const command = view === 'option-structure' ? 'live' : view ? 'ls position-observations' : 'show positions';
   if (account !== undefined && !canonicalAccountId(account)) throw new ShowError(`${command}: canonical Account ID required`);
   const config = showConfig(token, base);
   const url = new URL('/v2/positions', config.url);
