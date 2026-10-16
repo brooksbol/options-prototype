@@ -102,6 +102,7 @@ public class DatabaseManager {
         files.add("018_broker_scoped_accounts.sql");
         files.add("019_position_acquisition.sql");
         files.add("020_transaction_history.sql");
+        files.add("021_position_structure.sql");
         for (String f : known) {
             if (DatabaseManager.class.getClassLoader().getResource(MIGRATIONS_PATH + f) != null) {
                 files.add(f);
