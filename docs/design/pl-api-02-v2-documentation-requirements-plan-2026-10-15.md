@@ -5,7 +5,7 @@
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
-**Related defects:** GitHub issues #40, #41. **Closeout follow-up:** issue #39 implemented by verified Step 5; disposition recorded in the Step 5 evidence.
+**Related defects:** GitHub issues #40, #41. **Closeout follow-up:** issue #39 CLOSED as completed after verified Step 5 adoption; disposition recorded in the Step 5 evidence.
 
 ## Product boundary
 
@@ -256,3 +256,6 @@ Principal accepted the revised live API v2 documentation: 15 public REST operati
 ## Step 5 verified adoption — October 15, 2026
 
 [Procedure](../bootstrap/api-v2-documentation-update-procedure.md) provides exact triggers/exclusions, common prerequisites, accepted/no-op/pending routing, release identity commands, deterministic run/live checks, allowlist/security, bounded retry and nonblocking failure/closeout reporting. [Gate evidence](../reviews/pl-api-02-step5-review-and-test-2026-10-15.md) preserves initialf9ff1e6 REJECT for skipped no-op provisioning, corrected e5a67df separate Codex ACCEPT and new fresh-context execution PASS. Only then was the exact reviewed insertion applied to the existing End-of-Session Protocol. No new documentation platform, backend/OAS/agent-contract/public-content/workflow change or redeployment. Current live bytes remain accepted; issue39 reconciliation follows durable adoption. Original broader intake and deferred REST concerns are not falsely resolved by this bounded completion.
+
+
+**Step 5 durable handoff:** Adoption 5dffd58 pushed; final independent mechanical check preserves ACCEPT. Issue #39 closed as completed at 2026-10-16T02:58:26Z. Clean adopted-source rebuild/validation/live/browser checks pass unchanged public hashes; NO_UPDATE_REQUIRED, deployed source 011defb remains valid. Final evidence-only SYNC is reported after push. Broader original HTTP-boundary/domain intake remains deferred, not newly authorized or falsely resolved.
