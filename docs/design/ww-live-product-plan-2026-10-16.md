@@ -37,3 +37,16 @@ Architect and drive a bounded first `ww live` structural Product specimen using 
 
 ## Principal clarification — freshness/acquisition (October 16)
 The operator controls acquisition using the existing accepted `ww pull` command, then reads retained evidence with `ww live`, e.g. `ww pull && ww live`. `ww live` itself must not trigger implicit brokerage acquisition or new refresh infrastructure. Distinguish existing pull's actual source/coverage limits from a guarantee that all option quotes/orders are freshly available; display qualification. No new freshness-policy decision is required for the initial slice.
+
+## Principal Product decisions — completed October 16
+1. Membership precedence: explicit evidence-backed operator association first; brokerage-derived association as fallback only when unambiguous; otherwise individual inventory. Identical contracts may be displayed as one quantity row when no distinct managed associations require separation; display aggregation does not establish shared lifecycle or management.
+2. Consolidated default table across all authorized Accounts, BROKER and ACCOUNT as first columns; no account-by-account sections.
+3. Unsupported/incomplete Positions remain visible, with em dash (—) for unavailable values; do not silently omit holdings or turn unknown into zero.
+4. Initial strategy focus and default ordering: descending complexity/interest: iron condors, credit vertical spreads, single-leg options, then other holdings. Debit spreads later. This is ordering, not permission to infer membership from geometry.
+5. Deliver first runnable structural monitoring early: verified payoff geometry, strike ranges, qualified spot and available DTE; economic/management gaps shown as —. Full economic monitoring follows as backend capabilities mature.
+6. All authorized Accounts from the first release; no tastytrade-only phase.
+7. Independent verified geometry remains visible when spot or economics are unavailable. Principal expects a usable last known price outside trading hours/weekends. Backend must prefer an admissible retained last observation with its actual age/session/provenance; do not invent a price or mislabel stale as live. If no valid price evidence exists, display — while preserving geometry.
+8. Operator explicitly refreshes via existing `ww pull && ww live`; `ww live` is a retained-state read, with no implicit brokerage contact. Existing `ww pull` coverage limitations remain explicit.
+9. Screenshot is initial layout reference, not a fixed black-background theme; support light/dark/custom terminal backgrounds.
+
+These are Principal Product decisions, not proof that v2 already supplies missing semantics or authorization for operational acquisition/deployment. Codex should proceed with early specimen and escalate only actual unresolved consequential decisions one at a time.
