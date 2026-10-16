@@ -40,6 +40,23 @@
 
 **Step 4 — Publish and automate.** On favorable independent review and green gates, configure restricted GitHub Pages deployment from the validated artifact. Validate live site. Add automatic regeneration/publication on accepted v2 OAS changes, with fail-closed publishing on validation/security failure.
 
+
+### End-of-session documentation procedure — deferred precision requirement
+
+**Principal direction:** Near the end of PL-API-02, after the static documentation build, publication and CI path are verified, write an **executable, unambiguous operating procedure** for how the End-of-Session Protocol checks and updates API v2 documentation. Do not amend the ratified protocol prematurely. The procedure must be independently adversarially vetted by Codex before adoption. This refines Step 5 and issue #39, not a new workstream.
+
+**Acceptance criteria for the future procedure:**
+
+1. State exact triggers and exclusions: which accepted OAS/contract/route changes require validation, regeneration and publication; how to determine a no-op; what to do when an API-relevant change is not yet accepted.
+2. Name exact repository paths, required prerequisites, pinned tools, commands and working directories; specify input/source-of-truth files, generated output location, allowlist and artifact identities. Derive commands from the actually working implementation, never invent them now.
+3. Define deterministic step order, explicit success/failure signals, expected outputs, CI/deployment checks, and how to verify that the live Pages site corresponds to the accepted artifact. Separate build validation, publication, and observation of publication.
+4. Specify authorization and safety boundaries: no backend changes, no secrets or real financial examples, no interactive API execution, restricted workflow permissions, and preservation of unrelated/in-flight work.
+5. Give precise failure and recovery branches, including stale docs, failed validation, failed deployment, unavailable hosting, ambiguous source/acceptance state, and retry/idempotency considerations. **Documentation deployment failure is nonblocking for session closeout**, but must be recorded and reported truthfully; no false success claim.
+6. Specify durable evidence and final closeout reporting: source SHA, validation outcome, generated artifact identity/hash, deployment status, published version/date, outstanding defects, and next authorized action. Public UI need not display the SHA.
+7. Codex must independently attack the instructions for ambiguity, missing preconditions, unbounded actions, contradictory permissions, and non-reproducible steps. Require a cold-start actor to execute a dry-run or safe simulation using only the written procedure, then reconcile findings before ratifying the amendment.
+
+**Done means:** A fresh authorized actor can determine whether docs need updating and follow the complete verified path without guessing or asking the Principal to interpret routine steps. Preserve a clear no-op path and a nonblocking-but-reported failure path. Only then amend `docs/bootstrap/end-of-session-protocol.md` and reconcile issue #39 under existing governance.
+
 **Step 5 — Closeout integration.** Amend end-of-session protocol with documentation freshness/publication check; failures are reported but nonblocking for session closeout. Reconcile issue #39 and report final SYNC and published status.
 
 
