@@ -32,7 +32,7 @@ public class IntegratedUpdateFixture {
     }
     @org.springframework.boot.test.context.TestConfiguration
     @EnableAutoConfiguration
-    @Import({AccountsController.class,UsersController.class,ArtifactsController.class,PositionsController.class,PositionAcquisitionController.class,TransactionsController.class,MarketEvidenceSubjectsController.class})
+    @Import({PortfolioCapitalController.class,AccountsController.class,UsersController.class,ArtifactsController.class,PositionsController.class,PositionAcquisitionController.class,TransactionsController.class,MarketEvidenceSubjectsController.class})
     static class Fixture {
         @Bean(destroyMethod="close") SqliteEvidenceStore store()throws Exception{return new SqliteEvidenceStore(directory.resolve("fixture.sqlite3").toString());}
         @Bean AccountDirectory accounts(SqliteEvidenceStore store)throws Exception {var a=new AccountDirectory(store,"");a.bind("tt1","TASTYTRADE","TTTEST01");a.bind("pts","FIDELITY",fidelityAccount);return a;}
@@ -50,6 +50,7 @@ public class IntegratedUpdateFixture {
         @Bean BrokerageArtifacts artifacts(SqliteEvidenceStore store,ObjectMapper json,PositionReadService p,AccountDirectory a)throws Exception{return new BrokerageArtifacts(store,json,p,a);}
         @Bean TastytradeClient client(){return broker.client();}
         @Bean PositionAcquisition acquisition(SqliteEvidenceStore store,AccountDirectory a,PositionReadService p,TastytradeClient client)throws Exception{return new PositionAcquisition(store,a,p,client);}
+        @Bean PortfolioCapitalHistory capital(SqliteEvidenceStore store,BrokerageArtifacts artifacts)throws Exception{return new PortfolioCapitalHistory(store,artifacts);}
         @Bean TransactionHistory history(SqliteEvidenceStore store,AccountDirectory a)throws Exception{return broker.history(store,a,Duration.ofMinutes(5),true);}
         @Bean MarketEvidenceSubjects subjects(SqliteEvidenceStore store,AccountDirectory a,PositionReadService p,BearerAuthenticator auth) {
             return new MarketEvidenceSubjects(store,a,p,auth.authenticate("Bearer "+TOKEN).orElseThrow().userId());

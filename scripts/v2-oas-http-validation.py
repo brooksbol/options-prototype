@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise Step 1 against the existing integratedUpdateFixture only.
+"""Exercise accepted v2 contracts (including BUG-042) with integratedUpdateFixture only.
 Usage: python scripts/v2-oas-http-validation.py READY_JSON OUTPUT_JSON
 The fixture owns a disposable DB and loopback synthetic providers; no Downloads writes.
 """
@@ -102,6 +102,11 @@ def main():
         db.execute('UPDATE v2_user_account SET artifacts_read=1 WHERE user_id=? AND account_id=?',
                    (user['id'], tastytrade))
     try:
+        # BUG-042: actual authorized non-Fidelity error, checked against unchanged OAS.
+        capital = call('GET', '/v2/portfolio-capital-observations?accountId=' + tastytrade,
+                       '/v2/portfolio-capital-observations', 422)
+        assert capital['code'] == 'INVALID_REQUEST' and capital['detail'] == 'Fidelity evidence required'
+        assert capital['invalidParams'] == [{'name': 'accountId', 'reason': 'Fidelity Account required'}]
         inventory = call('GET', '/v2/artifacts?accountId=' + tastytrade, '/v2/artifacts')
         types = set()
         for value in inventory['artifacts']:

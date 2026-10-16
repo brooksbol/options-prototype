@@ -50,7 +50,7 @@ The specific business-validation branch calls the common Problem serializer with
 
 ## Scope / non-goals
 
-Registering this defect is authorized by the Principal's supplied next action. **Backend correction authorization remains explicitly pending in that directive.** Filing/review does not itself authorize remediation. No backend, OAS, grants, brokerage, database, Pages/workflow or operational behavior is changed by registration. No new GitHub Issue or PL identity is created.
+Registering this defect is authorized by the Principal's supplied next action. The initial registration directive left backend authorization pending. **Principal subsequently approved Decision A**, explicitly authorizing this one-branch correction, focused regression, actual-response/OAS validation, applicable tests, commit/push and separate independent verification. Filing/review alone did not supply that grant. No OAS weakening, unrelated backend change, operational grant/data/service change or publication is authorized. No new GitHub Issue or PL identity is created.
 
 ## Acceptance criteria
 
@@ -61,11 +61,28 @@ Registering this defect is authorized by the Principal's supplied next action. *
 
 ## Remediation history
 
-None. Open; backend correction not performed.
+October 15 — Principal-approved bounded author correction adds one accountId validation entry only to the non-Fidelity Portfolio Capital 422 branch. Status, code, detail, request correlation and no-store behavior are unchanged. Focused regression and existing integrated synthetic fixture/harness cover the branch. **Status remains Open pending separate independent verification; release is still REJECTED.**
 
 ## Verification
 
-Registration verification: source trace and synthetic unchanged-OAS negative/positive comparison described above. Runtime remediation and independent verification pending.
+Registration evidence remains preserved above. Author remediation verification:
+
+- Added `PortfolioCapitalHistoryTest.nonFidelityValidationIncludesAccountDetails`; ran against unchanged production code at `9ef78e6f14203def52008683481a1721c9fdc3de` and observed failure because invalidParams is not an array (field absent). Then made the one-branch correction; the test passes with exact status/code/detail, one accountId reason, content type, correlation and no-store assertions. The rejected candidate is preserved in Git; disposable red-run XML is `/tmp/ww-bug042-red.xml`.
+- Existing v2 suite: **177 tests, 176 passed, one optional skip, zero failures/errors**. Seven focused OAS conformance groups pass; 19 mapped operations and unchanged schemas/security remain covered.
+- Extended the existing integrated-update test fixture with the Portfolio Capital controller/service and reused the existing temporarily granted/restored synthetic tastytrade artifact-read scope. No new fixture framework, operational grant or real broker contact. Existing HTTP harness now validates **38 actual synthetic HTTP specimens**, including this exact 422 against the unchanged authoritative OAS, response headers and body/header correlation.
+- Actual corrected body preserves type `urn:wheelwright:problem:invalid_request`, title `Invalid request`, status 422, code `INVALID_REQUEST`, detail `Fidelity evidence required`; adds `invalidParams: [{"name":"accountId","reason":"Fidelity Account required"}]`. The HTTP sample uses correlation UUID `11111111-1111-4111-8111-111111111111`, `application/problem+json` and `Cache-Control: private, no-store`.
+- Disposable HTTP evidence: `/tmp/ww-bug042-http.JttBkV/http-samples.json`. Its owned fixture was stopped after verification. No operational API/provider/service or Downloads writes.
+
+Reproduce from repository root using the existing Python validation environment:
+
+```sh
+cd evidence-service-java
+./gradlew --offline test --tests 'com.wheelwright.evidence.v2.*'
+cd ..
+tools/api-docs/.venv/bin/python scripts/v2-oas-conformance-test.py
+```
+
+For actual HTTP verification, create a fresh temporary directory, start `./gradlew --offline integratedUpdateFixture -PfixtureReady=ABSOLUTE_TEMP_DIRECTORY/ready.json` from `evidence-service-java`, then run `tools/api-docs/.venv/bin/python scripts/v2-oas-http-validation.py ABSOLUTE_TEMP_DIRECTORY/ready.json ABSOLUTE_TEMP_DIRECTORY/http-samples.json` from repository root. Stop the owned fixture afterward. The harness validates this branch against the authoritative OAS rather than merely testing a synthetic example. Separate independent verification remains required; these are author results only.
 
 ## Related
 

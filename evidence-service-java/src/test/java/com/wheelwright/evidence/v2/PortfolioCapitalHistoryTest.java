@@ -80,6 +80,31 @@ class PortfolioCapitalHistoryTest {
    assertThat(response.getStatus()).isEqualTo(200);assertThat(response.getHeader("Cache-Control")).isEqualTo("private, no-store");assertThat(response.getContentAsString()).contains("\"observations\":[]");
   }
  }
+ @Test void nonFidelityValidationIncludesAccountDetails()throws Exception {
+  try(var f=new Fixture()) {
+   String account=f.accounts.bind("synthetic-tt","TASTYTRADE","TTSYNTHETIC01");
+   var mapper=new ObjectMapper();
+   var auth=new BearerAuthenticator(new UserDirectory(f.store,f.accounts),
+       "capital-reader=capital-reader:account.artifacts.read:"+account);
+   var mvc=MockMvcBuilders.standaloneSetup(new PortfolioCapitalController(f.accounts,f.service,auth,mapper)).build();
+   String requestId="11111111-1111-4111-8111-111111111111";
+   var response=mvc.perform(get("/v2/portfolio-capital-observations").param("accountId",account)
+       .header("Authorization","Bearer capital-reader").header("X-Request-Id",requestId)).andReturn().getResponse();
+   assertThat(response.getStatus()).isEqualTo(422);
+   assertThat(response.getContentType()).startsWith("application/problem+json");
+   assertThat(response.getHeader("X-Request-Id")).isEqualTo(requestId);
+   assertThat(response.getHeader("Cache-Control")).isEqualTo("private, no-store");
+   var problem=mapper.readTree(response.getContentAsString());
+   assertThat(problem.path("status").asInt()).isEqualTo(422);
+   assertThat(problem.path("code").asText()).isEqualTo("INVALID_REQUEST");
+   assertThat(problem.path("detail").asText()).isEqualTo("Fidelity evidence required");
+   assertThat(problem.path("requestId").asText()).isEqualTo(requestId);
+   assertThat(problem.path("invalidParams").isArray()).isTrue();
+   assertThat(problem.path("invalidParams").size()).isEqualTo(1);
+   assertThat(problem.path("invalidParams").get(0).path("name").asText()).isEqualTo("accountId");
+   assertThat(problem.path("invalidParams").get(0).path("reason").asText()).isEqualTo("Fidelity Account required");
+  }
+ }
  @Test void mixedOrUnknownSourceScopeNeverDisclosesFinancialProjection()throws Exception {
   try(var f=new Fixture()) {
    f.add("BALANCES",balances("2:06 PM","100000"));f.add("OPTION_SUMMARY",summary("2:06 PM","-200"));

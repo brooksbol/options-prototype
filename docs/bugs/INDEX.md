@@ -54,7 +54,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-040 | Inconsistent package midpoint aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-040-tt-live-inconsistent-package-aborts-scan.md) | Principal report and authorized correction 2026-10-13; installed verification |
 | BUG-041 | Credit vertical holding aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-041-tt-live-credit-vertical-aborts-scan.md) | Principal report and authorized correction 2026-10-14; installed verification |
 
-| BUG-042 | Portfolio Capital non-Fidelity 422 omits required validation details | Backend / v2 Portfolio Capital HTTP contract | S2 | Open | [record](BUG-042-portfolio-capital-422-missing-validation-details.md) | Independent PL-API-02 release REJECT / IRR-01, 2026-10-15 |
+| BUG-042 | Portfolio Capital non-Fidelity 422 omits required validation details | Backend / v2 Portfolio Capital HTTP contract | S2 | Open | [record](BUG-042-portfolio-capital-422-missing-validation-details.md) | Independent release REJECT / IRR-01; authorized author correction verified, separate independent verification pending |
 
 ## Open-bug audit checkpoint (2026-09-22)
 

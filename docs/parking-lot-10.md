@@ -660,7 +660,7 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 ## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
 
-> **Independent release review — REJECT:** IRR-01 is registered as [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md): non-Fidelity Portfolio Capital 422 lacks required invalidParams. Publication is on hold; this directive leaves bounded backend correction authorization pending. Accepted documentation/usability work remains preserved.
+> **Independent release review — REJECT:** IRR-01 is registered as [BUG-042](bugs/BUG-042-portfolio-capital-422-missing-validation-details.md): non-Fidelity Portfolio Capital 422 lacks required invalidParams. Publication is on hold. Principal subsequently approved Decision A; the one-branch correction is author-verified and awaits separate independent verification. BUG-042 remains Open and accepted documentation/usability work remains preserved.
 
 
 > **October 15, 2026 Principal decision — API documentation publication surface:** APPROVED: static browsable reference generated from authoritative OpenAPI, with Redocly preferred and GitHub Pages as host; no live API documentation UI or documentation runtime in the Wheelwright backend. Version-controlled OAS remains authoritative; generated pages are derived, validated and safe for publication. Verify Pages visibility/privacy before enabling publication. This resolves the publication-surface choice, **not** the broader PL-API-02 HTTP-boundary reconciliation or an implementation/deployment authorization. Fresh-thread handoff and bounded acceptance: [API documentation GitHub Pages checkpoint](design/api-documentation-github-pages-product-checkpoint-2026-10-15.md).

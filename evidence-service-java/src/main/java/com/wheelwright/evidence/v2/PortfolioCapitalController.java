@@ -40,7 +40,8 @@ public class PortfolioCapitalController {
         try {
             var account=accounts.get(accountId);
             if(account.isEmpty())return problem(ProblemCode.NOT_FOUND,id,"Account not found",null);
-            if(!account.get().brokerAssociation().broker().equals("FIDELITY"))return problem(ProblemCode.INVALID_REQUEST,id,"Fidelity evidence required",null);
+            if(!account.get().brokerAssociation().broker().equals("FIDELITY"))return problem(ProblemCode.INVALID_REQUEST,id,"Fidelity evidence required",
+                    List.of(new ProblemDetails.InvalidParam("accountId", "Fidelity Account required")));
             return response(200,id,MediaType.APPLICATION_JSON,service.read(accountId,id,caller.get()));
         } catch (SecurityException e) {
             return problem(ProblemCode.FORBIDDEN,id,"source scope not authorized",null);
