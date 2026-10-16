@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Steps 1–2 implemented; Kiro black-box usability exercise completed; Principal accepted ten-finding triage and bounded corrections #5/#7/#9. Unpublished candidate awaits separate independent release review. No independent acceptance or publication claimed.
+**Status:** Independent release review REJECT on IRR-01, registered as BUG-042. Publication on hold; bounded backend correction authorization pending. Earlier accepted documentation corrections and usability evidence remain preserved.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -199,3 +199,8 @@ Default local preview: **`tools/api-docs/dist/site/index.html`**. Build, validat
 October 15 Principal accepted the full ten-finding triage. Kiro's successful public-only usability exercise and Codex's author/browser comparison are distinct evidence, neither final release approval. [Canonical correction/disposition evidence](../reviews/pl-api-02-kiro-triage-2026-10-15.md) records the unchanged standalone report's identity, all ten findings, source authority, corrections and exact independent handoff.
 
 Only #5 (opaque authorityEpoch meaning), #7 (FORCE bypasses reuse without overriding contact restrictions) and #9 (supported Fidelity CSV formats/columns/processing rejection) are selected for bounded correction. Other seven findings are nonblocking; optional clarifications do not expand this delivery. Backend behavior, wire/security constraints, operational state, Pages/CI/publication, End-of-Session Protocol and issue disposition remain unchanged. Publication remains on hold until the separate independent release review passes. Codex author verification is not that review.
+
+
+## Independent release REJECT — IRR-01 / BUG-042
+
+October 15 Principal supplied the independent verdict: coverage 19/19, human documentation, Kiro usability, #5/#7/#9, reproducibility, inspected-artifact security and COTS compliance pass; runtime/OAS fidelity fails on the non-Fidelity Portfolio Capital 422 branch. These are reviewer results as supplied by the Principal, not a new author certification. [BUG-042](../bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) is the single durable defect identity; IRR-01 remains review provenance. Registering it does not authorize backend correction. The directive explicitly leaves that decision pending; the proposed one-branch correction/test is recorded without implementing it. Preserve the unchanged OAS convention and require a fresh immutable candidate and separate independent verification after authorized remediation. No publication.
