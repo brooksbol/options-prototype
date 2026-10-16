@@ -39,6 +39,22 @@ await search.fill('retained');await page.waitForTimeout(1000);
 assert.match((await page.locator('body').innerText()).slice(0,800),/×\nGET\nRead Account transaction history/);
 await search.fill('');await page.waitForTimeout(150);
 const upload=page.locator('[data-section-id="tag/Artifacts/operation/retainAndProcessAccountArtifact"]');
+// Accepted findings #5/#7/#9: inspect the public rendering, not private OAS.
+const acquisition=page.locator('[data-section-id="tag/Quotes/operation/acquireDirectQuotes"]');
+assert.match(await acquisition.innerText(),/FORCE bypasses reuse, not provider-contact restrictions/);
+assert.match(await acquisition.innerText(),/CONTACT_NOT_PERMITTED means policy prevented contact/);
+const held=page.locator('[data-section-id="tag/Quotes/operation/readHeldDirectQuote"]');
+await held.getByRole('button',{name:'expand provenance',exact:true}).click();
+assert.match(await held.innerText(),/Opaque Wheelwright fencing identifier/);
+await held.getByText('authorityEpoch',{exact:true}).scrollIntoViewIfNeeded();
+await page.screenshot({path:resolve(evidence,'provenance.png')});
+const uploadText=await upload.innerText();
+for(const text of ['Supported Fidelity CSV exports','POSITIONS','ACTIVITY','BALANCES','OPTION_SUMMARY',
+ 'Account number; Account name; Investment type','Run Date; Action; Symbol; Amount ($)',
+ 'Balance; Day change','Symbol; Strategy; Expiration & Strike; Quantity',
+ 'Option Summary {broker-account}','HTTP 200 with status REJECTED']) assert.ok(uploadText.includes(text),text);
+await upload.getByRole('heading',{name:'Supported Fidelity CSV exports',exact:true}).scrollIntoViewIfNeeded();
+await page.screenshot({path:resolve(evidence,'csv-formats.png')});
 await upload.getByRole('tab',{name:'Synthetic cURL',exact:true}).click();
 assert.match(await upload.innerText(),/api\.example\.invalid/);
 await upload.getByRole('button',{name:'Copy',exact:true}).first().click();
@@ -65,6 +81,7 @@ const report={mode:'AUTHOR_BROWSER_VERIFICATION_NOT_INDEPENDENT_REVIEW',browser:
  operationCount:agent.operationCount,nativeSearch:'PASS',nativeResponsiveLayout:'PASS at 1440 and 390px',
  schemasAndSyntheticCurl:'PASS',visibleErrorExample:'422 INVALID_REQUEST',publicAuthInstructions:'ABSENT',
  liveApiControls:'ABSENT',downloadOffer:'ABSENT',networkRequests:requests,unexpectedRequests:violations,
- pageErrors:errors,backendRequired:false,staticFileHydration:'PASS',nativeDarkMode:'UNAVAILABLE in pinned Redoc 2.5.4'};
+ pageErrors:errors,backendRequired:false,staticFileHydration:'PASS',acceptedTriageCorrections:'PASS: opaque provenance, FORCE contact policy, four CSV formats/rejection',
+ nativeDarkMode:'UNAVAILABLE in pinned Redoc 2.5.4'};
 await writeFile(resolve(evidence,'human-specimen.json'),JSON.stringify(report,null,2)+'\n');
 console.log('PASS: local-file human specimen, all operations, native search/responsive layout, cURL/error/schema, no HTTP requests or execution UI');

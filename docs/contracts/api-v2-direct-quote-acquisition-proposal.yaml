@@ -271,7 +271,7 @@ paths:
     post:
       operationId: acquireDirectQuotes
       summary: Acquire or revalidate direct quotes
-      description: Returns only when every requested subject has a terminal result. HTTP 200 denotes a completed operation, not fulfillment of every subject. Repeating ORDINARY reevaluates held-evidence reuse; repeating FORCE may cause another upstream attempt. X-Request-Id correlates but does not deduplicate.
+      description: Returns only when every requested subject has a terminal result. HTTP 200 denotes a completed operation, not fulfillment of every subject. Repeating ORDINARY reevaluates held-evidence reuse; repeating FORCE may cause another upstream attempt. X-Request-Id correlates but does not deduplicate. FORCE bypasses reuse, not provider-contact restrictions. Backend contact policy still applies at actual contact, including disabled off-hours contact. CONTACT_NOT_PERMITTED means policy prevented contact; UPSTREAM_UNAVAILABLE means the upstream source is unavailable for this attempt. Neither outcome is fulfilled, and retained prior evidence does not change that.
       security:
       - bearerAuth: []
       parameters:
@@ -908,7 +908,7 @@ components:
           default: ORDINARY
           description: >-
             ORDINARY may reuse eligible held evidence. FORCE bypasses reuse and
-            requires actual permitted upstream contact. This is acquisition intent,
+            requires actual permitted upstream contact. FORCE does not override provider-contact restrictions. This is acquisition intent,
             not an observation fact or downstream admissibility verdict.
     RequestedSubject:
       type: object
@@ -1143,7 +1143,7 @@ components:
           enum: [PRODUCTION, SANDBOX]
           description: Provider data environment, not client deployment environment.
         acquisitionId: { type: string, format: uuid, description: "Wheelwright identity of the accepted upstream attempt." }
-        authorityEpoch: { type: string, minLength: 1, description: "Opaque Wheelwright acquisition authority/fencing identity; no credential." }
+        authorityEpoch: { type: string, minLength: 1, description: "Opaque Wheelwright fencing identifier for the accepted upstream attempt. Preserve as provenance; not a timestamp or a client sequencing token." }
         acquisitionPhase:
           type: string
           enum: [REGULAR_USABLE, PRE_MARKET, POST_MARKET, CLOSED, UNKNOWN]

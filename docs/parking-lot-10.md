@@ -666,7 +666,7 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 
 
-> **October 15 — Step 2 author delivery:** The linked requirements plan records the unpublished static reference and repository-agent specimen for all 19 accepted v2 operations, 134 validated examples, locked reproducibility and human browser verification. Kiro public-only black-box acceptance and separate independent Codex review remain pending. Dark mode is nonblocking per Principal clarification. No publication, backend change, issue closure or broader weak-typing resolution.
+> **October 15 — Step 2 author delivery:** The linked requirements plan records the unpublished static reference and repository-agent specimen for all 19 accepted v2 operations, 134 validated examples, locked reproducibility and human browser verification. Kiro public-only black-box usability exercise is complete; Principal accepted all ten dispositions and bounded corrections #5/#7/#9. Separate independent release review remains pending; see [accepted triage](reviews/pl-api-02-kiro-triage-2026-10-15.md). Dark mode is nonblocking per Principal clarification. No publication, backend change, issue closure or broader weak-typing resolution.
 
 **Date:** October 5, 2026  
 **State:** INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized  

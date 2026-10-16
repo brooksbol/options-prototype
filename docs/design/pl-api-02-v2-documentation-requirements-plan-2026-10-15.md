@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Steps 1–2 implemented and author-verified; unpublished human/agent specimens ready for independent Step 3 review. No independent acceptance or publication claimed.
+**Status:** Steps 1–2 implemented; Kiro black-box usability exercise completed; Principal accepted ten-finding triage and bounded corrections #5/#7/#9. Unpublished candidate awaits separate independent release review. No independent acceptance or publication claimed.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -175,3 +175,10 @@ Default local preview: **`tools/api-docs/dist/site/index.html`**. Build, validat
 3. Assess both consumption methods before any publication. This delivery makes no independent approval claim and starts no Step 3 review, Pages configuration, CI publication, web-client migration, operational change, issue closure or End-of-Session Protocol amendment.
 
 **Remaining state:** Kiro black-box and independent Codex acceptance are pending. Existing later publication gates remain in force. No Principal decision is required to hand off this Step 2 specimen; dark mode is explicitly nonblocking.
+
+
+## Accepted Kiro triage — corrections before independent release review
+
+October 15 Principal accepted the full ten-finding triage. Kiro's successful public-only usability exercise and Codex's author/browser comparison are distinct evidence, neither final release approval. [Canonical correction/disposition evidence](../reviews/pl-api-02-kiro-triage-2026-10-15.md) records the unchanged standalone report's identity, all ten findings, source authority, corrections and exact independent handoff.
+
+Only #5 (opaque authorityEpoch meaning), #7 (FORCE bypasses reuse without overriding contact restrictions) and #9 (supported Fidelity CSV formats/columns/processing rejection) are selected for bounded correction. Other seven findings are nonblocking; optional clarifications do not expand this delivery. Backend behavior, wire/security constraints, operational state, Pages/CI/publication, End-of-Session Protocol and issue disposition remain unchanged. Publication remains on hold until the separate independent release review passes. Codex author verification is not that review.

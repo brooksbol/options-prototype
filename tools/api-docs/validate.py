@@ -108,6 +108,25 @@ def main():
                     validator = Draft202012Validator(dict(content['schema'], components=internal['components']),
                                                       format_checker=FormatChecker())
                     for example in content['examples'].values(): validator.validate(example['value'])
+    # Regressions from Kiro's accepted black-box findings: public filtering must
+    # preserve provenance/policy/format meaning, not just the wire constraints.
+    provenance = public['components']['schemas']['QuoteProvenance']['properties']['authorityEpoch']
+    assert 'opaque' in provenance['description'].lower() and 'fencing identifier' in provenance['description']
+    assert 'not a timestamp' in provenance['description']
+    quote = public['paths']['/v2/quotes']['post']['description']
+    assert 'FORCE bypasses reuse, not provider-contact restrictions' in quote
+    assert 'CONTACT_NOT_PERMITTED means policy prevented contact' in quote
+    assert 'UPSTREAM_UNAVAILABLE means the upstream source is unavailable' in quote
+    upload = public['paths']['/v2/artifacts']['post']['description']
+    for meaning in ('POSITIONS', 'ACTIVITY', 'BALANCES', 'OPTION_SUMMARY',
+                    'Account number; Account name; Investment type',
+                    'Run Date; Action; Symbol; Amount ($)', 'Balance; Day change',
+                    'Symbol; Strategy; Expiration & Strike; Quantity',
+                    'Date downloaded MMM-dd-yyyy', 'History_for_Account_',
+                    'Balances_for_Account_', 'Option Summary {broker-account}',
+                    '422 before source retention', 'HTTP 200 with status REJECTED',
+                    'prior admitted evidence remains intact'):
+        assert meaning in upload, meaning
     public_ids = []
     for path, item in public['paths'].items():
         for method, op in item.items():
