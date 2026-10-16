@@ -1,13 +1,13 @@
 # BUG-042 — Portfolio Capital non-Fidelity 422 omits required validation details
 
 - **Status:** Open
-- **Severity:** S3 — moderate contract-conformance failure; analyst assessment, not remediation priority
+- **Severity:** S2 — major, matching the independent reviewer’s MAJOR contract-fidelity classification; not remediation priority
 - **Area:** Backend / v2 Portfolio Capital HTTP error contract
 - **Provenance:** Principal-supplied independent PL-API-02 release review REJECT, finding IRR-01, October 15, 2026
 
 ## Observed failure
 
-The independent reviewer reported that an authenticated caller with the required Account-scoped artifact-read grant selecting an existing non-Fidelity Account receives HTTP 422 from `GET /v2/portfolio-capital-observations`, code INVALID_REQUEST, detail "Fidelity evidence required", without invalidParams. Principal supplied the REJECT verdict; the original full independent review artifact has not been supplied to this record. This is the release blocker IRR-01, not a separate defect identity.
+The independent reviewer reported that an authenticated caller with the required Account-scoped artifact-read grant selecting an existing non-Fidelity Account receives HTTP 422 from `GET /v2/portfolio-capital-observations`, code INVALID_REQUEST, detail "Fidelity evidence required", without invalidParams. Principal initially supplied the REJECT summary and subsequently supplied the full independent review in conversation. The review identifies exact candidate `f20185351ba2b34c5f7d136cc796f8583365e96f` and an actual MockMvc reproduction in `/tmp/wheelwright-release-review-20261015`. This is the release blocker IRR-01, not a separate defect identity.
 
 ## Intended semantics violated
 
@@ -18,6 +18,27 @@ The authoritative Account evidence OAS requires nonempty invalidParams for HTTP 
 At remotely verified `f20185351ba2b34c5f7d136cc796f8583365e96f`, `PortfolioCapitalController.read` passes null validation details for the existing non-Fidelity branch. `ProblemDetails.of` preserves null and NON_NULL serialization omits invalidParams. This source trace independently confirms the reported discrepancy.
 
 Applying the unchanged authoritative response schema through `Contracts.validate_response` rejects a synthetic body derived from that branch; adding the proposed validation entry passes. This is source/schema confirmation, **not a newly observed runtime HTTP response**. Existing `PortfolioCapitalHistoryTest.authenticationAccountGrantsValidationAndNoAdminBypass` exercises query/body validation and Fidelity success, but not this authorized non-Fidelity error branch or its exact Problem schema.
+
+### Full independent review subsequently supplied
+
+The reviewer reports executing the unchanged production controller through MockMvc with a disposable tastytrade Account/User and exact artifact-read grant. The actual returned body was:
+
+```json
+{
+  "type": "urn:wheelwright:problem:invalid_request",
+  "title": "Invalid request",
+  "status": 422,
+  "code": "INVALID_REQUEST",
+  "detail": "Fidelity evidence required",
+  "requestId": "33b46552-a96c-4cc1-994a-d7067831a649"
+}
+```
+
+The reviewer applied `Contracts.validate_response('GET', '/v2/portfolio-capital-observations', 422, payload)` and observed rejection of this **actual** response. This is independent runtime evidence supplied by the Principal, distinct from the registration actor's source-derived synthetic comparison. No live provider or operational service was involved. The reviewer reported 176 Java tests (175 passed/one skipped), 37 actual synthetic HTTP specimens, 25 held-detail and 62 discovery specimens, seven conformance groups and 134 examples passing; none covered this exact branch before the counterexample. No remediation or new author runtime execution is claimed.
+
+The full review classifies IRR-01 MAJOR; registration's preliminary S3 analyst assessment is superseded by S2 under the repository severity vocabulary. The independent REJECT applies to frozen `f201853`; subsequent registration/evidence commits contain no backend/OAS correction and do not resolve it.
+
+IRR-02 is a nondefect input transcription observation: one supplied prompt used a 63-character LICENSES digest. The handoff and independently generated artifact agree on the 64-character SHA-256 `56872a8c6112765251a061ad17fd179d42dae5c9eae53b28eab4ed187ea4f377`. No artifact/license correction or separate BUG identity is warranted.
 
 ## Consequence
 

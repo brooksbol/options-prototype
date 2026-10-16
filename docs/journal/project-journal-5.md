@@ -2162,3 +2162,8 @@ Principal accepted the ten-finding triage and selected only #5/#7/#9 for correct
 ### October 15, 2026 — PL-API-02 independent release REJECT / BUG-042 registration
 
 Principal supplied IRR-01: authorized non-Fidelity Portfolio Capital selection returns 422 without the nonempty invalidParams required by OAS. Registered [BUG-042](../bugs/BUG-042-portfolio-capital-422-missing-validation-details.md), preserving IRR-01 as provenance. Source/serializer trace and synthetic schema comparison confirm the discrepancy; no new runtime HTTP reproduction or fix is claimed. Reviewer reported all other release areas passing. Publication remains on hold. The supplied directive explicitly leaves bounded backend correction authorization pending; proposed one-branch additive validation detail and focused regression are concrete in the bug record. No backend, contract, operational or publication changes made by registration.
+
+
+### October 15, 2026 — Full independent PL-API-02 review evidence received
+
+Principal supplied the full review of frozen `f201853`: actual unchanged-controller MockMvc non-Fidelity 422 fails OAS. [BUG-042](../bugs/BUG-042-portfolio-capital-422-missing-validation-details.md) now preserves the actual error body and reviewer provenance, distinct from author/source-derived confirmation; severity is S2 matching review MAJOR, superseding preliminary S3. Other areas passed as reported; IRR-02 is a 63-character prompt hash transcription discrepancy, not an artifact defect (handoff and reproduced 64-character digest agree). No new bug, backend/OAS change, remediation or release approval. Authorization remains pending and publication remains on hold.

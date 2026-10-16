@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-16T00:26:02.242Z",
+    "generatedAt": "2026-10-16T00:29:04.389Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -10224,7 +10224,7 @@
       "id": "BUG-042",
       "title": "Portfolio Capital non-Fidelity 422 omits required validation details",
       "area": "Backend / v2 Portfolio Capital HTTP contract",
-      "severity": "S3",
+      "severity": "S2",
       "status": "Open",
       "recordFile": "BUG-042-portfolio-capital-422-missing-validation-details.md",
       "provenance": "Independent PL-API-02 release REJECT / IRR-01, 2026-10-15",
@@ -10233,7 +10233,7 @@
         {
           "heading": "Observed failure",
           "level": 2,
-          "content": "The independent reviewer reported that an authenticated caller with the required Account-scoped artifact-read grant selecting an existing non-Fidelity Account receives HTTP 422 from `GET /v2/portfolio-capital-observations`, code INVALID_REQUEST, detail \"Fidelity evidence required\", without invalidParams. Principal supplied the REJECT verdict; the original full independent review artifact has not been supplied to this record. This is the release blocker IRR-01, not a separate defect identity.",
+          "content": "The independent reviewer reported that an authenticated caller with the required Account-scoped artifact-read grant selecting an existing non-Fidelity Account receives HTTP 422 from `GET /v2/portfolio-capital-observations`, code INVALID_REQUEST, detail \"Fidelity evidence required\", without invalidParams. Principal initially supplied the REJECT summary and subsequently supplied the full independent review in conversation. The review identifies exact candidate `f20185351ba2b34c5f7d136cc796f8583365e96f` and an actual MockMvc reproduction in `/tmp/wheelwright-release-review-20261015`. This is the release blocker IRR-01, not a separate defect identity.",
           "truncated": false,
           "tables": []
         },
@@ -10249,6 +10249,13 @@
           "level": 2,
           "content": "At remotely verified `f20185351ba2b34c5f7d136cc796f8583365e96f`, `PortfolioCapitalController.read` passes null validation details for the existing non-Fidelity branch. `ProblemDetails.of` preserves null and NON_NULL serialization omits invalidParams. This source trace independently confirms the reported discrepancy.\n\nApplying the unchanged authoritative response schema through `Contracts.validate_response` rejects a synthetic body derived from that branch; adding the proposed validation entry passes. This is source/schema confirmation, **not a newly observed runtime HTTP response**. Existing `PortfolioCapitalHistoryTest.authenticationAccountGrantsValidationAndNoAdminBypass` exercises query/body validation and Fidelity success, but not this authorized non-Fidelity error branch or its exact Problem schema.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Full independent review subsequently supplied",
+          "level": 3,
+          "content": "The reviewer reports executing the unchanged production controller through MockMvc with a disposable tastytrade Account/User and exact artifact-read grant. The actual returned body was:\n\n```json\n{\n  \"type\": \"urn:wheelwright:problem:invalid_request\",\n  \"title\": \"Invalid request\",\n  \"status\": 422,\n  \"code\": \"INVALID_REQUEST\",\n  \"detail\": \"Fidelity evidence required\",\n  \"requestId\": \"33b46552-a96c-4cc1-994a-d7067831a649\"\n}\n```",
+          "truncated": true,
           "tables": []
         },
         {
