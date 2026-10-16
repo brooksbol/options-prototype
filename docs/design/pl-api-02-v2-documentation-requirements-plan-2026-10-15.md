@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Principal-scoped cleanup published from `011defb`: 15 public / 19 internal operations; engineering/live verification passes. Final Principal Product reinspection pending. Step 5/protocol amendment and PL closure remain deferred.
+**Status:** Principal Product acceptance PASSED October 15, 2026 (15 public / 19 internal operations). Step 5 authorized: executable closeout procedure, separate Codex adversarial review and cold-start execution before protocol adoption. PL-API-02 remains open until Step 5 verification.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -246,3 +246,8 @@ Principal completed first live-site walkthrough. **Product acceptance remains pe
 ## Bounded cleanup live verification complete
 
 [Successful deployment evidence](../reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md#observed-deployment-and-live-verification--success) records source 011defb, Actions 38840860205/deployment 7109396744 and exact artifact hashes. Live reference has 15 public operations; full internal OAS retains 19. Four exclusions, Identity self-inspection, native error titles, paragraph readability, no-orphan validation and exact prior Artifact preservation pass. Current public HTML is intentionally different from the original accepted publication. No backend/source-contract/status/domain redesign or protocol/PL closeout. Principal reinspects the revised site for final Product acceptance before Step 5.
+
+
+## Principal Product acceptance and Step 5 authorization — October 15, 2026
+
+Principal accepted the revised live API v2 documentation: 15 public REST operations, 19 authoritative internal OAS operations, coequal human/agent usability, static Redocly, automated GitHub Pages, COTS-first implementation, no interactive execution and preserved public/internal security boundaries. Remaining native rendering limitations are accepted as nonblocking; broader REST domain-model observations remain deferred. Step 5 is authorized through executable instructions, independent Codex adversarial review, cold-start execution and integration into the existing End-of-Session Protocol. No new backend/domain work is authorized. Candidate: `docs/bootstrap/api-v2-documentation-update-procedure.md`; proposed integration: `docs/reviews/pl-api-02-step5-integration-candidate-2026-10-15.md`. Adoption and issue #39 reconciliation await both gates.
