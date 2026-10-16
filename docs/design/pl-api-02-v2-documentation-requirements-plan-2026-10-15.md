@@ -259,3 +259,9 @@ Principal accepted the revised live API v2 documentation: 15 public REST operati
 
 
 **Step 5 durable handoff:** Adoption 5dffd58 pushed; final independent mechanical check preserves ACCEPT. Issue #39 closed as completed at 2026-10-16T02:58:26Z. Clean adopted-source rebuild/validation/live/browser checks pass unchanged public hashes; NO_UPDATE_REQUIRED, deployed source 011defb remains valid. Final evidence-only SYNC is reported after push. Broader original HTTP-boundary/domain intake remains deferred, not newly authorized or falsely resolved.
+
+## Principal final closeout — October 15, 2026
+
+**Principal instruction: CLOSE OUT.** The bounded PL-API-02 API v2 documentation delivery is **CLOSED / ACCEPTED**: Step 1 contracts corrected; Step 2 human-and-agent reference built; Step 3 independent ACCEPT after BUG-042 correction; Step 4 live GitHub Pages publication and Principal Product acceptance; Step 5 precise end-of-session documentation-update procedure adopted after separate Codex ACCEPT and fresh-context PASS. Public reference: https://brooksbol.github.io/options-prototype/ (15 public operations; 19 authoritative internal operations). Issue #39 is closed. The previously recorded Step 5 verification and sync remain the execution evidence; this entry records the subsequent Principal closeout decision, not a new execution claim.
+
+**Boundary:** This closes the **bounded documentation deliverable**, not every concern historically gathered under the original PL-API-02 HTTP-boundary intake. Deferred Portfolio/Positions, Evidence, Audit, Artifact, status-code, and URI/domain-model issues remain open for later separately authorized reconciliation. No backend/API redesign, redeployment, new Product scope, or closure of those deferred concerns is implied. The governed end-of-session documentation procedure applies to future accepted v2 documentation changes.
