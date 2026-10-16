@@ -189,7 +189,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `07c-adrs.md` — ADR-022 | Bounded opening-anchored short-option continuity precedent; see decision for scope |
 | `bootstrap/end-of-session-protocol.md` | Ratified methodology (containing session-closeout process; canonical invocation: “execute end of session protocol”) |
 | `bootstrap/project-memory-protocol.md` | Ratified methodology (documentation diligence / project memory) |
-| `bootstrap/api-v2-documentation-update-procedure.md` | Step 5 candidate executable documentation freshness/publication procedure; adoption requires separate Codex review and cold-start test. |
+| `bootstrap/api-v2-documentation-update-procedure.md` | Adopted API v2 documentation freshness/publication procedure; executable no-op/update/failure paths, independently reviewed and cold-start tested. |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
 | `bugs/README.md` | Ratified methodology (repository-native defect tracking: `BUG-NNN` identity, record format, lifecycle — the sole defect system of record) |
 
@@ -289,7 +289,10 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `design/pl-cli-01-historical-position-candidate.md` | Accepted historical Position catalog/selection, compact CLI, verification/deployment/recovery and provenance of the later bounded Portfolio Capital delivery |
 | `design/pl-cli-01-portfolio-capital-history.md` | Principal-accepted isolated PTS Portfolio Capital Unicode graph: retained source coverage, 44 composites/29 gaps, public read/Unix composition, frozen verification and unperformed deployment |
 | `design/ww-history-product-and-technical-proposal-2026-10-15.md` | Revised Account-nested transaction history proposal: one scoped history grant, bounded backend read-through, essential/deferred scope, seven-item review disposition and complete sanitized 21-record design specimens; approved checkpoint and implementation candidate are linked separately |
-| `reviews/pl-api-02-step5-integration-candidate-2026-10-15.md` | Exact proposed containing-protocol insertion, pending independent review/test before adoption. |
+| `reviews/pl-api-02-step5-review-and-test-2026-10-15.md` | Step 5 REJECT/correction/ACCEPT, separate cold-start PASS, adoption and unchanged-live evidence. |
+| `reviews/pl-api-02-step5-cold-start-2026-10-15.md` | Unchanged fresh-context corrected-candidate safe execution report: actual no-op and identity refusal; labeled failure/acceptance simulations. |
+| `reviews/pl-api-02-step5-cold-start-initial-2026-10-15.md` | Unchanged initial cold-start report, preserved separately from independent routing rejection and corrected adoption gate. |
+| `reviews/pl-api-02-step5-integration-candidate-2026-10-15.md` | Exact containing-protocol insertion, adopted after independent review/test; original proposal retained. |
 | `reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md` | Principal-scoped 15-public/19-internal projection, native rendering/editorial cleanup, Artifact preservation, revised artifact/deployment evidence and Product-reinspection boundary. |
 | `reviews/pl-api-02-pages-publication-2026-10-15.md` | Published [API v2 reference](https://brooksbol.github.io/options-prototype/), restricted Step 4 workflow, accepted/release identities and verified deployment; Principal Product review pending. |
 | `reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md` | Independent ACCEPT of 6126afd, BUG-042 resolution, actual-response/reproduction evidence identities and publication boundary. |

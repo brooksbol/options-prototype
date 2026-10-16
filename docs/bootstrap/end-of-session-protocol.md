@@ -77,6 +77,8 @@ Once invoked, execute the following without an intermediate plan/approval round-
 5. **Verify the workstream.**
    - Run the applicable verification needed to establish that the accepted work and its closeout state remain sound.
    - Re-run checks when closeout mutations could have changed the result; do not substitute an old green result when current verification is required.
+   - **Check API v2 documentation currency.** Execute [API v2 documentation update procedure](api-v2-documentation-update-procedure.md): inspect closing-workstream changes and the last verified deployment, determine accepted-update / no-op / acceptance-pending, validate and regenerate where required, and observe the exact-source Actions deployment and live artifact identities. Preserve the authoritative internal/public boundary and existing publication gates; a source push or green preview is not proof of publication.
+   - Perform the pre-persistence checks here, publication observation after the authorized persistence in item 6, and the final trigger/SYNC recheck in item 7. Documentation validation/deployment/hosting failure is nonblocking for ordinary session closeout: persist and report the exact unresolved status and next authorized action, without claiming synchronized docs or crossing missing Product/security authority.
 
 6. **Persist authorized closeout state.**
    - Commit/push the closing workstream and its ordinary scope-preserving reconciliation/persistence when that work is already authorized.

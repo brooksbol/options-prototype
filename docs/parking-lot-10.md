@@ -660,6 +660,8 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 ## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
 
+> **October 15, 2026 — bounded documentation delivery COMPLETE:** Principal Product acceptance plus [Step 5 evidence](reviews/pl-api-02-step5-review-and-test-2026-10-15.md) establish verified Steps1–5: separate Codex ACCEPT, fresh-context no-op/identity-refusal/failure simulations and adopted containing-protocol integration. Issue39 freshness follow-up is implemented; live15/internal19 contracts remain unchanged and no redundant deployment is required. Original broader HTTP-boundary/domain concerns remain deferred, not silently resolved or newly authorized.
+
 > **October 15, 2026 — Principal Product acceptance PASSED; Step 5 authorized:** The revised 15-public/19-internal API v2 documentation is accepted, including human/agent usability, static Redocly, automated Pages, COTS-first delivery and preserved security boundaries. Native presentation limitations are nonblocking; broader REST/domain-model concerns remain deferred. [Plan](design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md) now directs a precise executable documentation-closeout procedure, separate Codex adversarial review and cold-start execution before protocol adoption. This bounded documentation work remains open pending Step 5 verification; original broader intake below is not silently closed.
 
 > **Principal review — cleanup published:** Revised [live reference](https://brooksbol.github.io/options-prototype/) has 15 public operations and preserves 19 internal contracts. [Evidence](reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md) records source 011defb, successful deployment, native rendering/pruning/readability, exact Artifact preservation and hashes. Final Product reinspection pending; Step 5 and PL closure remain deferred.
@@ -680,7 +682,7 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 > **October 15 — Step 2 author delivery:** The linked requirements plan records the unpublished static reference and repository-agent specimen for all 19 accepted v2 operations, 134 validated examples, locked reproducibility and human browser verification. Kiro public-only black-box usability exercise is complete; Principal accepted all ten dispositions and bounded corrections #5/#7/#9. Separate independent release review remains pending; see [accepted triage](reviews/pl-api-02-kiro-triage-2026-10-15.md). Dark mode is nonblocking per Principal clarification. No publication, backend change, issue closure or broader weak-typing resolution.
 
 **Date:** October 5, 2026  
-**State:** INTAKE — durable identity established from OpenAPI/OAS investigation; strategic and architectural reconciliation remain unresolved; no implementation authorized  
+**State:** PARTIALLY RESOLVED — bounded API v2 documentation Product accepted; Steps 1–5 complete and verified October 15, 2026. Original broader HTTP-boundary/domain reconciliation remains DEFERRED; no backend/domain redesign authorized.
 **Trigger / why-state:** October 5, 2026 repository investigation of OpenAPI Specification (OAS) feasibility against the current Spring Boot HTTP surface. No separate discovery artifact is required at intake; the findings below preserve the material why-state.
 
 ### Intake

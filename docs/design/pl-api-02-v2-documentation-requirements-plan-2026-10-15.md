@@ -1,11 +1,11 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Principal Product acceptance PASSED October 15, 2026 (15 public / 19 internal operations). Step 5 authorized: executable closeout procedure, separate Codex adversarial review and cold-start execution before protocol adoption. PL-API-02 remains open until Step 5 verification.
+**Status:** Principal Product acceptance PASSED October 15, 2026; Steps 1–5 complete and verified. Documentation closeout procedure adopted after separate Codex ACCEPT and cold-start PASS. Bounded v2 documentation delivery complete; broader REST/domain-model concerns remain deferred.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
-**Related defects:** GitHub issues #40, #41. **Deferred:** issue #39, now selected for implementation after documentation baseline is working.
+**Related defects:** GitHub issues #40, #41. **Closeout follow-up:** issue #39 implemented by verified Step 5; disposition recorded in the Step 5 evidence.
 
 ## Product boundary
 
@@ -251,3 +251,8 @@ Principal completed first live-site walkthrough. **Product acceptance remains pe
 ## Principal Product acceptance and Step 5 authorization — October 15, 2026
 
 Principal accepted the revised live API v2 documentation: 15 public REST operations, 19 authoritative internal OAS operations, coequal human/agent usability, static Redocly, automated GitHub Pages, COTS-first implementation, no interactive execution and preserved public/internal security boundaries. Remaining native rendering limitations are accepted as nonblocking; broader REST domain-model observations remain deferred. Step 5 is authorized through executable instructions, independent Codex adversarial review, cold-start execution and integration into the existing End-of-Session Protocol. No new backend/domain work is authorized. Candidate: `docs/bootstrap/api-v2-documentation-update-procedure.md`; proposed integration: `docs/reviews/pl-api-02-step5-integration-candidate-2026-10-15.md`. Adoption and issue #39 reconciliation await both gates.
+
+
+## Step 5 verified adoption — October 15, 2026
+
+[Procedure](../bootstrap/api-v2-documentation-update-procedure.md) provides exact triggers/exclusions, common prerequisites, accepted/no-op/pending routing, release identity commands, deterministic run/live checks, allowlist/security, bounded retry and nonblocking failure/closeout reporting. [Gate evidence](../reviews/pl-api-02-step5-review-and-test-2026-10-15.md) preserves initialf9ff1e6 REJECT for skipped no-op provisioning, corrected e5a67df separate Codex ACCEPT and new fresh-context execution PASS. Only then was the exact reviewed insertion applied to the existing End-of-Session Protocol. No new documentation platform, backend/OAS/agent-contract/public-content/workflow change or redeployment. Current live bytes remain accepted; issue39 reconciliation follows durable adoption. Original broader intake and deferred REST concerns are not falsely resolved by this bounded completion.

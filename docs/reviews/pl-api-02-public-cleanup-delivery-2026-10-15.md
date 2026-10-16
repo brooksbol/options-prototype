@@ -2,7 +2,7 @@
 
 > **Subsequent Principal disposition — October 15, 2026:** Product acceptance PASSED for this revised 15-public/19-internal reference. Native limitations are nonblocking; broader domain observations remain deferred. Step 5 is now authorized under the governing requirements plan. Earlier pending-review statements below preserve delivery-time history.
 
-**Current status:** Published and engineering-verified; final Principal Product reinspection pending. Initial pending checkpoints below are preserved as history.
+**Current status:** Published, engineering-verified and Principal Product accepted October 15, 2026. Step 5 is authorized under the governing plan. Pending checkpoints below are preserved as history.
 
 
 **Authority:** Principal's [full live-site walkthrough](pl-api-02-principal-live-site-review-2026-10-15.md) and explicit bounded implementation/publication directive. Remotely verified baseline `c2f44a38ab3bc2b8ef974ca3a08bb328a2cdd451`; initial shared checkout clean. Existing isolated worktree protects unrelated work. No backend/OAS/agent-contract change, Artifact documentation edit, domain redesign, protocol amendment or PL closure.

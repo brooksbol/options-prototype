@@ -1,6 +1,6 @@
 # API v2 documentation — end-of-session update procedure
 
-**Status:** Candidate; not adopted until the Step 5 independent review and cold-start test pass.  
+**Status:** Adopted October 15, 2026 after separate Codex ACCEPT and fresh-context cold-start PASS on e5a67df; [gate evidence](../reviews/pl-api-02-step5-review-and-test-2026-10-15.md).
 **Authority:** [PL-API-02 plan](../design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md), Principal Product acceptance and Step 5 authorization, October 15, 2026.  
 **Parent:** [End-of-Session Protocol](end-of-session-protocol.md). This procedure supplies its documentation check, not a second closeout process or new execution grant.
 

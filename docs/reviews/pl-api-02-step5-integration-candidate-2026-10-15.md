@@ -1,6 +1,6 @@
 # PL-API-02 Step 5 — proposed protocol integration
 
-**Status:** Candidate, not adopted. Principal accepted the revised 15-public/19-internal documentation on October 15 and authorized Step 5. Existing deferred domain concerns/native presentation limitations do not block that acceptance. Independent review and cold-start execution must pass before applying the following exact insertion.
+**Status:** Adopted after independent ACCEPT and fresh-context execution PASS on e5a67df; the exact insertion below is now applied. Original proposal and pre-adoption gate wording follow as history. Principal accepted the revised 15-public/19-internal documentation on October 15 and authorized Step 5. Existing deferred domain concerns/native presentation limitations do not block that acceptance. Independent review and cold-start execution must pass before applying the following exact insertion.
 
 Insert at the end of item 5 (Verify the workstream), before item 6, in `docs/bootstrap/end-of-session-protocol.md`:
 
