@@ -14,6 +14,16 @@ DESCRIPTION
     reads may use bounded backend read-through with truthful status.
 
 WORKING COMMANDS
+    live [--account ACCOUNT] [--table | --jsonl] [--width COLUMNS] [--ascii] [--no-color]
+        Retained open-option construction view; one table across Accounts.
+        CONTRACT is underlying and quantity; COLLATERAL is actual associated
+        shares when established. Backend terms authorize actual payoff geometry.
+        Expired and non-option holdings have no standalone rows. Unknowns remain
+        unknown; Fidelity refresh indicator requires a concrete backend reason.
+        Geometry excludes premium, basis and fees; prices/management remain
+        unavailable in this increment. No acquisition or history read-through.
+        Ordinary ww positions remains comprehensive inventory. See ww live --help.
+
     history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl] [--verbose]
         Read Account-scoped transaction evidence; omitted Account composes
         authorized Account reads. tastytrade supports backend-policy read-through;

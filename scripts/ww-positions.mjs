@@ -88,8 +88,8 @@ export async function readPositionCollection(token, options = {}) {
   }
   return data.snapshots;
 }
-async function positionRequest(account, token, {base = process.env.WW_BASE_URL, fetchImpl = fetch, snapshotId, view} = {}) {
-  const command = view ? 'ls position-observations' : 'show positions';
+export async function positionRequest(account, token, {base = process.env.WW_BASE_URL, fetchImpl = fetch, snapshotId, view} = {}) {
+  const command = view === 'open-options' ? 'live' : view ? 'ls position-observations' : 'show positions';
   if (account !== undefined && !canonicalAccountId(account)) throw new ShowError(`${command}: canonical Account ID required`);
   const config = showConfig(token, base);
   const url = new URL('/v2/positions', config.url);
@@ -185,7 +185,7 @@ export function renderPositionCollection(snapshots, {accounts = [], ...options} 
 }
 
 // Human typography only: preserve raw source identities and explicit association labels.
-function compactContractLabel(position) {
+export function compactContractLabel(position) {
   const leg = position.constituents.length === 1 ? position.constituents[0] : null;
   const holding = leg?.holding;
   if (holding?.kind !== 'Options' || position.label !== holding.contract ||

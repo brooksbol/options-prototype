@@ -12,6 +12,7 @@ import java.util.*;
 public class PositionsController {
     public record CollectionRead(String requestId,List<PositionSnapshot.Read> snapshots) {}
     public record ObservationCollection(String requestId,List<PositionSnapshot.ObservationSummary> observations) {}
+    public record OpenOptionCollection(String requestId,List<OptionStructure.Read> optionSnapshots) {}
     private final AccountDirectory accounts;
     private final PositionReadService service;
     private final BearerAuthenticator auth;
@@ -36,7 +37,7 @@ public class PositionsController {
         if (badId) invalid.add(new ProblemDetails.InvalidParam("X-Request-Id", "must be a single UUID"));
         if (accountId != null && !AccountDirectory.validId(accountId)) invalid.add(new ProblemDetails.InvalidParam("accountId", "canonical Account ID required"));
         if (body != null && body.length > 0) invalid.add(new ProblemDetails.InvalidParam("body", "GET body unsupported"));
-        if (view != null && !view.equals("observations")) invalid.add(new ProblemDetails.InvalidParam("view", "only observations is supported"));
+        if (view != null && !Set.of("observations","open-options").contains(view)) invalid.add(new ProblemDetails.InvalidParam("view", "unsupported Position view"));
         if (snapshotId != null && (snapshotId.isBlank() || accountId == null || view != null))
             invalid.add(new ProblemDetails.InvalidParam("snapshotId", "nonblank exact snapshotId requires accountId and excludes view"));
         for (String name : Collections.list(request.getParameterNames()))
@@ -44,6 +45,16 @@ public class PositionsController {
                 invalid.add(new ProblemDetails.InvalidParam(name, "unknown or repeated query parameter"));
         if (!invalid.isEmpty()) return problem(ProblemCode.INVALID_REQUEST, id, "invalid read request", invalid);
         try {
+            if("open-options".equals(view)) {
+                var results=new ArrayList<OptionStructure.Read>();Instant evaluated=Instant.now();
+                if(accountId!=null) {
+                    var result=service.readOpenOptions(accountId,id,evaluated);
+                    if(result.isEmpty())return problem(ProblemCode.NOT_FOUND,id,"no admitted Position snapshot for this Account",null);
+                    results.add(result.get());
+                } else for(var account:accounts.list())if(caller.get().hasGrant("account.positions.read:"+account.id()))
+                    service.readOpenOptions(account.id(),id,evaluated).ifPresent(results::add);
+                return response(200,id,MediaType.APPLICATION_JSON,new OpenOptionCollection(id,List.copyOf(results)));
+            }
             if (view != null) {
                 var authorized = new HashSet<String>();
                 if (accountId != null) {

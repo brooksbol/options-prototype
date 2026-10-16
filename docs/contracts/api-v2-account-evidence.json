@@ -2,7 +2,7 @@
   "openapi": "3.1.1",
   "info": {
     "title": "Wheelwright v2 Account evidence, Positions and transaction history",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "description": "Bounded source retention, exact-row evidence admission and Position reads. No sophisticated historical reconciliation or recommendations. Canonical opaque resource identities, Account discovery and authorized-scope collections; persistence structure does not determine URI hierarchy. First-class User identity, authenticated self inspection and explicitly administrator-only User discovery; fixed many-to-many User\u2013Account authorization. Account-nested transaction history is a retained-first backend facade with one explicit Account history grant and policy-bounded source acquisition. No strategy/tax/P&L interpretation."
   },
   "servers": [
@@ -27,7 +27,7 @@
       "get": {
         "operationId": "readAccountPositions",
         "summary": "Read retained Position snapshots",
-        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Three request forms only: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.\n\n<!-- internal-only:start -->\nCollections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty.\n<!-- internal-only:end -->",
+        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Inventory/catalog request forms: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.\n\n<!-- internal-only:start -->\nCollections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty.\n<!-- internal-only:end -->\n\nview=open-options returns OpenOptionCollection: a pure retained-state construction view of nonzero, unexpired option inventory, explicit snapshot membership and individually unassociated option fallback. No geometry-based grouping. Different expirations split display subjects. A qualified instrument expiration instant, or expiration date before the New York inspection date when no exact instant is established, excludes the option without inferring execution. Same-day cutoff remains unknown without qualified exact terms. Non-option holdings never have standalone rows. Explicit associated shares may contribute actual collateral and payoff. Verified standard-share instrument records retained with the snapshot permit backend-computed piecewise-linear expiration intrinsic geometry, excluding opening premiums, cost basis, fees and execution. Adjusted or missing terms suppress geometry. Strategy names identify construction orientation, not proof of opening credit. Opening-fill chronology, occurrence continuity, qualified underlying spot and management remain unavailable. Refresh reasons are concrete expired Fidelity inventory, not arbitrary age. Ordinary inventory representation is unchanged. All Accounts share one evaluation instant but separate read transactions; no atomic cross-Account observation is claimed.",
         "security": [
           {
             "bearerAuth": []
@@ -63,6 +63,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/PositionObservationCollection"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OpenOptionCollection"
                     }
                   ]
                 },
@@ -116,10 +119,11 @@
             "schema": {
               "type": "string",
               "enum": [
-                "observations"
+                "observations",
+                "open-options"
               ]
             },
-            "description": "Complete authorized retained observation catalog. Optional accountId narrows scope. Cannot combine with snapshotId."
+            "description": "Complete authorized retained observation catalog. Optional accountId narrows scope. Cannot combine with snapshotId. open-options selects the semantic option construction view, without snapshotId."
           },
           {
             "name": "snapshotId",
@@ -3822,6 +3826,354 @@
           }
         },
         "description": "Bounded Account history. complete describes available normalized result, not lifetime history or atomic provider snapshot. Fidelity uses admitted activity rows with row-equivalence identity, unknown currency/freshness and no upstream acquisition."
+      },
+      "OpenOptionCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "optionSnapshots"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "optionSnapshots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpenOptionSnapshot"
+            }
+          }
+        }
+      },
+      "OpenOptionSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "broker",
+          "snapshotId",
+          "evidenceDate",
+          "recordedAt",
+          "evaluatedAt",
+          "sourceFile",
+          "sourceSha256",
+          "artifactId",
+          "positions",
+          "refreshReasons",
+          "qualifications"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "broker": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "type": "string"
+          },
+          "evidenceDate": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "evaluatedAt": {
+            "type": "string"
+          },
+          "sourceFile": {
+            "type": "string"
+          },
+          "sourceSha256": {
+            "type": "string"
+          },
+          "artifactId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpenOptionPosition"
+            }
+          },
+          "refreshReasons": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "EXPIRED_OPTIONS_IN_RETAINED_FIDELITY_SNAPSHOT"
+              ]
+            }
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OpenOptionPosition": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "positionId",
+          "sourcePositionId",
+          "identityBasis",
+          "membership",
+          "underlying",
+          "quantity",
+          "expiration",
+          "dte",
+          "firstOpeningFillAt",
+          "strategy",
+          "complexity",
+          "geometry",
+          "range",
+          "collateral",
+          "holdingIds",
+          "termsSources",
+          "qualifications"
+        ],
+        "properties": {
+          "positionId": {
+            "type": "string"
+          },
+          "sourcePositionId": {
+            "type": "string"
+          },
+          "identityBasis": {
+            "type": "string"
+          },
+          "membership": {
+            "type": "string"
+          },
+          "underlying": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quantity": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "expiration": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dte": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "firstOpeningFillAt": {
+            "type": "null",
+            "description": "No verified occurrence opening attribution in this bounded slice."
+          },
+          "strategy": {
+            "enum": [
+              "IRON_CONDOR",
+              "PUT_CREDIT_VERTICAL",
+              "CALL_CREDIT_VERTICAL",
+              "SINGLE_OPTION",
+              "NONSTANDARD",
+              "UNKNOWN"
+            ]
+          },
+          "complexity": {
+            "type": "integer"
+          },
+          "geometry": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OptionPayoffGeometry"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "range": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OptionStructureRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "collateral": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssociatedOptionCollateral"
+            }
+          },
+          "holdingIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "termsSources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OptionTermsSource"
+            }
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Snapshot-bound current construction. Explicit associations allocate whole holdings. Display identity incorporates Account, source Position identity, contracts and normalized ratios; proportional reductions preserve it. This does not establish closed/reopened occurrence continuity. Missing dates sort last; never use receipt time."
+      },
+      "OptionPayoffGeometry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "basis",
+          "knots",
+          "leftSlope",
+          "rightSlope",
+          "strikes"
+        ],
+        "properties": {
+          "basis": {
+            "const": "GROSS_EXPIRATION_INTRINSIC_BEFORE_PREMIUM"
+          },
+          "knots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OptionPayoffPoint"
+            },
+            "minItems": 1
+          },
+          "leftSlope": {
+            "type": "number"
+          },
+          "rightSlope": {
+            "type": "number"
+          },
+          "strikes": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "description": "Exact backend gross terminal intrinsic-value function: sorted knots and tail slopes; current quantities and actually associated shares. No opening premium, share basis, fees, breakeven or current P/L. Consumers may geometrically interpolate the supplied function for drawing, never reconstruct it from holdings. Missing market prices do not suppress independently qualified geometry."
+      },
+      "OptionPayoffPoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "underlyingPrice",
+          "value"
+        ],
+        "properties": {
+          "underlyingPrice": {
+            "type": "number"
+          },
+          "value": {
+            "type": "number"
+          }
+        }
+      },
+      "OptionStructureRange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "lower",
+          "upper"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "SHORT_STRIKE_INTERVAL",
+              "AT_OR_ABOVE_SHORT_STRIKE",
+              "AT_OR_BELOW_SHORT_STRIKE"
+            ]
+          },
+          "lower": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "upper": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "description": "Verified construction strike interval/half-line; never a profit range or breakeven."
+      },
+      "AssociatedOptionCollateral": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "symbol",
+          "quantity",
+          "currency"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "SHARES"
+            ]
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "null"
+          }
+        },
+        "description": "Actual positive share inventory explicitly associated in the same unsplit snapshot Position. Cash association evidence is not admitted by this slice; unknown is an empty list, not inferred required cash."
+      },
+      "OptionTermsSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourceFile",
+          "sha256",
+          "sourceItem"
+        ],
+        "properties": {
+          "sourceFile": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "sourceItem": {
+            "type": "integer"
+          }
+        },
+        "description": "Hash and one-based item of the original operator-supplied broker instrument response retained within the immutable snapshot. No broker-authentication, acquisition or source-clock claim is inferred from local import."
       }
     },
     "responses": {

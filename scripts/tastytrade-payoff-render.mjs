@@ -1,4 +1,38 @@
 // Line-based terminal geometry only; domain supplies verified payoff semantics.
+// General graph projection. Input is a backend-computed piecewise linear function,
+// never holdings, strikes with directions, or an option pricing calculation.
+export function piecewiseSilhouette(geometry,{width=31,ascii=false,spot=null}={}) {
+  const nodes=geometry.knots;
+  if(!nodes?.length)return {text:ascii?'--':'—'};
+  const first=nodes[0],last=nodes.at(-1),span=last.underlyingPrice-first.underlyingPrice||Math.max(1,first.underlyingPrice*.1);
+  const lo=Math.max(0,first.underlyingPrice-span*.15),hi=last.underlyingPrice+span*.15;
+  const step=(hi-lo)/(width-1);
+  if(nodes.some((p,i)=>i&&p.underlyingPrice-nodes[i-1].underlyingPrice<step))return {text:'[compressed]',compressed:true};
+  // Straight-line interpolation/extrapolation of supplied graph coordinates is
+  // rendering, like plotting SVG vertices; the backend owns the function itself.
+  const y=x=>{
+    if(x<first.underlyingPrice)return first.value+(x-first.underlyingPrice)*geometry.leftSlope;
+    if(x>=last.underlyingPrice)return last.value+(x-last.underlyingPrice)*geometry.rightSlope;
+    const i=nodes.findIndex(n=>n.underlyingPrice>x),a=nodes[i-1],b=nodes[i];
+    return a.value+(b.value-a.value)*(x-a.underlyingPrice)/(b.underlyingPrice-a.underlyingPrice);
+  };
+  const low=Math.min(y(lo),y(hi),...nodes.map(n=>n.value)),high=Math.max(y(lo),y(hi),...nodes.map(n=>n.value));
+  const level=value=>high===low?2:Math.round(4*(value-low)/(high-low));
+  const rails=ascii?['_','_','-','-','-']:['_','⎼','─','⎻','‾'];
+  const cells=Array.from({length:width},(_,i)=>rails[Math.max(0,Math.min(4,level(y(lo+i*step))))]);
+  const segments=[{underlyingPrice:lo,value:y(lo)},...nodes,{underlyingPrice:hi,value:y(hi)}];
+  for(let i=1;i<segments.length;i++) {
+    const a=segments[i-1],b=segments[i];
+    if(a.value===b.value||b.underlyingPrice-a.underlyingPrice<step)continue;
+    const at=Math.round(((a.underlyingPrice+b.underlyingPrice)/2-lo)/step);
+    if(at>=0&&at<width)cells[at]=b.value>a.value?(ascii?'/':'╱'):(ascii?'\\':'╲');
+  }
+  if(Number.isFinite(spot)) {
+    const at=Math.max(0,Math.min(width-1,Math.round((spot-lo)/step)));
+    cells[at]=spot<lo?(ascii?'<':'←'):spot>hi?(ascii?'>':'→'):spotGlyph(cells[at],ascii);
+  }
+  return {text:cells.join(''),lo,hi};
+}
 function spotGlyph(char, ascii) {
   if (char === '_') return ascii ? 'v' : '▼';
   if (['╱','╲','/','\\'].includes(char)) return ascii ? '*' : '◆';

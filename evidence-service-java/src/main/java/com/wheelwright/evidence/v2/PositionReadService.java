@@ -50,6 +50,21 @@ public class PositionReadService {
     public Optional<PositionSnapshot.Read> read(String account, String requestId, Instant now) throws Exception {
         return read(account, null, requestId, now);
     }
+    /** Separate semantic projection preserves the accepted comprehensive inventory representation. */
+    public Optional<OptionStructure.Read> readOpenOptions(String account,String requestId,Instant now) throws Exception {
+        try(var c=DriverManager.getConnection(url)) {
+            try(var p=c.createStatement()){p.execute("PRAGMA query_only=ON");}c.setAutoCommit(false);
+            try(var q=c.prepareStatement("SELECT payload_json FROM account_position_snapshot WHERE account=? ORDER BY evidence_date DESC, recorded_at DESC, snapshot_id DESC LIMIT 1")) {
+                q.setString(1,account);
+                try(var rs=q.executeQuery()) {
+                    if(!rs.next())return Optional.empty();
+                    var snapshot=mapper.readValue(rs.getString(1),PositionSnapshot.class);
+                    if(!account.equals(snapshot.account()))throw new IllegalStateException("snapshot Account mismatch");
+                    return Optional.of(OptionStructure.project(snapshot,requestId,now));
+                }
+            }
+        }
+    }
     public Optional<PositionSnapshot.Read> read(String account, String snapshotId, String requestId, Instant now) throws Exception {
         try (var c = DriverManager.getConnection(url)) {
             try (var p = c.createStatement()) { p.execute("PRAGMA query_only=ON"); }

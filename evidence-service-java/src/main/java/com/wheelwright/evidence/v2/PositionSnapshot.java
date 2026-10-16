@@ -7,7 +7,15 @@ import java.util.List;
 public record PositionSnapshot(String account, String brokerAccount, String accountName,
         String snapshotId, String evidenceDate, String recordedAt, String sourceFile,
         String sourceSha256, String artifactId, List<Constituent> holdings,
-        List<Association> associations, int excludedNonPositionRows, Observation observation) {
+        List<Association> associations, int excludedNonPositionRows, Observation observation, InstrumentEvidence instrumentEvidence) {
+    /** Operator-supplied original instrument response, retained with this immutable snapshot.
+     * Interpretation validates its hash and each contract; receipt is not a source observation clock. */
+    public record InstrumentEvidence(String sourceFile, String sha256, String payload) {}
+    public PositionSnapshot(String account,String brokerAccount,String accountName,String snapshotId,String evidenceDate,String recordedAt,
+            String sourceFile,String sourceSha256,String artifactId,List<Constituent> holdings,List<Association> associations,
+            int excludedNonPositionRows,Observation observation) {
+        this(account,brokerAccount,accountName,snapshotId,evidenceDate,recordedAt,sourceFile,sourceSha256,artifactId,holdings,associations,excludedNonPositionRows,observation,null);
+    }
     public record Observation(String broker, String environment, String acquisitionId, String startedAt,
             String receivedAt, String interpretationVersion, String sourceScope) {}
     public PositionSnapshot(String account,String brokerAccount,String accountName,String snapshotId,String evidenceDate,String recordedAt,

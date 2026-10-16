@@ -43,7 +43,8 @@ tasks.register<JavaExec>("importPositions") {
         project.findProperty("positionAccount") as? String,
         project.findProperty("positionBrokerAccount") as? String,
         project.findProperty("positionCsv") as? String,
-        project.findProperty("positionAssociations") as? String)
+        project.findProperty("positionAssociations") as? String,
+        project.findProperty("positionInstruments") as? String)
 }
 
 tasks.register<JavaExec>("analyzeSurface") {
@@ -73,6 +74,13 @@ tasks.register<Test>("reproduceRejectedSolidusTransport") {
 }
 
 // Isolated Principal-facing visual preview: test-only backend, synthetic provider, disposable DB.
+tasks.register<JavaExec>("optionStructurePreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.OptionStructurePreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}
+
 tasks.register<JavaExec>("step5Preview") {
     dependsOn(tasks.testClasses)
     mainClass.set("com.wheelwright.evidence.v2.Step5Preview")
