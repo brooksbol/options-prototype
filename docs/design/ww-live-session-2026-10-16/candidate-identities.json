@@ -1,0 +1,26 @@
+{
+  "backend-p2": {
+    "branch": "checkpoint/ww-live-backend-p2-2026-10-16",
+    "commit": "b7e00a4067ebb102afcc35c074a6aea9f00b799b",
+    "packet": "/tmp/ww-live-p2-implementation-r2",
+    "manifestSha256": "c35a7e5fb73e59c1b8b2f9c0a89394e18bf71c4239dba8edea37ebf814262e49"
+  },
+  "integrated": {
+    "branch": "checkpoint/ww-live-integrated-2026-10-16",
+    "commit": "15dfb94d868a06da30d05ab582467bd38f7bddb4",
+    "packet": "/tmp/ww-live-integrated-r1",
+    "manifestSha256": "ddad0536d647b0062b3005ddb2804746bb0fb5a24a081b544847b8648e157c90"
+  },
+  "visual": {
+    "branch": "checkpoint/ww-live-visual-2026-10-16",
+    "commit": "c7b684c69258567a9d327fc851ddcba283c804d2",
+    "packet": "/tmp/ww-live-visual-r1",
+    "manifestSha256": "5cff48b256e06af0e305647a6782fc0a95cc851dbcd9b5e5eeff9782a3e1d9c9"
+  },
+  "first-specimen": {
+    "branch": "checkpoint/ww-live-first-specimen-2026-10-16",
+    "commit": "56219559d0154b4486a8693abb05a884a3c8e1ec",
+    "sourceHead": "7ae274cbb0ad0ce77f21440b0c390558913f61e8",
+    "status": "HISTORICAL_UNREVIEWED_NOT_AUTHORITY"
+  }
+}

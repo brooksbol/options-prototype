@@ -1,0 +1,336 @@
+{
+  "requestId": "11111111-1111-4111-8111-111111111111",
+  "view": "option-structure",
+  "evaluatedAt": "2026-10-16T15:00:00Z",
+  "evaluationBasis": "RETAINED_INSPECTION",
+  "interpretationVersion": "option-structure-v1",
+  "accounts": [
+    {
+      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "availability": "RETAINED",
+      "snapshot": {
+        "snapshotId": "synthetic-snapshot",
+        "evidenceDate": "2026-10-16",
+        "recordedAt": "2026-10-16T15:00:00Z",
+        "observation": null,
+        "observationContext": {
+          "broker": "FIDELITY",
+          "evidenceDateBasis": "FIDELITY_EXPORT_DATE",
+          "evidenceDatePrecision": "DAY"
+        }
+      },
+      "evidenceSetId": "synthetic-evidence-set",
+      "evidenceQualification": "INCOMPLETE",
+      "structures": [
+        {
+          "subjectId": "synthetic-current-subject",
+          "inventoryPositionIds": [
+            "position-aaaaaaaaaaaaaaaaaaaaaaaa"
+          ],
+          "identity": {
+            "status": "UNKNOWN",
+            "value": null,
+            "evidenceIds": [],
+            "reasons": [
+              "SOURCE_NOT_ESTABLISHED"
+            ]
+          },
+          "membership": {
+            "status": "ESTABLISHED",
+            "basis": "EXPLICIT_ASSOCIATION",
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "constituents": [
+            {
+              "holdingId": "h0",
+              "observedContract": "synthetic-contract-0",
+              "custody": "BROKER_REPORTED",
+              "signedQuantity": "3",
+              "allocationEvidenceIds": [
+                "e1"
+              ],
+              "terms": {
+                "status": "ESTABLISHED",
+                "value": {
+                  "contractKey": "synthetic-term-0",
+                  "underlyingSymbol": "SPY",
+                  "expiration": "2026-11-20",
+                  "right": "PUT",
+                  "quotedStrike": "500",
+                  "priceMultiplier": "100",
+                  "deliverableShares": "100",
+                  "deliverableCash": "0",
+                  "exerciseAmount": "50000",
+                  "currency": "USD",
+                  "adjustment": "STANDARD",
+                  "settlement": "PHYSICAL_SINGLE_UNDERLYING"
+                },
+                "evidenceIds": [
+                  "e1"
+                ],
+                "reasons": []
+              }
+            },
+            {
+              "holdingId": "h1",
+              "observedContract": "synthetic-contract-1",
+              "custody": "BROKER_REPORTED",
+              "signedQuantity": "-3",
+              "allocationEvidenceIds": [
+                "e1"
+              ],
+              "terms": {
+                "status": "ESTABLISHED",
+                "value": {
+                  "contractKey": "synthetic-term-1",
+                  "underlyingSymbol": "SPY",
+                  "expiration": "2026-11-20",
+                  "right": "PUT",
+                  "quotedStrike": "510",
+                  "priceMultiplier": "100",
+                  "deliverableShares": "100",
+                  "deliverableCash": "0",
+                  "exerciseAmount": "51000",
+                  "currency": "USD",
+                  "adjustment": "STANDARD",
+                  "settlement": "PHYSICAL_SINGLE_UNDERLYING"
+                },
+                "evidenceIds": [
+                  "e1"
+                ],
+                "reasons": []
+              }
+            },
+            {
+              "holdingId": "h2",
+              "observedContract": "synthetic-contract-2",
+              "custody": "BROKER_REPORTED",
+              "signedQuantity": "-3",
+              "allocationEvidenceIds": [
+                "e1"
+              ],
+              "terms": {
+                "status": "ESTABLISHED",
+                "value": {
+                  "contractKey": "synthetic-term-2",
+                  "underlyingSymbol": "SPY",
+                  "expiration": "2026-11-20",
+                  "right": "CALL",
+                  "quotedStrike": "550",
+                  "priceMultiplier": "100",
+                  "deliverableShares": "100",
+                  "deliverableCash": "0",
+                  "exerciseAmount": "55000",
+                  "currency": "USD",
+                  "adjustment": "STANDARD",
+                  "settlement": "PHYSICAL_SINGLE_UNDERLYING"
+                },
+                "evidenceIds": [
+                  "e1"
+                ],
+                "reasons": []
+              }
+            },
+            {
+              "holdingId": "h3",
+              "observedContract": "synthetic-contract-3",
+              "custody": "BROKER_REPORTED",
+              "signedQuantity": "3",
+              "allocationEvidenceIds": [
+                "e1"
+              ],
+              "terms": {
+                "status": "ESTABLISHED",
+                "value": {
+                  "contractKey": "synthetic-term-3",
+                  "underlyingSymbol": "SPY",
+                  "expiration": "2026-11-20",
+                  "right": "CALL",
+                  "quotedStrike": "560",
+                  "priceMultiplier": "100",
+                  "deliverableShares": "100",
+                  "deliverableCash": "0",
+                  "exerciseAmount": "56000",
+                  "currency": "USD",
+                  "adjustment": "STANDARD",
+                  "settlement": "PHYSICAL_SINGLE_UNDERLYING"
+                },
+                "evidenceIds": [
+                  "e1"
+                ],
+                "reasons": []
+              }
+            }
+          ],
+          "underlying": {
+            "status": "ESTABLISHED",
+            "value": {
+              "symbol": "SPY",
+              "priceCurrency": "USD"
+            },
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "expiration": {
+            "status": "ESTABLISHED",
+            "value": {
+              "date": "2026-11-20",
+              "expiresAt": null
+            },
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "remainingDte": 35,
+          "openingFillAt": {
+            "status": "UNKNOWN",
+            "value": null,
+            "evidenceIds": [],
+            "reasons": [
+              "SOURCE_NOT_ESTABLISHED"
+            ]
+          },
+          "units": {
+            "status": "ESTABLISHED",
+            "value": "3",
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "strategy": {
+            "status": "ESTABLISHED",
+            "value": {
+              "kind": "IRON_CONDOR",
+              "optionLegCount": 4,
+              "complexityRank": 4
+            },
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "payoff": {
+            "status": "ESTABLISHED",
+            "value": {
+              "basis": "GROSS_EXPIRATION_EXERCISE_VALUE_BEFORE_PREMIUM_AND_BASIS",
+              "quantityBasis": "TOTAL_CURRENT_ALLOCATED_QUANTITIES",
+              "currency": "USD",
+              "domainMinimum": "0",
+              "knots": [
+                {
+                  "underlyingPrice": {
+                    "numerator": "0",
+                    "denominator": "1"
+                  },
+                  "terminalValue": {
+                    "numerator": "-3000",
+                    "denominator": "1"
+                  }
+                },
+                {
+                  "underlyingPrice": {
+                    "numerator": "500",
+                    "denominator": "1"
+                  },
+                  "terminalValue": {
+                    "numerator": "-3000",
+                    "denominator": "1"
+                  }
+                },
+                {
+                  "underlyingPrice": {
+                    "numerator": "510",
+                    "denominator": "1"
+                  },
+                  "terminalValue": {
+                    "numerator": "0",
+                    "denominator": "1"
+                  }
+                },
+                {
+                  "underlyingPrice": {
+                    "numerator": "550",
+                    "denominator": "1"
+                  },
+                  "terminalValue": {
+                    "numerator": "0",
+                    "denominator": "1"
+                  }
+                },
+                {
+                  "underlyingPrice": {
+                    "numerator": "560",
+                    "denominator": "1"
+                  },
+                  "terminalValue": {
+                    "numerator": "-3000",
+                    "denominator": "1"
+                  }
+                }
+              ],
+              "rightTailSlope": {
+                "numerator": "0",
+                "denominator": "1"
+              },
+              "includesAssociatedShares": false
+            },
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "range": {
+            "status": "ESTABLISHED",
+            "value": {
+              "kind": "SHORT_STRIKE_INTERVAL",
+              "lower": "510",
+              "upper": "550"
+            },
+            "evidenceIds": [
+              "e1"
+            ],
+            "reasons": []
+          },
+          "collateral": {
+            "status": "UNKNOWN",
+            "value": null,
+            "evidenceIds": [],
+            "reasons": [
+              "SOURCE_NOT_ESTABLISHED"
+            ]
+          },
+          "qualifications": [
+            "SYNTHETIC_SCHEMA_SPECIMEN_NOT_ACTUAL_EVIDENCE"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "evidenceId": "e1",
+          "kind": "EXPLICIT_ASSOCIATION",
+          "recordId": "synthetic-assertion",
+          "artifactId": null,
+          "sha256": null,
+          "sourceRows": [],
+          "sourceEffectiveAt": null,
+          "sourceDate": "2026-10-16",
+          "recordedAt": "2026-10-16T15:00:00Z",
+          "acquisitionStartedAt": null,
+          "acquisitionReceivedAt": null
+        }
+      ],
+      "excludedExpiredHoldingIds": [],
+      "refreshReasons": [],
+      "qualifications": [
+        "SYNTHETIC_SCHEMA_SPECIMEN_NOT_PROVENANCE_PROOF"
+      ]
+    }
+  ]
+}

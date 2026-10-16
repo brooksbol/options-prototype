@@ -1658,3 +1658,16 @@ Principal identifies inconsistent Fidelity/tastytrade POSITION / CONTRACT syntax
 | 2026-10-15 | Principal accepted ordinary installed `ww positions` across authorized Accounts, its single BROKER/ACCOUNT table and common human contract syntax, with `ww show positions` compatibility and holdings-only bare output. |
 
 End-of-Workstream Memory Check: existing PL-CLI-01 owner; no new intake, Bet, horizon, principle or ADR. Source-only completion gap and rejected JSONL framing are preserved; release/configuration/previous target/private evidence remain reconstructable. Coming Soon remains truthful for broader Position reassessment; no horizon change. Unrelated clean worktrees/checkpoint branch preserved; accepted pull/history, EVA and held managed-Position work remain unchanged. End-of-session protocol reconciles current index/canonical acceptance/journal, regenerates Roadmap, verifies and persists through accepted-main synchronization. Next authorized action after closeout: NONE.
+
+
+### `PL-CLI-01` / `PL-CONV-01` — ww live session stopped; visual acceptance NOT passed — October 16, 2026
+
+**Current state: STOPPED at Principal direction; resume only on subsequent Principal direction.** Backend P2/R2, integrated structural R1 and visual R1 are independently ACCEPTED for bounded engineering. Principal inspected the actual terminal and reports visual quality below accepted tt live: monotonous neutral geometry, insufficient unavailable-value alignment/overall hierarchy. Widths31/18/29 are correct. DTE lacks opening-duration evidence; EXIT lacks qualified economics/management. Do not fabricate either track, spot markers or financial regions. This Product observation is not an engineering REJECT and does not establish Product acceptance. Actual-Account verification remains outstanding; both P2 semantic findings remain DEFERRED.
+
+[Durable stopping point](design/ww-live-session-2026-10-16/README.md) contains exact GitHub source checkpoint branches/commits, original workspaces, manifests, unchanged independent reports, P1/P2 design/rejection evidence, test outcomes and first terminal captures. Current visual source archive is `c7b684c69258567a9d327fc851ddcba283c804d2` on `checkpoint/ww-live-visual-2026-10-16`. Source candidates remain isolated/uncommitted in their original workspaces; archival commits do not merge runtime/API into main or ratify Product acceptance. No source work was lost.
+
+On resumption only: bounded renderer refinement using accepted TT primitives; improve neutral actual-coordinate geometry and unknown alignment; preserve widths/default colors/narrow/ASCII; no invented financial/management facts. Then prioritize separately authorized actual-Account verification. No new intake, architecture, horizon, API design or implementation/review cycle now. No installation/deployment/restart/acquisition/migration/grant/credential/trading action. Accepted main documentation publication remains unchanged; candidate APIs are withheld from publication.
+
+| Date | Governed event |
+|---|---|
+| 2026-10-16 | Principal stopped ww live after engineering ACCEPT but visual acceptance NOT passed; preserved exact candidates and required neutral-renderer/unknown-alignment refinement before actual-Account verification. |

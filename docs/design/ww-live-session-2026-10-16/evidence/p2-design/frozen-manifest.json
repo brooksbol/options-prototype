@@ -1,0 +1,12 @@
+{
+  "proposal.md": "021980d236b973ccde5d86004a6382482328e11fa6b185d79c1235f6ed6af7f0",
+  "source-admission.md": "63f46256bed0daf93e109de06fc242e68526186c9f048412ae9b69cf44688aad",
+  "proposed-account-evidence.openapi.json": "6f5121481beefc79096a0e44c13962951a2862f3457e0e545e6903a66a4269f2",
+  "proposed-root.openapi.yaml": "1405c7f8e505eaa42729063fa53a1156dabb09b60e06de0baa680917f6b81728",
+  "structural-schemas.json": "f9574852c00d903acd23992bd8798fdab646aaebfd08e667501d465ecf19e8ba",
+  "verify-design.py": "d21c9a0c5e608776df4af4400f08cc99212569e17d512622346123ec9c60dbc8",
+  "synthetic-authoring-recorded-source-response.json": "64f1bd99c1f73f4eb0413ddf85409303f677a255b00c8734ecb1bf41b6044e69",
+  "fixtures/holdings.json": "98a68f62ec1db5f83765688d7d55c199cc12533056a7576293723bbbf6d124c9",
+  "fixtures/instruments.json": "c8f5ea54d7091fdae5582367994e2c76e2fed83dc1b8880d39333b03eb660b12",
+  "fixtures/synthetic-association-input.json": "8d059c7e5741095fbc086c3c28c2d424c64076a5578f7059b5276c1234267fa6"
+}

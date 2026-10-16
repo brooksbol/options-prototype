@@ -1,0 +1,10 @@
+
+ww live | retained open options
+BROKER      ACCOUNT          CONTRACT  COLLATERAL            TRADE SHAPE            RANGE             SPOT           DTE                  EXIT PROGRESS           QUOTE
+tastytrade  demo-tasty       XLE ×1    —           ____╱⎻‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾⎻╲____  59.5–64.5            —    35d                 —                                   —
+tastytrade  demo-tasty       XLE ×2    —           ____╱⎻‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾⎻╲____  59.5–64.5            —    35d                 —                                   —
+tastytrade  demo-tasty       QQQ ×1    —           ────⎻⎻╱⎻‾‾‾‾‾‾‾‾‾‾‾‾‾‾⎻⎻╲─⎼⎼╲__  —                    —    35d                 —                                   —
+tastytrade  demo-tasty       XLF ×1    —           _______⎼⎼⎼⎼⎼⎼──╱──⎻⎻⎻⎻⎻⎻‾‾‾‾‾‾‾  ≥52.5                —    35d                 —                                   —
+Fidelity    demo-fidelity ↻  XLE ×1 ?  —           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾⎻⎻⎻⎻──╲─⎼⎼⎼⎼__  —                    —    35d                 —                                   —
+Fidelity    demo-fidelity ↻  — ×1 ?    —           —                                —                    —    35d                 —                                   —
+Fidelity    demo-fidelity ↻  — ×1 ?    —           —                                —                    —    35d                 —                                   —

@@ -1,0 +1,26 @@
+{
+  "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "snapshotId": "synthetic-selected-snapshot",
+  "submissionId": "33333333-3333-4333-8333-333333333333",
+  "action": "ASSERT",
+  "supersedesAssociationId": null,
+  "allocations": [
+    {
+      "holdingId": "h0",
+      "signedQuantity": "1"
+    },
+    {
+      "holdingId": "h1",
+      "signedQuantity": "-1"
+    },
+    {
+      "holdingId": "h2",
+      "signedQuantity": "-1"
+    },
+    {
+      "holdingId": "h3",
+      "signedQuantity": "1"
+    }
+  ],
+  "declaration": "THESE_ALLOCATIONS_FORM_ONE_CURRENT_MANAGED_OPTION_POSITION"
+}

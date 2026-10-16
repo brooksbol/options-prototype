@@ -1,0 +1,22 @@
+{
+  "docs/cli/ww-man.txt": "2da695de6164848105a8a273c93cae01b53f52a002963ad55825c705c35d4c81",
+  "docs/contracts/api-v2-account-evidence.json": "082a2f9da26f9d3257d4a26c75eeb48c15e60f9c5296b3f8e31a5c892504f745",
+  "docs/design/ww-live-first-specimen-2026-10-16.md": "991137b670b19ea5192b175cb8e0a44181654b68962fb9c05efd53f30334bcb6",
+  "docs/design/ww-live-structural-specimen-2026-10-16.md": "98e254914d9ac4884e21a9ef20f4469062b7ca2ef6411ae30c3e84c66a81d952",
+  "evidence-service-java/build.gradle.kts": "89d904bbab8494fa3d4738cafb6f2012bd66038e8673454f99e204c67aa4f444",
+  "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/ImportPositionSnapshot.java": "0372a8bd01416de84df51d2fc40cb40e7fe4315ff7a89edcfd9602cdf39fcd1a",
+  "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/OptionContractTerms.java": "998b8f217979a24ded47dbad6d384df2974ed1c5d2784409404c0b345398e379",
+  "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/OptionStructure.java": "f1a3f242e20f7d6e6fb3049b2673aa16b26d437ed980bf276d6b1a360be38158",
+  "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionReadService.java": "cf4105070e146a509b5c2d747959c3b0f5e32048f58720b7f9ef10e12a456237",
+  "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionSnapshot.java": "d932133a23f37726edd20209b8c1053d4b2f565ec32610cfb705f6b1f5583219",
+  "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionsController.java": "1be272c28a5b8bd9740c3345ad825eacda1680d3bf2a11d34ec6ad8ad4582808",
+  "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/OptionStructurePreview.java": "e62c00faed6f30fb7e931b49fd740600a666fe062dbfb161fb4531a92f5237b1",
+  "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/OptionStructureTest.java": "f1ddacb79c73b3676ab1ad09288d30c0d3747b7a0f7f36c4003ad2ab25b4f6cd",
+  "scripts/tastytrade-live-render.mjs": "9b9af94a259ef3f1d90d5d1ea997ce695cb0d4032f9db3f76d2e814f7c3ae806",
+  "scripts/tastytrade-payoff-render.mjs": "faab2e9a5305748682dabd7e2121ecf015fab21c2a04ab4d256417da574b731c",
+  "scripts/wheelwright.mjs": "665064032fd207bb060dd8d381ed1dacf7f998fe123ef8ba27c2be1b8e60351d",
+  "scripts/ww-live-preview.mjs": "00c652ddd37c4384ba839f6b073d5babb0b07513f06cf4527a246328c236130a",
+  "scripts/ww-live.mjs": "fb9d2bf0003301d6da841cfd57868f1c58d03030805d45f4947609fd73e18f41",
+  "scripts/ww-live.test.mjs": "3758342c0587322a0d2546e83d385fef6f997783f1d85595c25b3283c6f15a44",
+  "scripts/ww-positions.mjs": "0ba7a2bd6c98a9a6c2563cb56723f7bd266e06c0f14d58cf04a2cd1b92241eec"
+}

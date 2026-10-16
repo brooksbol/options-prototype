@@ -1,0 +1,33 @@
+✔ argument parsing and help need no backend (1269.60625ms)
+✔ backend response preserves absence, failed acquisition, and honest timestamp semantics (0.379333ms)
+✔ numeric sorting, null placement, ties, and exact record preservation (0.548333ms)
+✔ source requests explicit symbols; JSON Lines pipe into sort; backend failure is diagnostic (151.673167ms)
+✖ malformed stdin reports stderr; broken pipe exits without stack trace (118.605375ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1616.575875
+
+✖ failing tests:
+
+test at scripts/wheelwright.test.mjs:183:1
+✖ malformed stdin reports stderr; broken pipe exits without stack trace (118.605375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/bollich/kiro/ww-live-integrated/scripts/wheelwright.test.mjs:196:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

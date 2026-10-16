@@ -1,0 +1,1803 @@
+openapi: 3.1.1
+info:
+  title: "Wheelwright v2 canonical evidence \u2014 quotes and accounts"
+  version: 0.7.0-proposal.2
+  description: UNAPPROVED P2 DESIGN REVIEW ARTIFACT.
+externalDocs:
+  description: Repository contract entry point and semantic authority
+  url: https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md
+servers:
+- url: /
+tags:
+- name: Accounts
+  description: Account identity and broker association.
+- name: Users
+  description: User identity and capability metadata.
+- name: Positions
+  description: Retained Position inspection and holdings acquisition.
+- name: Portfolio capital
+  description: Qualified capital composites from retained sources.
+- name: Artifacts
+  description: Exact source retention, metadata and CSV processing.
+- name: Transactions
+  description: Account-nested transaction evidence and coverage.
+- name: Market evidence
+  description: Backend selection of relevant subjects.
+- name: Quotes
+  description: Explicit acquisition and provider-free held-evidence reads.
+paths:
+  /v2/market-evidence-subjects:
+    $ref: api-v2-market-evidence-subjects.json#/paths/~1v2~1market-evidence-subjects
+  /v2/accounts/{accountId}/transactions:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions
+  /v2/accounts/{accountId}/transactions/{transactionId}:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions~1{transactionId}
+  /v2/users:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1users
+  /v2/users/{userId}:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1users~1{userId}
+  /v2/me:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1me
+  /v2/position-acquisitions:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1position-acquisitions
+  /v2/portfolio-capital-observations:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1portfolio-capital-observations
+  /v2/positions:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1positions
+  /v2/artifacts:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1artifacts
+  /v2/artifacts/{artifactId}:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}
+  /v2/artifacts/{artifactId}/content:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1content
+  /v2/artifacts/{artifactId}/imports:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1imports
+  /v2/accounts:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1accounts
+  /v2/accounts/{accountId}:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}
+  /v2/quotes:
+    get:
+      operationId: listHeldDirectQuotes
+      summary: List held direct quotes
+      description: 'Held-evidence reads never acquire or revalidate evidence. This
+        GET causes no upstream provider contact, acquisition, worker/enrollment/membership
+        changes, Decision traversal, or freshness/reuse evaluation. Enumerates all
+        direct_quote holdings independently of membership, age, reuse eligibility
+        and active provider environment. One committed discovery item per canonical
+        symbol, deterministic uppercase ordinal symbol ascending, no history. No body/query
+        parameters: any parameter presence or nonempty body is 422. No limit, pagination,
+        filtering, sort/projection parameters, ETag or 304; If-None-Match is ignored.
+        POST''s 30-subject cap does not apply. Entire result is materialized/validated/serialized
+        before success. Concurrent replacement can return old or new complete committed
+        version, never both/torn/uncommitted; continuously held subjects are included.
+        Concurrent insert/remove may appear or be absent; no collection-wide single-instant
+        snapshot is promised. See api-v2-held-quotes-read.md for the normative enumeration
+        interval and CLI contract. No automatic read/acquire privilege inheritance.
+
+
+        <!-- internal-only:start -->
+
+        Authenticate, authorize quote.read, then validate and enumerate.
+
+        <!-- internal-only:end -->'
+      security:
+      - bearerAuth: []
+      x-required-grants:
+      - quote.read
+      x-unsupported-query-parameters: Any query parameter presence is INVALID_REQUEST/422,
+        including empty and repeated parameters.
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: false
+        description: Single optional UUID (hex 8-4-4-4-12, case insensitive), surrounding
+          whitespace trimmed and echoed. Absent/blank generates one. Multiple or nonblank
+          invalid values are 422 after auth/authorization; errors use a generated
+          valid UUID. Correlation only, never idempotency.
+        schema:
+          type: string
+          pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
+        example: 11111111-1111-4111-8111-111111111111
+      responses:
+        '200':
+          description: Complete current canonical quote-holdings inventory, ordered
+            by uppercase symbol; empty items is successful. Complete committed items,
+            no collection-wide single-instant snapshot guarantee.
+          headers:
+            X-Request-Id: &id001
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control: &id002
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeldQuotesReadResponse'
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    items:
+                    - observationId: 22222222-2222-4222-8222-222222222222
+                      subject:
+                        symbol: SPY
+                        securityType: ETF
+                      provenance:
+                        provider: tradier
+                        environment: SANDBOX
+                        receivedAt: '2026-10-15T20:00:00Z'
+                        committedAt: '2026-10-15T20:00:00Z'
+        '401':
+          description: Missing or invalid Bearer credential.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+            WWW-Authenticate:
+              required: true
+              schema:
+                type: string
+                const: Bearer
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 401
+                    code:
+                      const: UNAUTHENTICATED
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:unauthenticated
+                    title: Unauthenticated
+                    status: 401
+                    code: UNAUTHENTICATED
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 401 example.
+        '403':
+          description: Authenticated principal lacks quote.read; acquire/force grants
+            do not imply read.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 403
+                    code:
+                      const: FORBIDDEN
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:forbidden
+                    title: Forbidden
+                    status: 403
+                    code: FORBIDDEN
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 403 example.
+        '422':
+          description: Invalid correlation, any query parameter, or nonempty GET body.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 422
+                    code:
+                      const: INVALID_REQUEST
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:invalid_request
+                    title: Invalid request
+                    status: 422
+                    code: INVALID_REQUEST
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 422 example.
+                    invalidParams:
+                    - name: request
+                      reason: Synthetic invalid input
+        '500':
+          description: Unexpected storage, enumeration, discovery mapping or serialization
+            failure; never partial inventory or empty substitution.
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 500
+                    code:
+                      const: INTERNAL_ERROR
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:internal_error
+                    title: Internal error
+                    status: 500
+                    code: INTERNAL_ERROR
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 500 example.
+        '503':
+          description: 'Read cannot start: approved authentication or held storage
+            unavailable. Provider outage alone does not cause this error.'
+          headers:
+            X-Request-Id: *id001
+            Cache-Control: *id002
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuotesReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 503
+                    code:
+                      const: CAPABILITY_UNAVAILABLE
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:capability_unavailable
+                    title: Capability unavailable
+                    status: 503
+                    code: CAPABILITY_UNAVAILABLE
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 503 example.
+      tags:
+      - Quotes
+      externalDocs:
+        description: Product and domain contract
+        url: https://github.com/brooksbol/options-prototype/blob/main/docs/contracts/api-v2-held-quotes-read.md
+      x-codeSamples:
+      - lang: curl
+        label: Synthetic cURL
+        source: "curl --request GET 'https://api.example.invalid/v2/quotes' \\\n \
+          \ --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+    post:
+      operationId: acquireDirectQuotes
+      summary: Acquire or revalidate direct quotes
+      description: Returns only when every requested subject has a terminal result.
+        HTTP 200 denotes a completed operation, not fulfillment of every subject.
+        Repeating ORDINARY reevaluates held-evidence reuse; repeating FORCE may cause
+        another upstream attempt. X-Request-Id correlates but does not deduplicate.
+        FORCE bypasses reuse, not provider-contact restrictions. Backend contact policy
+        still applies at actual contact, including disabled off-hours contact. CONTACT_NOT_PERMITTED
+        means policy prevented contact; UPSTREAM_UNAVAILABLE means the upstream source
+        is unavailable for this attempt. Neither outcome is fulfilled, and retained
+        prior evidence does not change that.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: X-Request-Id
+        in: header
+        required: false
+        description: Optional caller UUID for correlation only; surrounding whitespace
+          is trimmed and echoed. Absent or blank generates one. Not an idempotency
+          key.
+        schema:
+          type: string
+          pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
+        example: 11111111-1111-4111-8111-111111111111
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireQuotesRequest'
+            example:
+              subjects:
+              - symbol: SPY
+              mode: ORDINARY
+      responses:
+        '200':
+          description: All subjects have terminal independent results; some or all
+            may fail.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireQuotesResponse'
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    mode: ORDINARY
+                    startedAt: '2026-10-15T20:00:00Z'
+                    completedAt: '2026-10-15T20:00:00Z'
+                    results:
+                    - subject:
+                        symbol: SPY
+                      outcome: NEWLY_ACQUIRED
+                      fulfilled: true
+                      observation:
+                        observationId: 22222222-2222-4222-8222-222222222222
+                        subject:
+                          symbol: SPY
+                          securityType: ETF
+                        facts:
+                          last:
+                            price: 100
+                          bid:
+                            price: 99.9
+                          ask:
+                            price: 100.1
+                        provenance:
+                          provider: tradier
+                          environment: SANDBOX
+                          acquisitionId: 22222222-2222-4222-8222-222222222222
+                          authorityEpoch: synthetic-epoch
+                          acquisitionPhase: CLOSED
+                          receivedAt: '2026-10-15T20:00:00Z'
+                          committedAt: '2026-10-15T20:00:00Z'
+                      priorRetained: false
+        '400':
+          $ref: '#/components/responses/Problem400'
+        '401':
+          $ref: '#/components/responses/Problem401'
+        '403':
+          $ref: '#/components/responses/Problem403'
+        '415':
+          $ref: '#/components/responses/Problem415'
+        '422':
+          $ref: '#/components/responses/Problem422'
+        '500':
+          $ref: '#/components/responses/Problem500'
+        '503':
+          $ref: '#/components/responses/Problem503'
+      tags:
+      - Quotes
+      externalDocs:
+        description: Product and domain contract
+        url: https://github.com/brooksbol/options-prototype/blob/main/docs/contracts/api-v2-direct-quote-acquisition-proposal.md
+      x-codeSamples:
+      - lang: curl
+        label: Synthetic cURL
+        source: "curl --request POST 'https://api.example.invalid/v2/quotes' \\\n\
+          \  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111' \\\n  --header\
+          \ 'Content-Type: application/json' \\\n  --data-raw '{\"subjects\":[{\"\
+          symbol\":\"SPY\"}],\"mode\":\"ORDINARY\"}'"
+  /v2/quotes/{symbol}:
+    get:
+      operationId: readHeldDirectQuote
+      summary: Read a held direct quote
+      description: "Pure held-evidence read: no acquisition, provider contact, reuse\
+        \ evaluation or evidence mutation. Decode the canonical path-symbol token\
+        \ exactly once before lookup. Complete strict persisted validation precedes\
+        \ response/projection; malformed present optional fields are INTERNAL_ERROR,\
+        \ not repaired or dropped. Valid unheld canonical subject is NOT_FOUND. Preserves\
+        \ original identity, facts and provenance. Query parameters/nonempty body\
+        \ are INVALID_REQUEST. No history, ETag, 304, redirect or fallback; If-None-Match\
+        \ is ignored. Standard container defaults remain unchanged. Canonical subject\
+        \ length is 1\u201332; encoded token length is 1\u201396. See ww-show-held-quote-transport-reconciliation.md\
+        \ for normative codec rules.\n\n<!-- internal-only:start -->\nPure held-evidence\
+        \ read using quote.read; never acquire, refresh, contact providers/workers,\
+        \ evaluate acquisition reuse, mutate evidence or substitute legacy evidence.\
+        \ Decode the canonical path-symbol token exactly once after authentication/authorization,\
+        \ before independent committed-row lookup.\n<!-- internal-only:end -->"
+      security:
+      - bearerAuth: []
+      x-required-grants:
+      - quote.read
+      x-unsupported-query-parameters: Any query parameter presence is INVALID_REQUEST/422,
+        including empty and repeated parameters.
+      parameters:
+      - name: symbol
+        in: path
+        required: true
+        style: simple
+        explode: false
+        description: Canonical path-symbol transport token, not persisted/provider
+          identity. SPY -> SPY; BRK/B -> BRK_2FB; literal BRK_2FB -> BRK_5F2FB; ^SPX
+          -> _5ESPX. No other or unnecessary/lowercase escape is accepted; do not
+          recursively decode output or URLDecode a bound token. Returned subject.symbol
+          is canonical decoded identity.
+        schema:
+          $ref: '#/components/schemas/EncodedQuoteSymbol'
+        examples:
+          ordinary:
+            value: SPY
+          slash:
+            value: BRK_2FB
+          literalUnderscore:
+            value: BRK_5F2FB
+          caret:
+            value: _5ESPX
+        example: SPY
+      - name: X-Request-Id
+        in: header
+        required: false
+        description: Single optional UUID (hex 8-4-4-4-12, case insensitive), surrounding
+          whitespace trimmed and echoed. Absent/blank generates one. Multiple or nonblank
+          invalid values are 422 after auth/authorization; errors use a generated
+          valid UUID. Correlation only, never idempotency.
+        schema:
+          type: string
+          pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
+        example: 11111111-1111-4111-8111-111111111111
+      responses:
+        '200':
+          description: Complete canonical observation from one committed current holding,
+            preserving identity/facts/provenance; not acquisition or a freshness judgment.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteObservation'
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    observationId: 22222222-2222-4222-8222-222222222222
+                    subject:
+                      symbol: SPY
+                      securityType: ETF
+                    facts:
+                      last:
+                        price: 100
+                      bid:
+                        price: 99.9
+                      ask:
+                        price: 100.1
+                    provenance:
+                      provider: tradier
+                      environment: SANDBOX
+                      acquisitionId: 22222222-2222-4222-8222-222222222222
+                      authorityEpoch: synthetic-epoch
+                      acquisitionPhase: CLOSED
+                      receivedAt: '2026-10-15T20:00:00Z'
+                      committedAt: '2026-10-15T20:00:00Z'
+        '401':
+          description: Missing or invalid Bearer credential.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+            WWW-Authenticate:
+              required: true
+              schema:
+                type: string
+                const: Bearer
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 401
+                    code:
+                      const: UNAUTHENTICATED
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:unauthenticated
+                    title: Unauthenticated
+                    status: 401
+                    code: UNAUTHENTICATED
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 401 example.
+        '403':
+          description: Authenticated principal lacks quote.read; acquire/force grants
+            do not imply read.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 403
+                    code:
+                      const: FORBIDDEN
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:forbidden
+                    title: Forbidden
+                    status: 403
+                    code: FORBIDDEN
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 403 example.
+        '404':
+          description: Valid decoded canonical subject has no canonical direct quote
+            held; not a claim that the market symbol does not exist.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 404
+                    code:
+                      const: NOT_FOUND
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:not_found
+                    title: Not found
+                    status: 404
+                    code: NOT_FOUND
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 404 example.
+        '422':
+          description: Invalid path codec token, correlation, any query parameter
+            or nonempty body. Validation occurs after authentication/quote.read.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 422
+                    code:
+                      const: INVALID_REQUEST
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:invalid_request
+                    title: Invalid request
+                    status: 422
+                    code: INVALID_REQUEST
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 422 example.
+                    invalidParams:
+                    - name: request
+                      reason: Synthetic invalid input
+        '500':
+          description: Malformed persisted complete canonical observation or post-start
+            storage/serialization failure; no defaults, repairs, dropped facts or
+            partial observation.
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 500
+                    code:
+                      const: INTERNAL_ERROR
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:internal_error
+                    title: Internal error
+                    status: 500
+                    code: INTERNAL_ERROR
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 500 example.
+        '503':
+          description: 'Read cannot start: approved authentication or held storage
+            unavailable. Provider outage alone does not cause this error.'
+          headers:
+            X-Request-Id:
+              required: true
+              schema:
+                type: string
+                format: uuid
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                const: private, no-store
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status:
+                      const: 503
+                    code:
+                      const: CAPABILITY_UNAVAILABLE
+              examples:
+                synthetic:
+                  summary: Invented data only
+                  value:
+                    type: urn:wheelwright:problem:capability_unavailable
+                    title: Capability unavailable
+                    status: 503
+                    code: CAPABILITY_UNAVAILABLE
+                    requestId: 11111111-1111-4111-8111-111111111111
+                    detail: Synthetic 503 example.
+      tags:
+      - Quotes
+      externalDocs:
+        description: Product and domain contract
+        url: https://github.com/brooksbol/options-prototype/blob/main/docs/contracts/api-v2-subject-show-held-quote.md
+      x-codeSamples:
+      - lang: curl
+        label: Synthetic cURL
+        source: "curl --request GET 'https://api.example.invalid/v2/quotes/SPY' \\\
+          \n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+  /v2/position-associations:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1position-associations
+  /v2/position-associations/{associationId}:
+    $ref: api-v2-account-evidence.json#/paths/~1v2~1position-associations~1{associationId}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: TLS-protected configured credential identifies a persisted immutable
+        User. Backend User state authorizes many-to-many Account access and explicit
+        administrator privileges independently of IDs, aliases and credentials. The
+        POST requires quote.acquire; FORCE additionally requires quote.force. GET
+        independently requires quote.read; acquire/force grants do not imply read.
+        Deployed operation fails closed without approved configuration.
+  responses:
+    Problem:
+      description: Request-wide failure before trustworthy completed per-subject results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Problem400:
+      description: Request-wide HTTP 400 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 400
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:malformed_request
+                title: Malformed request
+                status: 400
+                code: MALFORMED_REQUEST
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+    Problem401:
+      description: Request-wide HTTP 401 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 401
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:unauthenticated
+                title: Unauthenticated
+                status: 401
+                code: UNAUTHENTICATED
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+    Problem403:
+      description: Request-wide HTTP 403 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 403
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:forbidden
+                title: Forbidden
+                status: 403
+                code: FORBIDDEN
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+    Problem415:
+      description: Request-wide HTTP 415 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 415
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:unsupported_media_type
+                title: Unsupported media type
+                status: 415
+                code: UNSUPPORTED_MEDIA_TYPE
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+    Problem422:
+      description: Request-wide HTTP 422 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 422
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:invalid_request
+                title: Invalid request
+                status: 422
+                code: INVALID_REQUEST
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+                invalidParams:
+                - name: request
+                  reason: Synthetic invalid input
+    Problem500:
+      description: Request-wide HTTP 500 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 500
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:internal_error
+                title: Internal error
+                status: 500
+                code: INTERNAL_ERROR
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+    Problem503:
+      description: Request-wide HTTP 503 failure before trustworthy completed per-subject
+        results.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/Problem'
+            - type: object
+              properties:
+                status:
+                  const: 503
+          examples:
+            synthetic:
+              summary: Invented data only
+              value:
+                type: urn:wheelwright:problem:capability_unavailable
+                title: Capability unavailable
+                status: 503
+                code: CAPABILITY_UNAVAILABLE
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Synthetic error example.
+  schemas:
+    AcquireQuotesRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - subjects
+      properties:
+        subjects:
+          type: array
+          minItems: 1
+          maxItems: 30
+          description: Distinct named US-listed underlying symbols. The server uppercases
+            symbols before duplicate detection and preserves request order in results.
+            Canonical duplicates make the entire request invalid (422).
+          items:
+            $ref: '#/components/schemas/RequestedSubject'
+        mode:
+          type: string
+          enum:
+          - ORDINARY
+          - FORCE
+          default: ORDINARY
+          description: ORDINARY may reuse eligible held evidence. FORCE bypasses reuse
+            and requires actual permitted upstream contact. FORCE does not override
+            provider-contact restrictions. This is acquisition intent, not an observation
+            fact or downstream admissibility verdict.
+    RequestedSubject:
+      type: object
+      additionalProperties: false
+      required:
+      - symbol
+      properties:
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 32
+          pattern: ^[A-Za-z^][A-Za-z0-9.^/_-]*$
+          description: Market symbol supplied by caller; canonical uppercase identity
+            is used for duplicate detection and returned in each result. Well-formed
+            but unsupported symbols receive a per-subject result.
+    AcquireQuotesResponse:
+      type: object
+      additionalProperties: true
+      required:
+      - requestId
+      - mode
+      - startedAt
+      - completedAt
+      - results
+      properties:
+        requestId:
+          type: string
+          format: uuid
+          description: Request correlation identity, not an idempotency key.
+        mode:
+          type: string
+          enum:
+          - ORDINARY
+          - FORCE
+          description: Effective acquisition intent.
+        startedAt:
+          type: string
+          format: date-time
+          description: Wheelwright operation start instant, RFC 3339 UTC.
+        completedAt:
+          type: string
+          format: date-time
+          description: Wheelwright operation completion instant, RFC 3339 UTC.
+        results:
+          type: array
+          minItems: 1
+          maxItems: 30
+          description: Exactly one terminal result per canonical requested subject,
+            in request order.
+          items:
+            $ref: '#/components/schemas/SubjectAcquisitionResult'
+    SubjectAcquisitionResult:
+      type: object
+      additionalProperties: true
+      required:
+      - subject
+      - outcome
+      - fulfilled
+      - observation
+      - priorRetained
+      properties:
+        subject:
+          $ref: '#/components/schemas/RequestedSubject'
+        outcome:
+          type: string
+          enum:
+          - NEWLY_ACQUIRED
+          - REUSED
+          - UNMATCHED
+          - UNSUPPORTED_SUBJECT
+          - UPSTREAM_UNAVAILABLE
+          - CONTACT_NOT_PERMITTED
+          - ADMISSION_REJECTED
+          - UPSTREAM_FAILED
+          - INVALID_UPSTREAM_EVIDENCE
+          - AUTHORITY_SUPERSEDED
+          - ACCEPTANCE_FAILED
+          description: This request's terminal fulfillment outcome. NEWLY_ACQUIRED
+            certifies accepted authoritative held quote evidence visible before completion;
+            REUSED certifies ordinary-policy eligible held evidence.
+        fulfilled:
+          type: boolean
+          description: True exactly for NEWLY_ACQUIRED or REUSED.
+        observation:
+          oneOf:
+          - $ref: '#/components/schemas/QuoteObservation'
+          - type: 'null'
+          description: Selected authoritative held canonical direct quote after this
+            subject's attempt; null means none. On failure it is retained prior evidence
+            and does not fulfill this request. Reuse preserves original identity/clocks.
+        priorRetained:
+          type: boolean
+          description: True exactly when an unfulfilled result has a non-null prior
+            observation.
+        failure:
+          $ref: '#/components/schemas/SubjectFailure'
+          description: Required for unfulfilled results; absent for fulfilled results.
+      oneOf:
+      - required:
+        - failure
+        properties:
+          fulfilled:
+            const: false
+          outcome:
+            enum:
+            - UNMATCHED
+            - UNSUPPORTED_SUBJECT
+            - UPSTREAM_UNAVAILABLE
+            - CONTACT_NOT_PERMITTED
+            - ADMISSION_REJECTED
+            - UPSTREAM_FAILED
+            - INVALID_UPSTREAM_EVIDENCE
+            - AUTHORITY_SUPERSEDED
+            - ACCEPTANCE_FAILED
+      - not:
+          required:
+          - failure
+        properties:
+          fulfilled:
+            const: true
+          priorRetained:
+            const: false
+          outcome:
+            enum:
+            - NEWLY_ACQUIRED
+            - REUSED
+    SubjectFailure:
+      type: object
+      additionalProperties: true
+      required:
+      - code
+      - retryable
+      properties:
+        code:
+          type: string
+          enum:
+          - UNMATCHED
+          - UNSUPPORTED_SUBJECT
+          - UPSTREAM_UNAVAILABLE
+          - CONTACT_NOT_PERMITTED
+          - ADMISSION_REJECTED
+          - UPSTREAM_FAILED
+          - INVALID_UPSTREAM_EVIDENCE
+          - AUTHORITY_SUPERSEDED
+          - ACCEPTANCE_FAILED
+          description: Must equal the enclosing result outcome.
+        retryable:
+          type: boolean
+          description: Another attempt might change this condition; no success promise.
+        detail:
+          type: string
+          description: Optional safe human-readable explanation; no credential or
+            raw provider payload.
+    QuoteObservation:
+      type: object
+      additionalProperties: true
+      required:
+      - observationId
+      - subject
+      - facts
+      - provenance
+      properties:
+        observationId:
+          type: string
+          format: uuid
+          description: Stable Wheelwright identity for this accepted direct-quote
+            observation.
+        subject:
+          $ref: '#/components/schemas/ResolvedSubject'
+        facts:
+          $ref: '#/components/schemas/QuoteFacts'
+        provenance:
+          $ref: '#/components/schemas/QuoteProvenance'
+    ResolvedSubject:
+      type: object
+      additionalProperties: true
+      required:
+      - symbol
+      - securityType
+      properties:
+        symbol:
+          type: string
+          description: Canonical uppercase Wheelwright underlying symbol.
+        securityType:
+          type: string
+          enum:
+          - EQUITY
+          - ETF
+          - INDEX
+          - OTHER_UNDERLYING
+          description: Wheelwright-resolved security class; option contracts are excluded.
+    QuoteFacts:
+      type: object
+      additionalProperties: true
+      anyOf:
+      - required:
+        - last
+        properties:
+          last:
+            type: object
+            required:
+            - price
+            properties:
+              price:
+                type: number
+                exclusiveMinimum: 0
+      - required:
+        - bid
+        properties:
+          bid:
+            type: object
+            required:
+            - price
+            properties:
+              price:
+                type: number
+                exclusiveMinimum: 0
+      - required:
+        - ask
+        properties:
+          ask:
+            type: object
+            required:
+            - price
+            properties:
+              price:
+                type: number
+                exclusiveMinimum: 0
+      - required:
+        - open
+        properties:
+          open:
+            type: number
+            exclusiveMinimum: 0
+      - required:
+        - high
+        properties:
+          high:
+            type: number
+            exclusiveMinimum: 0
+      - required:
+        - low
+        properties:
+          low:
+            type: number
+            exclusiveMinimum: 0
+      - required:
+        - close
+        properties:
+          close:
+            type: number
+            exclusiveMinimum: 0
+      description: Source-reported quote-family facts. Missing facts are omitted,
+        never null, synthesized, or relabeled. Previous close and metadata alone do
+        not make price-bearing direct-quote evidence.
+      properties:
+        description:
+          type: string
+          description: Provider-reported instrument description.
+        exchange:
+          type: string
+          description: Provider-reported listing exchange.
+        last:
+          $ref: '#/components/schemas/TradeFact'
+        bid:
+          $ref: '#/components/schemas/SideFact'
+        ask:
+          $ref: '#/components/schemas/SideFact'
+        open:
+          $ref: '#/components/schemas/Price'
+        high:
+          $ref: '#/components/schemas/Price'
+        low:
+          $ref: '#/components/schemas/Price'
+        close:
+          $ref: '#/components/schemas/Price'
+        previousClose:
+          $ref: '#/components/schemas/Price'
+        volume:
+          type: integer
+          minimum: 0
+          description: Provider-reported daily volume, if supplied.
+        reportedChange:
+          type: number
+          description: Provider-reported price change, not Wheelwright-derived.
+        reportedChangePercent:
+          type: number
+          description: Provider-reported change normalized to percentage points (1.5
+            means 1.5 percent), not Wheelwright-derived.
+        averageVolume:
+          type: integer
+          minimum: 0
+          description: Provider-reported average daily volume.
+        fiftyTwoWeekHigh:
+          $ref: '#/components/schemas/Price'
+        fiftyTwoWeekLow:
+          $ref: '#/components/schemas/Price'
+    Price:
+      type: number
+      minimum: 0
+      description: Nonnegative source-reported market price in the instrument's applicable
+        unit.
+    TradeFact:
+      type: object
+      additionalProperties: true
+      required:
+      - price
+      properties:
+        price:
+          $ref: '#/components/schemas/Price'
+        size:
+          type: integer
+          minimum: 0
+          description: Provider-reported last trade size.
+        sourceEventAt:
+          type: string
+          format: date-time
+          description: Provider last-trade event instant, RFC 3339 UTC when known.
+    SideFact:
+      type: object
+      additionalProperties: true
+      required:
+      - price
+      properties:
+        price:
+          $ref: '#/components/schemas/Price'
+        size:
+          type: integer
+          minimum: 0
+          description: Provider-reported displayed side size.
+        venue:
+          type: string
+          description: Provider-reported bid or ask exchange.
+        sourceEventAt:
+          type: string
+          format: date-time
+          description: Provider side-specific event instant, RFC 3339 UTC when known.
+    QuoteProvenance:
+      type: object
+      additionalProperties: true
+      required:
+      - provider
+      - environment
+      - acquisitionId
+      - authorityEpoch
+      - acquisitionPhase
+      - receivedAt
+      - committedAt
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          description: Source provider identity, e.g. tradier.
+        environment:
+          type: string
+          enum:
+          - PRODUCTION
+          - SANDBOX
+          description: Provider data environment, not client deployment environment.
+        acquisitionId:
+          type: string
+          format: uuid
+          description: Wheelwright identity of the accepted upstream attempt.
+        authorityEpoch:
+          type: string
+          minLength: 1
+          description: Opaque Wheelwright fencing identifier for the accepted upstream
+            attempt. Preserve as provenance; not a timestamp or a client sequencing
+            token.
+        acquisitionPhase:
+          type: string
+          enum:
+          - REGULAR_USABLE
+          - PRE_MARKET
+          - POST_MARKET
+          - CLOSED
+          - UNKNOWN
+          description: Wheelwright classification at upstream contact, not a provider
+            event time or evidence-admissibility verdict.
+        regularSessionDate:
+          type: string
+          format: date
+          description: Applicable US regular-session calendar date when unambiguously
+            known; absent otherwise.
+        feedIdentity:
+          type: string
+          description: Stable source-feed identity relevant to authority/reuse; absent
+            only when source does not distinguish feeds.
+        receivedAt:
+          type: string
+          format: date-time
+          description: Wheelwright receipt instant of this subject's upstream evidence,
+            RFC 3339 UTC.
+        committedAt:
+          type: string
+          format: date-time
+          description: Wheelwright authoritative held-evidence acceptance instant,
+            RFC 3339 UTC.
+    Problem:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      - title
+      - status
+      - code
+      - requestId
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Stable problem-type identifier.
+        title:
+          type: string
+          description: Stable short reason.
+        status:
+          type: integer
+          enum:
+          - 400
+          - 401
+          - 403
+          - 415
+          - 422
+          - 500
+          - 503
+        detail:
+          type: string
+          description: Optional safe human-readable detail.
+        instance:
+          type: string
+          format: uri-reference
+          description: Optional occurrence URI.
+        code:
+          type: string
+          enum:
+          - MALFORMED_REQUEST
+          - UNAUTHENTICATED
+          - FORBIDDEN
+          - UNSUPPORTED_MEDIA_TYPE
+          - INVALID_REQUEST
+          - CAPABILITY_UNAVAILABLE
+          - INTERNAL_ERROR
+          description: Machine-readable request-wide failure code.
+        requestId:
+          type: string
+          format: uuid
+          description: Correlates logs and response; not an idempotency key.
+        invalidParams:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - name
+            - reason
+            properties:
+              name:
+                type: string
+                description: JSON Pointer into request where applicable.
+              reason:
+                type: string
+                description: Safe human-readable validation failure.
+      oneOf:
+      - type: object
+        properties:
+          status:
+            const: 400
+          code:
+            const: MALFORMED_REQUEST
+          title:
+            const: Malformed request
+          type:
+            const: urn:wheelwright:problem:malformed_request
+      - type: object
+        properties:
+          status:
+            const: 401
+          code:
+            const: UNAUTHENTICATED
+          title:
+            const: Unauthenticated
+          type:
+            const: urn:wheelwright:problem:unauthenticated
+      - type: object
+        properties:
+          status:
+            const: 403
+          code:
+            const: FORBIDDEN
+          title:
+            const: Forbidden
+          type:
+            const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 415
+          code:
+            const: UNSUPPORTED_MEDIA_TYPE
+          title:
+            const: Unsupported media type
+          type:
+            const: urn:wheelwright:problem:unsupported_media_type
+      - type: object
+        properties:
+          status:
+            const: 422
+          code:
+            const: INVALID_REQUEST
+          title:
+            const: Invalid request
+          type:
+            const: urn:wheelwright:problem:invalid_request
+          invalidParams:
+            type: array
+            minItems: 1
+        required:
+        - invalidParams
+      - type: object
+        properties:
+          status:
+            const: 500
+          code:
+            const: INTERNAL_ERROR
+          title:
+            const: Internal error
+          type:
+            const: urn:wheelwright:problem:internal_error
+      - type: object
+        properties:
+          status:
+            const: 503
+          code:
+            const: CAPABILITY_UNAVAILABLE
+          title:
+            const: Capability unavailable
+          type:
+            const: urn:wheelwright:problem:capability_unavailable
+    HeldQuotesReadResponse:
+      type: object
+      additionalProperties: true
+      required:
+      - requestId
+      - items
+      properties:
+        requestId:
+          type: string
+          format: uuid
+          description: This read request correlation, equal to X-Request-Id; not acquisition/observation
+            identity.
+        items:
+          type: array
+          minItems: 0
+          description: Complete current holdings, one per subject, uppercase ordinal
+            symbol ascending. No maxItems, POST cap, silent truncation, history or
+            continuation.
+          items:
+            $ref: '#/components/schemas/HeldQuoteDiscoveryItem'
+    HeldQuoteDiscoveryItem:
+      type: object
+      additionalProperties: true
+      required:
+      - observationId
+      - subject
+      - provenance
+      description: Bounded discovery summary. All defined fields required and non-null.
+        No quote facts, acquisition result, deeper provenance or state verdict.
+      properties:
+        observationId:
+          type: string
+          format: uuid
+          description: Original accepted observation identity. Reading preserves it;
+            replacement selects a different observation even if numeric facts match.
+        subject:
+          $ref: '#/components/schemas/HeldQuoteDiscoverySubject'
+        provenance:
+          $ref: '#/components/schemas/HeldQuoteDiscoveryProvenance'
+    HeldQuoteDiscoverySubject:
+      allOf:
+      - $ref: '#/components/schemas/ResolvedSubject'
+      - type: object
+        properties:
+          symbol:
+            type: string
+            minLength: 1
+            maxLength: 32
+            pattern: ^[A-Z^][A-Z0-9.^/_-]*$
+      description: Existing Wheelwright resolved underlying security vocabulary; canonical
+        uppercase symbol. No option contracts or membership requirement.
+    HeldQuoteDiscoveryProvenance:
+      type: object
+      additionalProperties: true
+      required:
+      - provider
+      - environment
+      - receivedAt
+      - committedAt
+      description: Only persisted source identity and distinct original receipt/commit
+        clocks. No acquisition ID, epoch, phase, session or feed detail.
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          description: Persisted source provider identity, not Wheelwright endpoint.
+        environment:
+          type: string
+          enum:
+          - PRODUCTION
+          - SANDBOX
+          description: Persisted provider data environment, independent of current
+            active authority or client deployment.
+        receivedAt:
+          type: string
+          format: date-time
+          pattern: Z$
+          description: Original Wheelwright receipt instant of this accepted upstream
+            subject evidence; not a source market-event time. RFC 3339 UTC with Z;
+            original stored instant and fractional precision, never rewritten by read.
+        committedAt:
+          type: string
+          format: date-time
+          pattern: Z$
+          description: Original Wheelwright persistence-commit/authoritative acceptance
+            instant; not source-event, publication, read or operation time. RFC 3339
+            UTC with Z; original stored instant and fractional precision, never rewritten
+            by read.
+    HeldQuotesReadProblem:
+      allOf:
+      - $ref: '#/components/schemas/Problem'
+      description: RFC 9457 request-wide failure; no result data or partial inventory.
+        Header/body requestId agree. No Retry-After promise.
+      oneOf:
+      - type: object
+        properties:
+          status:
+            const: 401
+          code:
+            const: UNAUTHENTICATED
+          title:
+            const: Unauthenticated
+          type:
+            const: urn:wheelwright:problem:unauthenticated
+      - type: object
+        properties:
+          status:
+            const: 403
+          code:
+            const: FORBIDDEN
+          title:
+            const: Forbidden
+          type:
+            const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 422
+          code:
+            const: INVALID_REQUEST
+          title:
+            const: Invalid request
+          type:
+            const: urn:wheelwright:problem:invalid_request
+          invalidParams:
+            type: array
+            minItems: 1
+        required:
+        - invalidParams
+      - type: object
+        properties:
+          status:
+            const: 500
+          code:
+            const: INTERNAL_ERROR
+          title:
+            const: Internal error
+          type:
+            const: urn:wheelwright:problem:internal_error
+      - type: object
+        properties:
+          status:
+            const: 503
+          code:
+            const: CAPABILITY_UNAVAILABLE
+          title:
+            const: Capability unavailable
+          type:
+            const: urn:wheelwright:problem:capability_unavailable
+    EncodedQuoteSymbol:
+      type: string
+      minLength: 1
+      maxLength: 96
+      pattern: ^(?:[A-Z]|_5E)(?:[A-Z0-9.-]|_(?:2F|5E|5F)){0,31}(?![\s\S])
+      description: 'Canonical transport only: copy uppercase letters/digits/period/hyphen;
+        slash _2F, underscore _5F, caret _5E. Exactly one representation and one decoding,
+        no repairs or unnecessary/lowercase escapes. Decoded identity matches [A-Z^][A-Z0-9.^/_-]{0,31}
+        and remains the persisted/returned/provider symbol. No connector change.'
+    HeldQuoteReadProblem:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      - title
+      - status
+      - code
+      - requestId
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Stable problem-type identifier.
+        title:
+          type: string
+          description: Stable short reason.
+        status:
+          type: integer
+          enum:
+          - 401
+          - 403
+          - 404
+          - 422
+          - 500
+          - 503
+        detail:
+          type: string
+          description: Optional safe human-readable detail.
+        instance:
+          type: string
+          format: uri-reference
+          description: Optional occurrence URI.
+        code:
+          type: string
+          enum:
+          - UNAUTHENTICATED
+          - FORBIDDEN
+          - NOT_FOUND
+          - INVALID_REQUEST
+          - INTERNAL_ERROR
+          - CAPABILITY_UNAVAILABLE
+          description: Machine-readable request-wide failure code.
+        requestId:
+          type: string
+          format: uuid
+          description: Correlates logs and response; not an idempotency key.
+        invalidParams:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - name
+            - reason
+            properties:
+              name:
+                type: string
+                description: JSON Pointer into request where applicable.
+              reason:
+                type: string
+                description: Safe human-readable validation failure.
+      description: RFC 9457 singular held-read failure. Header/body requestId agree;
+        no result data. NOT_FOUND detail states no canonical direct quote is held
+        for decoded canonical subject.
+      oneOf:
+      - type: object
+        properties:
+          status:
+            const: 401
+          code:
+            const: UNAUTHENTICATED
+          title:
+            const: Unauthenticated
+          type:
+            const: urn:wheelwright:problem:unauthenticated
+      - type: object
+        properties:
+          status:
+            const: 403
+          code:
+            const: FORBIDDEN
+          title:
+            const: Forbidden
+          type:
+            const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 404
+          code:
+            const: NOT_FOUND
+          title:
+            const: Not found
+          type:
+            const: urn:wheelwright:problem:not_found
+      - type: object
+        properties:
+          status:
+            const: 422
+          code:
+            const: INVALID_REQUEST
+          title:
+            const: Invalid request
+          type:
+            const: urn:wheelwright:problem:invalid_request
+          invalidParams:
+            type: array
+            minItems: 1
+        required:
+        - invalidParams
+      - type: object
+        properties:
+          status:
+            const: 500
+          code:
+            const: INTERNAL_ERROR
+          title:
+            const: Internal error
+          type:
+            const: urn:wheelwright:problem:internal_error
+      - type: object
+        properties:
+          status:
+            const: 503
+          code:
+            const: CAPABILITY_UNAVAILABLE
+          title:
+            const: Capability unavailable
+          type:
+            const: urn:wheelwright:problem:capability_unavailable
