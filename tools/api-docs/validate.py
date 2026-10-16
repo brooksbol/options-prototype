@@ -16,7 +16,7 @@ ROOT = TOOL.parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from v2_oas import (COMMON, Contracts, implemented_v2_operations, normalized_route,
                     without_documentation)
-from build import ALLOWLIST, SECURITY_PROSE
+from build import ALLOWLIST, SECURITY_PROSE, EXCLUDED_PUBLIC, component_refs, public_projection
 
 
 def main():
@@ -89,10 +89,45 @@ def main():
     assert 'explicit grants' in entry and 'Administrator' in entry
     internal = json.loads((output / 'private/bundled-internal.json').read_text())
     public = json.loads((output / 'private/public-projection.json').read_text())
-    assert without_documentation(internal['components']['schemas']) == without_documentation(public['components']['schemas'])
     assert internal['info']['version'] == public['info']['version']
     assert internal['components']['securitySchemes'] and 'securitySchemes' not in public['components']
-    assert set(internal['paths']) == set(public['paths'])
+    internal_ops = {(method, path) for path, item in internal['paths'].items() for method in item if method in {'get', 'post'}}
+    public_ops = {(method, path) for path, item in public['paths'].items() for method in item if method in {'get', 'post'}}
+    assert public_ops == internal_ops - EXCLUDED_PUBLIC
+    assert len(internal_ops) == 19 and len(public_ops) == 15
+    assert public['paths']['/v2/me']['get']['tags'] == ['Identity']
+    assert not any(tag['name'] in {'Users', 'Market evidence'} for tag in public['tags'])
+    # Independently check native Redocly pruning: every retained component reachable.
+    reachable = set(); pending = list(component_refs(public['paths']))
+    while pending:
+        kind, name = pending.pop()
+        if (kind, name) in reachable: continue
+        reachable.add((kind, name)); pending.extend(component_refs(public['components'][kind][name]))
+    assert reachable == {(kind, name) for kind, entries in public['components'].items() for name in entries}
+    def expanded(value, spec, stack=(), strip_annotations=True):
+        if isinstance(value, list): return [expanded(x, spec, stack, strip_annotations) for x in value]
+        if not isinstance(value, dict): return value
+        if '$ref' in value and value['$ref'] not in stack:
+            ref = value['$ref']; target = spec
+            for part in ref[2:].split('/'):
+                target = target[part.replace('~1', '/').replace('~0', '~')]
+            base = expanded(target, spec, stack + (ref,), strip_annotations)
+            siblings = {k: v for k, v in value.items() if k != '$ref'}
+            if strip_annotations: siblings = without_documentation(siblings); siblings.pop('title', None)
+            return {'allOf': [base, expanded(siblings, spec, stack, strip_annotations)]} if siblings else base
+        # Strip schema title annotations, preserving actual Problem.title property.
+        result = {}
+        for key, item in value.items():
+            if strip_annotations and key == 'title' and isinstance(item, str): continue
+            result[key] = expanded(item, spec, stack, strip_annotations)
+        return result
+    old_public = public_projection(__import__('copy').deepcopy(internal))
+    for path, item in public['paths'].items():
+        if path.startswith('/v2/artifacts'):
+            assert expanded(item, public, strip_annotations=False) == expanded(old_public['paths'][path], old_public, strip_annotations=False), 'Artifact documentation changed'
+    capital = public['paths']['/v2/portfolio-capital-observations']['get']['description']
+    assert capital.split() == old_public['paths']['/v2/portfolio-capital-observations']['get']['description'].split()
+    assert '\n\n' in capital
     def resolved(value):
         while '$ref' in value:
             reference = value['$ref']; assert reference.startswith('#/')
@@ -135,8 +170,20 @@ def main():
             assert 'security' not in op and 'x-required-grants' not in op
             original = internal['paths'][path][method]
             expected = {k: v for k, v in original.items() if k not in {'security', 'x-required-grants'}}
-            assert without_documentation(expected) == without_documentation(op)
-    assert sorted(public_ids) == sorted(identifiers)
+            assert without_documentation(expanded(expected, internal)) == without_documentation(expanded(op, public)), (method, path, 'public wire schema changed')
+    assert sorted(public_ids) == sorted(internal['paths'][path][method]['operationId'] for method, path in public_ops)
+    # Validate every remaining public example against the actual pruned/titled schema.
+    public_examples = 0
+    for path, item in public['paths'].items():
+        for method, op in item.items():
+            if method not in {'get', 'post'}: continue
+            for response in op['responses'].values():
+                while '$ref' in response:
+                    response = public['components']['responses'][response['$ref'].rsplit('/', 1)[1]]
+                for content in response.get('content', {}).values():
+                    validator = Draft202012Validator(dict(content['schema'], components=public['components']), format_checker=FormatChecker())
+                    for example in content['examples'].values():
+                        validator.validate(example['value']); public_examples += 1
     def descriptions(value):
         if isinstance(value, list):
             for item in value: descriptions(item)
@@ -159,15 +206,17 @@ def main():
     manifest = json.loads((output / 'private/provenance.json').read_text())
     assert manifest['sourceCommit'] not in html
     assert str(ROOT) not in html, 'Local path leaked into generated HTML'
+    for method, path in EXCLUDED_PUBLIC:
+        assert path not in html and internal['paths'][path][method]['operationId'] not in html
     for filename, expected in manifest['publicFiles'].items():
         from build import digest
         assert digest(site / filename) == expected
     result = dict(mode='READ_ONLY_REPOSITORY_OAS_AND_LINKED_CONTRACTS', independentReview='PENDING',
-                  operationCount=len(report), validatedExamples=examples, operations=report,
+                  operationCount=len(report), publicOperationCount=len(public_ops), publicOperationIds=public_ids, publicResponseExamples=public_examples, validatedExamples=examples, operations=report,
                   authorityBoundary='OAS availability and grants do not establish Principal/task execution permission.',
                   noNetworkOrOperationalMutation=True)
     (output / 'private/agent-specimen.json').write_text(json.dumps(result, indent=2) + '\n')
-    print(f'PASS: agent reconstruction of {len(report)} operations; {examples} examples; unchanged wire/security authority; public projection/allowlist')
+    print(f'PASS: internal {len(report)} operations/{examples} examples; public {len(public_ops)} operations/{public_examples} response examples; Artifact docs and wire/security preserved; pruning/allowlist')
 
 
 if __name__ == '__main__':

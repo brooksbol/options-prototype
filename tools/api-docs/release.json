@@ -1,8 +1,8 @@
 {
   "previewDate": "2026-10-15",
   "publicationDate": "2026-10-15",
-  "acceptedSource": "6126afddc6c0e95d2fb496e31e4e86d28320577d",
-  "acceptedPreviewSha256": "eba04ae021122b6103ae19024190de9d0c60eb833f7da424271fe3183d9c09eb",
+  "acceptedSource": "c2f44a38ab3bc2b8ef974ca3a08bb328a2cdd451",
+  "acceptedPreviewSha256": "6d26b9bc44b80f45a26336d387643959ef45fd1624ea4e977693fa05f2c56821",
   "acceptedLicensesSha256": "56872a8c6112765251a061ad17fd179d42dae5c9eae53b28eab4ed187ea4f377",
   "acceptedContractInputs": {
     "docs/api-v2/README.md": "6b671a180cde05198eb368cadfee4e58a00de4bbc1c36a1b7e5e7de42c7a862c",
@@ -13,5 +13,6 @@
     "docs/contracts/api-v2-held-quotes-read.md": "47b43d5d6bda50fb956e6ae981b9041ab624aa7183646f71e5ff4089c44ece75",
     "docs/contracts/api-v2-market-evidence-subjects.json": "07dfbcb802c14c1bd6de84885eb95b4f65d400dc4cbff1f1b7488193c90cabf5",
     "docs/contracts/api-v2-subject-show-held-quote.md": "c99dd498b1148f40f1a9891629bc99de5d47ea84bc1dad856546cb9b39b993e2"
-  }
+  },
+  "principalCleanupSource": "docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md"
 }

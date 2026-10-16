@@ -1,7 +1,7 @@
 # PL-API-02 — API v2 documentation: Principal requirements and Codex delivery plan
 
 **Date:** 2026-10-15  
-**Status:** Step 4 published and engineering-verified at https://brooksbol.github.io/options-prototype/ (deployed source `3ae78b8`). Principal Product review pending; Step 5/protocol amendment and PL closure have not begun.
+**Status:** Principal live-site review requests bounded public cleanup: 15 public / 19 internal operations. Implementation/publication underway under explicit directive; final Product reinspection pending. Step 5/protocol amendment and PL closure remain deferred.
 **Baseline reviewed by Codex:** `6ccd0a1ac8568faaad6467750666c8f3a194d9be`. Recheck current main before work.  
 **Canonical intake:** `docs/parking-lot-10.md` → PL-API-02.  
 **Authority:** `docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md`, `docs/77-api-v2-architectural-guardrails.md`; Principal decisions in October 15 conversation.  
@@ -236,3 +236,8 @@ Principal explicitly authorized GitHub Pages configuration/publication, minimal 
 ## Principal live-site review reconciliation — October 15
 
 Principal completed first live-site walkthrough. **Product acceptance remains pending** bounded public-documentation cleanup and reinspection. [Full review ledger](../reviews/pl-api-02-principal-live-site-review-2026-10-15.md) preserves near-term UX/public-projection decisions and deferred REST/domain-model observations. Preserve all Artifact public documentation unchanged in this release; deferred Portfolio/Evidence/Audit/Artifact model exploration must not block acceptance. The near-term candidate removes two administrative User discovery operations, holdings acquisition, and market-evidence subject selection from the public projection only (expected 15 public operations, 19 internal), improves native oneOf labels if supported, and optionally improves Portfolio Capital prose. Preserve `/v2/me`. Codex must validate actual renderer and projection behavior, report blockers rather than expand scope, and return the revised live site for Principal Product acceptance. No Step 5 protocol amendment yet.
+
+
+## Bounded public cleanup implementation
+
+[Delivery evidence](../reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md) records the exact public 15/internal 19 boundary, native component pruning/error titles, Identity self-inspection, whitespace-only Portfolio Capital readability, exact Artifact preservation, focused negative/fidelity/browser checks and new artifact identities. Publication is authorized through the existing controlled workflow under this Principal directive; live observation and final Product reinspection remain separate. No deferred domain/API/status redesign, backend/OAS/agent-contract change or protocol/PL closeout.

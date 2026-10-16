@@ -36,8 +36,26 @@ assert.doesNotMatch(body,/\b(?:authentication|authorization|credentials?|grants?
 if(provenance.publicationDate) assert.ok(body.includes('Last publication: '+provenance.publicationDate));
 else assert.match(body,/Last publication:\s*not published/);
 for(const op of agent.operations){
- assert.equal(await page.locator(`[data-section-id="operation/${op.operationId}"]`).count(),1,op.operationId);
+ const expected=agent.publicOperationIds.includes(op.operationId)?1:0;
+ assert.equal(await page.locator(`[data-section-id="operation/${op.operationId}"]`).count(),expected,op.operationId);
 }
+assert.equal(agent.publicOperationCount,15);
+assert.ok(body.includes('Identity'));
+for(const path of ['/v2/users','/v2/position-acquisitions','/v2/market-evidence-subjects']) assert.ok(!body.includes(path));
+for(const [tag,id] of [['Accounts','listAccounts'],['Quotes','listHeldDirectQuotes']]){
+ const op=page.locator(`[data-section-id="tag/${tag}/operation/${id}"]`);
+ const label=op.getByRole('button',{name:'422 — Invalid request',exact:true}).first();
+ await label.click();
+ assert.ok((await op.innerText()).includes('401 — Unauthenticated'));
+ assert.equal(await op.getByRole('button',{name:'object',exact:true}).count(),0);
+ assert.doesNotMatch(await op.innerText(),/One of\s*HeldQuotesReadProblem/);
+ await label.scrollIntoViewIfNeeded();
+ await page.screenshot({path:resolve(evidence,id+'-labels.png')});
+}
+const capital=page.locator('[data-section-id="tag/Portfolio-capital/operation/readPortfolioCapitalObservations"]');
+assert.ok((await capital.locator('p').count())>=5);
+await capital.getByRole('heading').first().scrollIntoViewIfNeeded();
+await page.screenshot({path:resolve(evidence,'capital-introduction.png')});
 await page.screenshot({path:resolve(evidence,'desktop.png')});
 const search=page.getByRole('textbox',{name:'Search'});
 await search.fill('retained');await page.waitForTimeout(1000);
@@ -83,7 +101,7 @@ assert.equal(errors.length,0,JSON.stringify(errors));
 assert.ok(requests.every(r=>r.method==='GET' && (/^(?:file:|blob:|data:)/.test(r.url) || (live && r.url===entry))));
 await browser.close();
 const report={mode:'AUTHOR_BROWSER_VERIFICATION_NOT_INDEPENDENT_REVIEW',entry,live,browser:'Chromium 141 / Playwright 1.56.1',
- operationCount:agent.operationCount,nativeSearch:'PASS',nativeResponsiveLayout:'PASS at 1440 and 390px',
+ operationCount:agent.publicOperationCount,internalOperationCount:agent.operationCount,nativeSearch:'PASS',nativeErrorTitles:'PASS: distinct HTTP status/title selectors',identityCategory:'PASS',nativeResponsiveLayout:'PASS at 1440 and 390px',
  schemasAndSyntheticCurl:'PASS',visibleErrorExample:'422 INVALID_REQUEST',publicAuthInstructions:'ABSENT',
  liveApiControls:'ABSENT',downloadOffer:'ABSENT',networkRequests:requests,unexpectedRequests:violations,
  pageErrors:errors,backendRequired:false,staticFileHydration:'PASS',acceptedTriageCorrections:'PASS: opaque provenance, FORCE contact policy, four CSV formats/rejection',

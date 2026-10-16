@@ -660,6 +660,9 @@ After the deterministic suite (CLI unit 15/15; fetch acceptance 30/0/0; roadmap 
 
 ## `PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics
 
+> **Principal review — bounded cleanup:** Explicit directive selects 15 public operations and preserves 19 internal contracts, with native labels/readability and exact Artifact preservation. [Evidence](reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md) distinguishes candidate checks from deployment. Final Product reinspection/Step 5/PL closure remain pending; deferred domain observations are not implemented.
+
+
 > **Step 4 — published, Product review pending:** [Live API v2 reference](https://brooksbol.github.io/options-prototype/) deployed from 3ae78b8; Actions/deployment and exact two-file hashes verified. [Evidence](reviews/pl-api-02-pages-publication-2026-10-15.md) records all 19 operations, live browser/security/reproduction checks and metadata-only publication date. No PL closure, protocol amendment or Step 5 before Principal Product review.
 
 
