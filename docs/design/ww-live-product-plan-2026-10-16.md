@@ -25,7 +25,7 @@ Audited remote main `58161d2bf273f24ad1951d6a94e149b0d4eb768e` on 2026-10-16. Au
 7. Broaden strategy/account coverage; defer experimental movement until separately justified.
 
 ## Open Product decisions — ask Principal one at a time
-First: initial membership source: explicit provenance-bearing operator association vs broker-evidence-established association. Suggested initial scope: explicit evidence-backed whole-package associations, with individual-holding fallback; do not silently claim Principal ratification.
+**Principal decision (October 16): A with B as fallback.** Prefer explicit, provenance-bearing operator-established Position associations. Where no applicable explicit association exists, permit brokerage-derived membership only when sufficient evidence establishes it unambiguously; otherwise preserve individual holdings and UNKNOWN membership. Do not manufacture grouping from matching contract geometry. Conflicting explicit/brokerage evidence requires qualification/escalation, not silent override. This is the selected source precedence, not yet a decision on partial quantity allocation.
 Next, only after first is resolved: whole-package allocation versus shared partial-quantity allocation; then freshness/acquisition expectations; then final multi-account display/unknown behavior. Escalate only material choices.
 
 ## Codex next assignment
