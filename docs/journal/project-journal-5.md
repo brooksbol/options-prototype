@@ -2240,3 +2240,29 @@ not backend-verified; the extra sawdust URA row/economics are hypothetical. Prod
 acceptance of the visual outcome does not establish missing semantic capability or
 allow matching contracts to invent associations. Principal requested persistence only;
 no implementation, API change or operational promotion. ww live STOPPED remains intact.
+
+
+### October 17, 2026 — ww accounts: one human Account view, real evidence and recovered regime semantics
+
+Principal separated Account questions from holdings, then excluded transaction history
+and evidence-status columns. New exploratory command name is ww accounts, listing
+User-associated Accounts. Three-table draft was rejected; retain one table and prune
+later. WW ID was explicitly rejected as meaningless to the operator. Synthetic tt1
+blanks were initially unjustified actor choices, not defect evidence. Principal required
+real values from ww/v2; retained API reads then established real PTS/sawdust balances
+and genuine lack of a tastytrade Account-balance capability in the inspected v2 path.
+
+PTS is margin-enabled; sawdust is cash. Actor initially treated this as newly supplied
+knowledge, but the Principal correctly pointed to existing parser knowledge. Recovered
+classifyBalanceRegime/BUG-022/PL-DEPLOY-BAL already distinguish source regimes and
+buying-power, trade capacity, withdrawal capacity and actual borrowing. Reuse this
+meaning in backend-owned capabilities; don't invent a CLI classifier or universal cash
+field. Tastytrade source field sufficiency and tt1 regime remain unverified, not a
+credential or artifact-grant issue. A real-value blank, synthetic blank and inapplicable
+margin field have different meanings and must not be conflated.
+
+[ww accounts checkpoint](../design/ww-accounts-2026-10-17/README.md) preserves all meaningful
+mock stages, exact selected retained facts/provenance, architectural boundaries and
+resume direction. Principal explicitly requested persistence for later; work is parked,
+no implementation or final full-table acceptance. Existing PL-CLI-01/PL-DEPLOY-BAL owners,
+no new horizon/architecture. ww positions reference and ww live stopping point unchanged.

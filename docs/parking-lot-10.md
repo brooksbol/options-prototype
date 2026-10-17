@@ -1692,3 +1692,33 @@ both P2 findings remain deferred. No new backlog identity, horizon or architectu
 | Date | Governed event |
 |---|---|
 | 2026-10-17 | Principal accepted the human ww positions presentation reference and requested GitHub persistence; implementation and collateral verification remain outstanding. |
+
+
+### `PL-CLI-01` / `PL-DEPLOY-BAL` — ww accounts discovery parked — October 17, 2026
+
+**Current bounded state: DISCOVERY PRESERVED / PARKED; no implementation authorization.**
+Principal names the workstream **ww accounts**, requesting all mockups, gap analysis
+and evidence persisted for later. [Recovery record](design/ww-accounts-2026-10-17/README.md)
+preserves rejected three-table draft, synthetic single-table revisions, no-WW-ID decision,
+actual retained-v2 values, Account-type clarification and selected masked provenance.
+One human table across User-associated Accounts; exclude holdings, transactions and
+evidence-status columns. Column pruning/final layout remain pending. ww accounts is
+not the separately accepted ww positions human reference and does not resume ww live.
+
+Verified reuse: Account inventory/authorization and Fidelity retention/Portfolio Capital
+already exist; old Fidelity parser already classifies margin/cash/indeterminate and
+keeps deployable/withdrawable/buying-power meanings distinct. Current v2 lacks a broad
+Account-balance/regime representation. Inspected tastytrade backend lacks balance
+acquisition/representation; provider field sufficiency and actual tt1 regime remain
+UNKNOWN. Missing margin fields on non-margin sawdust differ from missing tastytrade
+coverage. No bug, credential failure, or necessary new artifact grant established.
+
+Reconciliation: existing PL-CLI-01 human consumer and PL-DEPLOY-BAL balance semantics,
+with PL-API-03 for future v2 contract consequences; no new PL identity/Bet/priority/horizon,
+architecture decision or framework. Documentation/persistence only; no runtime, OAS,
+operational or brokerage mutation. Existing accepted candidates and ww live STOPPED
+remain intact. Next authorized action after persistence: NONE; resume on Principal direction.
+
+| Date | Governed event |
+|---|---|
+| 2026-10-17 | Principal named ww accounts and parked the workstream after one-table mocks and real retained-value investigation; requested durable discovery/gap persistence only. |

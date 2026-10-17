@@ -1,0 +1,144 @@
+{
+  "status": "Selected Account facts retrieved through authenticated v2 GETs; not a complete raw artifact or a new API contract",
+  "evidenceDate": "2026-10-17",
+  "facts": [
+    {
+      "alias": "pts",
+      "displayName": "PERSONAL TREASURY",
+      "broker": "FIDELITY",
+      "brokerAccountMasked": "****1514",
+      "access": {
+        "metadataRead": true,
+        "positionsRead": true,
+        "artifactsRead": true,
+        "artifactsWrite": true,
+        "positionsAcquire": false,
+        "transactionsRead": true
+      },
+      "accountRegime": "MARGIN",
+      "regimeBasis": "Principal confirmation; existing Fidelity field-presence classifier recovered by source inspection",
+      "reportedBalanceFields": {
+        "Total account value": "97790.51",
+        "Account equity percentage": "100.00%",
+        "Margin buying power": "21517.32",
+        "Non-margin buying power": "10758.66",
+        "Available without margin impact": "0",
+        "Cash reserved for options strategies": "23950",
+        "Settled cash": "40.86",
+        "Cash only": "0",
+        "Cash and borrowing on margin": "10451.63",
+        "House surplus": "11059.6",
+        "SMA": "10758.66",
+        "Exchange surplus": "11463.77",
+        "Margin interest accrued this month": "11.51",
+        "Margin interest accrued daily": "0.72",
+        "Margin interest rate": "12.075%",
+        "Cash (core)": "23990.86",
+        "Cash credit/debit": "0",
+        "Margin debit": "-2157.01"
+      },
+      "source": {
+        "artifactId": "275c97b4-b28d-493d-89b6-859a54c21c83",
+        "sha256": "e86d0fe6a0d5dd949bce08a4dc7453fc670edb500cd4ffb81840dcec6f3485f8",
+        "receivedAt": "2026-10-17T17:53:24.653136Z",
+        "fileType": "BALANCES",
+        "exportedAt": "2026-10-17T13:47-04:00",
+        "timestampPrecision": "MINUTE",
+        "quoteDate": null,
+        "sourceRows": [
+          2
+        ]
+      },
+      "latestPortfolioCapitalStatus": "UNMATCHED_EXPORT_MINUTE",
+      "latestPortfolioCapital": null,
+      "originalReadHttpStatus": 200,
+      "originalContentSha256Verified": true,
+      "reportedBalanceRows": {
+        "Total account value": 2,
+        "Account equity percentage": 3,
+        "Margin buying power": 5,
+        "Non-margin buying power": 6,
+        "Available without margin impact": 7,
+        "Cash reserved for options strategies": 8,
+        "Settled cash": 9,
+        "Cash only": 11,
+        "Cash and borrowing on margin": 12,
+        "House surplus": 14,
+        "SMA": 15,
+        "Exchange surplus": 16,
+        "Margin interest accrued this month": 17,
+        "Margin interest accrued daily": 18,
+        "Margin interest rate": 19,
+        "Cash (core)": 24,
+        "Cash credit/debit": 25,
+        "Margin debit": 26
+      }
+    },
+    {
+      "alias": "sawdust",
+      "displayName": "sawdust",
+      "broker": "FIDELITY",
+      "brokerAccountMasked": "****1078",
+      "access": {
+        "metadataRead": true,
+        "positionsRead": true,
+        "artifactsRead": true,
+        "artifactsWrite": true,
+        "positionsAcquire": false,
+        "transactionsRead": true
+      },
+      "accountRegime": "CASH",
+      "regimeBasis": "Principal confirmation; existing Fidelity field-presence classifier recovered by source inspection",
+      "reportedBalanceFields": {
+        "Total account value": "24228.73",
+        "Available to trade (all settled)": "2075.73",
+        "Available to withdraw": "2075.73",
+        "Cash and credits": "17325.73"
+      },
+      "source": {
+        "artifactId": "6625e895-6e55-4ab8-900f-2197892cd22e",
+        "sha256": "770bea6a9c1a44696c2e4a3ce01c598546c92ca9c55d9bb0d729fee12271af66",
+        "receivedAt": "2026-10-17T17:53:24.960534Z",
+        "fileType": "BALANCES",
+        "exportedAt": "2026-10-17T13:48-04:00",
+        "timestampPrecision": "MINUTE",
+        "quoteDate": null,
+        "sourceRows": [
+          2
+        ]
+      },
+      "latestPortfolioCapitalStatus": "UNMATCHED_EXPORT_MINUTE",
+      "latestPortfolioCapital": null,
+      "originalReadHttpStatus": 200,
+      "originalContentSha256Verified": true,
+      "reportedBalanceRows": {
+        "Total account value": 2,
+        "Available to trade (all settled)": 4,
+        "Available to withdraw": 5,
+        "Cash and credits": 7
+      }
+    },
+    {
+      "alias": "tt1",
+      "displayName": "tt1",
+      "broker": "TASTYTRADE",
+      "brokerAccountMasked": "****0059",
+      "access": {
+        "metadataRead": true,
+        "positionsRead": true,
+        "artifactsRead": false,
+        "artifactsWrite": false,
+        "positionsAcquire": true,
+        "transactionsRead": true
+      },
+      "accountRegime": "UNKNOWN",
+      "regimeBasis": "Not verified; no acquisition performed",
+      "reportedBalanceFields": {},
+      "source": null,
+      "latestPortfolioCapitalStatus": null,
+      "latestPortfolioCapital": null,
+      "originalReadHttpStatus": null,
+      "originalContentSha256Verified": null
+    }
+  ]
+}
