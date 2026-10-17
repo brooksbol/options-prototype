@@ -2219,3 +2219,24 @@ Adoption 5dffd58 is on main; separate reviewer mechanical check preserves ACCEPT
 The Principal inspected the runnable structural/visual specimen and found that correct column widths and green tests did not produce TT's visual quality. Preserve this why-state: neutral geometry remains monotonous; unavailable values need deliberate alignment and the scan lacks visual hierarchy. DTE/EXIT deficiencies are partly evidence gaps, not permission to invent timelines, management or favorable/adverse meanings. Cyan is observed qualified spot, not strikes. Engineering ACCEPT and this Product observation coexist; visual acceptance has NOT passed.
 
 [Session checkpoint](../design/ww-live-session-2026-10-16/README.md) preserves separate source branches/exact SHA identities, P1/P2 and rejection trail, backend/integrated/visual independent reports and verification, synthetic-vs-actual limitations and the deferred physical-equity/allocation findings. Original workspaces remain untouched. No candidate runtime/OAS promoted to accepted main, no operational changes or new review cycle. Current mode STOPPED; next direction after explicit resumption is bounded neutral renderer/unknown alignment using TT primitives, then actual-Account verification under separately applicable operational authority. No repeated discovery or new API design is warranted by this stopping point. Existing Position reassessment horizon remains unchanged.
+
+
+### October 17, 2026 — Human Positions needs purpose and collateral, not custody metadata
+
+The Principal's margin-debt question exposed operator friction: quote-oriented show
+rejected Account-like operands, while Portfolio Capital printed technical export-pairing
+statuses rather than answering an Account question. Cash/Margin on holdings then
+obscured the distinction between broker carrying classification and actual collateral
+commitment. Explanations of carrying metadata did not make it actionable.
+
+Iterative Principal mock review rejected a wide list of contracts and allocation
+reference codes, choosing separate share-allocation rows. Final accepted human target:
+POSITION/CONTRACT split; PURPOSE, STATE, COLLATERAL; blank unavailable cells; no arrows;
+fixed widths; proposed --options keeps options plus their allocated collateral.
+[Accepted reference](../cli/ww-positions-human-presentation-2026-10-17.md) preserves
+full PTS, options-only PTS and hypothetical partially allocated sawdust URA specimens.
+PTS economics came from retained evidence, but the mock collateral conclusions are
+not backend-verified; the extra sawdust URA row/economics are hypothetical. Product
+acceptance of the visual outcome does not establish missing semantic capability or
+allow matching contracts to invent associations. Principal requested persistence only;
+no implementation, API change or operational promotion. ww live STOPPED remains intact.

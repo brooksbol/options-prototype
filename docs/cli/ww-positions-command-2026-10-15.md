@@ -23,6 +23,17 @@ The following sections preserve the initial source-only checkpoint and subsequen
 Product corrections chronologically. Their earlier pending-acceptance/no-visual-
 change language is historical scope, superseded by this accepted delivery.
 
+## October 17 accepted presentation target — not yet implemented
+
+The Principal accepted the [human presentation contract and full/options mocks](ww-positions-human-presentation-2026-10-17.md): separate POSITION/CONTRACT,
+PURPOSE and COLLATERAL instead of CUSTODY, allocation rows, STATE between PURPOSE
+and COLLATERAL, blank absent cells, no arrows, and a proposed options-plus-collateral
+filter. This is acceptance of the target presentation, not the installed runtime,
+a new API contract, verified collateral semantics or implementation authorization.
+The October 15 operational acceptance above remains valid for its delivered scope;
+conflicting human grammar is superseded only as the future target. Raw evidence,
+backend authority and compatibility remain required. ww live remains stopped.
+
 ## Initial grammar checkpoint and delivery progression
 
 Product decision: the Principal commissioned `ww positions` as the canonical

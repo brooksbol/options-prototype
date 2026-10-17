@@ -1671,3 +1671,24 @@ On resumption only: bounded renderer refinement using accepted TT primitives; im
 | Date | Governed event |
 |---|---|
 | 2026-10-16 | Principal stopped ww live after engineering ACCEPT but visual acceptance NOT passed; preserved exact candidates and required neutral-renderer/unknown-alignment refinement before actual-Account verification. |
+
+
+### `PL-CLI-01` — Human Positions presentation accepted; persistence only — October 17, 2026
+
+**Current bounded state: PRESENTATION ACCEPTED / NOT IMPLEMENTED.** Principal accepted
+[full/options human table mocks](cli/ww-positions-human-presentation-2026-10-17.md)
+and explicitly requested GitHub persistence. Separate POSITION/CONTRACT; remove
+CUSTODY; use PURPOSE and COLLATERAL, with STATE between; split share allocations
+into rows; blanks for absent data; no arrows; globally aligned numeric columns.
+Proposed --options includes option Positions and their collateral, excluding unrelated
+inventory. PTS collateral links/cash classifications remain illustrative; sawdust's
+extra URA shares/economics are hypothetical. Backend must establish all associations,
+allocations and economics; no client recognition or arbitrary duplication.
+October15 installed behavior remains operational, not silently replaced. This accepts
+a Product presentation target only; implementation/API/installation are not authorized.
+ww live remains STOPPED, pending visual acceptance and actual-Account verification;
+both P2 findings remain deferred. No new backlog identity, horizon or architecture.
+
+| Date | Governed event |
+|---|---|
+| 2026-10-17 | Principal accepted the human ww positions presentation reference and requested GitHub persistence; implementation and collateral verification remain outstanding. |

@@ -193,6 +193,8 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
 | `bugs/README.md` | Ratified methodology (repository-native defect tracking: `BUG-NNN` identity, record format, lifecycle — the sole defect system of record) |
 
+| `cli/ww-positions-human-presentation-2026-10-17.md` | Principal-accepted future human Positions table, allocation rows and proposed options/collateral filter; evidence-qualified mocks, not implementation or operational acceptance |
+
 ### C. Canonical Project / Operational State
 
 Authoritative for their specific project concern. Not system-definition documents.
