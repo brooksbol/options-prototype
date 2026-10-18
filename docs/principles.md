@@ -52,6 +52,8 @@ No Product Principles are ratified yet. This empty family is intentional: this c
 
 ### Architectural / build
 
+- **`PRIN-ARCH-HOLISTIC-DOMAIN-API` — Holistic domain-first API design.** Design and evaluate the public API as one coherent representation of Wheelwright's domain and intended capabilities, not as isolated endpoint solutions to the current feature. Inspect URI topology, resource identity, relationships, collection/instance meaning and composition across the API before accepting local additions. **Provenance:** `docs/foundations/holistic-domain-first-api-design-principle-2026-10-18.md` (Principal explicit ratification, October 18, 2026); consistent with Doc 77, Doc 82 and the October 13 REST reconciliation.
+
 Source: `docs/foundations/retooling-charter.md` § "Durable Principles" (Category B — Ratified). "These govern the system regardless of implementation language."
 
 - **`PRIN-POLICY-OVER-PREDICTION` — Policy over prediction.** The system applies explicit, auditable policy to observed evidence rather than predicting outcomes; govern behavior through policy on current evidence, not forecasts of market direction. **Provenance:** `docs/foundations/retooling-charter.md` (Durable Principle #1) and `docs/foundations/policy-over-prediction.md` (Governing principle). *(One principle, two authoritative expressions — architectural and epistemic. Consolidated to a single record so the register reports distinct principles, not duplicate provenance.)*
