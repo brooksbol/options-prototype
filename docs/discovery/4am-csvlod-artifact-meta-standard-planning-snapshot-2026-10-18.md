@@ -148,3 +148,21 @@ This snapshot **updates the work plan and preserves Principal requirements**. It
 **Current status:** Additional Principal requirements and concurrent workplan update preserved as a historical checkpoint, awaiting a separately reviewed and ratified meta-standard design. Workstream B and the remaining source survey are unfinished in this context.
 
 **Next permitted planning step:** extend Codex A to A8; let Kiro B continue survey and supply independently sourced stress cases; reconcile, falsify, and seek explicit Principal ratification before artifact-rule adoption or migration.
+
+
+---
+
+## 7. Principal-designated canonical CSVLOD artifact reference — October 18, 2026
+
+**Principal instruction:** "this is the canonical reference. persist it:" followed by the PDF URL below.
+
+**Canonical external reference for the artifact taxonomy and its exact labels:**
+https://eaonapage.com/Enterprise%20Architecture%20Artifacts%20on%20a%20Page.pdf
+
+**Publication as retrieved:** *Enterprise Architecture Artifacts on a Page*, version 3.0, © 2026 Svyatoslav Kotusev, one-page PDF at eaonapage.com. The PDF was directly opened and visually inspected during this session. Preserve the canonical URL unchanged; do not treat older summaries or assistant-generated enumerations as more authoritative than the source diagram.
+
+**Important correction for Workstream A8 and Kiro validation:** The 24-item list transcribed in §2 of this *earlier historical planning snapshot* was a **provisional conversation inventory** and is **not an independently verified transcription of the now-designated v3.0 diagram**. The actual PDF visibly includes artifact names such as **Technology Strategies, Architecture Strategies, Process Maps, Technology Inventories, System Portfolio Models, Asset Roadmaps, Product Roadmaps, Increment Overviews, Solution Briefs, Solution Options, and Increment Designs**, some of which are absent from the earlier list. The PDF also includes **Policies** and **IT Principles** as distinct named types; do not invent an additional official artifact type merely from an informal phrase such as "IT Policies."
+
+**Required next handling:** Codex A8 must use the exact v3.0 PDF as the reference for the candidate artifact-type selection standard, perform and cite a full source-faithful taxonomy transcription, separate official subtype names from Wheelwright-specific adaptations, and explicitly reconcile every discrepancy with the earlier 24-item approximation. Kiro must independently verify the extracted names and stress-test routing from the original diagram. Neither may silently normalize conflicting lists. The Principal's choice of this canonical source governs the *reference selection*, not ratification of particular artifact routes, a new Standard, or implementation/migration permission.
+
+**Security and lifecycle boundary:** Link to the public external PDF as source rather than indiscriminately committing a copy. The original URL is persistent source provenance, and changes to the externally maintained diagram require explicit version comparison before replacing this reference. All other ADR-023 protections remain in force.
