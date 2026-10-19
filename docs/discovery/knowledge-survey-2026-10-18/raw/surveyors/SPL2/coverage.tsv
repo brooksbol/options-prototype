@@ -1,0 +1,48 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/parking-lot-8.md	Header + Continuation Invariant	1	15	FULL	SPL2		no-new-knowledge	Standard continuation boilerplate
+docs/parking-lot-8.md	PL-OPS-01 Refinement — Well-Architected / Render reliability fit	17	98	FULL	SPL2	SPL2-E012,SPL2-E013,SPL2-D005	extracted	
+docs/parking-lot-8.md	PL-DEPLOY Refinement — Decision Surface: Expanded Row vs Drawer	100	147	FULL	SPL2	SPL2-E001,SPL2-E002	extracted	
+docs/parking-lot-8.md	PL-OPS-09 — Targeted Re-Observation (incl. consumers, rate-limit boundary)	149	238	FULL	SPL2	SPL2-E004,SPL2-E005,SPL2-E006,SPL2-E007,SPL2-E008,SPL2-E009,SPL2-E011,SPL2-D001,SPL2-D002,SPL2-D003	extracted	
+docs/parking-lot-8.md	PL-OPS-09 — Oct 3 result-contract discovery + implementation	240	256	FULL	SPL2	SPL2-E010,SPL2-D004	extracted	Self-declared supersession of discovery-era 'not authorized'
+docs/parking-lot-8.md	Continuation History	258	272	FULL	SPL2	SPL2-E003	extracted	Row 270 corrects row 263 (branch-only work)
+docs/parking-lot-8.md	Java Test-Suite Execution Performance / SLO Review (Sep 13)	274	316	FULL	SPL2	SPL2-E087	extracted	No PL-* id
+docs/parking-lot-8.md	Java Test-Suite — Sep 14 Diagnostic Disposition	318	396	FULL	SPL2	SPL2-E014,SPL2-E015,SPL2-E016,SPL2-E017,SPL2-E018,SPL2-D006	extracted	
+docs/parking-lot-8.md	PL-ELIG — Unencumbered Shares V1	398	611	FULL	SPL2	SPL2-E019,SPL2-E020,SPL2-E021,SPL2-E022,SPL2-E023,SPL2-E024,SPL2-E025,SPL2-E026,SPL2-D007,SPL2-D008	extracted	
+docs/parking-lot-8.md	PL-MKT — Provider timesales	613	645	FULL	SPL2	SPL2-E027,SPL2-E028,SPL2-D009	extracted	
+docs/parking-lot-8.md	PL-DEPLOY-EXPORT — intake	647	731	FULL	SPL2	SPL2-E029,SPL2-E030,SPL2-E031,SPL2-E033,SPL2-E034,SPL2-D010	extracted	
+docs/parking-lot-8.md	Reconciliation Completion Record — PL-DEPLOY-EXPORT	733	794	FULL	SPL2	SPL2-E032,SPL2-D011,SPL2-D012	extracted	
+docs/parking-lot-8.md	PL-RECIPE-01 — Wheelwright Recipes intake	795	911	FULL	SPL2	SPL2-E035,SPL2-E036,SPL2-E037,SPL2-E038,SPL2-E039,SPL2-D013,SPL2-D014,SPL2-D015,SPL2-D016	extracted	
+docs/parking-lot-8.md	Continuation History (continued)	913	919	FULL	SPL2		duplicate-of:docs/parking-lot-8.md:795-911	Summary row only
+docs/parking-lot-8.md	Reconciliation Completion Record — PL-RECIPE-01	921	974	FULL	SPL2	SPL2-E035,SPL2-E039	extracted	Wide-spread gate contradiction vs §3
+docs/parking-lot-8.md	Continuation History (continued)	976	983	FULL	SPL2	SPL2-E040	duplicate-of:docs/parking-lot-8.md:985-1043	
+docs/parking-lot-8.md	PL-DEPLOY Refinement — Covered-Call Posture Plurality	985	1043	FULL	SPL2	SPL2-E001,SPL2-E040,SPL2-E041,SPL2-D017	extracted	
+docs/parking-lot-9.md	Header	1	10	FULL	SPL2		no-new-knowledge	
+docs/parking-lot-9.md	PL-ACTOR-01 — Remove the Principal as Human Clipboard	11	168	FULL	SPL2	SPL2-E042,SPL2-E043,SPL2-E044,SPL2-E045,SPL2-E046,SPL2-D018	extracted	
+docs/parking-lot-9.md	PL-DEPLOY-BAL — Fidelity Account-Regime / Broker-Balance Semantics	170	237	FULL	SPL2	SPL2-E047,SPL2-E048,SPL2-D019	extracted	Real balances redacted
+docs/parking-lot-9.md	PL-DEPLOY-BAL — Sep-2026 cash-layout fix (2026-09-21)	238	263	FULL	SPL2	SPL2-E049,SPL2-E050,SPL2-D020,SPL2-D021	sensitive-withheld	Lines 249-250 contain account identifiers/balances; withheld; remainder extracted
+docs/parking-lot-9.md	PL-PORT-01-UPLOAD-ALL	265	311	FULL	SPL2	SPL2-E088,SPL2-D021	extracted	
+docs/parking-lot-9.md	PL-PORT-01-CAPGRAPH	313	361	FULL	SPL2	SPL2-E054	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — intake + Reconciliation Completion Record	363	424	FULL	SPL2	SPL2-E055,SPL2-E061,SPL2-D023	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — GIA prior-art reconciliation	426	443	FULL	SPL2	SPL2-E056	extracted	Prior-art repo identifier omitted
+docs/parking-lot-9.md	PL-ROADMAP-UI — provisional-UX iteration	445	456	FULL	SPL2		no-new-knowledge	Lens set/UX iteration; counts time-qualified
+docs/parking-lot-9.md	PL-ROADMAP-UI — Priority stack + Coming Soon	458	467	FULL	SPL2	SPL2-E057,SPL2-D024	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — enduring-purpose codification	469	472	FULL	SPL2	SPL2-D025	extracted	Promoted to foundations
+docs/parking-lot-9.md	PL-ROADMAP-UI — Log lens intake/reconciliation	474	529	FULL	SPL2	SPL2-E058,SPL2-D026	extracted	
+docs/parking-lot-9.md	PL-ARCH-07 — Authorization Platform / COTS RBAC-FGA	531	596	FULL	SPL2	SPL2-E062,SPL2-D028	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — Log lens implemented	598	624	FULL	SPL2	SPL2-E059,SPL2-E087	extracted	Superseded overclaims
+docs/parking-lot-9.md	PL-ROADMAP-UI — Log lens corrected after Codex review	626	655	FULL	SPL2	SPL2-E059,SPL2-E061	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — Log lens final bounded correction	657	690	FULL	SPL2	SPL2-E058,SPL2-E059	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — Log lens Principal UX acceptance + acceptance recorded	692	710	FULL	SPL2	SPL2-D026	extracted	
+docs/parking-lot-9.md	PL-PORT-01 — Durable Brokerage / Fidelity Evidence Persistence (incl. import-identity finding)	712	825	FULL	SPL2	SPL2-E051,SPL2-E052,SPL2-E053,SPL2-D022,SPL2-D029	extracted	
+docs/parking-lot-9.md	PL-ROADMAP-UI — detail-pane completeness refinement	826	855	FULL	SPL2	SPL2-E060,SPL2-D027	extracted	
+docs/parking-lot-9.md	PL-BROKER-CAP — Brokerage-Facing Capability Model	857	993	FULL	SPL2	SPL2-E063,SPL2-E064,SPL2-E065,SPL2-E066,SPL2-E067,SPL2-D030	extracted	
+docs/parking-lot-9.md	PL-SEM-01 — intake + Reconciliation Completion Record	995	1052	FULL	SPL2	SPL2-E068,SPL2-D031	extracted	
+docs/parking-lot-9.md	PL-SEM-01 Refinement — v1.1	1053	1084	FULL	SPL2	SPL2-E068,SPL2-D031	extracted	
+docs/parking-lot-9.md	PL-SEM-01 Refinement — v1.2 opened	1085	1129	FULL	SPL2	SPL2-D032	extracted	
+docs/parking-lot-9.md	PL-SEM-01 Refinement — v1.3 focused specimen pass	1130	1159	FULL	SPL2	SPL2-E069,SPL2-E074	extracted	
+docs/parking-lot-9.md	PL-SEM-01 Refinement — v1.3 coherence repair + source binding	1160	1193	FULL	SPL2	SPL2-E070,SPL2-E071,SPL2-D033,SPL2-D035	extracted	
+docs/parking-lot-9.md	PL-SEM-01 Refinement — practitioner-strategy falsification	1194	1219	FULL	SPL2	SPL2-E072,SPL2-D033	extracted	
+docs/parking-lot-9.md	PL-SEM-01 Refinement — v1.4 Scenario / Market Thesis	1220	1240	FULL	SPL2	SPL2-E073,SPL2-E074,SPL2-D034	extracted	
+docs/parking-lot-9.md	PL-EVID-OBS — Universe Observation Value / Servicing Research	1242	1343	FULL	SPL2	SPL2-E075,SPL2-E076,SPL2-E077,SPL2-D038	extracted	
+docs/parking-lot-9.md	PL-RESEARCH-05 — Practitioner Corpus program	1345	1434	FULL	SPL2	SPL2-E078,SPL2-E079,SPL2-D036	extracted	
+docs/parking-lot-9.md	PL-DEC-BEH Refinement — Inner Game	1436	1626	FULL	SPL2	SPL2-E080,SPL2-E081,SPL2-E082,SPL2-E083,SPL2-E084,SPL2-E085,SPL2-E086,SPL2-D037	extracted	

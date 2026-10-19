@@ -1,0 +1,56 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/journal/project-journal.md	Title + Purpose	1	25	FULL	SJ1A		no-new-knowledge	journal is raw why-memory, not spec/ADR
+docs/journal/project-journal.md	Journal Rules	26	38	FULL	SJ1A		no-new-knowledge	rule 1 append only; rule 8 read only when rebuilding context
+docs/journal/project-journal.md	Entry Template	39	41	FULL	SJ1A		no-new-knowledge	
+docs/journal/project-journal.md	YYYY-MM-DD — Short Title (template placeholder in code block)	42	56	FULL	SJ1A		no-new-knowledge	heading is inside template code fence
+docs/journal/project-journal.md	2026-07-03 — Bootstrap, Methodology, and First Observable System	57	303	FULL	SJ1A	SJ1A-E001,SJ1A-E002,SJ1A-E003,SJ1A-D001,SJ1A-D002	extracted	
+docs/journal/project-journal.md	Entry: Reasoning Subsystem Checkpoint — Observations for Future Reference	304	359	FULL	SJ1A	SJ1A-E004,SJ1A-E005	extracted	dated 2025-07-03 (typo)
+docs/journal/project-journal.md	Entry: Massive API Provider Spike — Feasibility Result	360	444	FULL	SJ1A	SJ1A-E006,SJ1A-D003	extracted	dated 2025-07-03 (typo)
+docs/journal/project-journal.md	Entry: First Reference Fixture — XLE from Fidelity	445	509	FULL	SJ1A	SJ1A-E007,SJ1A-D004	extracted	dated 2025-07-05 (typo)
+docs/journal/project-journal.md	Entry: Architectural Hypothesis — Layered Decision Pipeline	510	617	FULL	SJ1A	SJ1A-E008,SJ1A-E009,SJ1A-E010	extracted	2026-07-08 explicit; placed before 07-03 entries
+docs/journal/project-journal.md	2026-07-03 — Opportunity Lab: First Radar Instrument	618	666	FULL	SJ1A		no-new-knowledge	implementation witness only (15 curated ETFs, sequential Tradier fetch, curated universe as static constant)
+docs/journal/project-journal.md	2026-07-03 — Domain Discovery: Multiple Evaluation Axes	667	747	FULL	SJ1A	SJ1A-E011,SJ1A-D005	extracted	
+docs/journal/project-journal.md	2026-07-03 — Domain Discovery: Policy as Evidence-Generating	748	829	FULL	SJ1A	SJ1A-E012,SJ1A-E060	extracted	
+docs/journal/project-journal.md	2026-07-03 — Methodology: Three Kinds of Knowledge	830	905	FULL	SJ1A	SJ1A-E013,SJ1A-D006	extracted	
+docs/journal/project-journal.md	2026-07-03 — Domain Discovery: Policy Response Signatures	906	964	FULL	SJ1A	SJ1A-E014	extracted	
+docs/journal/project-journal.md	2026-07-03 — Instrument Boundaries Emerged from Capability Density	965	1078	FULL	SJ1A	SJ1A-E015,SJ1A-E060	extracted	
+docs/journal/project-journal.md	2026-07-04 — Guardrail: History Refines Operation, Not Prophecy	1079	1186	FULL	SJ1A	SJ1A-E016,SJ1A-E017,SJ1A-D007	extracted	
+docs/journal/project-journal.md	2026-07-04 — Architectural Learning: Overlays, Institutional State, and Decision Behavior	1187	1270	FULL	SJ1A	SJ1A-E018,SJ1A-E019,SJ1A-E020,SJ1A-E021	extracted	
+docs/journal/project-journal.md	2026-07-04 — Architectural Vision: Document-Driven Scenario Replay	1271	1359	FULL	SJ1A	SJ1A-E022	extracted	
+docs/journal/project-journal.md	2026-07-04 — First Observations from Scenario Replay Instrument	1360	1421	FULL	SJ1A	SJ1A-E060	extracted	state transitions as object of study; 'Steps are implementation; time is the concept' (L1393) folded into E060
+docs/journal/project-journal.md	2026-07-10 — Architectural Discovery: Three Projections of the Institution	1422	1509	FULL	SJ1A	SJ1A-E023	extracted	real account holdings/balances L1476-1494 sensitive-withheld
+docs/journal/project-journal.md	2026-07-10 — Discovery: Brokerage Policy Mediates Operational Capability	1510	1596	FULL	SJ1A	SJ1A-E024	extracted	real cash amounts redacted
+docs/journal/project-journal.md	2026-07-13 — Domain Discovery: Universe Management as a Bounded Context	1597	1689	FULL	SJ1A	SJ1A-E025,SJ1A-D008	extracted	
+docs/journal/project-journal.md	2026-07-13 — Engineering Spike: API Ninjas ETF Catalog Provider	1690	1729	FULL	SJ1A	SJ1A-E027,SJ1A-D009	extracted	
+docs/journal/project-journal.md	2026-07-13 — Architectural Refinement: Discovery Consumes Reference Data	1730	1794	FULL	SJ1A	SJ1A-E028	extracted	
+docs/journal/project-journal.md	2026-07-13 — Velvet Rope Thin Slice: Single-Symbol Evaluation Instrument	1795	1853	FULL	SJ1A	SJ1A-E026,SJ1A-D008	extracted	
+docs/journal/project-journal.md	2026-07-13 — First Velvet Rope Interaction: Measurement vs. Policy	1854	1920	FULL	SJ1A	SJ1A-E031,SJ1A-D010	extracted	
+docs/journal/project-journal.md	2026-07-13 — Methodology Refinement: Experimental Evidence Before Algorithm Change	1921	1993	FULL	SJ1A	SJ1A-E029,SJ1A-E035,SJ1A-E036	extracted	
+docs/journal/project-journal.md	2026-07-13 — Experiment 001: 11-ETF Evaluation Results	1994	2047	FULL	SJ1A	SJ1A-E031,SJ1A-D010	extracted	
+docs/journal/project-journal.md	2026-07-13 — Experiment 002: Spread Measurement Semantics (SCHD)	2048	2130	FULL	SJ1A	SJ1A-E032,SJ1A-D010	extracted	
+docs/journal/project-journal.md	2026-07-13 — The Difference Between Measuring a Contract and Measuring a Market	2131	2235	FULL	SJ1A	SJ1A-E033,SJ1A-E060	extracted	
+docs/journal/project-journal.md	2026-07-13 — Foundational Principle: The Institutional Reasoning Stack	2236	2334	FULL	SJ1A	SJ1A-E034	extracted	
+docs/journal/project-journal.md	2026-07-13 — SEC Securities Explorer: Human-in-the-Loop Discovery	2335	2416	FULL	SJ1A	SJ1A-E033	extracted	mostly implementation witness; 'Experiment 003' number reused (collision noted in E033)
+docs/journal/project-journal.md	2026-07-13 — Discovery Refinement: EvaluationSummary as Portable Institutional Opinion	2417	2507	FULL	SJ1A	SJ1A-E035	extracted	
+docs/journal/project-journal.md	2026-07-13 — Experiment 004: SEC Catalog Boundary Discovery	2508	2617	FULL	SJ1A	SJ1A-E037	extracted	
+docs/journal/project-journal.md	2026-07-13 — Engineering Spike: FMP ETF Reference Data Provider	2618	2664	FULL	SJ1A	SJ1A-E038	extracted	provider comparison table is time-qualified landscape
+docs/journal/project-journal.md	2026-07-13 — FMP Search as Exploratory Catalog: Characterization	2665	2723	FULL	SJ1A	SJ1A-E038,SJ1A-E004	extracted	
+docs/journal/project-journal.md	2026-07-13 — Candidate Universe: First Slice Implemented	2724	2793	FULL	SJ1A	SJ1A-E039	extracted	
+docs/journal/project-journal.md	2026-07-13 — Architectural Discovery: Product Structure (SOXS Counterexample)	2794	2903	FULL	SJ1A	SJ1A-E040,SJ1A-D011	extracted	
+docs/journal/project-journal.md	2026-07-13 — Design Convergence: Opportunity Lab + Velvet Rope Integration	2904	2970	FULL	SJ1A	SJ1A-E041,SJ1A-D012	extracted	
+docs/journal/project-journal.md	2026-07-03 — Evidence Freshness vs Market State	2971	3108	FULL	SJ1A	SJ1A-E042,SJ1A-E043,SJ1A-E044,SJ1A-D013	extracted	header date likely wrong (content post-07-13)
+docs/journal/project-journal.md	2026-07-03 — Foundations Family Established	3109	3147	FULL	SJ1A	SJ1A-E045,SJ1A-E048,SJ1A-D014	extracted	header date likely wrong
+docs/journal/project-journal.md	2026-07-03 — Foundations Review: Ten Candidate Principles	3148	3241	FULL	SJ1A	SJ1A-E045,SJ1A-D014	extracted	header date likely wrong
+docs/journal/project-journal.md	2026-07-03 — Foundations Review: Additional Critique (Session 2)	3242	3329	FULL	SJ1A	SJ1A-E045,SJ1A-E046,SJ1A-D014	extracted	header date likely wrong
+docs/journal/project-journal.md	2026-07-03 — Liquidity Topology and Side-Asymmetric Admission Evidence	3330	3387	FULL	SJ1A	SJ1A-E047	extracted	header date likely wrong
+docs/journal/project-journal.md	2026-07-03 — Architectural Transition: From Labs to Operational Application	3388	3477	FULL	SJ1A	SJ1A-E030,SJ1A-E048,SJ1A-E049,SJ1A-D015,SJ1A-D016,SJ1A-D017	extracted	header date likely wrong
+docs/journal/project-journal.md	2026-07-14 — Technical Debt: Canonical Evidence Provenance Not Yet Enforced	3478	3570	FULL	SJ1A	SJ1A-E050,SJ1A-D018	extracted	
+docs/journal/project-journal.md	2026-07-03 — Architectural Consolidation Milestone	3571	3669	FULL	SJ1A	SJ1A-E051,SJ1A-E052	extracted	header date 07-03 but follows 07-14 entry
+docs/journal/project-journal.md	2026-07-15 — Backend Evidence Service Decision	3670	3733	FULL	SJ1A	SJ1A-E053,SJ1A-D019	extracted	
+docs/journal/project-journal.md	2026-07-15 — Product Philosophy: Reactive vs Anticipatory	3734	3792	FULL	SJ1A	SJ1A-E054,SJ1A-D021	extracted	
+docs/journal/project-journal.md	2026-07-15 — Backend Implementation Preferences Recorded	3793	3821	FULL	SJ1A	SJ1A-E055,SJ1A-D020	extracted	
+docs/journal/project-journal.md	2026-07-15 — Conditioned Operating Opportunity Concept	3822	3860	FULL	SJ1A	SJ1A-E056,SJ1A-D022	extracted	
+docs/journal/project-journal.md	2026-07-15 — Parking Lot Reconciliation	3861	3893	FULL	SJ1A	SJ1A-E061	extracted	
+docs/journal/project-journal.md	2026-07-15 — After-Hours Coverage Gap (Observed)	3894	3938	FULL	SJ1A	SJ1A-E057,SJ1A-D023	extracted	deployable cash figure redacted
+docs/journal/project-journal.md	2026-07-15 — Market-Priced Risk Research Topic	3939	3965	FULL	SJ1A	SJ1A-E058	extracted	Tradier sandbox often returns zero Greeks/IV (L3961) — time-qualified data-access witness
+docs/journal/project-journal.md	2026-07-15 — Reflection: Market as Oracle, System as Translator	3966	4021	FULL	SJ1A	SJ1A-E058	extracted	

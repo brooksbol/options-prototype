@@ -1,0 +1,282 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/23-calls-architecture.md	Covered-Call Architecture	1	7	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/23-calls-architecture.md	System Context	8	24	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/23-calls-architecture.md	Horizon A (Implemented)	25	74	FULL	SN1	SN1-E063,SN1-E064,SN1-E065	extracted	
+docs/23-calls-architecture.md	Horizon B (In Progress)	75	161	FULL	SN1	SN1-E067	extracted	
+docs/23-calls-architecture.md	Horizon C (Future)	162	187	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/23-calls-architecture.md	Architecture Decisions	188	202	FULL	SN1	SN1-D026,SN1-E066	extracted	
+docs/24-cloud-deployment.md	Cloud Deployment Architecture	1	7	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/24-cloud-deployment.md	Overview	8	13	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/24-cloud-deployment.md	Accepted Constraints (Phase 1)	14	27	FULL	SN1	SN1-D018	extracted	
+docs/24-cloud-deployment.md	Architecture	28	56	FULL	SN1	SN1-D018	extracted	
+docs/24-cloud-deployment.md	Key Decisions	57	69	FULL	SN1	SN1-D018,SN1-E068	extracted	
+docs/24-cloud-deployment.md	Deployment Configuration	70	81	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/24-cloud-deployment.md	Operational Model	82	91	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/24-cloud-deployment.md	Not Addressed in Phase 1	92	106	FULL	SN1	SN1-D018	extracted	
+docs/24-cloud-deployment.md	Sequencing	107	118	FULL	SN1	SN1-D018	extracted	
+docs/25-situation-architecture.md	Situation-Based Operation	1	7	FULL	SN1	SN1-D015	extracted	
+docs/25-situation-architecture.md	Core Idea	8	28	FULL	SN1	SN1-E005	extracted	
+docs/25-situation-architecture.md	What a Situation Is	29	46	FULL	SN1	SN1-E005	extracted	
+docs/25-situation-architecture.md	The Reasoning Direction	47	76	FULL	SN1	SN1-E070	extracted	
+docs/25-situation-architecture.md	Situation 0: Current Implementation	77	92	FULL	SN1	SN1-E071	extracted	
+docs/25-situation-architecture.md	Bridge Income: First Explicit Situation	93	128	FULL	SN1	SN1-E007	extracted	
+docs/25-situation-architecture.md	Unified Recommendation Surface	129	142	FULL	SN1	SN1-E008	extracted	
+docs/25-situation-architecture.md	Explainability	143	156	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/25-situation-architecture.md	Principles	157	175	FULL	SN1	SN1-D015,SN1-E006,SN1-E069	extracted	
+docs/25-situation-architecture.md	Future Situations (Illustrative, Not Specified)	176	187	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/25-situation-architecture.md	Relationship to Existing Architecture	188	203	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/25-situation-architecture.md	What This Document Does NOT Specify	204	214	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/26-operator-console-architecture.md	Operator Console Architecture	1	8	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/26-operator-console-architecture.md	Purpose	9	25	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/26-operator-console-architecture.md	Core Abstraction	26	37	FULL	SN1	SN1-E009	extracted	
+docs/26-operator-console-architecture.md	Primary Visualization — DTE Ladder	38	86	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/26-operator-console-architecture.md	Console Regions	87	187	FULL	SN1	SN1-E010,SN1-E011,SN1-E072	extracted	
+docs/26-operator-console-architecture.md	State Ownership	188	206	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/26-operator-console-architecture.md	Health	207	229	FULL	SN1	SN1-E013	extracted	
+docs/26-operator-console-architecture.md	Implementation Status (August 2026)	230	284	FULL	SN1	SN1-E012,SN1-E015,SN1-E073	extracted	
+docs/26-operator-console-architecture.md	Out of Scope	285	301	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/27-resolution-outlook-v1.md	Resolution Outlook V1 — Implementation Design Note	1	8	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/27-resolution-outlook-v1.md	Purpose	9	16	FULL	SN1	SN1-E018	extracted	
+docs/27-resolution-outlook-v1.md	What We're Trying to Learn	17	25	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/27-resolution-outlook-v1.md	The Policy	26	74	FULL	SN1	SN1-D016,SN1-E016,SN1-E074	extracted	
+docs/27-resolution-outlook-v1.md	Observability Requirements	75	100	FULL	SN1	SN1-D016	extracted	
+docs/27-resolution-outlook-v1.md	What This Policy Does NOT Do	101	110	FULL	SN1	SN1-E017	extracted	
+docs/27-resolution-outlook-v1.md	ADR-014 Invariants Preserved	111	120	FULL	SN1	SN1-E019	extracted	
+docs/27-resolution-outlook-v1.md	Relationship to Forecast Composition	121	142	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/28-forecast-v2-exploration.md	Forecast V2 — Design Exploration	1	8	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/28-forecast-v2-exploration.md	Purpose	9	16	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/28-forecast-v2-exploration.md	The Problem V1 Exposed	17	29	FULL	SN1	SN1-E020	extracted	
+docs/28-forecast-v2-exploration.md	Key Architectural Discoveries	30	83	FULL	SN1	SN1-E022,SN1-E023	extracted	
+docs/28-forecast-v2-exploration.md	Rejected Approaches	84	117	FULL	SN1	SN1-D017,SN1-E075	extracted	
+docs/28-forecast-v2-exploration.md	What Survived Falsification	118	149	FULL	SN1	SN1-E076	extracted	
+docs/28-forecast-v2-exploration.md	Remaining Open Questions (Unresolved)	150	189	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/28-forecast-v2-exploration.md	Experiential Evidence (Principal, August 2026)	190	201	FULL	SN1	SN1-E021	extracted	
+docs/28-forecast-v2-exploration.md	Relationship to Architecture	202	221	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/28-forecast-v2-exploration.md	Design Constraint: Explainability	222	231	FULL	SN1	SN1-E024	extracted	
+docs/28-forecast-v2-exploration.md	Next Steps (After Documentation Reconciliation)	232	239	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	Architectural Baseline Inventory	1	11	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	1. System Identity	12	33	FULL	SN1		duplicate-of:docs/foundations/evidence-appliance.md	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	2. Architectural Primitives	34	163	FULL	SN1	SN1-E013,SN1-E014	extracted	
+docs/30-architectural-baseline-inventory.md	3. Boundaries	164	181	FULL	SN1	SN1-E078	extracted	
+docs/30-architectural-baseline-inventory.md	4. Invariants	182	225	FULL	SN1		duplicate-of:docs/foundations/backend-behavioral-invariants.md	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	5. Governing Principles	226	243	FULL	SN1		duplicate-of:docs/foundations/principles-governance-model.md	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	6. Conceptual Architecture (Four Engines)	244	260	FULL	SN1		duplicate-of:docs/07-architecture-current.md	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	7. Cognitive Role Architecture	261	274	FULL	SN1		duplicate-of:docs/foundations/cognitive-role-separation.md	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	8. Operating Regime	275	287	FULL	SN1	SN1-E026	extracted	
+docs/30-architectural-baseline-inventory.md	9. Transitional Boundaries (Current Placement, Not Permanent)	288	299	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	10. Explicitly Unresolved Questions	300	338	FULL	SN1	SN1-E142	extracted	
+docs/30-architectural-baseline-inventory.md	11. Implementation Facts (Current Runtime)	339	357	FULL	SN1	SN1-E077	extracted	
+docs/30-architectural-baseline-inventory.md	12. Document Authority Map	358	381	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/30-architectural-baseline-inventory.md	13. Extraction Notes	382	403	FULL	SN1	SN1-E025	extracted	
+docs/31-architectural-reconciliation.md	Architectural Reconciliation	1	10	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/31-architectural-reconciliation.md	Discovery Inventory	11	40	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/31-architectural-reconciliation.md	Category A: Domain Discovery Reconciliation	41	167	FULL	SN1	SN1-E029	extracted	D-01..D-07 read in full; key content captured via findings/synthesis items.
+docs/31-architectural-reconciliation.md	Category B: Application-Shell / Context / Flow Reconciliation	168	312	FULL	SN1	SN1-E079	extracted	D-08..D-16 read in full; captured via Synthesis 1 / F-12..F-20 items.
+docs/31-architectural-reconciliation.md	Cross-Discovery Synthesis	313	389	FULL	SN1	SN1-E028,SN1-E079	extracted	
+docs/31-architectural-reconciliation.md	Architectural Findings	390	445	FULL	SN1	SN1-D020,SN1-E080,SN1-E082	extracted	
+docs/31-architectural-reconciliation.md	Summary Assessment	446	467	FULL	SN1	SN1-D020	extracted	
+docs/31-architectural-reconciliation.md	Documentation Consequences (Deferred — Noted for Sequencing)	468	482	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/31-architectural-reconciliation.md	Backlog Reconciliation Criteria	483	499	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/31-architectural-reconciliation.md	Category C: Lab Surface Reconciliation	500	863	FULL	SN1	SN1-D019,SN1-E031,SN1-E081,SN1-E083	extracted	
+docs/32-parking-lot-reconciliation.md	Parking-Lot Reconciliation	1	11	FULL	SN1	SN1-E027	extracted	
+docs/32-parking-lot-reconciliation.md	Source Integrity Note	12	22	FULL	SN1	SN1-E032	extracted	
+docs/32-parking-lot-reconciliation.md	Disposition Key	23	35	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/32-parking-lot-reconciliation.md	Complete Inventory and Dispositions	36	377	FULL	SN1	SN1-D021,SN1-E085	extracted	Per-item dispositions read in full; extracted only cross-cutting principles/decisions, not each of 44 rows (summary table 378-428 is the index).
+docs/32-parking-lot-reconciliation.md	Corrected Summary of Dispositions	378	428	FULL	SN1	SN1-D021	extracted	Inventory table; recorded as decision SN1-D021 rather than per-row items.
+docs/32-parking-lot-reconciliation.md	Revised Disposition Counts	429	442	FULL	SN1	SN1-D021	extracted	
+docs/32-parking-lot-reconciliation.md	Superseded Historical Containers with Destination Mappings	443	462	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/32-parking-lot-reconciliation.md	Promoted Architectural Concepts	463	476	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/32-parking-lot-reconciliation.md	Proposed Application Coherence Initiative	477	502	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/32-parking-lot-reconciliation.md	Governance Capability Family	503	518	FULL	SN1	SN1-E085	extracted	
+docs/32-parking-lot-reconciliation.md	Historical / Observational Capability Family	519	536	FULL	SN1	SN1-E030	extracted	
+docs/32-parking-lot-reconciliation.md	Genuine Remaining Principal Decisions	537	584	FULL	SN1	SN1-D019,SN1-D022,SN1-E086	extracted	
+docs/32-parking-lot-reconciliation.md	Revised Cluster Map	585	636	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/32-parking-lot-reconciliation.md	Resulting Proposed Active-Backlog Taxonomy	637	688	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/32-parking-lot-reconciliation.md	Governing Principle	689	704	FULL	SN1	SN1-E084	extracted	
+docs/33-long-thread-reconciliation.md	Long-Thread Architectural Reconciliation	1	9	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/33-long-thread-reconciliation.md	1. Executive Conclusion	10	39	FULL	SN1	SN1-D027	extracted	
+docs/33-long-thread-reconciliation.md	2. Conformance Matrix	40	82	FULL	SN1	SN1-E088	extracted	
+docs/33-long-thread-reconciliation.md	3. Primitive Review	83	148	FULL	SN1	SN1-E090	extracted	
+docs/33-long-thread-reconciliation.md	4. Surface / Cognitive-Role Review	149	195	FULL	SN1	SN1-E033	extracted	
+docs/33-long-thread-reconciliation.md	5. Accounting / Lifecycle Review	196	258	FULL	SN1	SN1-E034	extracted	
+docs/33-long-thread-reconciliation.md	6. Behavioral Safeguard Review	259	317	FULL	SN1	SN1-E087,SN1-E089	extracted	
+docs/33-long-thread-reconciliation.md	7. Portfolio Construction Review	318	367	FULL	SN1	SN1-E037,SN1-E092	extracted	
+docs/33-long-thread-reconciliation.md	8. Regime / Treasury Review	368	440	FULL	SN1	SN1-D027,SN1-E036,SN1-E088,SN1-E090	extracted	
+docs/33-long-thread-reconciliation.md	9. Recommended GitHub Changes	441	478	FULL	SN1	SN1-E089	extracted	
+docs/33-long-thread-reconciliation.md	10. Open Questions	479	514	FULL	SN1	SN1-E035	extracted	
+docs/33-long-thread-reconciliation.md	Traceability Summary	515	530	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/33-long-thread-reconciliation.md	Governing Principle Preserved	531	540	FULL	SN1	SN1-E091	extracted	
+docs/33-strategy-roadmap-checkpoint.md	33 — Strategy / Roadmap Operating-Model Checkpoint	1	6	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/33-strategy-roadmap-checkpoint.md	Context	7	17	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/33-strategy-roadmap-checkpoint.md	Governance evolution	18	46	FULL	SN1	SN1-E093	extracted	
+docs/33-strategy-roadmap-checkpoint.md	Course-correction model	47	56	FULL	SN1	SN1-E093	extracted	
+docs/33-strategy-roadmap-checkpoint.md	The 60-proposition exploration	57	79	FULL	SN1	SN1-E093	extracted	
+docs/33-strategy-roadmap-checkpoint.md	Why "pruning" was rejected	80	96	FULL	SN1	SN1-D023,SN1-E093	extracted	
+docs/33-strategy-roadmap-checkpoint.md	Initiative normalization pass	97	109	FULL	SN1	SN1-D023	extracted	
+docs/33-strategy-roadmap-checkpoint.md	Blessed starting LVT	110	117	FULL	SN1	SN1-D023,SN1-E038	extracted	
+docs/33-strategy-roadmap-checkpoint.md	Architecture findings produced by the same analysis	118	140	FULL	SN1	SN1-E039	extracted	
+docs/33-strategy-roadmap-checkpoint.md	Relationship to the parking lot	141	148	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/33-strategy-roadmap-checkpoint.md	Relationship to project memory	149	154	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/33-strategy-roadmap-checkpoint.md	Significance	155	166	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	Opening-Relevant Evidence Experiment	1	9	FULL	SN1	SN1-E002	extracted	
+docs/34-opening-relevant-evidence-experiment.md	1. Hypothesis	10	15	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	2. Background and Motivation	16	35	FULL	SN1	SN1-E004	extracted	
+docs/34-opening-relevant-evidence-experiment.md	3. Design Constraints	36	52	FULL	SN1	SN1-D025,SN1-E003	extracted	
+docs/34-opening-relevant-evidence-experiment.md	4. The Opening-Relevant Set (Experimental Fixture)	53	68	FULL	SN1	SN1-E096	extracted	
+docs/34-opening-relevant-evidence-experiment.md	5. Three-Phase Opening Model	69	142	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	6. Instrumentation	143	184	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	7. Acceptance Criteria	185	216	FULL	SN1	SN1-E001	extracted	
+docs/34-opening-relevant-evidence-experiment.md	8. Rollback Boundary	217	231	FULL	SN1	SN1-E096	extracted	
+docs/34-opening-relevant-evidence-experiment.md	9. Scope Exclusions	232	245	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	10. Experiment Duration and Protocol	246	262	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	11. Implementation Seams	263	282	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-opening-relevant-evidence-experiment.md	12. Architectural Guardrail	283	294	FULL	SN1	SN1-D025,SN1-E096	extracted	
+docs/34-opening-relevant-evidence-experiment.md	Cross-References	295	306	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-quality-differentiation-reconciliation.md	Quality, Differentiation, and Good-Enough Reconciliation Checkpoint	1	6	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-quality-differentiation-reconciliation.md	Why this checkpoint exists	7	21	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/34-quality-differentiation-reconciliation.md	1. The roadmap is not the answer to "what next?"	22	42	FULL	SN1	SN1-E094	extracted	
+docs/34-quality-differentiation-reconciliation.md	2. Good enough is an intentional strategic stopping point	43	62	FULL	SN1	SN1-D024,SN1-E094	extracted	
+docs/34-quality-differentiation-reconciliation.md	3. Excellence depends on differentiation	63	76	FULL	SN1	SN1-D024,SN1-E094	extracted	
+docs/34-quality-differentiation-reconciliation.md	4. Capability quality is a cross-cutting dimension	77	92	FULL	SN1	SN1-D024,SN1-E041	extracted	
+docs/34-quality-differentiation-reconciliation.md	5. Trustability emerges as a differentiating meta-capability	93	125	FULL	SN1	SN1-D024,SN1-E095	extracted	
+docs/34-quality-differentiation-reconciliation.md	6. Existing Wheelwright decisions already form a trustability strategy	126	141	FULL	SN1	SN1-D024,SN1-E095	extracted	
+docs/34-quality-differentiation-reconciliation.md	7. Kreature / Attention clarification	142	155	FULL	SN1	SN1-D024,SN1-E040	extracted	
+docs/34-quality-differentiation-reconciliation.md	Consequence	156	169	FULL	SN1	SN1-D024	extracted	
+docs/35-evidence-decision-temporal-coherence.md	Evidence–Decision Temporal Coherence: A Cross-Subsystem Finding	1	9	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/35-evidence-decision-temporal-coherence.md	1. Summary	10	24	FULL	SN1	SN1-E097	extracted	
+docs/35-evidence-decision-temporal-coherence.md	2. Verified Behavior (Code + Live Evidence, August 27, 2026)	25	72	FULL	SN1	SN1-E104	extracted	
+docs/35-evidence-decision-temporal-coherence.md	3. The Rolling-Window Effect (corroborated by candidate counts)	73	91	FULL	SN1	SN1-E103	extracted	
+docs/35-evidence-decision-temporal-coherence.md	4. Root Structural Cause	92	102	FULL	SN1	SN1-E097	extracted	
+docs/35-evidence-decision-temporal-coherence.md	5. Four Findings to Preserve (before any fix)	103	114	FULL	SN1	SN1-E098,SN1-E099,SN1-E100	extracted	
+docs/35-evidence-decision-temporal-coherence.md	6. The 3AM Question (for architecture, not for patching)	115	124	FULL	SN1	SN1-D009,SN1-E102,SN1-E105	extracted	
+docs/35-evidence-decision-temporal-coherence.md	7. Proposed Invariant (candidate — not yet ratified)	125	132	FULL	SN1	SN1-D010,SN1-E101	extracted	
+docs/35-evidence-decision-temporal-coherence.md	8. What This Finding Does NOT Do	133	145	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/35-evidence-decision-temporal-coherence.md	9. Cross-References	146	154	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/36-temporal-contract-design-brief.md	3AM Design Brief — Temporal Contract for the Decision Surface (PL-COHERE-01 Finding #1)	1	10	FULL	SN1	SN1-E043	extracted	
+docs/36-temporal-contract-design-brief.md	0. The Question 3AM Must Answer	11	18	FULL	SN1	SN1-E105	extracted	
+docs/36-temporal-contract-design-brief.md	1. What Is Actually True Today (Measured, Not Assumed)	19	69	FULL	SN1	SN1-E110	extracted	
+docs/36-temporal-contract-design-brief.md	2. Why This Is a Contract Problem, Not a Number Problem	70	84	FULL	SN1	SN1-D009,SN1-E108	extracted	
+docs/36-temporal-contract-design-brief.md	3. The Behavioral Invariant Under Threat	85	94	FULL	SN1	SN1-D010	extracted	
+docs/36-temporal-contract-design-brief.md	4. Three Coherent Temporal-Contract Models	95	142	FULL	SN1	SN1-D008,SN1-E106	extracted	
+docs/36-temporal-contract-design-brief.md	5. Relationship to the Sealed-Evidence Precedent	143	154	FULL	SN1	SN1-D008,SN1-E109	extracted	
+docs/36-temporal-contract-design-brief.md	6. Recommended Ownership Boundary (Architect's Leading Direction — Not Ratified)	155	170	FULL	SN1	SN1-D008,SN1-E107	extracted	
+docs/36-temporal-contract-design-brief.md	7. What 3AM Must Decide	171	180	FULL	SN1	SN1-D008,SN1-E045	extracted	
+docs/36-temporal-contract-design-brief.md	8. Proposed Recovery Slice (After Ratification — Sequenced, Not Authorized Here)	181	195	FULL	SN1	SN1-E044	extracted	
+docs/36-temporal-contract-design-brief.md	9. What This Brief Does NOT Do	196	205	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/36-temporal-contract-design-brief.md	10. Cross-References	206	215	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/37-console-sparkline-temporal-evidence-finding.md	Console Moneyness Sparklines: A Temporal-Evidence Candidate Finding	1	9	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/37-console-sparkline-temporal-evidence-finding.md	1. Summary	10	27	FULL	SN1	SN1-E111	extracted	
+docs/37-console-sparkline-temporal-evidence-finding.md	2. Verified Trace (SLV, Live, August 27, 2026)	28	91	FULL	SN1	SN1-E047,SN1-E112	extracted	
+docs/37-console-sparkline-temporal-evidence-finding.md	3. Two Distinct Root Causes	92	109	FULL	SN1	SN1-E111	extracted	
+docs/37-console-sparkline-temporal-evidence-finding.md	4. Relationship to Finding #1 (Pattern Yes, Cause No)	110	125	FULL	SN1	SN1-E111	extracted	
+docs/37-console-sparkline-temporal-evidence-finding.md	5. The Larger Suspicion: No System-Level Definition of Evidence Readiness	126	144	FULL	SN1	SN1-E046	extracted	
+docs/37-console-sparkline-temporal-evidence-finding.md	6. What This Finding Does NOT Do	145	156	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/37-console-sparkline-temporal-evidence-finding.md	7. Open Questions for the Next Reconciliation Pass	157	165	FULL	SN1	SN1-E047,SN1-E111	extracted	
+docs/37-console-sparkline-temporal-evidence-finding.md	8. Cross-References	166	174	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/38-entry-mechanism-risk-compensation-finding.md	Entry Mechanisms: Production, Risk Compensation, and Capital Consequence	1	12	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/38-entry-mechanism-risk-compensation-finding.md	Why This Artifact Exists	13	44	FULL	SN1	SN1-E113,SN1-E114	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	Entry-Mechanism Model	45	77	FULL	SN1	SN1-E048	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	Current Empirical Asymmetry	78	104	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/38-entry-mechanism-risk-compensation-finding.md	What Goldman Contributes	105	140	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/38-entry-mechanism-risk-compensation-finding.md	Corrected Failure / Success Model	141	193	FULL	SN1	SN1-E049	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	The More Useful Comparative Question	194	213	FULL	SN1	SN1-E051	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	Why `PL-EVID-01` Remains the Primary Home	214	263	FULL	SN1	SN1-E050,SN1-E051	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	Relationship to Existing Concepts	264	294	FULL	SN1	SN1-E050,SN1-E051,SN1-E116	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	What This Finding Does NOT Authorize	295	313	FULL	SN1	SN1-E050	extracted	
+docs/38-entry-mechanism-risk-compensation-finding.md	Observation-Architecture Design Test	314	329	FULL	SN1	SN1-E050,SN1-E115	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	Herbie: Evidence-Renewal Capacity as the Current Constraint	1	9	FULL	SN1	SN1-E123	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	1. Operator Ruling: Optimize Wheelwright as a Constrained System	10	31	FULL	SN1	SN1-D001,SN1-E052,SN1-E117	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	2. Empirical Trigger: August 28 Production Observation	32	63	FULL	SN1	SN1-E053,SN1-E123	extracted	Contains absolute external path under a user home directory; path withheld.
+docs/38-herbie-evidence-renewal-constraint.md	3. Candidate Herbie	64	81	FULL	SN1	SN1-E118	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	4. Why Ticker Count Hides the Constraint	82	97	FULL	SN1	SN1-E121	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	5. Three Freshness Surfaces, Three Behaviors	98	127	FULL	SN1	SN1-D028,SN1-E119,SN1-E120,SN1-E121	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	6. TOC Interpretation of the Current System	128	142	FULL	SN1	SN1-E121	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	7. Optimization Consequences	143	187	FULL	SN1	SN1-E121	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	8. Universe Governance: What TOC Changes and What It Does Not	188	207	FULL	SN1	SN1-E121	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	9. Trust Consequence	208	221	FULL	SN1	SN1-E122	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	10. What Is Ratified vs. Still Candidate	222	253	FULL	SN1	SN1-D001	extracted	
+docs/38-herbie-evidence-renewal-constraint.md	11. Next Analysis When Work Resumes	254	267	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/38-herbie-evidence-renewal-constraint.md	12. Disposition	268	275	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	Constraint Identification Restart Plan — Kiro/Codex Measurement Campaign	1	9	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	1. Why this document exists	10	23	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	2. Epistemic correction to Doc 38	24	42	FULL	SN1	SN1-D002,SN1-E054,SN1-E055	extracted	
+docs/39-constraint-identification-restart-plan.md	3. Governing TOC discipline	43	63	FULL	SN1	SN1-D002,SN1-E056	extracted	
+docs/39-constraint-identification-restart-plan.md	4. Current leading hypothesis	64	83	FULL	SN1	SN1-E124	extracted	
+docs/39-constraint-identification-restart-plan.md	5. Existing indirect evidence — preserve, reproduce, do not overclaim	84	134	FULL	SN1	SN1-E061	extracted	
+docs/39-constraint-identification-restart-plan.md	6. Factory-floor model to measure	135	200	FULL	SN1	SN1-E057	extracted	
+docs/39-constraint-identification-restart-plan.md	7. Required measurement record	201	244	FULL	SN1		no-new-knowledge	Field list for measurement records; methodology detail, no new decisions.
+docs/39-constraint-identification-restart-plan.md	8. Sampling resolution	245	261	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	9. Non-interference requirement	262	286	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	10. Division of labor — conserve Kiro credits deliberately	287	335	FULL	SN1	SN1-D003,SN1-D004,SN1-E058,SN1-E129	extracted	
+docs/39-constraint-identification-restart-plan.md	11. Restart sequence when Kiro credits return	336	489	FULL	SN1	SN1-E060,SN1-E127	extracted	
+docs/39-constraint-identification-restart-plan.md	12. Specific falsification criteria	490	515	FULL	SN1	SN1-E128	extracted	
+docs/39-constraint-identification-restart-plan.md	13. Measurement topology beyond Tradier	516	543	FULL	SN1	SN1-E128	extracted	
+docs/39-constraint-identification-restart-plan.md	14. Known implementation clues — clues only	544	562	FULL	SN1	SN1-E126	extracted	
+docs/39-constraint-identification-restart-plan.md	15. Forbidden work during this campaign	563	588	FULL	SN1	SN1-D003,SN1-E125	extracted	
+docs/39-constraint-identification-restart-plan.md	16. Artifact and provenance requirements	589	634	FULL	SN1		no-new-knowledge	Artifact layout; provenance requirement noted, no separate item.
+docs/39-constraint-identification-restart-plan.md	17. Reporting format	635	660	FULL	SN1	SN1-E059	extracted	
+docs/39-constraint-identification-restart-plan.md	18. Completion criteria for the first Kiro session	661	680	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	19. Exact Kiro and Codex prompts	681	691	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-constraint-identification-restart-plan.md	20. Final restart instruction	692	709	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	Credit Spreads, Deployment Consequences, and Behavioral Decision Discipline	1	9	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	Why This Artifact Exists	10	19	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	1. Additional Observable Decision Evidence	20	47	FULL	SN1	SN1-E143	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	2. Lifecycle Mechanics: Predetermined Buy-to-Close Limits	48	68	FULL	SN1	SN1-E140	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	3. Credit Spreads: The Prediction Premise Was Challenged	69	142	FULL	SN1	SN1-E130,SN1-E131	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	4. Controlled Aggression and the Long Leg	143	178	FULL	SN1	SN1-E132	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	5. Comparable Opportunities Across Predetermined-Quality Symbols	179	210	FULL	SN1	SN1-E133	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	6. Consequence Envelope: A New Comparison Primitive	211	242	FULL	SN1	SN1-E134	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	7. Put/Call Spread Symmetry and Asymmetry	243	262	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	8. Fitness Profiles: Operator Chooses the Objective, Wheelwright Applies It	263	290	FULL	SN1	SN1-E135	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	9. Cash Deployment: Four Candidate Entry Shapes	291	310	FULL	SN1	SN1-E136	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	10. Mechanics of Buy-Write + Call Credit Spread	311	370	FULL	SN1	SN1-E136	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	11. Data / Provider Implications	371	395	FULL	SN1	SN1-E142	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	12. Prospect Theory: The Discussion Broke Into New Ground	396	444	FULL	SN1	SN1-E139	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	13. Mechanics over Impulse	445	472	FULL	SN1	SN1-D012,SN1-E137	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	14. Accountable Human in the Loop	473	536	FULL	SN1	SN1-D012,SN1-E138	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	15. Architectural Reconciliation	537	592	FULL	SN1	SN1-D011	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	16. What Is Accepted vs Still Exploratory	593	619	FULL	SN1	SN1-D011,SN1-D012,SN1-E141	extracted	
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	17. Questions to Carry Forward	620	638	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/39-credit-spreads-deployment-behavioral-discipline-discovery.md	Closing Thesis	639	650	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-demand-aware-widget-production-hypothesis.md	Demand-Aware Widget Production — Downstream TOC Hypothesis	1	9	FULL	SN1	SN1-D013	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	1. Why this is worth preserving	10	25	FULL	SN1	SN1-E144	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	2. Concrete motivating example	26	46	FULL	SN1	SN1-E144	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	3. Product-demand model	47	69	FULL	SN1	SN1-E144	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	4. Throughput implication	70	87	FULL	SN1	SN1-E144	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	5. Production priority and acceptable corner-cutting	88	115	FULL	SN1	SN1-E145	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	6. Relationship to supply and demand	116	137	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-demand-aware-widget-production-hypothesis.md	7. Future measurement questions	138	156	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-demand-aware-widget-production-hypothesis.md	8. Guardrails	157	176	FULL	SN1	SN1-D013,SN1-E146	extracted	
+docs/40-demand-aware-widget-production-hypothesis.md	9. Durable hypothesis to carry forward	177	186	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-minimum-viable-technical-analysis-discovery.md	Minimum Viable Technical Analysis — Deployment-Quality Evidence Discovery	1	9	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-minimum-viable-technical-analysis-discovery.md	1. Question and governing posture	10	27	FULL	SN1	SN1-E147	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	2. Candidate minimum evidence set	28	83	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-minimum-viable-technical-analysis-discovery.md	3. Illustrative discrimination hypothesis	84	107	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-minimum-viable-technical-analysis-discovery.md	4. Minimum provider/data expansion	108	145	FULL	SN1	SN1-E148	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	5. Tradier traffic and the August 28/Tuesday constraint campaign	146	168	FULL	SN1	SN1-E149	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	6. Database load, retention, and SQLite	169	192	FULL	SN1	SN1-E150	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	7. Observation identity — explicit lesson from `spot_history`	193	208	FULL	SN1	SN1-E151	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	8. Research-first posture	209	227	FULL	SN1	SN1-E152	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	9. Point-in-time correctness and look-ahead prevention	228	244	FULL	SN1	SN1-E152	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	10. Price adjustment and corporate-action semantics	245	256	FULL	SN1	SN1-E154	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	11. Horizon coherence	257	273	FULL	SN1	SN1-E154	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	12. Normalization and cross-symbol comparability	274	290	FULL	SN1	SN1-E154	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	13. Strategy-neutral evidence, strategy-specific interpretation	291	306	FULL	SN1	SN1-E153,SN1-E154	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	14. Feature redundancy and marginal information value	307	316	FULL	SN1	SN1-E153,SN1-E154	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	15. Event/discontinuity contamination and data-quality states	317	333	FULL	SN1	SN1-E153,SN1-E154	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	16. Backfill and retention policy	334	350	FULL	SN1	SN1-E153	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	17. Derived-evidence ownership and feature versioning	351	367	FULL	SN1	SN1-E153	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	18. Define "improved deployment quality" before optimizing	368	396	FULL	SN1	SN1-E153,SN1-E155	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	19. Explainability and anti-score-creep constraint	397	412	FULL	SN1	SN1-E153	extracted	
+docs/40-minimum-viable-technical-analysis-discovery.md	20. Reconciled disposition	413	432	FULL	SN1	SN1-D014	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Provider Admission Controller Findings — August 31, 2026	1	8	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-provider-admission-controller-findings-2026-08-31.md	Executive handoff for Kiro	9	30	FULL	SN1	SN1-D005,SN1-E156,SN1-E157,SN1-E158	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Pre-change factory-floor evidence	31	55	FULL	SN1	SN1-E062,SN1-E156	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Contract / implementation mismatch hypothesis	56	78	FULL	SN1	SN1-E157	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Admission-control candidate	79	111	FULL	SN1	SN1-D005,SN1-D006,SN1-E162	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	One-hour after-hours experiment	112	164	FULL	SN1	SN1-E159,SN1-E161	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Tradier header finding	165	187	FULL	SN1	SN1-D007,SN1-E159,SN1-E160	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Non-interference evidence	188	203	FULL	SN1	SN1-E159	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	What is now established	204	217	FULL	SN1		no-new-knowledge	Header/metadata, cross-references, or content already captured in adjacent segment items.
+docs/40-provider-admission-controller-findings-2026-08-31.md	What is NOT established	218	231	FULL	SN1	SN1-D002,SN1-E163	extracted	
+docs/40-provider-admission-controller-findings-2026-08-31.md	Kiro next gate	232	249	FULL	SN1	SN1-D002,SN1-D006,SN1-E163,SN1-E164	extracted	

@@ -1,0 +1,62 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 header + Executive result	3053	3089	FULL	S61C	S61C-E001	extracted	Muse reverses own prior support for Decision-Aspect binding and Acquisition/Disposition as mandates
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 1 (a)(b)(c) + sizing	3090	3144	FULL	S61C	S61C-E001,S61C-E002	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 2	3145	3174	FULL	S61C	S61C-E003	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 3	3175	3205	FULL	S61C	S61C-E004	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 4	3206	3235	FULL	S61C	S61C-E005	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 5	3236	3292	FULL	S61C	S61C-E006	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 6	3293	3310	FULL	S61C	S61C-E007	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 7	3311	3342	FULL	S61C	S61C-E008	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 8	3343	3379	FULL	S61C	S61C-E009	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 9	3380	3402	FULL	S61C	S61C-E010	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§32 Attack 10	3403	3440	FULL	S61C	S61C-E011	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Muse competing-model table	3441	3456	FULL	S61C	S61C-E012,S61C-D001	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Muse final deliverable A–B	3457	3483	FULL	S61C	S61C-E004,S61C-E005,S61C-D003	extracted	reconciliation warning 3472
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Muse final deliverable C–D	3484	3519	FULL	S61C	S61C-E008,S61C-E004	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Muse final deliverable E	3520	3561	FULL	S61C	S61C-E013	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Muse final deliverable F	3562	3581	FULL	S61C	S61C-E014	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §1	3582	3600	FULL	S61C	S61C-E018,S61C-D001	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §2	3601	3649	FULL	S61C	S61C-E015	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §3	3650	3676	FULL	S61C	S61C-E016,S61C-E010	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §4	3677	3713	FULL	S61C	S61C-E004	duplicate-of:S61C-E004	adds Protection/Liquidity Reserve test list
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §5	3714	3733	FULL	S61C	S61C-E005	duplicate-of:S61C-E005	Preservation falsifier proposed
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §6	3734	3764	FULL	S61C	S61C-E017,S61C-D005	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §7	3765	3786	FULL	S61C	S61C-E013	extracted	five-domain extension
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	ChatGPT analysis §8 Models A/B/C	3787	3833	FULL	S61C	S61C-E019,S61C-D002	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Reconciliation pressure on existing research	3834	3856	FULL	S61C	S61C-E027	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Intake / roadmap disposition	3857	3871	FULL	S61C	S61C-D008	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	Actor handoff requirement — expanded	3872	3899	FULL	S61C	S61C-E045	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 header + Authority/acquisition result	3900	3914	FULL	S61C	S61C-E044	extracted	commit SHAs present (non-sensitive)
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Research progression reconstructed by Kiro	3915	3929	FULL	S61C	S61C-E019,S61C-E022	extracted	table summarizes §§25–32 (outside range) as falsification sequence
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Controlled collision + matrix	3930	3976	FULL	S61C	S61C-E020	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Important caveat	3977	3994	FULL	S61C	S61C-E020,S61C-E040	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Kiro taxonomy audit	3995	4011	FULL	S61C	S61C-E021,S61C-E022,S61C-D003	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Governance-time vs runtime-time model	4012	4046	FULL	S61C	S61C-E023	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Temporal integrity remains load-bearing	4047	4067	FULL	S61C	S61C-E024	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Policy Rule mechanism audit	4068	4097	FULL	S61C	S61C-E017,S61C-D005	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Inner Game fit	4098	4121	FULL	S61C	S61C-E025	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Locked 17-row spine audit	4122	4146	FULL	S61C	S61C-E026,S61C-E028,S61C-D004	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Strongest remaining competing explanations	4147	4183	FULL	S61C	S61C-E019	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Decisions explicitly not earned	4184	4198	FULL	S61C	S61C-D002,S61C-D003,S61C-D004	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Kiro's recommended 4AM focus	4199	4206	FULL	S61C	S61C-E042	extracted	three questions
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 ChatGPT follow-on analysis	4207	4240	FULL	S61C	S61C-E042,S61C-E043	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§33 Single remaining allocation-purpose falsifier	4241	4272	FULL	S61C	S61C-D007	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 header + Product / Inner Game goal	4273	4311	FULL	S61C	S61C-E029,S61C-E030,S61C-D006	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Canonical GDXJ lesson	4312	4335	FULL	S61C	S61C-E031,S61C-E032	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Behavioral / Inner Game pressure	4336	4354	FULL	S61C		no-new-knowledge	hazard list (FOMO, revenge, activity bias, mandate/regime shopping, oversizing, best-available≠acceptable); observe behavior, do not diagnose psychology
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Journaling / provenance working principle	4355	4380	FULL	S61C	S61C-E033	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Process change vs process abandonment	4381	4392	FULL	S61C	S61C-E034	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Inactivity semantics	4393	4403	FULL	S61C	S61C-E035	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Sell-side-bias guard	4404	4423	FULL	S61C	S61C-E036	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Contrastive-testing discipline	4424	4443	FULL	S61C	S61C-E037	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Research lifecycle / authority discipline	4444	4463	FULL	S61C	S61C-E038	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Actor-role + capacity context	4464	4484	FULL	S61C	S61C-E039	extracted	time-qualified
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§34 Next semantic falsifier after persistence	4485	4496	FULL	S61C	S61C-D007	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 header + Acquisition delta + Proposition	4497	4516	FULL	S61C	S61C-E043,S61C-E044	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Best attempted counterexample + Compile-away	4517	4558	FULL	S61C	S61C-E040	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Discriminator result	4559	4573	FULL	S61C	S61C-E040	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Governance explanation vs runtime information	4574	4593	FULL	S61C	S61C-E041	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Narrow falsification verdict	4594	4616	FULL	S61C	S61C-E040	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Semantic consequence	4617	4654	FULL	S61C	S61C-E041,S61C-D002	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Strongest falsifier of this result	4655	4666	FULL	S61C	S61C-E040	extracted	
+docs/61-inner-game-governed-prescriptive-decision-discipline-2026-09-24.md	§35 Research implication	4667	4693	FULL	S61C	S61C-E042	extracted	range ends before §36 heading (4694); §36 4694+ glimpsed only for variant cross-reference

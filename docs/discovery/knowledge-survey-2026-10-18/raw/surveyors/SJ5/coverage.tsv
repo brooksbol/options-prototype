@@ -1,0 +1,119 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/journal/project-journal-5.md	(continuation notice / preamble)	1	8	FULL	SJ5		no-new-knowledge	continuation rationale only (coordination hygiene)
+docs/journal/project-journal-5.md	2026-09-17 — Zero-cash Write Desk outage: known $0 deployable emptied the board (Kiro)	9	63	FULL	SJ5	SJ5-D039,SJ5-E027	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Roadmap Operator Surface: build-time projection of canonical roadmap authority (Kiro)	64	84	FULL	SJ5	SJ5-E107	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Ratified: no runtime GitHub dependency (ADR-018) (Kiro)	85	95	FULL	SJ5	SJ5-D001	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — GIA prior-art reconciliation for the Roadmap surface (Kiro)	96	108	FULL	SJ5	SJ5-E107	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Roadmap: Priority stack + Coming Soon (honest-empty by default) (Kiro)	109	120	FULL	SJ5	SJ5-E107	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Principles established as a first-class primitive (register + Roadmap lens) (Kiro)	121	137	FULL	SJ5	SJ5-D003,SJ5-E020	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Priority stack ratified; Principles identity consolidated (Kiro)	138	152	FULL	SJ5	SJ5-D003,SJ5-E020,SJ5-E021	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Roadmap as self-documenting meta-state (foundation); Coming Soon = Now/Next/Later (Kiro)	153	163	FULL	SJ5	SJ5-D002,SJ5-E018,SJ5-E019	extracted	
+docs/journal/project-journal-5.md	2026-09-20 — Roadmap Domain lens (faithful projection of the options domain reference) (Kiro)	164	174	FULL	SJ5		duplicate-of:SJ5-E107	Domain lens fidelity rule folded into SJ5-E107 notes
+docs/journal/project-journal-5.md	2026-09-21 — TSLL BTC specimen + forward-transition lifecycle design authorized (Kiro)	175	203	FULL	SJ5	SJ5-D004,SJ5-E028	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — Roadmap "Log" lens: reconciled as a `PL-ROADMAP-UI` refinement; the load-bearing constraint is an uneven temporal-fact authority gap (Kiro)	204	227	FULL	SJ5	SJ5-E107,SJ5-E108	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — `PL-ARCH-07` intake: Authorization Platform / COTS RBAC-FGA build-vs-buy, isolated as research/design that informs (does not depend on) PL-ARCH-03 (Kiro)	228	250	FULL	SJ5	SJ5-D040	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — Roadmap Log lens implemented (Option A, smallest coherent unit) — Kiro	251	267	FULL	SJ5	SJ5-E108	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — COTS authorization investigation reconciled into durable evidence (`docs/57`), linked from `PL-ARCH-07` (Kiro, governance)	268	286	FULL	SJ5		duplicate-of:SJ5-D040	docs/57 persistence; git-safety surgical staging; content covered by SJ5-D040
+docs/journal/project-journal-5.md	2026-09-21 — Codex authorization-review closure: one blocking finding reconciled (account-locality), rest deferred; review loop closed (Kiro, governance)	287	305	FULL	SJ5	SJ5-D005,SJ5-E022,SJ5-E023	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — Roadmap Log lens corrected after Codex NOT-READY review — Kiro	306	324	FULL	SJ5	SJ5-E024	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — Roadmap Log lens: final bounded correction after second Codex review — Kiro	325	341	FULL	SJ5	SJ5-E024	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — Option A recovery: Sawdust Roth cash-layout Deployable fix shipped; Upload All dropped — Kiro	342	362	FULL	SJ5	SJ5-D006,SJ5-E025,SJ5-E026	extracted	
+docs/journal/project-journal-5.md	2026-09-21 — Intake: Upload All and portfolio capital-graph as PL-PORT-01 refinements — Kiro	363	376	FULL	SJ5	SJ5-D006,SJ5-E026	extracted	
+docs/journal/project-journal-5.md	2026-09-22 — Brokerage-facing capability model crosses durability threshold — ChatGPT	377	406	FULL	SJ5	SJ5-D012,SJ5-E015,SJ5-E016,SJ5-E017	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Semantic-model gap made explicit; v1 draft created (`PL-SEM-01`)	407	427	FULL	SJ5	SJ5-E031,SJ5-E032	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Semantic Model v1.1: Principal selects specimen-driven reconciliation	428	444	FULL	SJ5	SJ5-D013,SJ5-E031	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Semantic Model v1.2: focused reconciliation continues; practitioner-strategy pressure pinned	445	463	FULL	SJ5	SJ5-D013	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Semantic Model v1.3: identity–association–assertion specimen pass completed	464	484	FULL	SJ5	SJ5-D013,SJ5-E029,SJ5-E030,SJ5-E032	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — v1.3 coherence repair and practitioner-source provenance bound	485	508	FULL	SJ5	SJ5-D013,SJ5-E029,SJ5-E033	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Practitioner-evidence research workstream made durable	509	526	FULL	SJ5	SJ5-E034	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Practitioner Corpus v1 post-corpus reconciliation preserved	527	549	FULL	SJ5	SJ5-E034	extracted	
+docs/journal/project-journal-5.md	2026-09-23 — Practitioner Corpus reconciliation overlay rolled to Revision 1.1	550	571	FULL	SJ5		duplicate-of:SJ5-E034	research revision bookkeeping; covered by SJ5-E034
+docs/journal/project-journal-5.md	2026-09-23 — Practitioner Corpus reconciliation revision boundary made explicit	572	588	FULL	SJ5		duplicate-of:SJ5-E034	artifact revision identity correction; covered by SJ5-E034
+docs/journal/project-journal-5.md	2026-09-23 — Practitioner Corpus v1.1 repaired after independent adversarial review	589	611	FULL	SJ5		duplicate-of:SJ5-E034	Cashflow Academy/Muse population narrowing noted in SJ5-E034
+docs/journal/project-journal-5.md	2026-09-24 — URA "Unencumbered Shares" split-brain: additive-lot collapse (not an Activity-upload failure) + AUTO-JOURNAL ingestion resiliency assessment (Kiro)	612	660	FULL	SJ5	SJ5-E036,SJ5-E037	extracted	specimen account identifiers in source withheld from outputs; extracted with redaction
+docs/journal/project-journal-5.md	2026-09-24 — BUG-026/BUG-027 remediated; ADR-020 ratifies Positions as aggregate-ownership authority (Kiro)	661	685	FULL	SJ5	SJ5-D007,SJ5-E035,SJ5-E105	extracted	
+docs/journal/project-journal-5.md	2026-09-24 — BUG-026/BUG-027 Principal-accepted; Roadmap Log bug-event legibility (Kiro)	686	698	FULL	SJ5	SJ5-D007	extracted	
+docs/journal/project-journal-5.md	2026-09-26 — Governed production Console walking slice P0–P3 implemented (Kiro)	699	723	FULL	SJ5	SJ5-D008,SJ5-E042,SJ5-E043	extracted	
+docs/journal/project-journal-5.md	2026-09-26 — Governed Recommendation projection UX correction (RECOMMENDATION hyperlink) + operator-governance setup discovery (`PL-SETUP-01`) (Kiro)	724	759	FULL	SJ5	SJ5-E038,SJ5-E039	extracted	
+docs/journal/project-journal-5.md	2026-09-26 — Governed Recommendation interaction consolidated into one drawer idiom (Kiro)	760	792	FULL	SJ5		no-new-knowledge	UX iteration superseded by later same-day passes
+docs/journal/project-journal-5.md	2026-09-26 — Governed Recommendation UX corrected: compact tags, no red balls, operator-first drawer (Kiro)	793	827	FULL	SJ5	SJ5-E041	extracted	
+docs/journal/project-journal-5.md	2026-09-26 — Governed drawer: Ladder rung-view click-path bug fixed + dense operator-first redesign (Kiro)	828	860	FULL	SJ5		no-new-knowledge	buried: rung-view prop threading masked by component tests (real event-path trace needed)
+docs/journal/project-journal-5.md	2026-09-26 — Governed Recommendation: column next to TYPE, state-colored tags, denser inspector; operator-control STOP surfaced (Kiro)	861	895	FULL	SJ5	SJ5-E039,SJ5-E041	extracted	
+docs/journal/project-journal-5.md	2026-09-26 — ADR-021 governed UNRESOLVED predicate/resolution model implemented (bounded slice) (Kiro)	896	927	FULL	SJ5	SJ5-E043	extracted	
+docs/journal/project-journal-5.md	2026-09-27 — Session stopping point: ADR-021 slice browser-accepted; governed-entry work intentionally held (Kiro end-of-session)	928	982	FULL	SJ5	SJ5-D009,SJ5-E040,SJ5-E043	extracted	
+docs/journal/project-journal-5.md	2026-09-27 — ATTACH TO… first walking slice implemented (covered-call → Assignment-Centric Wheel v1) (Kiro)	983	1018	FULL	SJ5	SJ5-E044,SJ5-E106	extracted	
+docs/journal/project-journal-5.md	2026-09-28 — Series-key ATTACH identity rejected; bounded continuity ratified; first design rejected (Codex checkpoint)	1019	1030	FULL	SJ5	SJ5-D010,SJ5-D011,SJ5-E044	extracted	source filename contains account identifier; withheld; extracted with redaction
+docs/journal/project-journal-5.md	2026-09-28 — Bounded option-obligation continuity slice implemented (ADR-022 / Doc 70) (Kiro)	1031	1065	FULL	SJ5	SJ5-D011,SJ5-E106	extracted	
+docs/journal/project-journal-5.md	2026-09-28 — Continuity slice REJECT remediation (5 conformance defects) (Kiro)	1066	1090	FULL	SJ5	SJ5-D011	extracted	
+docs/journal/project-journal-5.md	2026-09-29 — XSP defined-risk / tastytrade / Sosnoff research conversation preserved	1091	1120	FULL	SJ5	SJ5-E050	extracted	
+docs/journal/project-journal-5.md	2026-09-29 — XSP historical-data / backtest-engine checkpoint	1121	1141	FULL	SJ5	SJ5-E110,SJ5-E111	extracted	
+docs/journal/project-journal-5.md	2026-09-29 — XSP historical-results / audit-boundary snapshot	1142	1160	FULL	SJ5	SJ5-E111	extracted	
+docs/journal/project-journal-5.md	2026-09-30 — tastytrade multi-leg operator-learning session preserved (ChatGPT)	1161	1183	FULL	SJ5	SJ5-E110	extracted	
+docs/journal/project-journal-5.md	2026-09-30 — tt product boundary, Ten-Second Read, and a corrected architectural review (Kiro)	1184	1228	FULL	SJ5	SJ5-E045,SJ5-E046,SJ5-E047,SJ5-E048,SJ5-E049	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — XSP capital velocity, naive recycling, and live complex-order evidence boundary (ChatGPT)	1229	1334	FULL	SJ5	SJ5-E053	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — XSP recycling audit closes; Exit Reliability becomes the next execution-evidence question (ChatGPT)	1335	1418	FULL	SJ5	SJ5-E051,SJ5-E052	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — Pass 0 v1 geometry boundary adopted after calendar-phase falsification (Principal)	1419	1426	FULL	SJ5	SJ5-D014,SJ5-E054	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — First bounded specimen-selection contrast pilot exposes separate reference-evidence needs (Codex)	1427	1434	FULL	SJ5	SJ5-E054	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — Pass 0 ancillary reference capture adopted (Principal)	1435	1440	FULL	SJ5	SJ5-D015	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — `tt live` Ten-Second Read layout refined (Principal)	1441	1448	FULL	SJ5	SJ5-E053	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — Bounded Pass 1 coordinate/history comparison remains inconclusive (Codex)	1449	1456	FULL	SJ5		duplicate-of:SJ5-E054	inconclusive RV-coordinate comparison; adjacent to SJ5-E054
+docs/journal/project-journal-5.md	2026-10-01 — `tt live` current-valuation and color semantics clarified (Principal)	1457	1462	FULL	SJ5	SJ5-E047	extracted	
+docs/journal/project-journal-5.md	2026-10-01 — `tt live` removes redundant STATE and extends since-open color (Principal)	1463	1468	FULL	SJ5		duplicate-of:SJ5-E047	presentation refinement; superseded by later tt live grammar
+docs/journal/project-journal-5.md	2026-10-03 — `ww` explicit synchronization reaches the Principal's shell	1469	1474	FULL	SJ5	SJ5-D016,SJ5-E055	extracted	
+docs/journal/project-journal-5.md	2026-10-04 — `ww fetch` replaces the CLI refresh spelling	1475	1477	FULL	SJ5	SJ5-D016,SJ5-E055	extracted	
+docs/journal/project-journal-5.md	2026-10-05 — PL-API-02 HTTP boundary classification persisted as Category E evidence	1478	1482	FULL	SJ5	SJ5-E109	extracted	
+docs/journal/project-journal-5.md	2026-10-05 — `ww fetch` Product meaning selected; provider capability sheet preserved	1483	1488	FULL	SJ5	SJ5-D017,SJ5-E056	extracted	
+docs/journal/project-journal-5.md	2026-10-05 — `ww fetch` migrated to accepted v2 direct-quote acquisition (Codex)	1489	1500	FULL	SJ5	SJ5-D018,SJ5-E057	extracted	
+docs/journal/project-journal-5.md	2026-10-05 — Acceptance runner exposes every command and captured result (Codex)	1501	1504	FULL	SJ5		no-new-knowledge	acceptance runner transcript visibility; no new semantics
+docs/journal/project-journal-5.md	2026-10-05 — Complete local v2 credential setup so plain `ww fetch SPY` works (Codex)	1505	1519	FULL	SJ5	SJ5-E010,SJ5-E059,SJ5-E060	extracted	credential setup narrative; .env not read; observation/request UUIDs withheld
+docs/journal/project-journal-5.md	2026-10-05 — Canonical held-quote discovery decisions persisted; GET/CLI specification only (Codex)	1520	1530	FULL	SJ5	SJ5-D019,SJ5-E058,SJ5-E061	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — canonical held-quote inventory implementation (Codex, pending acceptance)	1531	1541	FULL	SJ5	SJ5-E061	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — held-quote inventory manual acceptance and session closeout	1542	1554	FULL	SJ5	SJ5-E010,SJ5-E061	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — bounded client-side held-quote type selection (Codex)	1555	1566	FULL	SJ5	SJ5-E061	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — type selector Principal acceptance and session closeout	1567	1576	FULL	SJ5	SJ5-E010	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — subject-show multi-subject ratification and Product refreeze	1577	1585	FULL	SJ5	SJ5-D026,SJ5-E062	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — field-discovery authority synchronized; subject-show design completed	1586	1597	FULL	SJ5	SJ5-E112	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — ww show implementation stopped at conditional transport gate	1598	1604	FULL	SJ5	SJ5-D020,SJ5-E064	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — bounded query-identity transport reconciliation	1605	1613	FULL	SJ5	SJ5-D020	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — query proposal rejected; reversible path-symbol codec specified	1614	1625	FULL	SJ5	SJ5-D020,SJ5-E063	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — accepted path-codec gate passes; bounded show implementation verified	1626	1634	FULL	SJ5	SJ5-D020,SJ5-E060	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — Question-driven held ETF quote inspection	1635	1642	FULL	SJ5	SJ5-E067	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — Manual human-table acceptance falsifies two presentation assumptions	1643	1647	FULL	SJ5	SJ5-E065	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — Largest-move membership and signed order are different operator questions	1648	1652	FULL	SJ5	SJ5-E066	extracted	
+docs/journal/project-journal-5.md	October 5, 2026 — Principal accepts styled held-quote table	1653	1660	FULL	SJ5	SJ5-E067	extracted	
+docs/journal/project-journal-5.md	2026-10-08 — Partial Collar Protected Growth Test 1 falsification (Codex)	1661	1674	FULL	SJ5	SJ5-D021	extracted	
+docs/journal/project-journal-5.md	October 8, 2026 — Principal accepts bounded Test 1 failure; broader thesis remains unproven	1675	1681	FULL	SJ5	SJ5-D021,SJ5-E068	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Executable account evidence and Position slice	1682	1695	FULL	SJ5	SJ5-E069	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Tokens identify Users; Account authority is independent	1696	1706	FULL	SJ5	SJ5-D023,SJ5-E069	extracted	
+docs/journal/project-journal-5.md	2026-10-11 — Account operating loop accepted; mixed-original authority separated from target import	1707	1717	FULL	SJ5	SJ5-D022,SJ5-E070,SJ5-E092	extracted	
+docs/journal/project-journal-5.md	2026-10-11 — tt live scan accepted: recognition before arithmetic	1718	1728	FULL	SJ5	SJ5-E075	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — BUG-036 candidate acceptance followed by independent falsification	1729	1735	FULL	SJ5	SJ5-E071,SJ5-E113	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — BUG-036 closes after source-marker precedence is independently challenged	1736	1742	FULL	SJ5	SJ5-E113	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Multi-broker Account candidate preserves the Fidelity boundary	1743	1752	FULL	SJ5	SJ5-D024	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Step 3 acceptance rejects environment setup	1753	1757	FULL	SJ5	SJ5-D024,SJ5-D036,SJ5-E012,SJ5-E073	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Step 3 reaches ordinary installed CLI after bounded backup correction	1758	1764	FULL	SJ5	SJ5-D024,SJ5-E074	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Principal accepts operational Step 3 and BUG035 correction	1765	1769	FULL	SJ5	SJ5-D024,SJ5-E074	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Step 3 session closeout and direct Product feedback	1770	1776	FULL	SJ5	SJ5-D024,SJ5-E009,SJ5-E074	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Account discovery adopts the tt terminal motif	1777	1782	FULL	SJ5	SJ5-E114	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — PL-CONV-01 Step 5 API-first implementation candidate	1783	1789	FULL	SJ5	SJ5-D025,SJ5-E072	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Step 5 independent review distinguishes admission from disclosure	1790	1796	FULL	SJ5	SJ5-D025,SJ5-E071	extracted	
+docs/journal/project-journal-5.md	October 11, 2026 — Step5 acceptance proves holdings can be useful before occurrence continuity	1797	1805	FULL	SJ5	SJ5-D025,SJ5-E072	extracted	
+docs/journal/project-journal-5.md	2026-10-11 — Deployment table filter parity: Covered Calls + Buy-Writes brought toward the Puts filter set (Kiro)	1806	1825	FULL	SJ5	SJ5-E076	extracted	
+docs/journal/project-journal-5.md	October 12, 2026 — Income Wheel review exposes shared analytical capability pressure	1826	1836	FULL	SJ5	SJ5-E077	extracted	
+docs/journal/project-journal-5.md	October 12, 2026 — Historical inventory succeeds; operator questions expose the discovery boundary	1837	1848	FULL	SJ5	SJ5-E078,SJ5-E079	extracted	
+docs/journal/project-journal-5.md	2026-10-12 — Interim v1 IV Rank on Deployment tables via tastytrade /market-metrics (Kiro)	1849	1885	FULL	SJ5	SJ5-D027,SJ5-D028,SJ5-D029,SJ5-E001,SJ5-E080,SJ5-E081,SJ5-E082,SJ5-E105	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — Principal accepts the bounded real PTS Portfolio Capital text graph	1886	1896	FULL	SJ5	SJ5-E008,SJ5-E083	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — PL-CONV-01 continuous engineering recovery authority	1897	1901	FULL	SJ5	SJ5-D030,SJ5-E084	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — BUG-040 tt live valuation failure isolated	1902	1908	FULL	SJ5	SJ5-E085	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — BUG-040 session closeout	1909	1912	FULL	SJ5	SJ5-E085	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — BUG-040 follow-up restores available valuation evidence	1913	1921	FULL	SJ5	SJ5-E004,SJ5-E085	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — Fresh ww Position scan; prototype UX versus v2 authority	1922	1930	FULL	SJ5	SJ5-D030,SJ5-E003,SJ5-E086	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — ww Position v2 architectural proposal for Principal review	1931	1939	FULL	SJ5	SJ5-E087	extracted	
+docs/journal/project-journal-5.md	October 13, 2026 — ww Position proposal revised for ratified domain facade and read-through REST	1940	1947	FULL	SJ5	SJ5-D031,SJ5-E058,SJ5-E087	extracted	
+docs/journal/project-journal-5.md	October 14, 2026 — BUG-041 standalone tt Live credit vertical repair	1948	1962	FULL	SJ5	SJ5-D032,SJ5-E088	extracted	
+docs/journal/project-journal-5.md	October 14, 2026 — Principal accepts TT Live credit spreads; session closed	1963	1972	FULL	SJ5	SJ5-D032,SJ5-E006	extracted	
+docs/journal/project-journal-5.md	October 14, 2026 — TT Live economic-story redesign: engineering candidate for visual review	1973	2031	FULL	SJ5	SJ5-D033,SJ5-D036,SJ5-E007,SJ5-E012,SJ5-E013,SJ5-E089,SJ5-E090,SJ5-E091	extracted	
+docs/journal/project-journal-5.md	October 14, 2026 — TT Live economic-state baseline qualified acceptance and closeout	2032	2048	FULL	SJ5	SJ5-D033,SJ5-E005,SJ5-E089,SJ5-E090	extracted	
+docs/journal/project-journal-5.md	October 14, 2026 — Orphaned WW draft identified and working-tree cleanup	2049	2054	FULL	SJ5	SJ5-E092	extracted	
+docs/journal/project-journal-5.md	October 14, 2026 — EVA-001 bounded audit and experimental-design handoff	2055	2144	FULL	SJ5	SJ5-D034,SJ5-D035,SJ5-D036,SJ5-E010,SJ5-E011,SJ5-E012,SJ5-E014,SJ5-E057,SJ5-E093,SJ5-E094,SJ5-E095,SJ5-E096,SJ5-E097,SJ5-E103	extracted	includes ### sub-entries 2067-2144 (EVA rounds 1-2; Oct 15 history/pull/positions deliveries)
+docs/journal/project-journal-5.md	October 15, 2026 — PL-API-02 Step 1 accepted-v2 contract fidelity	2145	2268	FULL	SJ5	SJ5-D037,SJ5-D038,SJ5-E078,SJ5-E079,SJ5-E098,SJ5-E099,SJ5-E100,SJ5-E101,SJ5-E102,SJ5-E103	extracted	includes 30 ### dated sub-entries 2150-2268 through 2026-10-17; a ## index understates the journal end date

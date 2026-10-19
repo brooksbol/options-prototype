@@ -1,0 +1,60 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/journal/project-journal.md	2026-07-16 — Two-Layer Cache Discovery and Cold-Start Semantics	4022	4098	FULL	SJ1B	SJ1B-E001,SJ1B-E002,SJ1B-E003	extracted	
+docs/journal/project-journal.md	2026-07-16 — Recommendation Set Analysis (Architectural Concept)	4099	4132	FULL	SJ1B	SJ1B-E004	extracted	
+docs/journal/project-journal.md	2026-07-16 — Background Acquisition Design Discussion	4133	4171	FULL	SJ1B	SJ1B-E110,SJ1B-D001	extracted	
+docs/journal/project-journal.md	2026-07-16 — State-Oriented Operator Console (Architectural Principle)	4172	4200	FULL	SJ1B	SJ1B-E005,SJ1B-E006	extracted	
+docs/journal/project-journal.md	2026-07-16 — Evidence-State Semantics (Design Correction)	4201	4231	FULL	SJ1B	SJ1B-E007,SJ1B-E008,SJ1B-D002	extracted	
+docs/journal/project-journal.md	2026-07-16 — Evidence-State Semantics (Second Correction)	4232	4254	FULL	SJ1B	SJ1B-E009,SJ1B-E010,SJ1B-E011,SJ1B-D002	extracted	
+docs/journal/project-journal.md	2026-07-16 — Evidence Appliance: Governing Architectural Concept	4255	4298	FULL	SJ1B	SJ1B-E012,SJ1B-E013,SJ1B-D003	extracted	
+docs/journal/project-journal.md	2026-07-16 — Principles as Domain Model	4299	4344	FULL	SJ1B	SJ1B-E014,SJ1B-E015,SJ1B-E016	extracted	
+docs/journal/project-journal.md	2026-07-16 — SQLite Persistence: Product Milestone	4345	4373	FULL	SJ1B	SJ1B-E016,SJ1B-E017,SJ1B-E030,SJ1B-D004	extracted	
+docs/journal/project-journal.md	2026-07-24 — Architecture Documentation Synchronization	4374	4421	FULL	SJ1B	SJ1B-E018,SJ1B-E019,SJ1B-D005	extracted	
+docs/journal/project-journal.md	2026-07-26 — Parking Lot Restructured as Canonical Roadmap	4422	4466	FULL	SJ1B	SJ1B-E020,SJ1B-D006	extracted	
+docs/journal/project-journal.md	2026-07-26 — Architectural Discovery: The Repository as Theory, Not Merely Code	4467	4508	FULL	SJ1B	SJ1B-E021	extracted	
+docs/journal/project-journal.md	Calls Horizon A — Retrospective Checkpoint	4509	4542	FULL	SJ1B	SJ1B-E022,SJ1B-E108,SJ1B-E111,SJ1B-D007	extracted	
+docs/journal/project-journal.md	Calls Horizon B — Call Inspection Drawer	4543	4587	FULL	SJ1B	SJ1B-E108,SJ1B-E111	extracted	
+docs/journal/project-journal.md	Calls Horizon B — Stale State and Empty-State Correctness Fix	4588	4658	FULL	SJ1B	SJ1B-E023,SJ1B-E024,SJ1B-E025,SJ1B-E108,SJ1B-E111,SJ1B-D008	extracted	
+docs/journal/project-journal.md	Live-Market Acceptance — TypeScript Backend	4659	4713	FULL	SJ1B	SJ1B-E026,SJ1B-E111	extracted	
+docs/journal/project-journal.md	Calls Horizon B — Projected Call Surface (Entry Point 1)	4714	4767	FULL	SJ1B	SJ1B-E027,SJ1B-E108,SJ1B-E111,SJ1B-D009	extracted	
+docs/journal/project-journal.md	Architecture Checkpoint — Epistemic Integrity Principle Accepted	4768	4805	FULL	SJ1B	SJ1B-E028,SJ1B-E111,SJ1B-D010	extracted	
+docs/journal/project-journal.md	Live-Market Acceptance — Java Backend	4806	4881	FULL	SJ1B	SJ1B-E029,SJ1B-E030,SJ1B-E108,SJ1B-E111,SJ1B-D011	extracted	
+docs/journal/project-journal.md	TypeScript Backend Retirement	4882	4919	FULL	SJ1B	SJ1B-E031,SJ1B-E111,SJ1B-D011	extracted	
+docs/journal/project-journal.md	2026-08-04 — Recovery Probe Policy for Prior-Epoch Failed Symbols	4920	4976	FULL	SJ1B	SJ1B-E032,SJ1B-D012	extracted	
+docs/journal/project-journal.md	2026-08-04 — Position Detail Modal and Temporal Lifecycle Discovery	4977	5027	FULL	SJ1B	SJ1B-E033,SJ1B-E034	extracted	
+docs/journal/project-journal.md	2026-08-04 — Documentation Reconciliation	5028	5070	FULL	SJ1B	SJ1B-E034,SJ1B-E035,SJ1B-E036	extracted	
+docs/journal/project-journal.md	2026-08-06 — Three-Actor Reconciliation and Documentation Maintenance	5071	5169	FULL	SJ1B	SJ1B-E037,SJ1B-E038,SJ1B-E039,SJ1B-E096,SJ1B-D013	extracted	Principal personal name at 5077 redacted
+docs/journal/project-journal.md	2026-08-07 — PL-PORT-02 First Backend Slice: Portfolio Production Accounting	5170	5280	FULL	SJ1B	SJ1B-E040,SJ1B-E041,SJ1B-E042,SJ1B-E043,SJ1B-E044,SJ1B-E045,SJ1B-D014	extracted	real production dollar amounts redacted
+docs/journal/project-journal.md	2026-08-07 — Yield Suppression Bug and Architectural Debt Discovery	5281	5332	FULL	SJ1B	SJ1B-E046,SJ1B-E047,SJ1B-E110,SJ1B-D015	extracted	
+docs/journal/project-journal.md	2026-08-07 — Missing Marquee ETF Incident and Recovery	5333	5405	FULL	SJ1B	SJ1B-E048,SJ1B-E049,SJ1B-D016	extracted	
+docs/journal/project-journal.md	2026-08-07 — PL-PORT-02 Frontend Slice: First End-to-End Operator Flow	5406	5450	FULL	SJ1B	SJ1B-E043,SJ1B-E050,SJ1B-E051	extracted	
+docs/journal/project-journal.md	2026-08-08 — Capacity/Exposure Sidebar (Console Slice 2)	5451	5496	FULL	SJ1B	SJ1B-E052,SJ1B-E053,SJ1B-E054,SJ1B-D017	extracted	
+docs/journal/project-journal.md	2026-08-09 — Mechanical Economic Consequence (Console Slice 3)	5497	5562	FULL	SJ1B	SJ1B-E055,SJ1B-E056,SJ1B-E057,SJ1B-D018	extracted	
+docs/journal/project-journal.md	2026-08-09 — Epistemic Pipeline Discovery (Architectural Hypothesis)	5563	5691	FULL	SJ1B	SJ1B-E058,SJ1B-E059,SJ1B-E060,SJ1B-D019	extracted	
+docs/journal/project-journal.md	2026-08-10 — Buy-Write Board Feasibility Analysis and Capital Deployment Discussion	5692	5855	FULL	SJ1B	SJ1B-E061,SJ1B-E062,SJ1B-E063	extracted	
+docs/journal/project-journal.md	2026-08-10 — Fidelity Buy Write Handoff Discovery (Complete)	5856	5983	FULL	SJ1B	SJ1B-E064,SJ1B-D020	extracted	account identifier at 5877/5898 redacted in outputs
+docs/journal/project-journal.md	2026-08-10 — Regime Objective Function Discovery	5984	6023	FULL	SJ1B	SJ1B-E065,SJ1B-D021	extracted	
+docs/journal/project-journal.md	2026-08-10 — Production v0: Cross-Entry Experimental Instrument	6024	6085	FULL	SJ1B	SJ1B-D022	extracted	
+docs/journal/project-journal.md	2026-08-10 — Cross-Entry Production Comparison: Experimental Instrument and Architectural Discovery	6086	6177	FULL	SJ1B	SJ1B-E066,SJ1B-E067,SJ1B-E068,SJ1B-D022	extracted	
+docs/journal/project-journal.md	2026-08-10 — CSP vs Buy-Write Matched-Pair Experiment (Sealed Evidence)	6178	6404	FULL	SJ1B	SJ1B-E069,SJ1B-E070,SJ1B-E071	extracted	
+docs/journal/project-journal.md	2026-08-11 — Live-Session Epistemic Findings: Freshness, Admissibility, and Temporal Coherence	6405	6522	FULL	SJ1B	SJ1B-E072,SJ1B-E073,SJ1B-E074,SJ1B-E075,SJ1B-E076,SJ1B-D023	extracted	
+docs/journal/project-journal.md	2026-08-12 — Live Observation: Freshness Rollover Empties Deployment Surface	6523	6627	FULL	SJ1B	SJ1B-E030,SJ1B-E077,SJ1B-E111	extracted	
+docs/journal/project-journal.md	2025-08-12 — Capital Erosion in the Cross-Entry Ranking: Architectural Finding	6628	6730	FULL	SJ1B	SJ1B-E078,SJ1B-E079,SJ1B-E111,SJ1B-D024	extracted	heading year typo (2025 for 2026)
+docs/journal/project-journal.md	2025-08-12 — Discovery #2: Production v0 Implicit ATM Bias	6731	6817	FULL	SJ1B	SJ1B-E111	extracted	heading year typo (2025 for 2026)
+docs/journal/project-journal.md	2025-08-12 — ATM-Bias Hypothesis Falsified; Revised Diagnosis	6818	6920	FULL	SJ1B	SJ1B-E080,SJ1B-E111	extracted	heading year typo (2025 for 2026)
+docs/journal/project-journal.md	2025-08-12 — 76% Dominated Selections; BW Increment 1 Plan	6921	7005	FULL	SJ1B	SJ1B-E081,SJ1B-E111,SJ1B-D025	extracted	heading year typo (2025 for 2026)
+docs/journal/project-journal.md	2025-08-12 — Evidence Incoherence: The Real Defect Beneath the BW Selection Work	7006	7063	FULL	SJ1B	SJ1B-E082,SJ1B-E083,SJ1B-E111,SJ1B-D026	extracted	heading year typo (2025 for 2026)
+docs/journal/project-journal.md	2025-08-12 — Breakthrough: Delta as Emergent Property, Not Governance Constraint	7064	7144	FULL	SJ1B	SJ1B-E083,SJ1B-E084,SJ1B-E111,SJ1B-D027	extracted	heading year typo (2025 for 2026)
+docs/journal/project-journal.md	2026-08-14 — Strategy Expansion Architectural Reconciliation	7145	7227	FULL	SJ1B	SJ1B-E085,SJ1B-E086,SJ1B-D028	extracted	
+docs/journal/project-journal.md	2026-08-17 — Mission Concern Model and Situation Architecture Reconciliation	7228	7336	FULL	SJ1B	SJ1B-E087,SJ1B-E088,SJ1B-E089,SJ1B-E090,SJ1B-D029	extracted	real production amounts and target redacted
+docs/journal/project-journal.md	2026-08-18 — B2 Production Surface Live Observation and Reconciliation	7337	7417	FULL	SJ1B	SJ1B-E091,SJ1B-E092,SJ1B-D030	extracted	resolving-capital amount redacted
+docs/journal/project-journal.md	August 18, 2026 — Forecast Architecture: From V1 to V2 Exploration	7418	7496	FULL	SJ1B	SJ1B-E091,SJ1B-E093,SJ1B-D031	extracted	
+docs/journal/project-journal.md	August 19, 2026 — Cold-Start Infrastructure / Project-Memory Protocol	7497	7557	FULL	SJ1B	SJ1B-E094,SJ1B-E096,SJ1B-D032	extracted	
+docs/journal/project-journal.md	August 19, 2026 — Cold-Start Experiment: Two Failure Modes and Unfinished Reasoning	7558	7685	FULL	SJ1B	SJ1B-E095,SJ1B-E097,SJ1B-E098,SJ1B-D033	extracted	
+docs/journal/project-journal.md	2026-08-19 — Console Visual Architecture: Classification Fix + Three-Regime Experiment	7686	7823	FULL	SJ1B	SJ1B-E097,SJ1B-E098,SJ1B-E099,SJ1B-E100,SJ1B-E109,SJ1B-D034,SJ1B-D035	extracted	
+docs/journal/project-journal.md	2026-08-19 — Console B4: Column Headers, Collapsible Groups, Expanded Demo	7824	7864	FULL	SJ1B	SJ1B-E108,SJ1B-E109,SJ1B-D035	extracted	
+docs/journal/project-journal.md	2026-08-19 — Console B4 Visual Corrections: Scroll, Typography, Density, Controls	7865	7909	FULL	SJ1B	SJ1B-E101,SJ1B-E108,SJ1B-D035	extracted	
+docs/journal/project-journal.md	2026-08-19 — Console B5: Density and Grid Calibration	7910	7963	FULL	SJ1B	SJ1B-E102,SJ1B-D035	extracted	
+docs/journal/project-journal.md	2026-08-19 — CC/BW Classification Regression Fix + Architectural Lesson	7964	8046	FULL	SJ1B	SJ1B-E103,SJ1B-E108,SJ1B-D034	extracted	
+docs/journal/project-journal.md	2026-08-19 — B6: Moneyness Sparkline Prototype + Underlying-History Modeling Distinction	8047	8110	FULL	SJ1B	SJ1B-E104,SJ1B-E105,SJ1B-D036	extracted	
+docs/journal/project-journal.md	2026-08-19 — B6 Sparkline Treatment Gallery + Emerging UX Practice	8111	8177	FULL	SJ1B	SJ1B-E107,SJ1B-D036	extracted	
+docs/journal/project-journal.md	2026-08-19 — Kreature: Continuous Observation Actor and Temporal Evidence Discovery	8178	8350	FULL	SJ1B	SJ1B-E105,SJ1B-E106	extracted	entry ends before 8351; next entry outside assignment

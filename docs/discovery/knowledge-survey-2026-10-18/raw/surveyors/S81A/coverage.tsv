@@ -1,0 +1,56 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	header/status	1	9	FULL	S81A	S81A-E057	extracted	Category D status line vs embedded ratifications
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	1. Why this checkpoint exists	10	22	FULL	S81A	S81A-E001,S81A-D001	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	2. The central operator question	24	46	FULL	S81A	S81A-E002,S81A-E003,S81A-E004	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	3. The answer starts with regime	48	78	FULL	S81A	S81A-E005,S81A-E006	extracted	overlaps N2-029/N2-035
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	4. Operator action vocabulary	80	104	FULL	S81A	S81A-E007,S81A-D006	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	5. Action surface, not strategy selector	106	135	FULL	S81A	S81A-E008,S81A-E058	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	6. The 99-share specimen	137	165	FULL	S81A	S81A-E009	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	7. SELL SHORT CALL is not automatic under Growth Wheel	167	188	FULL	S81A	S81A-E010	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	8. LIQUIDATE and larger capital obligations	190	206	FULL	S81A	S81A-E011	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	9. Position management umbrella	208	228	FULL	S81A	S81A-E012	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	10. LEAVE ALONE versus ALLOW outcomes	230	256	FULL	S81A	S81A-E013	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	11. Recurring question	258	278	FULL	S81A	S81A-E014	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	12. Productive or pathological management	280	294	FULL	S81A	S81A-E015	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	13. Operator profile is distinct from regime	296	321	FULL	S81A	S81A-E016	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	14. The sister question: cash	323	359	FULL	S81A	S81A-E017,S81A-D007	extracted	no balances in source
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	15. Productive output versus capacity	361	375	FULL	S81A	S81A-E018	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	16. Lifecycle economics	377	397	FULL	S81A	S81A-E019	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	17. Recommendation boundary reopened	399	424	FULL	S81A	S81A-E020,S81A-D005	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	18. Intermediate Codex reconciliation	426	465	FULL	S81A	S81A-E021,S81A-E022,S81A-E023	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	19. Smallest unresolved Product questions	467	478	FULL	S81A	S81A-E024	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	20. What this checkpoint does not decide	480	504	FULL	S81A	S81A-E025	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	21. Review questions for intermediate Codex pass	506	520	FULL	S81A	S81A-E021	no-new-knowledge	review prompt list; answers captured in §18
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	22. Disposition	522	535	FULL	S81A	S81A-E026	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23. Principal closure of call-side primitive discovery	537	570	FULL	S81A	S81A-E027,S81A-D002	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.1 Complete resulting economic state	572	602	FULL	S81A	S81A-E028	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.2 Roll reasoning	604	615	FULL	S81A	S81A-E029	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.3 BUY TO CLOSE reasoning	617	627	FULL	S81A	S81A-E030	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.4 Review rules, exit rules, thresholds	629	647	FULL	S81A	S81A-E031	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.5 Time, early assignment, outcome pending	649	668	FULL	S81A	S81A-E032	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.6 Intervention versus outcome stance	670	686	FULL	S81A	S81A-E033	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.7 Feasibility, blockers, failed execution	688	709	FULL	S81A	S81A-E034	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.8 Governed quantity, coverage, contract terms	711	742	FULL	S81A	S81A-E035	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.9 Complete-position under decline/liquidation	744	760	FULL	S81A	S81A-E036	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.10 Call-side candidate rules	762	783	FULL	S81A	S81A-E037	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.11 Call-side open policy questions	785	802	FULL	S81A	S81A-E038	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	23.12 Closure criterion satisfied	804	832	FULL	S81A	S81A-E027,S81A-D002	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24. Put-side closure (preamble)	834	838	FULL	S81A	S81A-E039,S81A-D003	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.1 Closure scope	840	868	FULL	S81A	S81A-E039	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.2 Acquisition surface beyond triad	870	882	FULL	S81A	S81A-E040	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.3 Ownership, contingent acquisition, absence	884	895	FULL	S81A	S81A-E041	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.4 Price willingness	897	912	FULL	S81A	S81A-E042	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.5 Discounted order versus short put	914	935	FULL	S81A	S81A-E043	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.6 Existing-put resulting state	937	960	FULL	S81A	S81A-E044	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.7 Assignment productive not automatic	962	976	FULL	S81A	S81A-E045	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.8 Growth Wheel not a market forecast	978	1000	FULL	S81A	S81A-E046,S81A-D004	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.9 Discount unresolved	1002	1024	FULL	S81A	S81A-E047	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.10 P50 and exit reliability	1026	1041	FULL	S81A	S81A-E048	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.11 0DTE decision boundary	1043	1059	FULL	S81A	S81A-E049	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.12 Rolls, ladders, governed quantity	1061	1091	FULL	S81A	S81A-E050	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.13 Repeated rolling	1093	1109	FULL	S81A	S81A-E051	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.14 Lifecycle history cross-cutting	1111	1132	FULL	S81A	S81A-E052	extracted	GitHub #34 not read
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.15 Put-side candidate rules	1134	1161	FULL	S81A	S81A-E053	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.16 Put-side open policy questions	1163	1187	FULL	S81A	S81A-E054	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.17 Final closure specimens	1189	1199	FULL	S81A	S81A-E055	extracted	
+docs/81-v2-operator-journey-action-surface-discovery-checkpoint-2026-10-06.md	24.18 Closure criterion satisfied	1201	1238	FULL	S81A	S81A-E039,S81A-E056,S81A-D003	extracted	§25 begins at 1239 (out of assignment)

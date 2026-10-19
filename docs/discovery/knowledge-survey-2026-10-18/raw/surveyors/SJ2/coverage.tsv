@@ -1,0 +1,60 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/journal/project-journal-2.md	(file preamble / continuation notice)	1	8	FULL	SJ2		no-new-knowledge	Continuation of project-journal.md; same authority.
+docs/journal/project-journal-2.md	2026-09-03 — Provider Failover Experiment, Four-Actor Learning, Implementation-Standards Discovery, and Architecture-to-Code Coherence	9	600	FULL	SJ2	SJ2-E001..E025;SJ2-D001..D005	extracted	Verified j2:331 axiom with attribution j2:329. Corrected prior-ledger [D] attributions: j2:202 (Java ontology), j2:365 (SCA scoreboard) and j2:375 (SCA trends) are Principal-attributed.
+docs/journal/project-journal-2.md	2026-09-03 — Technology Quality Constitution v1 Authority Reconciliation	602	615	FULL	SJ2	SJ2-E026;SJ2-D006	extracted	
+docs/journal/project-journal-2.md	2026-09-03 — Technology-quality experiments graduate (strict Sonar + ArchUnit)	617	642	FULL	SJ2	SJ2-E027;SJ2-E028;SJ2-E018;SJ2-D007	extracted	
+docs/journal/project-journal-2.md	2026-09-04 — PL-CLEANUP current-state re-baseline (incl. Ratified residual PL-SHELL boundary decision)	644	745	FULL	SJ2	SJ2-E029..E032;SJ2-D008;SJ2-D009	extracted	Principal thesis verbatim at j2:654.
+docs/journal/project-journal-2.md	2026-09-04 — PL-CLEANUP Package 2 complete	747	793	FULL	SJ2	SJ2-E033	extracted	Implementation record; SHAs only.
+docs/journal/project-journal-2.md	2026-09-04 — PL-CLEANUP Package 3 complete	795	855	FULL	SJ2	SJ2-E034;SJ2-E035	extracted	
+docs/journal/project-journal-2.md	2026-09-04 — PL-CLEANUP Package 1 complete	857	910	FULL	SJ2	SJ2-E033;SJ2-E036	extracted	
+docs/journal/project-journal-2.md	2026-09-04 — PL-CLEANUP Package 4 complete + PL-CLEANUP closed	912	966	FULL	SJ2	SJ2-E033;SJ2-D010	extracted	
+docs/journal/project-journal-2.md	2026-09-04 — PL-CLEANUP post-cleanup SCA (Sonar) before/after	968	994	FULL	SJ2	SJ2-E037	extracted	
+docs/journal/project-journal-2.md	2026-09-04 — Post-PL-CLEANUP direction snapshot	996	1028	FULL	SJ2	SJ2-E038;SJ2-D048	extracted	
+docs/journal/project-journal-2.md	2026-09-04 — Economic Truth discovery: "basis for what purpose?" (XLE)	1030	1060	FULL	SJ2	SJ2-E039;SJ2-E040;SJ2-D012	extracted	Transaction totals ≥[amount-redacted] and a personal name redacted.
+docs/journal/project-journal-2.md	2026-09-05 — Live-operations synthesis: Sep-04 expiration / Sep-05 observation	1062	1126	FULL	SJ2	SJ2-E041..E049;SJ2-D011;SJ2-D013	extracted	BNO dollar multiplicities not reproduced.
+docs/journal/project-journal-2.md	2026-09-05 — Production Disposition Truth: implementation + adversarial correction	1128	1238	FULL	SJ2	SJ2-E050..E056;SJ2-D014;SJ2-D015	extracted	
+docs/journal/project-journal-2.md	2026-09-08 — Deployable-cash reconciliation	1240	1291	FULL	SJ2	SJ2-E057;SJ2-E058;SJ2-D016	extracted	Contains an account number and real balances; both withheld ([acct-redacted]/[amount-redacted]).
+docs/journal/project-journal-2.md	2026-09-09 — LVT-INIT-CONSEQUENCE-RELEASE-COST v1 implemented	1293	1332	FULL	SJ2	SJ2-E059;SJ2-D017	extracted	
+docs/journal/project-journal-3.md	(file preamble / continuation notice)	1	8	FULL	SJ2		no-new-knowledge	
+docs/journal/project-journal-3.md	2026-09-09 — Reliability classes before service boundaries	9	94	FULL	SJ2	SJ2-E060..E063;SJ2-D018	extracted	
+docs/journal/project-journal-3.md	2026-09-09 — LVT-INIT-CONSEQUENCE-RELEASE-COST v1: FE/BE conformance repair	96	134	FULL	SJ2	SJ2-E064..E066;SJ2-D017	extracted	
+docs/journal/project-journal-3.md	2026-09-10 — PL-OPS-09: operator-directed targeted re-observation	136	171	FULL	SJ2	SJ2-E067;SJ2-E068;SJ2-D019	extracted	
+docs/journal/project-journal-3.md	2026-09-10 — Cash Deployment as the second consumer of PL-OPS-09	173	211	FULL	SJ2	SJ2-E069;SJ2-E070;SJ2-D020	extracted	
+docs/journal/project-journal-3.md	2026-09-10 — Cash Deployment refresh: two working-software corrections + a durable UI principle	213	243	FULL	SJ2	SJ2-E071..E073;SJ2-D021	extracted	
+docs/journal/project-journal-3.md	2026-09-10 — The spinner decision arc	245	275	FULL	SJ2	SJ2-E074;SJ2-E075;SJ2-D022	extracted	
+docs/journal/project-journal-3.md	2026-09-10 — Codex review: the bulk button and the ACQUIRED label were still lying	277	308	FULL	SJ2	SJ2-E076	extracted	
+docs/journal/project-journal-3.md	2026-09-10 — Refresh rate-limit stewardship verified	310	331	FULL	SJ2	SJ2-E077;SJ2-D023	extracted	
+docs/journal/project-journal-3.md	2026-09-11 — Issue #16: session/admissibility authority defect (ADR-017)	333	361	FULL	SJ2	SJ2-E078..E081	extracted	ADR-017 already in register.
+docs/journal/project-journal-3.md	2026-09-11 — Defect tracking migrated to repository-native docs/bugs/	363	388	FULL	SJ2	SJ2-E082;SJ2-E083;SJ2-D024	extracted	
+docs/journal/project-journal-3.md	2026-09-11 — Secondary Greeks on the Operator Console; held-position monitoring	390	418	FULL	SJ2	SJ2-E084;SJ2-E085;SJ2-D025	extracted	
+docs/journal/project-journal-3.md	2026-09-11 — Delta forensic investigation	420	480	FULL	SJ2	SJ2-E087..E092;SJ2-D026	extracted	Refers to a credential loaded from .env; .env not read and contents not reproduced.
+docs/journal/project-journal-3.md	2026-09-14 — Generation-29066 servicing experiment: governance conformance failure	482	532	FULL	SJ2	SJ2-E093..E096;SJ2-D027	extracted	
+docs/journal/project-journal-3.md	2026-09-14 — Three-AI Actor Governance Contract	534	594	FULL	SJ2	SJ2-E097..E100;SJ2-D028	extracted	Principal verbatim at j3:589.
+docs/journal/project-journal-3.md	2026-09-14 — PL-GOV-02: seven-ETF cohort admitted	596	637	FULL	SJ2	SJ2-E101..E106;SJ2-D029	extracted	Local DB absolute path (contains a user directory) not reproduced.
+docs/journal/project-journal-3.md	2026-09-14 — Verification-economics diagnostic	639	678	FULL	SJ2	SJ2-E107..E109;SJ2-D030	extracted	
+docs/journal/project-journal-3.md	2026-09-14 — PL-GOV-02 acceptance testing (BUG-019 / BUG-018)	680	707	FULL	SJ2	SJ2-E110..E112;SJ2-D031	extracted	
+docs/journal/project-journal-3.md	2026-09-14 — Unencumbered Shares V1 contract accepted under PL-ELIG	709	750	FULL	SJ2	SJ2-E113..E116	extracted	
+docs/journal/project-journal-3.md	2026-09-14 — Unencumbered Shares V1 implemented (overnight, unsupervised)	752	764	FULL	SJ2	SJ2-E117	extracted	
+docs/journal/project-journal-3.md	2026-09-14 — Unencumbered Shares: Principal-authorized column expansion	766	772	FULL	SJ2	SJ2-E118;SJ2-D032	extracted	
+docs/journal/project-journal-3.md	2026-09-14 — Unencumbered Shares: observe owned-share symbols	774	786	FULL	SJ2	SJ2-E119;SJ2-D033	extracted	
+docs/journal/project-journal-3.md	2026-09-15 — Operator header "Markets" card	788	821	FULL	SJ2	SJ2-E120;SJ2-E121;SJ2-D034	extracted	
+docs/journal/project-journal-3.md	2026-09-15 — High-resolution moneyness sparklines via provider timesales (PL-MKT)	823	845	FULL	SJ2	SJ2-E122;SJ2-E123;SJ2-D035	extracted	
+docs/journal/project-journal-3.md	2026-09-16 — Today's G/L broker parity: prior-close baseline (BUG-020)	847	865	FULL	SJ2	SJ2-E124;SJ2-D036	extracted	Per-row real-holding G/L values (all <[amount-redacted]) omitted rather than reproduced.
+docs/journal/project-journal-3.md	2026-09-16 — Recipes enter the pipeline as PL-RECIPE-01 (INTAKE)	867	883	FULL	SJ2	SJ2-E125..E127;SJ2-D037	extracted	
+docs/journal/project-journal-3.md	2026-09-16 — PL-RECIPE-01 advanced to RECONCILED	885	902	FULL	SJ2	SJ2-E128;SJ2-D037	extracted	
+docs/journal/project-journal-3.md	2026-09-19 — Fidelity account-regime semantics reconciled as PL-DEPLOY-BAL	904	921	FULL	SJ2	SJ2-E129;SJ2-E130;SJ2-D038	extracted	Real account balances and account nicknames withheld.
+docs/journal/project-journal-3.md	2026-10-02 — Discovery: Market Shape → Structure Fit sequencing	923	959	FULL	SJ2	SJ2-E131;SJ2-E132	extracted	Appended out of chronological order (10-02 after 09-19; journal-4/-5 hold 09-16..10-15).
+docs/journal/project-journal-3.md	2026-10-02 — Iron Condors Deployment projection architecture ratified	961	1008	FULL	SJ2	SJ2-E133;SJ2-E134;SJ2-D039	extracted	
+docs/journal/project-journal-3.md	2026-10-02 — Discovery refinement: unified Deployment comparison / Cash Deployment v1	1010	1037	FULL	SJ2	SJ2-E135	extracted	
+docs/journal/project-journal-4.md	(file preamble / continuation notice)	1	8	FULL	SJ2		no-new-knowledge	The page was opened so as not to absorb another actor's uncommitted journal-3 state (multi-actor shared-working-state hygiene). This explains why journal-3 and journal-4 date ranges overlap.
+docs/journal/project-journal-4.md	2026-09-16 — Existing Short-Obligation HOLD vs CLOSE — why-state; bounded V1 design	9	71	FULL	SJ2	SJ2-E136..E143;SJ2-E086;SJ2-D040;SJ2-D047	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — HOLD vs CLOSE V1 design gate: ACCEPT WITH REQUIRED AMENDMENTS	73	107	FULL	SJ2	SJ2-E144;SJ2-E145;SJ2-D040	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — Brokerage lifecycle-evidence authority: final pre-implementation reconciliation	109	148	FULL	SJ2	SJ2-E146;SJ2-D041	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — BTS/HOLD-CLOSE product-outcome execution failure	150	240	FULL	SJ2	SJ2-E147..E153;SJ2-D042	extracted	Principal verbatim at j4:167.
+docs/journal/project-journal-4.md	2026-09-16 — BTS/HOLD-CLOSE closeout: Principal-visible acceptance reached	242	268	FULL	SJ2	SJ2-E154..E156;SJ2-D043	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — BUG-021 repair: buy-to-close no longer booked as capital deployment	270	289	FULL	SJ2	SJ2-E157;SJ2-E158;SJ2-D044	extracted	Equity-buy amount ≥[amount-redacted] redacted.
+docs/journal/project-journal-4.md	2026-09-16 — BUG-021 bounded amendment after independent review	291	313	FULL	SJ2	SJ2-E159;SJ2-D044	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — BUG-021 third pass: temporal & per-event correctness	315	334	FULL	SJ2	SJ2-E160;SJ2-D044	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — BUG-021 fourth pass: uncertainty-as-state + single lifecycle authority	336	351	FULL	SJ2	SJ2-E161;SJ2-D045	extracted	
+docs/journal/project-journal-4.md	2026-09-16 — BUG-021 fifth pass: covered≠complete, same-day propagation, real round-trip	353	366	FULL	SJ2	SJ2-E162;SJ2-E163;SJ2-D045	extracted	
+docs/journal/project-journal-4.md	2026-09-18 — Diagnostic funnel CSV controls hidden behind ?funnelExport=1	368	373	FULL	SJ2	SJ2-E164;SJ2-D046	extracted	

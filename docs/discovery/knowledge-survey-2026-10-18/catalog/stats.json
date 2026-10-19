@@ -1,0 +1,100 @@
+{
+ "surveyors": [
+  "S61A",
+  "S61B",
+  "S61C",
+  "S61D",
+  "S81A",
+  "S81B",
+  "SD47",
+  "SDB",
+  "SDISC",
+  "SFND1",
+  "SFND2",
+  "SGIT",
+  "SJ1A",
+  "SJ1B",
+  "SJ1C",
+  "SJ2",
+  "SJ5",
+  "SN0",
+  "SN1",
+  "SN2",
+  "SPL1",
+  "SPL2",
+  "SPL3",
+  "SRC1",
+  "SRC2",
+  "SWIT"
+ ],
+ "entries_total": 3478,
+ "entries_interpreted": 1974,
+ "entries_marker_scan": 1504,
+ "catalog_total": 784,
+ "catalog_interpreted": 269,
+ "decisions_total": 583,
+ "decisions_interpreted": 534,
+ "semantics_items": 1004,
+ "precedents": 45,
+ "witnesses": 141,
+ "contradictions": 361,
+ "coverage_lines_by_depth": {
+  "FULL": 92980,
+  "INDEXED": 4296,
+  "SKIPPED": 419,
+  "UNSURVEYED": 330,
+  "PARTIAL": 22513
+ },
+ "coverage_files": 411,
+ "types": {
+  "product_semantic": 159,
+  "principle_candidate": 330,
+  "learning": 195,
+  "principal_statement": 167,
+  "domain_semantic": 436,
+  "falsified_assumption": 78,
+  "precedent": 45,
+  "uncertainty": 86,
+  "operator_question": 41,
+  "other": 58,
+  "contradiction": 154,
+  "rejected_design": 43,
+  "operational_witness": 60,
+  "implementation_witness": 81,
+  "capability": 38,
+  "decision": 3
+ },
+ "decision_authority": {
+  "Principal-ratified": 111,
+  "(unrecorded)": 5,
+  "inferred-from-implementation": 51,
+  "Principal-accepted": 80,
+  "proposal-only": 84,
+  "Principal-directed": 142,
+  "actor-decided-under-delegation": 58,
+  "Principal-stated": 3
+ },
+ "largest_unsurveyed": [
+  [
+   "docs/reference-data/sonar/pl-cleanup-sca-before-after-v1.md",
+   157
+  ],
+  [
+   "docs/28a-forecast-industry-survey.md",
+   71
+  ],
+  [
+   "docs/reference-data/sonar/wheelwright-clean-code-profile-delta-v1.md",
+   61
+  ],
+  [
+   "options-prototype/README.md",
+   33
+  ],
+  [
+   "evidence-service-java/src/test/resources/tastytrade/README.md",
+   8
+  ]
+ ],
+ "unsurveyed_files": 5
+}

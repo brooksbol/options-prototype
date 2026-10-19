@@ -1,0 +1,159 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/parking-lot-10.md	Project Parking Lot — Continuation 10	1	10	FULL	SPL3		no-new-knowledge	file header
+docs/parking-lot-10.md	Continuation Invariant	11	16	FULL	SPL3		no-new-knowledge	restates global-ID invariant
+docs/parking-lot-10.md	`PL-BETA-01` — Private Beta / Trusted Evaluator Program	17	22	FULL	SPL3	SPL3-D001	extracted	
+docs/parking-lot-10.md	Intake	23	39	FULL	SPL3	SPL3-E003,SPL3-D001	extracted	
+docs/parking-lot-10.md	Decision / execution boundary	40	49	FULL	SPL3	SPL3-E001,SPL3-E002,SPL3-E003,SPL3-D001	extracted	
+docs/parking-lot-10.md	Compensation / entity boundary	50	57	FULL	SPL3	SPL3-E003,SPL3-D001	extracted	
+docs/parking-lot-10.md	Approved private-beta intake protocol	58	71	FULL	SPL3	SPL3-E003,SPL3-D001	extracted	
+docs/parking-lot-10.md	Product-learning rationale	72	86	FULL	SPL3	SPL3-E003,SPL3-D001	extracted	
+docs/parking-lot-10.md	Relationship to existing concerns	87	94	FULL	SPL3	SPL3-D001	extracted	
+docs/parking-lot-10.md	Reconciliation Completion Record	95	103	FULL	SPL3	SPL3-D001	extracted	
+docs/parking-lot-10.md	Explicitly not authorized	104	107	FULL	SPL3	SPL3-D001	extracted	
+docs/parking-lot-10.md	Revisit triggers	108	114	FULL	SPL3	SPL3-D001	extracted	
+docs/parking-lot-10.md	`PL-OPS-CSV-01` — Operator CSV-upload burden (authoritative ownership now costs a fourth manual export)	115	120	FULL	SPL3		no-new-knowledge	entry header/state line; content extracted in subsections (SPL3-E004)
+docs/parking-lot-10.md	Intake	121	126	FULL	SPL3	SPL3-E004	extracted	
+docs/parking-lot-10.md	Concern	127	130	FULL	SPL3	SPL3-E004	extracted	
+docs/parking-lot-10.md	Candidate directions (not authorized; for later reconciliation)	131	137	FULL	SPL3	SPL3-E004	extracted	
+docs/parking-lot-10.md	Relationship to existing concerns	138	144	FULL	SPL3	SPL3-E004	extracted	
+docs/parking-lot-10.md	Reconciliation Completion Record	145	152	FULL	SPL3	SPL3-E004	extracted	
+docs/parking-lot-10.md	Explicitly not authorized	153	159	FULL	SPL3	SPL3-E004	extracted	
+docs/parking-lot-10.md	`PL-SETUP-01` — Operator-facing governance setup / configuration (account governed-scope topology; guided vs advanced; evidence-accelerated,	160	165	FULL	SPL3		no-new-knowledge	entry header/state line; content extracted in subsections (SPL3-E005..E008)
+docs/parking-lot-10.md	Intake	166	177	FULL	SPL3	SPL3-E005	extracted	
+docs/parking-lot-10.md	Critical inference boundary (load-bearing)	178	181	FULL	SPL3	SPL3-E006	extracted	
+docs/parking-lot-10.md	Relationship to existing concerns	182	191	FULL	SPL3		no-new-knowledge	cross-references only (PL-BETA-01, PL-ARCH-03/07, PL-PORT-01, PL-OPS-CSV-01, AR1)
+docs/parking-lot-10.md	Reconciliation Completion Record	192	200	FULL	SPL3		no-new-knowledge	reconciliation record: no new Bet; pressure on AR1; likely ADR needed
+docs/parking-lot-10.md	Explicitly not authorized	201	214	FULL	SPL3	SPL3-E007,SPL3-E008,SPL3-D002,SPL3-D003	extracted	
+docs/parking-lot-10.md	`PL-DEC-RES-01` — Governed Recommendation `UNRESOLVED` predicate / resolution model	215	220	FULL	SPL3	SPL3-E009,SPL3-D004	extracted	
+docs/parking-lot-10.md	Intake	221	226	FULL	SPL3	SPL3-E009,SPL3-D004	extracted	
+docs/parking-lot-10.md	Reconciliation Completion Record	227	235	FULL	SPL3	SPL3-E009,SPL3-D004	extracted	
+docs/parking-lot-10.md	Explicitly not authorized	236	242	FULL	SPL3	SPL3-E009,SPL3-D004	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Wheelwright composable Unix CLI (`ww`)	243	244	FULL	SPL3		no-new-knowledge	PL-CLI-01 heading only; note Oct 12-13 sections are prepended above Oct 3 intake (non-chronological)
+docs/parking-lot-10.md	PL-CLI-01 — October 12, 2026 accepted historical observations and remaining Account-value gap	245	256	FULL	SPL3	SPL3-E018,SPL3-E070	extracted	
+docs/parking-lot-10.md	PL-CLI-01 — Principal accepts bounded PTS Portfolio Capital history graph — October 13, 2026	257	271	FULL	SPL3	SPL3-E018	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / CONV-UX — Unix command usability and independent Product review (Principal direction, October 12, 2026)	272	284	FULL	SPL3	SPL3-E010,SPL3-E011,SPL3-D028	extracted	
+docs/parking-lot-10.md	PL-CLI-01 — Platform leverage and declining marginal capability cost (Principal direction, October 12, 2026)	285	306	FULL	SPL3	SPL3-E012,SPL3-E013,SPL3-E014,SPL3-D029	extracted	
+docs/parking-lot-10.md	Intake	307	322	FULL	SPL3	SPL3-E015	extracted	
+docs/parking-lot-10.md	Primary Product tests	323	329	FULL	SPL3	SPL3-E016	extracted	
+docs/parking-lot-10.md	Trigger / observed opportunity	330	343	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	Why it might matter	344	349	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	Emerging design hypotheses — not ratified	350	366	FULL	SPL3	SPL3-E017,SPL3-E073	extracted	
+docs/parking-lot-10.md	Relationship to existing concerns	367	376	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	Unresolved questions	377	391	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	Explicitly not authorized	392	395	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	Intake disposition	396	401	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	October 3 exploration checkpoint	402	405	FULL	SPL3	SPL3-E073	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 bounded first-slice authorization and reconciliation	406	419	FULL	SPL3	SPL3-E019,SPL3-D005	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 provisional implementation-language decision gate	420	434	FULL	SPL3	SPL3-E020,SPL3-D006	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 walking observation and temporal-model candidate	435	440	FULL	SPL3	SPL3-E020,SPL3-E021,SPL3-D006	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 durable implementation-language decision	441	446	FULL	SPL3	SPL3-E020,SPL3-D006	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 durable implementation-language gate reopened	447	450	FULL	SPL3	SPL3-E020,SPL3-D006	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 explicit synchronization direction	451	456	FULL	SPL3	SPL3-E022,SPL3-D007	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 refresh acceptance fork: shared-backend enhancement required	457	462	FULL	SPL3	SPL3-D007	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 3 accepted synchronization composition	463	470	FULL	SPL3	SPL3-E023,SPL3-D006,SPL3-D007	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 4 proposed fetch manual and discovery affordance	471	478	FULL	SPL3	SPL3-D008	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 4 fetch promotion and self-contained discovery	479	486	FULL	SPL3	SPL3-E025,SPL3-D008	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Composition Friction Guideline (October 4)	487	491	FULL	SPL3	SPL3-E024,SPL3-D009	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 4 bare-fetch pre-implementation checkpoint and bounded authorization	492	496	FULL	SPL3	SPL3-E026,SPL3-D010	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 4 bare-fetch experiment result	497	499	FULL	SPL3	SPL3-E026,SPL3-D010	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 4 bare-fetch experimental acceptance	500	503	FULL	SPL3	SPL3-E026,SPL3-D010	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 5 Product decision on mature `fetch` meaning	504	513	FULL	SPL3	SPL3-E027,SPL3-D011	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 5 v2-native explicit direct-quote fetch migration	514	535	FULL	SPL3	SPL3-E023,SPL3-E028,SPL3-D013	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 5 canonical held-quote discovery decisions and specification	536	560	FULL	SPL3	SPL3-E029,SPL3-E030,SPL3-D014	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — October 5 bounded held-quote type selector amendment	561	570	FULL	SPL3	SPL3-D014	extracted	--type selector amendment; OTHER_UNDERLYING→OTHER
+docs/parking-lot-10.md	PL-CLI-01 — Proposed no-argument `ww pull` composition fitness experiment (October 11, 2026)	571	586	FULL	SPL3	SPL3-E034	extracted	
+docs/parking-lot-10.md	PL-CLI-01 — Twelve-question public CLI composability fitness probe (October 11–12, 2026)	587	615	FULL	SPL3	SPL3-E032,SPL3-E033	extracted	
+docs/parking-lot-10.md	PL-CLI-01 — Proposed remediation direction from twelve-question fitness probe (October 12, 2026)	616	639	FULL	SPL3	SPL3-E032	extracted	
+docs/parking-lot-10.md	`PL-OPS-10` — Optimize large targeted fetches	640	660	FULL	SPL3	SPL3-E026	extracted	
+docs/parking-lot-10.md	`PL-API-02` — Machine-readable HTTP contract and explicit API-boundary semantics	661	690	FULL	SPL3	SPL3-E036,SPL3-D033	extracted	
+docs/parking-lot-10.md	Intake	691	708	FULL	SPL3	SPL3-E035	extracted	
+docs/parking-lot-10.md	Why this may matter	709	714	FULL	SPL3	SPL3-E035	extracted	
+docs/parking-lot-10.md	Existing authority / related concerns	715	723	FULL	SPL3	SPL3-E035	extracted	
+docs/parking-lot-10.md	Unresolved questions	724	734	FULL	SPL3	SPL3-E035	extracted	
+docs/parking-lot-10.md	Candidate directions — not authorized	735	746	FULL	SPL3	SPL3-E035	extracted	
+docs/parking-lot-10.md	Parking-lot relationship / current disposition	747	752	FULL	SPL3	SPL3-E035	extracted	
+docs/parking-lot-10.md	Explicitly not authorized	753	756	FULL	SPL3		no-new-knowledge	PL-API-02 not-authorized list; superseded in bounded scope by Oct 15 docs delivery
+docs/parking-lot-10.md	Next authorized mode	757	763	FULL	SPL3		no-new-knowledge	PL-API-02 next mode; superseded in bounded scope
+docs/parking-lot-10.md	`PL-API-03` — Common capability-oriented API boundary	764	786	FULL	SPL3	SPL3-E031,SPL3-E069,SPL3-D012	extracted	
+docs/parking-lot-10.md	`PL-API-03` — October 5 current canonical held-quote read contract	787	809	FULL	SPL3	SPL3-E029,SPL3-E030,SPL3-E069,SPL3-D014	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` / `PL-API-03` — October 5 subject-show multi-subject ratification and resumed design	810	833	FULL	SPL3	SPL3-E037,SPL3-D015	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` / `PL-API-03` — October 5 question-driven held quote queries authorized	834	841	FULL	SPL3	SPL3-E038,SPL3-D016	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` / `PL-API-03` — October 5 held ETF queries implemented and verified	842	849	FULL	SPL3	SPL3-E038,SPL3-E069,SPL3-D016	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Human-table manual acceptance continuation — October 5, 2026	850	854	FULL	SPL3	SPL3-E038,SPL3-D016	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Principal acceptance and session closeout — October 5, 2026	855	859	FULL	SPL3	SPL3-E038,SPL3-D016	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Principal-ratified selection/output-order amendment — October 5, 2026	860	864	FULL	SPL3	SPL3-E038,SPL3-D016	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Principal human venue-code labels — October 5, 2026	865	869	FULL	SPL3	SPL3-D016	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Principal monetary and table-style continuation — October 5, 2026	870	877	FULL	SPL3	SPL3-D016	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Principal accepted current styled human table — October 5, 2026	878	883	FULL	SPL3	SPL3-D016	extracted	
+docs/parking-lot-10.md	`PL-STRAT-01` Refinement — Partial Collar Protected Growth Test 1 — October 8, 2026	884	891	FULL	SPL3	SPL3-E039,SPL3-D017	extracted	
+docs/parking-lot-10.md	`PL-STRAT-01` — Test 1 experiment disposition — October 8, 2026	892	898	FULL	SPL3	SPL3-E039,SPL3-D017	extracted	
+docs/parking-lot-10.md	`PL-STRAT-01` — Principal accepts Test 1 FAIL; successor implementation held — October 8, 2026	899	906	FULL	SPL3	SPL3-E039,SPL3-D017	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Account evidence sync and Position vertical slice — October 11, 2026	907	922	FULL	SPL3	SPL3-E040,SPL3-D018	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — User identity and many-to-many Account authorization amendment — October 11, 2026	923	931	FULL	SPL3	SPL3-E041,SPL3-D018	extracted	
+docs/parking-lot-10.md	PL-CLI-01 / PL-API-03 — Principal accepts Account operating loop; session closeout — October 11, 2026	932	947	FULL	SPL3	SPL3-E042,SPL3-D019	extracted	
+docs/parking-lot-10.md	`PL-CONV-01` — tt / ww v2 Position and Governance Convergence (October 11, 2026)	948	969	FULL	SPL3	SPL3-E043,SPL3-E044	extracted	
+docs/parking-lot-10.md	Continuation History — October 11, 2026	970	978	FULL	SPL3		no-new-knowledge	continuation history row restating PL-CONV-01 initiation
+docs/parking-lot-10.md	PL-CONV-01 Milestone — Competing Entry Points (October 11, 2026)	979	1009	FULL	SPL3	SPL3-E051	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Ratification Checkpoint — Account identity and operator confidentiality (October 11, 2026)	1010	1027	FULL	SPL3	SPL3-E045,SPL3-D020	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Open Reconciliation Issues — CLI Motif and Web FE Migration (October 11, 2026)	1028	1031	FULL	SPL3		no-new-knowledge	framing for CONV-UX/CONV-WEB as open issues
+docs/parking-lot-10.md	CONV-UX — Converged CLI presentation motif	1032	1039	FULL	SPL3	SPL3-E046,SPL3-D021	extracted	
+docs/parking-lot-10.md	CONV-UX — Account table palette selected and implemented (October 11, 2026)	1040	1069	FULL	SPL3	SPL3-D021	extracted	
+docs/parking-lot-10.md	CONV-UX — Heterogeneous Position visualization discovery handoff (October 11, 2026)	1070	1089	FULL	SPL3	SPL3-E047,SPL3-D021	extracted	
+docs/parking-lot-10.md	CONV-UX — Standing color standard for future ww changes (October 11, 2026)	1090	1150	FULL	SPL3	SPL3-E048,SPL3-D021	extracted	
+docs/parking-lot-10.md	CONV-WEB — Existing Wheelwright web frontend to v2 backend migration	1151	1158	FULL	SPL3		duplicate-of:SPL3-E052	initial CONV-WEB trigger; superseded by Kiro estimate intake
+docs/parking-lot-10.md	Disposition and authority	1159	1169	FULL	SPL3		duplicate-of:SPL3-E052	CONV-UX Principal-selected vs CONV-WEB investigation; A/B/C still UNDECIDED at that point (superseded)
+docs/parking-lot-10.md	PL-CONV-01 Principal-Selected Sequence and Operational Restrictions (October 11, 2026)	1170	1173	FULL	SPL3	SPL3-E050,SPL3-E051,SPL3-D022	extracted	
+docs/parking-lot-10.md	Work sequence (selected in this order)	1174	1186	FULL	SPL3	SPL3-E050,SPL3-E051,SPL3-D022	extracted	
+docs/parking-lot-10.md	Operational continuity and execution restrictions (Principal direction)	1187	1196	FULL	SPL3	SPL3-E050,SPL3-D022,SPL3-D023	extracted	
+docs/parking-lot-10.md	Reconciliation / provenance	1197	1208	FULL	SPL3	SPL3-E050,SPL3-D022	extracted	
+docs/parking-lot-10.md	CONV-WEB — Kiro Migration Estimate Intake (October 11, 2026)	1209	1212	FULL	SPL3	SPL3-E052,SPL3-D025	extracted	
+docs/parking-lot-10.md	Source and method	1213	1216	FULL	SPL3	SPL3-E052,SPL3-D025	extracted	
+docs/parking-lot-10.md	Kiro's findings (reported, not independently verified here)	1217	1222	FULL	SPL3	SPL3-E052,SPL3-D025	extracted	
+docs/parking-lot-10.md	Effort estimates — Kiro estimates only	1223	1232	FULL	SPL3	SPL3-E052,SPL3-D025	extracted	
+docs/parking-lot-10.md	Principal-facing reconciliation disposition	1233	1238	FULL	SPL3	SPL3-E052,SPL3-D025	extracted	
+docs/parking-lot-10.md	Unresolved / completion conditions	1239	1252	FULL	SPL3	SPL3-E052,SPL3-D025	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Historical-Invariant Conformance Overlay (October 11, 2026)	1253	1256	FULL	SPL3	SPL3-E072	extracted	
+docs/parking-lot-10.md	Governing historical authority and epistemic status	1257	1265	FULL	SPL3	SPL3-E072	extracted	
+docs/parking-lot-10.md	Conformance constraints on selected six-step delivery sequence	1266	1278	FULL	SPL3	SPL3-E072	extracted	
+docs/parking-lot-10.md	Operational and sequencing restrictions reaffirmed	1279	1296	FULL	SPL3	SPL3-E072,SPL3-D023	extracted	
+docs/parking-lot-10.md	PL-CONV-01 BUG-036 Closeout — Independent Candidate Rejection (October 11, 2026)	1297	1311	FULL	SPL3	SPL3-E053,SPL3-E054	extracted	
+docs/parking-lot-10.md	PL-CONV-01 BUG-036 Completion — October 11, 2026	1312	1324	FULL	SPL3	SPL3-E053	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Principle Promotion — PRIN-ARCH-BACKEND-AUTHORITY (October 11, 2026)	1325	1345	FULL	SPL3	SPL3-E055,SPL3-D024	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Follow-up Consequence — Backend Authority Closes Allocation Debate (October 11, 2026)	1346	1367	FULL	SPL3	SPL3-E055,SPL3-D024	extracted	
+docs/parking-lot-10.md	CONV-WEB — Principal-Accepted Rewrite Plan Intake Disposition	1368	1392	FULL	SPL3	SPL3-E056,SPL3-D025	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Step 3 — Authorized Multi-Broker Account and BUG-035 Candidate (October 11, 2026)	1393	1410	FULL	SPL3	SPL3-E059	extracted	
+docs/parking-lot-10.md	Step 3 Principal acceptance — REJECTED	1411	1414	FULL	SPL3	SPL3-E057,SPL3-E059,SPL3-E070,SPL3-D026	extracted	
+docs/parking-lot-10.md	Step3 authorized operational deployment — ABORT / recovery	1415	1419	FULL	SPL3	SPL3-E059,SPL3-D026	extracted	
+docs/parking-lot-10.md	Step3 authorized deployment retry — operational candidate available	1420	1428	FULL	SPL3	SPL3-E059,SPL3-D026	extracted	
+docs/parking-lot-10.md	Step3 Principal acceptance — COMPLETE (October 11, 2026)	1429	1436	FULL	SPL3	SPL3-E059,SPL3-D026	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Steps 4–5 — Principal reconciliation and authorized candidate, October 11, 2026	1437	1443	FULL	SPL3	SPL3-E059,SPL3-D027	extracted	
+docs/parking-lot-10.md	Step 5 independent rejection and authorized R2 correction — October 11, 2026	1444	1448	FULL	SPL3	SPL3-E059,SPL3-D027	extracted	
+docs/parking-lot-10.md	`PL-CONV-01` Step 5 R2 — independently verified, deployed and Principal accepted	1449	1461	FULL	SPL3	SPL3-E059,SPL3-D027	extracted	
+docs/parking-lot-10.md	PL-CLI-01 — Income Wheel analytical capability survey — October 12, 2026	1462	1472	FULL	SPL3	SPL3-E071	extracted	
+docs/parking-lot-10.md	PL-CONV-01 Increment A — continuous R3 engineering recovery authorization — October 13, 2026	1473	1489	FULL	SPL3	SPL3-E054,SPL3-E061,SPL3-D030	extracted	
+docs/parking-lot-10.md	PL-CONV-01 — operating instruction reconciliation, October 13, 2026	1490	1494	FULL	SPL3	SPL3-E061,SPL3-D030	extracted	
+docs/parking-lot-10.md	PL-CONV-01 / PL-CLI-01 — fresh Position scan and v2 capability gaps — October 13, 2026	1495	1507	FULL	SPL3	SPL3-E060,SPL3-D031	extracted	
+docs/parking-lot-10.md	PL-CONV-01 / PL-CLI-01 — architectural proposal submitted; implementation held — October 13, 2026	1508	1516	FULL	SPL3	SPL3-D031	extracted	
+docs/parking-lot-10.md	PL-CONV-01 / PL-CLI-01 — domain-facade/REST proposal revision — October 13, 2026	1517	1524	FULL	SPL3	SPL3-E058,SPL3-D031	extracted	
+docs/parking-lot-10.md	CONV-UX refinement — TT Live economic-state baseline, October 14, 2026	1525	1538	FULL	SPL3	SPL3-E062,SPL3-D032	extracted	
+docs/parking-lot-10.md	PL-CONV-01 / PL-CLI-01 — orphaned draft reconciled; review remains pending — October 14, 2026	1539	1542	FULL	SPL3	SPL3-D031	extracted	orphaned draft preserved as inactive recovery material; Principal prohibited stash
+docs/parking-lot-10.md	`PL-EVID-04` Refinement — EVA-001 Data Feasibility and Experimental Design (October 14, 2026)	1543	1560	FULL	SPL3	SPL3-E063	extracted	
+docs/parking-lot-10.md	`PL-EVID-04` / EVA-001 — First Muse Report Partially Verified	1561	1566	FULL	SPL3	SPL3-E063	extracted	
+docs/parking-lot-10.md	`PL-EVID-04` / EVA-001 — Second Muse Report and Bounded Draft Revision	1567	1573	FULL	SPL3	SPL3-E063	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Account transaction history proposal — October 15, 2026	1574	1582	FULL	SPL3	SPL3-E064,SPL3-D034	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Account transaction-history design refinement — October 15, 2026	1583	1589	FULL	SPL3	SPL3-E064,SPL3-D034	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Transaction history design approved; implementation authorized — October 15, 2026	1590	1593	FULL	SPL3	SPL3-E064,SPL3-D034	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Principal CLI update contracts and default-subject policy — October 15, 2026	1594	1599	FULL	SPL3	SPL3-E049,SPL3-E064,SPL3-D035	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Transaction-history candidate implemented and author-verified — October 15, 2026	1600	1605	FULL	SPL3	SPL3-E064	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Principal rejects isolated acceptance path; installed workflow required — October 15, 2026	1606	1611	FULL	SPL3	SPL3-E057,SPL3-E064,SPL3-D036	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Integrated pull/history engineering authorized — October 15, 2026	1612	1617	FULL	SPL3	SPL3-E064,SPL3-D036	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Principal authorizes operational delivery when ready — October 15, 2026	1618	1623	FULL	SPL3	SPL3-E064,SPL3-D036	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Installed integrated workflow engineer-verified; Principal acceptance pending — October 15, 2026	1624	1627	FULL	SPL3	SPL3-E064,SPL3-E070,SPL3-D036	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Principal acceptance PASSED; integrated update/history closed — October 15, 2026	1628	1637	FULL	SPL3	SPL3-E064,SPL3-D036	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Canonical installed Positions command delivered — October 15, 2026	1638	1643	FULL	SPL3	SPL3-E064,SPL3-D037	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Installed Positions single-table refinement — October 15, 2026	1644	1647	FULL	SPL3	SPL3-E064,SPL3-D037	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Installed consistent contract typography; bare holdings-only boundary — October 15, 2026	1648	1651	FULL	SPL3	SPL3-E064,SPL3-D037	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Principal acceptance PASSED; installed Positions session closed — October 15, 2026	1652	1662	FULL	SPL3	SPL3-E064,SPL3-D037	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` / `PL-CONV-01` — ww live session stopped; visual acceptance NOT passed — October 16, 2026	1663	1675	FULL	SPL3	SPL3-E065,SPL3-E070,SPL3-D038	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` — Human Positions presentation accepted; persistence only — October 17, 2026	1676	1696	FULL	SPL3	SPL3-E066,SPL3-D039	extracted	
+docs/parking-lot-10.md	`PL-CLI-01` / `PL-DEPLOY-BAL` — ww accounts discovery parked — October 17, 2026	1697	1724	FULL	SPL3	SPL3-E067,SPL3-D040	extracted	

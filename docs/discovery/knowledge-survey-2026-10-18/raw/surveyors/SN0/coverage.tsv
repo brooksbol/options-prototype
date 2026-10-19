@@ -1,0 +1,358 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/00-project-charter.md	(preamble)	1	4	FULL	SN0		no-new-knowledge	status header: docs/00-project-charter.md:3 > ⚠️ **HISTORICAL** — This is the original project origin document (July 2026). The system identity it describes ("lightweight options chain
+docs/00-project-charter.md	## Purpose	5	12	FULL	SN0	SN0-E035	extracted	
+docs/00-project-charter.md	## Vision	13	29	FULL	SN0		no-new-knowledge	
+docs/00-project-charter.md	## Guiding Principles	30	41	FULL	SN0	SN0-E034	extracted	
+docs/00-project-charter.md	## Success Criteria	42	61	FULL	SN0		no-new-knowledge	
+docs/00-project-charter.md	## Development Philosophy	62	73	FULL	SN0	SN0-E059	extracted	
+docs/00-project-charter.md	## Scope	74	103	FULL	SN0	SN0-E035	extracted	
+docs/00-project-charter.md	## Architectural Evolution (Updated July 2026)	104	119	FULL	SN0	SN0-E034,SN0-E035	extracted	
+docs/00-project-charter.md	## Roadmap	120	140	FULL	SN0	SN0-E063	extracted	
+docs/00-project-charter.md	## Planned Future Capabilities	141	163	FULL	SN0		no-new-knowledge	
+docs/00-project-charter.md	## Technology (Slice 1)	164	172	FULL	SN0		no-new-knowledge	
+docs/00-project-charter.md	## Document Index	173	183	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	(preamble)	1	2	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	## Purpose	3	10	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	## Machine	11	20	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	## Required Tools	21	32	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	## Not Required	33	44	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	## Installed Versions	45	58	FULL	SN0		no-new-knowledge	
+docs/01-environment.md	## Environment Variables	59	68	FULL	SN0	SN0-E054	extracted	
+docs/01-environment.md	## History	69	71	FULL	SN0		no-new-knowledge	
+docs/02-domain.md	(preamble)	1	4	FULL	SN0		no-new-knowledge	status header: docs/02-domain.md:3 > **Authority qualification.** Current Specialized Reference (Category E). **Subordinate to `foundations/options-domain-reference.md` for op
+docs/02-domain.md	## Purpose	5	12	FULL	SN0		no-new-knowledge	
+docs/02-domain.md	## Domain Glossary	13	35	FULL	SN0	SN0-E016	extracted	
+docs/02-domain.md	## Domain Objects	36	83	FULL	SN0		no-new-knowledge	
+docs/02-domain.md	## Business Rules	84	158	FULL	SN0	SN0-E042	extracted	
+docs/02-domain.md	## Assumptions	159	171	FULL	SN0		no-new-knowledge	
+docs/02-domain.md	## Architecture Decision Records	172	240	FULL	SN0	SN0-D002,SN0-D003,SN0-D018,SN0-E011,SN0-E054	extracted	
+docs/02-domain.md	## Mock Data Contract	241	252	FULL	SN0		no-new-knowledge	
+docs/02-domain.md	## Open Questions	253	263	FULL	SN0	SN0-E046	extracted	
+docs/03-requirements.md	(preamble)	1	2	FULL	SN0	SN0-E032	extracted	
+docs/03-requirements.md	## Slice Definition	3	14	FULL	SN0	SN0-E032	extracted	
+docs/03-requirements.md	## User Stories	15	104	FULL	SN0	SN0-E016,SN0-E032	duplicate-of:SN0-E016	US-6 displays BR-5 assignment probability (superseded); no HISTORICAL header (SN0-E032)
+docs/03-requirements.md	## Scope	105	124	FULL	SN0	SN0-E032	extracted	
+docs/03-requirements.md	## Constraints	125	134	FULL	SN0	SN0-E032	extracted	
+docs/03-requirements.md	## Success Criteria	135	145	FULL	SN0	SN0-E032	extracted	
+docs/04-architecture.md	(preamble)	1	4	FULL	SN0		no-new-knowledge	status header: docs/04-architecture.md:3 > ⚠️ **HISTORICAL** — Slice 1 architecture (single-page chain viewer). Superseded by `07-architecture-current.md`.
+docs/04-architecture.md	## Purpose	5	12	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Architecture Principles	13	23	FULL	SN0	SN0-E034	duplicate-of:SN0-E034	'Observation without ownership' captured in SN0-E034
+docs/04-architecture.md	## System Boundary Diagram	24	60	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Layer Definitions	61	116	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## MarketDataProvider Interface	117	135	FULL	SN0	SN0-D019	extracted	
+docs/04-architecture.md	## Domain Calculation Functions	136	150	FULL	SN0	SN0-D019	extracted	
+docs/04-architecture.md	## Folder Structure	151	186	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Data Flow	187	215	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Extension Seams	216	229	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Technology Choices (Slice 1)	230	242	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Test Strategy	243	255	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Constraints	256	265	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Traceability	266	279	FULL	SN0		no-new-knowledge	
+docs/04-architecture.md	## Architecture Evolution (Post-Slice 1)	280	377	FULL	SN0	SN0-E034,SN0-E063,SN0-E064	duplicate-of:SN0-E034	'consumer before producer' hypothesis (04:367-373) captured in SN0-E034
+docs/04-architecture.md	## Bounded Contexts (Updated July 2026)	378	435	FULL	SN0	SN0-E063	extracted	
+docs/04-architecture.md	## Context Relationships	436	459	FULL	SN0	SN0-E063	extracted	
+docs/04-architecture.md	## Storage Note	460	462	FULL	SN0	SN0-E063	extracted	
+docs/05-design.md	(preamble)	1	4	FULL	SN0		no-new-knowledge	status header: docs/05-design.md:3 > ⚠️ **HISTORICAL** — Slice 1 implementation design (MockMarketDataProvider, static JSON). Superseded by the current implementation and `07-
+docs/05-design.md	## Purpose	5	10	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Design Invariants	11	23	FULL	SN0	SN0-E065	extracted	
+docs/05-design.md	## Frontend Folder Structure	24	76	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Domain Type Definitions	77	122	FULL	SN0	SN0-E065	extracted	
+docs/05-design.md	## MarketDataProvider Interface	123	144	FULL	SN0	SN0-D019	extracted	
+docs/05-design.md	## Calculation Module Design	145	220	FULL	SN0	SN0-D019,SN0-E016	extracted	
+docs/05-design.md	## Policy Domain	221	286	FULL	SN0	SN0-D019	extracted	
+docs/05-design.md	## Delta Matching Module	287	336	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Mock Data Shape	337	394	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Policy Evaluation Design	395	430	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## State Management Approach	431	483	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Component Design	484	612	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Test Design	613	675	FULL	SN0		no-new-knowledge	
+docs/05-design.md	## Known Implementation Constraints	676	692	FULL	SN0	SN0-E065	extracted	
+docs/05a-component-map.md	(preamble)	1	4	FULL	SN0		no-new-knowledge	status header: docs/05a-component-map.md:3 > ⚠️ **HISTORICAL** — Slice 1 component map. Superseded by `07a-component-map-current.md`.
+docs/05a-component-map.md	## Purpose	5	10	FULL	SN0		no-new-knowledge	
+docs/05a-component-map.md	## Domain Layer	11	67	FULL	SN0		no-new-knowledge	
+docs/05a-component-map.md	## Provider Layer	68	91	FULL	SN0		no-new-knowledge	
+docs/05a-component-map.md	## Hook Layer	92	115	FULL	SN0		no-new-knowledge	
+docs/05a-component-map.md	## Component Layer	116	185	FULL	SN0		no-new-knowledge	
+docs/05a-component-map.md	## Dependency Rules Summary	186	199	FULL	SN0		no-new-knowledge	
+docs/06-tasks.md	(preamble)	1	4	FULL	SN0		no-new-knowledge	status header: docs/06-tasks.md:3 > ⚠️ **HISTORICAL** — Slice 1 task list. All tasks completed July 2026.
+docs/06-tasks.md	## Purpose	5	10	INDEXED	SN0		deferred	Slice-1 task-list body; headings and HISTORICAL header read (06:3 'All tasks completed July 2026')
+docs/06-tasks.md	## Task Sequence	11	358	INDEXED	SN0		deferred	Slice-1 task-list body; headings and HISTORICAL header read (06:3 'All tasks completed July 2026')
+docs/06-tasks.md	## Task Dependency Graph	359	384	FULL	SN0		no-new-knowledge	
+docs/06-tasks.md	## Completion Criteria	385	395	FULL	SN0		no-new-knowledge	
+docs/06-tasks.md	## Velvet Rope — First Slice Tasks	396	618	FULL	SN0	SN0-D017,SN0-E031	extracted	
+docs/06-tasks.md	## Deferred Workstreams	619	670	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	(preamble)	1	7	FULL	SN0	SN0-E001,SN0-E002	extracted	status header: docs/07-architecture-current.md:3 **Status:** Authoritative as of August 2026 | docs/07-architecture-current.md:4 **Supersedes:** Prior version of this document (browser-owned acquisition era)
+docs/07-architecture-current.md	## Implementation Status	8	13	FULL	SN0	SN0-E001,SN0-E010	extracted	
+docs/07-architecture-current.md	## System Identity	14	30	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	## Conceptual Architecture: Four Engines	31	70	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	## Current Runtime Architecture	71	145	FULL	SN0	SN0-E003,SN0-E005	extracted	
+docs/07-architecture-current.md	## Application Shell	146	171	FULL	SN0	SN0-E047	extracted	
+docs/07-architecture-current.md	## Layer Responsibilities	172	327	FULL	SN0	SN0-D015,SN0-E007,SN0-E012,SN0-E019,SN0-E024,SN0-E030,SN0-E036,SN0-E039,SN0-E042,SN0-E048,SN0-E051,SN0-E068	extracted	
+docs/07-architecture-current.md	## Recommendation Policy (First-Class Domain Object)	328	356	FULL	SN0	SN0-E043	extracted	
+docs/07-architecture-current.md	## Market Session Model	357	372	FULL	SN0	SN0-E004,SN0-E009	extracted	
+docs/07-architecture-current.md	## Evidence Snapshot Contract	373	384	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	## Candidate Universe	385	392	FULL	SN0	SN0-E018	extracted	
+docs/07-architecture-current.md	## Technology Stack	393	410	FULL	SN0	SN0-E005,SN0-E054,SN0-E055	extracted	
+docs/07-architecture-current.md	## Design Principles	411	425	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	## Ownership and Authority Boundary	426	449	FULL	SN0	SN0-E002,SN0-E041,SN0-E044,SN0-E055,SN0-E056	extracted	
+docs/07-architecture-current.md	## Operating Regime and Situation	450	468	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	## Accepted Architectural Direction	469	491	FULL	SN0	SN0-E039	extracted	
+docs/07-architecture-current.md	## Calls Architecture (Horizon A — Implemented)	492	517	FULL	SN0	SN0-E028	extracted	
+docs/07-architecture-current.md	## Relationship to Prior Architecture	518	535	FULL	SN0		no-new-knowledge	
+docs/07-architecture-current.md	## Governed Decision Context, Persistence, and Replay	536	685	FULL	SN0	SN0-E002,SN0-E040,SN0-E057,SN0-E058	extracted	
+docs/07a-component-map-current.md	(preamble)	1	7	FULL	SN0	SN0-E001,SN0-E002	extracted	status header: docs/07a-component-map-current.md:3 **Status:** Authoritative as of August 2026 | docs/07a-component-map-current.md:4 **Supersedes:** Prior version (browser-owned acquisition era)
+docs/07a-component-map-current.md	## How to Read This Document	8	19	FULL	SN0	SN0-E001,SN0-E008	extracted	
+docs/07a-component-map-current.md	## Java Backend (evidence-service-java)	20	104	FULL	SN0	SN0-E001,SN0-E003,SN0-E008	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Recommendation Layer	105	144	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Evidence Cache	145	157	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Portfolio Context	158	179	FULL	SN0	SN0-E001,SN0-E006,SN0-E007	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Application Shell	180	210	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Decision Engine (Buy-Write Path)	211	250	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Operator Workbench	251	272	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Broker Handoff	273	294	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Operator Console	295	307	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Production	308	320	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Browser Frontend — Workspace	321	333	FULL	SN0	SN0-E001	extracted	
+docs/07a-component-map-current.md	## Legacy (browser-owned acquisition — pending removal)	334	345	FULL	SN0	SN0-E001,SN0-E006	extracted	
+docs/07b-diagrams.md	(preamble)	1	6	FULL	SN0	SN0-E002	extracted	status header: docs/07b-diagrams.md:3 **Status:** Authoritative as of August 2026
+docs/07b-diagrams.md	## 1. Data Flow Diagram	7	102	FULL	SN0	SN0-E005	extracted	
+docs/07b-diagrams.md	## 2. Scheduler Assessment Cycle	103	156	FULL	SN0		no-new-knowledge	
+docs/07b-diagrams.md	## 3. Recommendation Pipeline (Browser — Decision Engine)	157	196	FULL	SN0		no-new-knowledge	
+docs/07b-diagrams.md	## 4. Market Session State Machine	197	236	FULL	SN0	SN0-E004	extracted	
+docs/07b-diagrams.md	## 5. Conditional HTTP Sequence	237	274	FULL	SN0	SN0-E069	extracted	
+docs/07b-diagrams.md	## 6. Application Surface Topology	275	326	FULL	SN0	SN0-E047	extracted	
+docs/07d-obsolete-docs.md	(preamble)	1	10	FULL	SN0	SN0-E062	extracted	status header: docs/07d-obsolete-docs.md:3 > ⚠️ **HISTORICAL** — This July 2026 obsolescence audit has been superseded by the August 2026 architectural reconciliation (`30-architectur
+docs/07d-obsolete-docs.md	## Fully Superseded (Historical Value Only)	11	24	FULL	SN0	SN0-E062	extracted	
+docs/07d-obsolete-docs.md	## Partially Superseded	25	38	FULL	SN0	SN0-E062,SN0-E063	extracted	
+docs/07d-obsolete-docs.md	## Still Valid (No Changes Needed)	39	58	FULL	SN0	SN0-E031,SN0-E062	extracted	
+docs/07d-obsolete-docs.md	## Recommended Actions	59	67	FULL	SN0	SN0-D023,SN0-E062	extracted	
+docs/07d-obsolete-docs.md	## Document Hierarchy (Current)	68	96	FULL	SN0	SN0-E062	extracted	
+docs/08-adr-backend-evidence-service.md	(preamble)	1	8	FULL	SN0	SN0-D001	extracted	status header: docs/08-adr-backend-evidence-service.md:4 **Status:** Accepted | docs/08-adr-backend-evidence-service.md:5 **Supersedes:** Frontend-only crawl architecture (implicit, never formally documented as a permanent choice)
+docs/08-adr-backend-evidence-service.md	## Context	9	68	FULL	SN0	SN0-D001,SN0-E038	extracted	
+docs/08-adr-backend-evidence-service.md	## Decision	69	78	FULL	SN0	SN0-D001	extracted	
+docs/08-adr-backend-evidence-service.md	## Decision Boundary	79	115	FULL	SN0	SN0-D001,SN0-E005,SN0-E036	extracted	
+docs/08-adr-backend-evidence-service.md	## Important Clarification	116	135	FULL	SN0	SN0-D001	extracted	
+docs/08-adr-backend-evidence-service.md	## Consequences	136	165	FULL	SN0	SN0-D001	extracted	
+docs/08-adr-backend-evidence-service.md	## Alternatives Considered	166	199	FULL	SN0	SN0-D001,SN0-E010	extracted	
+docs/08-adr-backend-evidence-service.md	## Status	200	202	FULL	SN0	SN0-D001	extracted	
+docs/09-backend-evidence-service-design.md	(preamble)	1	10	FULL	SN0	SN0-E019	extracted	status header: docs/09-backend-evidence-service-design.md:3 > **NOTE:** This document was written for the TypeScript implementation. The architecture and API design remain valid; the implementation te | docs/09-backend-evidence-service-design.md:6 **Status:** Design valid; implemented in Java (not TypeScript as originally proposed)
+docs/09-backend-evidence-service-design.md	## 1. Architectural Overview	11	70	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 2. Product Behavior Shift	71	102	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 3. Technology Recommendation	103	141	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 4. Data Model Sketch	142	260	FULL	SN0	SN0-E019	extracted	
+docs/09-backend-evidence-service-design.md	## 5. Acquisition Model	261	344	FULL	SN0	SN0-E019,SN0-E038,SN0-E051	extracted	
+docs/09-backend-evidence-service-design.md	## 6. Snapshot Publication Model	345	384	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 7. Snapshot API Contract	385	488	FULL	SN0	SN0-E019	extracted	
+docs/09-backend-evidence-service-design.md	## 8. Client Behavior	489	556	FULL	SN0	SN0-E019,SN0-E055	extracted	
+docs/09-backend-evidence-service-design.md	## 9. Conditional GET Semantics	557	603	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 10. Migration Path	604	686	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 11. Shared Contracts	687	731	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 12. Observability	732	798	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 13. Security and Deployment	799	837	FULL	SN0	SN0-D022,SN0-E020,SN0-E052	extracted	
+docs/09-backend-evidence-service-design.md	## 14. Non-Goals for the First Extraction	838	856	FULL	SN0	SN0-D022,SN0-E010,SN0-E020,SN0-E054	extracted	
+docs/09-backend-evidence-service-design.md	## 15. Testing Strategy	857	895	FULL	SN0		no-new-knowledge	
+docs/09-backend-evidence-service-design.md	## 16. Documentation Reconciliation	896	943	FULL	SN0		no-new-knowledge	
+docs/09a-backend-diagrams.md	(preamble)	1	6	FULL	SN0		no-new-knowledge	
+docs/09a-backend-diagrams.md	## 1. Target Architecture — Data Flow	7	103	FULL	SN0	SN0-E069	extracted	
+docs/09a-backend-diagrams.md	## 2. Acquisition Worker — Internal Flow	104	170	FULL	SN0	SN0-E069	extracted	
+docs/09a-backend-diagrams.md	## 3. Evidence Lifecycle — Single Symbol	171	229	FULL	SN0	SN0-E069	extracted	
+docs/09a-backend-diagrams.md	## 4. Snapshot Publication Timeline	230	277	FULL	SN0	SN0-E069	extracted	
+docs/09a-backend-diagrams.md	## 5. Conditional GET Sequence	278	325	FULL	SN0		no-new-knowledge	
+docs/09a-backend-diagrams.md	## 6. Migration Phase Diagram	326	364	FULL	SN0		no-new-knowledge	
+docs/09a-backend-diagrams.md	## 7. Comparison: Current vs Target Frontend Responsibilities	365	392	FULL	SN0		no-new-knowledge	
+docs/09b-migration-and-impact.md	(preamble)	1	8	FULL	SN0		no-new-knowledge	status header: docs/09b-migration-and-impact.md:3 > **HISTORICAL** — This document described a phased TypeScript-to-TypeScript backend migration that was superseded by the Java retooling. Th
+docs/09b-migration-and-impact.md	## Migration Plan Summary	9	38	FULL	SN0		no-new-knowledge	
+docs/09b-migration-and-impact.md	## Documentation Impact Inventory	39	81	FULL	SN0		no-new-knowledge	
+docs/09b-migration-and-impact.md	## Extraction Friction Points	82	117	FULL	SN0	SN0-E038	extracted	
+docs/09b-migration-and-impact.md	## Open Questions Requiring Decisions	118	168	FULL	SN0	SN0-D014	extracted	
+docs/10-backend-implementation-preferences.md	(preamble)	1	10	FULL	SN0	SN0-D004	extracted	status header: docs/10-backend-implementation-preferences.md:4 **Status:** Working assumptions — open to revision
+docs/10-backend-implementation-preferences.md	## 1. Java / Spring Boot	11	28	FULL	SN0	SN0-D004	extracted	
+docs/10-backend-implementation-preferences.md	## 2. Lightweight Persistence	29	52	FULL	SN0	SN0-D004	extracted	
+docs/10-backend-implementation-preferences.md	## 3. Cloud Platform	53	71	FULL	SN0	SN0-D004	extracted	
+docs/10-backend-implementation-preferences.md	## 4. Primary Responsibility: Evidence Service, Not Recommendation Service	72	131	FULL	SN0	SN0-D004,SN0-E005,SN0-E010,SN0-E020,SN0-E039	extracted	
+docs/10-backend-implementation-preferences.md	## 5. Security and User Accounts	132	213	FULL	SN0	SN0-D004,SN0-E052,SN0-E053	extracted	
+docs/10-backend-implementation-preferences.md	## Summary of Preferences	214	225	FULL	SN0	SN0-D004	extracted	
+docs/10-backend-implementation-preferences.md	## Relationship to Prior Documents	226	230	FULL	SN0	SN0-D004,SN0-E046	extracted	
+docs/11-parking-lot-reconciliation.md	(preamble)	1	9	FULL	SN0		no-new-knowledge	status header: docs/11-parking-lot-reconciliation.md:3 > **HISTORICAL** — This document was the July 2026 reconciliation audit. The active parking lot is now maintained at `docs/parking-lot.md`. 
+docs/11-parking-lot-reconciliation.md	## Status Update (July 24, 2026)	10	35	FULL	SN0	SN0-E011	extracted	
+docs/11-parking-lot-reconciliation.md	## Reconciliation Table	36	68	FULL	SN0		no-new-knowledge	
+docs/11-parking-lot-reconciliation.md	## Detailed Assessment	69	462	FULL	SN0	SN0-D015,SN0-E027,SN0-E028,SN0-E031,SN0-E036	extracted	
+docs/11-parking-lot-reconciliation.md	## Contradictions Identified	463	473	FULL	SN0		no-new-knowledge	
+docs/11-parking-lot-reconciliation.md	## Items Requiring No Existing Document (First Appearance)	474	491	FULL	SN0	SN0-E011	extracted	
+docs/11-parking-lot-reconciliation.md	## Documentation Inventory (Current State)	492	553	FULL	SN0		no-new-knowledge	
+docs/11-parking-lot-reconciliation.md	## Summary	554	572	FULL	SN0		no-new-knowledge	
+docs/11-parking-lot-reconciliation.md	## Instrument Classification Evidence Service	573	626	FULL	SN0	SN0-D016,SN0-E025	extracted	
+docs/11-parking-lot-reconciliation.md	## Instrument Catalog Schema — Pilot (v1.0)	627	674	FULL	SN0	SN0-D016,SN0-E026	extracted	
+docs/11-parking-lot-reconciliation.md	## Lifecycle Quality Evidence — Derived Evidence Domain	675	731	FULL	SN0	SN0-E027	extracted	
+docs/12-backend-thin-slice-proposal.md	(preamble)	1	10	FULL	SN0		no-new-knowledge	status header: docs/12-backend-thin-slice-proposal.md:3 > ⚠️ **HISTORICAL** — This was the first backend extraction proposal. Superseded by the full Java backend (`evidence-service-java/`). See `0 | docs/12-backend-thin-slice-proposal.md:6 **Status:** Historical — superseded by full Java backend
+docs/12-backend-thin-slice-proposal.md	## 1. Current-State Execution Trace	11	59	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 2. Where is the Most Consequential Boundary Missing?	60	84	FULL	SN0	SN0-E033	extracted	
+docs/12-backend-thin-slice-proposal.md	## 3. What Should Move First: Evidence Proxy	85	113	FULL	SN0	SN0-E010,SN0-E011	extracted	
+docs/12-backend-thin-slice-proposal.md	## 4. What Remains Intentionally in the Browser	114	131	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 5. API Contract	132	219	FULL	SN0	SN0-E052	extracted	
+docs/12-backend-thin-slice-proposal.md	## 6. Minimal Backend Components	220	243	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 7. State and Persistence Decision	244	259	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 8. Required Frontend Changes	260	286	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 9. Explicit Deferrals	287	302	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 10. Implementation Sequence	303	318	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 11. End-to-End Acceptance Criteria	319	339	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## 12. Risks, Uncertainties, and Assumptions	340	355	FULL	SN0		no-new-knowledge	
+docs/12-backend-thin-slice-proposal.md	## "Do It" Scope	356	379	FULL	SN0	SN0-D005	extracted	
+docs/13-proxy-efficiency-analysis.md	(preamble)	1	9	FULL	SN0		no-new-knowledge	status header: docs/13-proxy-efficiency-analysis.md:3 > ⚠️ **HISTORICAL** — The evidence proxy analyzed here has been retired. Backend-owned acquisition replaced browser-mediated proxy calls. Se | docs/13-proxy-efficiency-analysis.md:6 **Status:** Historical — proxy retired
+docs/13-proxy-efficiency-analysis.md	## 1. Measured Request Timeline (One Full Scan)	10	49	FULL	SN0		no-new-knowledge	
+docs/13-proxy-efficiency-analysis.md	## 2. Root Cause of Excess Calls	50	76	FULL	SN0		no-new-knowledge	
+docs/13-proxy-efficiency-analysis.md	## 3. Comparison Summary	77	90	FULL	SN0		no-new-knowledge	
+docs/13-proxy-efficiency-analysis.md	## 4. Smallest Correction That Restores Reliable Acquisition	91	139	FULL	SN0	SN0-D006	extracted	
+docs/13-proxy-efficiency-analysis.md	## 5. Should `refreshBudget = 15` Remain?	140	151	FULL	SN0	SN0-D006	extracted	
+docs/13-proxy-efficiency-analysis.md	## 6. Acceptance Criteria	152	178	FULL	SN0	SN0-D006	extracted	
+docs/13-proxy-efficiency-analysis.md	## 7. Architectural Position	179	194	FULL	SN0	SN0-D006,SN0-E022	extracted	
+docs/13-proxy-efficiency-analysis.md	## 8. Recommended Implementation Sequence	195	205	FULL	SN0	SN0-D006,SN0-E021	extracted	
+docs/14-background-acquisition-design.md	(preamble)	1	10	FULL	SN0	SN0-E037	extracted	status header: docs/14-background-acquisition-design.md:4 **Status:** Implemented (transitional architecture). Emergency session gate added July 3, 2026.
+docs/14-background-acquisition-design.md	## 1. Current Architecture	11	61	FULL	SN0	SN0-D006	extracted	
+docs/14-background-acquisition-design.md	## 2. Target Architecture	62	98	FULL	SN0		no-new-knowledge	
+docs/14-background-acquisition-design.md	## 3. Transitional Architecture (Recommended)	99	142	FULL	SN0		no-new-knowledge	
+docs/14-background-acquisition-design.md	## 4. Recommended First Backend-Owned Acquisition Slice	143	188	FULL	SN0	SN0-D007,SN0-E037	extracted	
+docs/14-background-acquisition-design.md	## 5. Browser Responsibility After Transition	189	209	FULL	SN0	SN0-D007	extracted	
+docs/14-background-acquisition-design.md	## 6. Backend Responsibility After Transition	210	228	FULL	SN0	SN0-D007	extracted	
+docs/14-background-acquisition-design.md	## 7. Update Delivery: Polling vs Conditional HTTP vs SSE vs WebSockets	229	276	FULL	SN0	SN0-D007	extracted	
+docs/14-background-acquisition-design.md	## 8. System-of-Record Recommendation	277	308	FULL	SN0	SN0-D007	extracted	
+docs/14-background-acquisition-design.md	## 9. Risks, Assumptions, and Open Questions	309	353	FULL	SN0	SN0-E055	extracted	
+docs/14-background-acquisition-design.md	## 10. The Central Question	354	387	FULL	SN0	SN0-E037	extracted	
+docs/14-background-acquisition-design.md	## 11. Smallest Architectural Step	388	412	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	(preamble)	1	8	FULL	SN0		no-new-knowledge	status header: docs/15-evidence-state-semantics.md:4 **Status:** Design specification — not yet implemented
+docs/15-evidence-state-semantics.md	## Core Operator Question	9	16	FULL	SN0	SN0-E039	extracted	
+docs/15-evidence-state-semantics.md	## Evidence Population Vocabulary	17	50	FULL	SN0	SN0-E012,SN0-E013	extracted	
+docs/15-evidence-state-semantics.md	## Trust Scope	51	78	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	## Freshness Measure	79	99	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	## Trust State	100	113	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	## Trust-State Derivation (Deterministic)	114	159	FULL	SN0	SN0-E014	extracted	
+docs/15-evidence-state-semantics.md	## Policy Default Thresholds	160	178	FULL	SN0	SN0-E014	extracted	
+docs/15-evidence-state-semantics.md	## Activity (Independent of Trust)	179	189	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	## Collapsed Indicator	190	224	FULL	SN0	SN0-E014	extracted	
+docs/15-evidence-state-semantics.md	## Expanded Indicator	225	242	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	## Recommendation Brief	243	261	FULL	SN0		no-new-knowledge	
+docs/15-evidence-state-semantics.md	## Open Questions	262	272	FULL	SN0	SN0-E014,SN0-E015	extracted	
+docs/16-bootstrap-throughput-design.md	(preamble)	1	10	FULL	SN0		no-new-knowledge	status header: docs/16-bootstrap-throughput-design.md:3 > ⚠️ **HISTORICAL** — The cold-start throughput problems analyzed here were resolved. See `16a-bootstrap-throughput-completion.md` for the f | docs/16-bootstrap-throughput-design.md:6 **Status:** Historical — problem resolved
+docs/16-bootstrap-throughput-design.md	## 1. Measured Cold-Bootstrap Timeline	11	29	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 2. Time Decomposition Per Symbol	30	71	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 3. Identification of Duplicated Delays	72	84	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 4. Assessment of Safe Throughput Improvements	85	118	FULL	SN0	SN0-E021	extracted	
+docs/16-bootstrap-throughput-design.md	## 5. Proposed Representative Acquisition Priority	119	174	FULL	SN0	SN0-E061	extracted	
+docs/16-bootstrap-throughput-design.md	## 6. Decision Readiness Recommendation	175	195	FULL	SN0	SN0-D021,SN0-E061	extracted	
+docs/16-bootstrap-throughput-design.md	## 7. Coverage-Bar Design Recommendation	196	236	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 8. Simplified First-Load Information Hierarchy	237	271	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 9. Visible vs Backend Coverage Lag	272	289	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 10. Expected Time to Decision-Useful Populations	290	323	FULL	SN0		no-new-knowledge	
+docs/16-bootstrap-throughput-design.md	## 11. Risks and Open Questions	324	341	FULL	SN0	SN0-D021	extracted	
+docs/16-bootstrap-throughput-design.md	## 12. Proposed Do It Scope (Narrow)	342	362	FULL	SN0	SN0-D008,SN0-D021	extracted	
+docs/16a-bootstrap-throughput-completion.md	(preamble)	1	10	FULL	SN0	SN0-D008	extracted	status header: docs/16a-bootstrap-throughput-completion.md:3 > ⚠️ **HISTORICAL** — Fix report for browser-era cold-start throughput. The underlying acquisition architecture has since been replaced by b | docs/16a-bootstrap-throughput-completion.md:7 **Status:** Historical — completed; acquisition architecture subsequently replaced
+docs/16a-bootstrap-throughput-completion.md	## Summary	11	16	FULL	SN0	SN0-D008	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 1: Verification — Every Upstream Call Uses the Pacer	17	34	FULL	SN0	SN0-D008	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 2: Delays Removed vs Retained	35	54	FULL	SN0	SN0-D008	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 3: Throughput Model	55	108	FULL	SN0	SN0-D008	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 4: Before/After Comparison (Projected)	109	126	FULL	SN0	SN0-D008,SN0-E021	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 5: Coverage Bar	127	141	FULL	SN0	SN0-D008,SN0-D021	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 6: Process Narration Removed	142	152	FULL	SN0	SN0-D008,SN0-D021	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Part 7: Universe Denominator (495/496)	153	165	FULL	SN0	SN0-D008,SN0-D021	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Tests	166	176	FULL	SN0	SN0-D008	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Remaining Throughput Limits	177	186	FULL	SN0	SN0-D008,SN0-E021,SN0-E061	extracted	
+docs/16a-bootstrap-throughput-completion.md	## Files Modified	187	192	FULL	SN0	SN0-D008	extracted	
+docs/17-recommendation-funnel-analysis.md	(preamble)	1	8	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 1. Complete Funnel Stages	9	51	FULL	SN0	SN0-E012,SN0-E013	extracted	
+docs/17-recommendation-funnel-analysis.md	## 2. Why Most Symbols Are Excluded	52	72	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 3. Engine Limits — No Hidden Cap	73	87	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 4. One Contract Per Symbol Semantics	88	102	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 5. Yield Semantics	103	123	FULL	SN0	SN0-D009,SN0-E029	extracted	
+docs/17-recommendation-funnel-analysis.md	## 6. Policy Sensitivity Analysis	124	139	FULL	SN0	SN0-D024	extracted	
+docs/17-recommendation-funnel-analysis.md	## 7. Data Quality Observations	140	153	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 8. Heading Correction	154	175	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 9. Recommended Operator Explainability	176	196	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 10. Tests Added	197	227	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 11. Conclusion	228	243	FULL	SN0		no-new-knowledge	
+docs/17-recommendation-funnel-analysis.md	## 12. Follow-up Considerations (Not Implemented)	244	252	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	(preamble)	1	8	FULL	SN0		no-new-knowledge	status header: docs/18-recommendation-vocabulary-review.md:4 **Status:** Design analysis — no implementation requested
+docs/18-recommendation-vocabulary-review.md	## 1. Current Vocabulary Inventory	9	26	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	## 2. Dimensional Analysis	27	65	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	## 3. The Collapsing Problem	66	77	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	## 4. What Each Label Actually Means	78	90	FULL	SN0	SN0-E048	extracted	
+docs/18-recommendation-vocabulary-review.md	## 5. What's Missing: Recommendation Strength	91	103	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	## 6. Architectural Observation	104	121	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	## 7. Possible Future Architecture (Not Implemented)	122	142	FULL	SN0		no-new-knowledge	
+docs/18-recommendation-vocabulary-review.md	## 8. Current Terminology Conflicts	143	153	FULL	SN0	SN0-E012	extracted	
+docs/18-recommendation-vocabulary-review.md	## 9. Recommendations (Design Only)	154	167	FULL	SN0	SN0-D020	extracted	
+docs/18-recommendation-vocabulary-review.md	## 10. Parking Lot	168	173	FULL	SN0	SN0-D020	extracted	
+docs/19-funnel-architecture.md	(preamble)	1	8	FULL	SN0		no-new-knowledge	status header: docs/19-funnel-architecture.md:4 **Status:** Design documentation — verified against implementation
+docs/19-funnel-architecture.md	## 1. Complete Funnel Stages	9	64	FULL	SN0		no-new-knowledge	
+docs/19-funnel-architecture.md	## 2. Stage Classification	65	87	FULL	SN0	SN0-E064	extracted	
+docs/19-funnel-architecture.md	## 3. Arithmetic Reconciliation	88	121	FULL	SN0		no-new-knowledge	
+docs/19-funnel-architecture.md	## 4. Stage Ownership	122	141	FULL	SN0	SN0-E031,SN0-E043,SN0-E050	extracted	
+docs/19-funnel-architecture.md	## 5. Key Distinctions	142	172	FULL	SN0	SN0-E012,SN0-E013,SN0-E030	extracted	
+docs/19-funnel-architecture.md	## 6. One Contract Per Symbol Rule	173	188	FULL	SN0		no-new-knowledge	
+docs/19-funnel-architecture.md	## 7. Presentation vs Engine	189	202	FULL	SN0	SN0-D024,SN0-E048	extracted	
+docs/19-funnel-architecture.md	## 8. Known Limitations	203	216	FULL	SN0	SN0-D009,SN0-D024,SN0-E029,SN0-E048	extracted	
+docs/19-funnel-architecture.md	## 9. Operator-Facing Summary	217	233	FULL	SN0		no-new-knowledge	
+docs/20-session-aware-acquisition.md	(preamble)	1	9	FULL	SN0	SN0-D010	extracted	status header: docs/20-session-aware-acquisition.md:4 **Status:** Architecture and design — emergency provider-traffic guard implemented; full session authority pending
+docs/20-session-aware-acquisition.md	## Governing Principle	10	23	FULL	SN0	SN0-D010,SN0-E066	extracted	
+docs/20-session-aware-acquisition.md	## Architectural Invariant	24	29	FULL	SN0	SN0-D010,SN0-E066	extracted	
+docs/20-session-aware-acquisition.md	## 1. Current State (Deficiency)	30	43	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 2. Existing Session Model (Source of Truth)	44	81	FULL	SN0	SN0-D010,SN0-E004	extracted	
+docs/20-session-aware-acquisition.md	## 3. Acquisition Posture by Session State	82	167	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 4. Trading Calendar Authority	168	195	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 5. Off-Hours Cold Start	196	224	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 6. Sealed Evidence Semantics	225	243	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 7. Non-Optionable Revalidation	244	262	FULL	SN0	SN0-D010,SN0-E030	extracted	
+docs/20-session-aware-acquisition.md	## 8. Scheduler vs Acquisition	263	278	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 9. Operator-Facing State	279	295	FULL	SN0	SN0-D010,SN0-E014	extracted	
+docs/20-session-aware-acquisition.md	## 10. Refresh / Administrative Actions	296	319	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 11. Observability	320	361	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 12. Implementation Plan	362	399	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 13. Tests Required	400	422	FULL	SN0	SN0-D010	extracted	
+docs/20-session-aware-acquisition.md	## 14. Open Questions	423	436	FULL	SN0	SN0-D010,SN0-E009	extracted	
+docs/20-session-aware-acquisition.md	## 15. Cross-References	437	449	FULL	SN0	SN0-D010,SN0-E066	extracted	
+docs/20-session-aware-acquisition.md	## Completion Criteria	450	456	FULL	SN0	SN0-D010	extracted	
+docs/21-primary-expiration-investigation.md	(preamble)	1	9	FULL	SN0		no-new-knowledge	status header: docs/21-primary-expiration-investigation.md:4 **Status:** Investigation complete — findings documented, validation spike proposed (not approved for implementation)
+docs/21-primary-expiration-investigation.md	## 1. Verified Current Behavior	10	63	FULL	SN0		no-new-knowledge	
+docs/21-primary-expiration-investigation.md	## 2. What the 7–45 DTE Range Actually Controls	64	95	FULL	SN0	SN0-E049	extracted	
+docs/21-primary-expiration-investigation.md	## 2a. Provenance of the 64/890 Population Split	96	117	FULL	SN0	SN0-E060	extracted	
+docs/21-primary-expiration-investigation.md	## 3. Empirical Opportunity-Cost Findings	118	182	FULL	SN0	SN0-E016,SN0-E017,SN0-E060	extracted	
+docs/21-primary-expiration-investigation.md	## 4. Acquisition/Storage/Performance Implications	183	228	FULL	SN0	SN0-E018,SN0-E045	extracted	
+docs/21-primary-expiration-investigation.md	## 5. Architectural Alternatives	229	340	FULL	SN0		no-new-knowledge	
+docs/21-primary-expiration-investigation.md	## 6. Strategy-Specific Implications	341	370	FULL	SN0	SN0-E017	extracted	
+docs/21-primary-expiration-investigation.md	## 7. Assessment Against Wheelwright's Architectural Principles	371	408	FULL	SN0	SN0-E045,SN0-E049	extracted	
+docs/21-primary-expiration-investigation.md	## 8. Recommended Direction	409	436	FULL	SN0	SN0-D013	extracted	
+docs/21-primary-expiration-investigation.md	## 9. Proposed Validation Spike	437	498	FULL	SN0	SN0-D013	extracted	
+docs/21-primary-expiration-investigation.md	## Summary of Key Findings	499	512	FULL	SN0	SN0-D013	extracted	
+docs/21-write-desk-recomposition.md	(preamble)	1	9	FULL	SN0	SN0-D011	extracted	status header: docs/21-write-desk-recomposition.md:4 **Status:** Ratified design — authoritative for implementation planning
+docs/21-write-desk-recomposition.md	## Governing Principle	10	23	FULL	SN0	SN0-D011,SN0-E067	extracted	
+docs/21-write-desk-recomposition.md	## 1. Evidence Validity Model	24	58	FULL	SN0	SN0-D011,SN0-E014	extracted	
+docs/21-write-desk-recomposition.md	## 2. Session Authority and Ownership	59	87	FULL	SN0	SN0-D011,SN0-E050	extracted	
+docs/21-write-desk-recomposition.md	## 3. Policy Ownership	88	118	FULL	SN0	SN0-D011,SN0-E050	extracted	
+docs/21-write-desk-recomposition.md	## 4. Acquisition Posture by Session	119	131	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 5. Off-Hours Cold Start	132	162	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 6. Sealed Evidence Semantics	163	176	FULL	SN0	SN0-D011,SN0-E015	extracted	
+docs/21-write-desk-recomposition.md	## 7. Refresh Disposition	177	214	FULL	SN0	SN0-D011,SN0-E003	extracted	
+docs/21-write-desk-recomposition.md	## 8. Current Page-Composition Diagnosis	215	246	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 9. Composition Principles (Informed by Fidelity Option Summary)	247	262	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 10. Element Permanence Classification	263	288	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 11. Proposed Write Desk Information Architecture	289	325	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 12. Wireframe-Level Layout Description	326	353	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 13. Vertical-Space Budget	354	374	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 14. Portfolio-Detail Compression Plan	375	396	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 15. Policy and Evidence Composition Plan	397	417	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 16. Micro-Infographic Placement and Composition	418	460	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 17. Generation Display Model	461	483	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 18. Session-Aware Operator State Examples	484	527	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 19. Diagnostic Layering Plan	528	547	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## 20. Implementation Phases	548	610	FULL	SN0	SN0-D011	extracted	
+docs/21-write-desk-recomposition.md	## Summary	611	623	FULL	SN0	SN0-D011,SN0-E067	extracted	
+docs/22-sqlite-persistence-design.md	(preamble)	1	9	FULL	SN0		no-new-knowledge	status header: docs/22-sqlite-persistence-design.md:4 **Status:** Approved design — ready for implementation
+docs/22-sqlite-persistence-design.md	## Governing Principles	10	29	FULL	SN0	SN0-E024	extracted	
+docs/22-sqlite-persistence-design.md	## Schema	30	113	FULL	SN0	SN0-E024	extracted	
+docs/22-sqlite-persistence-design.md	## Schema Design Notes	114	170	FULL	SN0	SN0-E024	extracted	
+docs/22-sqlite-persistence-design.md	## Implementation Plan	171	267	FULL	SN0	SN0-E018	extracted	
+docs/22-sqlite-persistence-design.md	## Snapshot Rebuild Cost	268	287	FULL	SN0		no-new-knowledge	
+docs/22-sqlite-persistence-design.md	## File Structure	288	307	FULL	SN0		no-new-knowledge	
+docs/22-sqlite-persistence-design.md	## Open Design Decisions (Resolved)	308	323	FULL	SN0	SN0-D012	extracted	
+docs/22-sqlite-persistence-design.md	## Migration Pattern: Lightweight Parallel Run	324	405	FULL	SN0	SN0-D012	extracted	
+docs/22-sqlite-persistence-design.md	## Implementation Readiness	406	415	FULL	SN0	SN0-D012	extracted	
+docs/22-sqlite-persistence-design.md	## Retrospective: Legacy Displacement Pattern	416	459	FULL	SN0	SN0-D012,SN0-E023	extracted	

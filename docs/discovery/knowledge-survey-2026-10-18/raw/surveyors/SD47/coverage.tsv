@@ -1,0 +1,88 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	Title/header	1	9	FULL	SD47	SD47-E001	extracted	status, trigger, related
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	Why this snapshot exists	10	25	FULL	SD47	SD47-E001;SD47-E002	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	1. Concrete trigger: COPX residual inventory	26	92	FULL	SD47	SD47-E003;SD47-E004;SD47-E005;SD47-E006	extracted	incl. Historical architecture gap subsection
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	2. Natural UI evolution: Cash to Share Deployment	93	126	FULL	SD47	SD47-E012	extracted	Entry CC/Collar/Sell/Hold; Flavor/intent provisional (47:123)
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	3. Multiple covered calls are materially different outcomes	127	147	FULL	SD47	SD47-E006	extracted	0..N consistent with Doc 45
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	4. Cost basis adds context without becoming a command	148	190	FULL	SD47	SD47-E007;SD47-E008	extracted	real amounts >= [amount-redacted] withheld
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	5. Concrete COPX CC comparison with basis context	191	241	FULL	SD47	SD47-E008	extracted	specimen arithmetic not reproduced
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	6. Selling shares can be rational even at a realized loss	242	263	FULL	SD47	SD47-E009;SD47-E010	extracted	one amount >= [amount-redacted] withheld
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	7. Share to cash may be an intermediate state	264	293	FULL	SD47	SD47-E011	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	8. Toward Capital Deployment	294	338	FULL	SD47	SD47-E012	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	9. Strategies become mechanisms	339	356	FULL	SD47	SD47-E012	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	10. Collar discovery	357	388	FULL	SD47	SD47-E023	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	11. Economic position shape is not broker order shape	389	425	FULL	SD47	SD47-E013;SD47-E014;SD47-D002	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	12. Broker order-level risk	426	439	FULL	SD47	SD47-E015	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	13. Concrete collar examples and execution caution	440	478	FULL	SD47	SD47-E016	extracted	one envelope figure >= [amount-redacted] withheld
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	14. Production, erosion, and the hard mission	479	509	FULL	SD47	SD47-E017;SD47-E018;SD47-D004	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	15. Erosion semantics belong to mission regimes	510	534	FULL	SD47	SD47-E019;SD47-E083;SD47-D014	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	16. Operator Strategy Policy becomes broader	535	577	FULL	SD47	SD47-E020	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	17. Mission versus policy versus mechanics	578	607	FULL	SD47	SD47-E020;SD47-E083	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	18. Prod v0 pressure	608	628	FULL	SD47	SD47-E021	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	19. Important invariants and corrections	629	651	FULL	SD47	SD47-E003;SD47-E006;SD47-E007;SD47-E009;SD47-E010;SD47-E011;SD47-E013;SD47-E015;SD47-E016;SD47-E018;SD47-E019;SD47-E059	extracted	18 invariants captured as variants
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	20. Reconciliation	652	705	FULL	SD47	SD47-E021;SD47-D001	extracted	
+docs/47-capital-state-management-deployment-paths-discovery-2026-09-07.md	Snapshot thesis	706	710	FULL	SD47	SD47-E022	extracted	line 710 has no trailing newline
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	Title/header	1	9	FULL	SD47	SD47-E024	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	Why this snapshot exists	10	29	FULL	SD47	SD47-E025	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	1. Entry mechanism was incidental	30	57	FULL	SD47	SD47-E024	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	2. GDX made the release-cost decision explicit	58	85	FULL	SD47	SD47-E025;SD47-E084	extracted	real amounts >= [amount-redacted] withheld
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	3. Concrete GDX alternatives observed in Fidelity	86	155	FULL	SD47	SD47-E029;SD47-E084	extracted	ticket economics not reproduced
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	4. The operator decision is cost of release	156	189	FULL	SD47	SD47-E026;SD47-E027;SD47-E029	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	5. Capital velocity is about terminal state	190	205	FULL	SD47	SD47-E028	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	6. Why this matters for operator decision support	206	224	FULL	SD47	SD47-E027	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	7. Relationship to Policy over Prediction	225	244	FULL	SD47	SD47-E030	extracted	
+docs/49-share-capital-release-cost-decision-discovery-2026-09-08.md	8. Disposition	245	256	FULL	SD47	SD47-E021;SD47-E030;SD47-D003	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	Title/header	1	11	FULL	SD47	SD47-E031;SD47-E033	extracted	SYNC 3d98999; export artifact
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	Why this snapshot exists	12	23	FULL	SD47	SD47-E031	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	1. The lived decision	24	40	FULL	SD47	SD47-E032;SD47-E033	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	2. Corroboration in today's export	41	44	FULL	SD47	SD47-E033;SD47-E037	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	3. What is new vs doc 48	45	52	FULL	SD47	SD47-E031	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	4. The two kinds of calls	53	61	FULL	SD47	SD47-E034;SD47-E035	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	5. Deliberate limits and open seams	62	69	FULL	SD47	SD47-E035;SD47-E036	extracted	
+docs/50-covered-call-operator-lived-decision-off-tool-2026-09-17.md	6. Disposition	70	78	FULL	SD47	SD47-E021;SD47-D005	extracted	
+docs/58-wheelwright-semantic-model-v1.md	Title/header	1	10	FULL	SD47	SD47-E038	extracted	
+docs/58-wheelwright-semantic-model-v1.md	1. Purpose	11	33	FULL	SD47	SD47-E038	extracted	
+docs/58-wheelwright-semantic-model-v1.md	2. Why this exists	34	55	FULL	SD47	SD47-E038	extracted	02-domain.md is not a complete domain model (58:36)
+docs/58-wheelwright-semantic-model-v1.md	3. Information architecture	56	95	FULL	SD47	SD47-E053	extracted	diagram only
+docs/58-wheelwright-semantic-model-v1.md	4. Ontology versus operational domain model	96	115	FULL	SD47		no-new-knowledge	single artifact for ontology and operational model in v1
+docs/58-wheelwright-semantic-model-v1.md	5. Candidate semantic concept families	116	182	FULL	SD47	SD47-E039;SD47-E040;SD47-E043;SD47-E044;SD47-E045;SD47-E046;SD47-E047;SD47-E048;SD47-E049;SD47-E050;SD47-E053;SD47-E054;SD47-E055;SD47-E087	extracted	full candidate term list
+docs/58-wheelwright-semantic-model-v1.md	6. Semantic assertion model	183	245	FULL	SD47	SD47-E050;SD47-E051;SD47-E052	extracted	
+docs/58-wheelwright-semantic-model-v1.md	7. Portfolio topology	246	271	FULL	SD47	SD47-E043	extracted	
+docs/58-wheelwright-semantic-model-v1.md	8. Position, construction, mechanism, provenance, program	272	326	FULL	SD47	SD47-E042;SD47-E044;SD47-E045	extracted	
+docs/58-wheelwright-semantic-model-v1.md	9. Conventional strategy vocabulary	327	365	FULL	SD47	SD47-E061	extracted	
+docs/58-wheelwright-semantic-model-v1.md	10. Intent and policy	366	405	FULL	SD47	SD47-E056	extracted	
+docs/58-wheelwright-semantic-model-v1.md	11. Time and history	406	429	FULL	SD47	SD47-E057	extracted	
+docs/58-wheelwright-semantic-model-v1.md	12. State, counterfactual, realized outcome, intent, alignment	430	469	FULL	SD47	SD47-E055	extracted	
+docs/58-wheelwright-semantic-model-v1.md	13. Capability, current feasibility, Wheelwright support	470	526	FULL	SD47	SD47-E058	extracted	
+docs/58-wheelwright-semantic-model-v1.md	14. Decision semantics	527	559	FULL	SD47	SD47-E053	extracted	
+docs/58-wheelwright-semantic-model-v1.md	15. Decision-to-execution ladder and authority	560	595	FULL	SD47	SD47-E053;SD47-E054	extracted	
+docs/58-wheelwright-semantic-model-v1.md	16. Counterfactual and realized semantics	596	643	FULL	SD47	SD47-E055	extracted	
+docs/58-wheelwright-semantic-model-v1.md	17. Validity, supersession, correction, revocation	644	663	FULL	SD47	SD47-E053	extracted	decision trace 58:660
+docs/58-wheelwright-semantic-model-v1.md	18. Accounting integration	664	683	FULL	SD47	SD47-E055	extracted	
+docs/58-wheelwright-semantic-model-v1.md	19. Concept families versus derived semantics	684	732	FULL	SD47	SD47-E087	extracted	derived candidates 58:709-725
+docs/58-wheelwright-semantic-model-v1.md	20. Semantic specimens	733	761	FULL	SD47	SD47-E061;SD47-E068	extracted	URL tracking parameter withheld
+docs/58-wheelwright-semantic-model-v1.md	21. v1.3 identity-association-assertion reconciliation	762	1054	FULL	SD47	SD47-E041;SD47-E042;SD47-E045;SD47-E050;SD47-E051;SD47-E052;SD47-E056;SD47-E059;SD47-E060;SD47-E061;SD47-E082;SD47-D009	extracted	subsections 21.1-21.12
+docs/58-wheelwright-semantic-model-v1.md	22. Product / operator projection	1055	1067	FULL	SD47	SD47-E063	extracted	
+docs/58-wheelwright-semantic-model-v1.md	23. Boundary with implementation and DDD	1068	1102	FULL	SD47	SD47-E064	extracted	
+docs/58-wheelwright-semantic-model-v1.md	24. Open identity and scope questions	1103	1124	FULL	SD47	SD47-E065	extracted	
+docs/58-wheelwright-semantic-model-v1.md	25. v1.3 non-goals	1125	1142	FULL	SD47	SD47-E064;SD47-E066	extracted	
+docs/58-wheelwright-semantic-model-v1.md	26. Proposed maturation path	1143	1161	FULL	SD47	SD47-E064	extracted	
+docs/58-wheelwright-semantic-model-v1.md	27. v1.3 status	1162	1180	FULL	SD47	SD47-E066;SD47-E067;SD47-D006	extracted	
+docs/58-wheelwright-semantic-model-v1.md	28. Practitioner-strategy falsification result	1181	1205	FULL	SD47	SD47-E062;SD47-E067;SD47-E068;SD47-D007	extracted	
+docs/58-wheelwright-semantic-model-v1.md	29. v1.4 Scenario / Market Thesis reconciliation	1206	1238	FULL	SD47	SD47-E062;SD47-D008	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	Title/header	1	9	FULL	SD47	SD47-E086	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	1. Purpose	10	21	FULL	SD47	SD47-E086	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	2. Wheelwright boundary remains unchanged	22	37	FULL	SD47	SD47-E069;SD47-E085	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	3. Question-driven design North Star	38	53	FULL	SD47	SD47-E070	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	4. Foolish is discovery language	54	83	FULL	SD47	SD47-E071;SD47-E072;SD47-D012	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	5. Existing ontology is reconciliation input for v2	84	137	FULL	SD47	SD47-E073	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	6. Reuse versus defer	138	162	FULL	SD47	SD47-E074;SD47-D011	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	7. Dual model	163	196	FULL	SD47	SD47-E075	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	8. Same Wheel mechanics, different governance	197	252	FULL	SD47	SD47-E076;SD47-E077	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	9. Tactical operator projection	253	293	FULL	SD47	SD47-E078	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	10. Governed qualitative projection	294	325	FULL	SD47	SD47-E079	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	11. Complete enough means bounded claim coverage	326	381	FULL	SD47	SD47-E080;SD47-D013	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	12. Remaining scope decision	382	413	FULL	SD47	SD47-E081;SD47-D010	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	13. Next artifact: bounded answer inventory	414	435	FULL	SD47	SD47-E081	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	14. Explicit non-decisions	436	461	FULL	SD47	SD47-E086	extracted	
+docs/80-v2-question-driven-lifecycle-product-architecture-milestone-2026-10-06.md	15. Milestone disposition	462	474	FULL	SD47	SD47-E086	extracted	

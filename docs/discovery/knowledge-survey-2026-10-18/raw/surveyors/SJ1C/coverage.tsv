@@ -1,0 +1,58 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/journal/project-journal.md	2026-08-19 — Temporal Evidence Investigation: Spot History for Moneyness Sparkline	8351	8406	FULL	SJ1C	SJ1C-E001,SJ1C-D001	extracted	
+docs/journal/project-journal.md	2026-08-19 — End of Day: Temporal Evidence Collector Deployed	8407	8440	FULL	SJ1C	SJ1C-E002	extracted	operational startup steps not extracted
+docs/journal/project-journal.md	2026-08-20 — PSI Lifecycle-Attribution Boundary: Observability Gap Exposed	8441	8549	FULL	SJ1C	SJ1C-E003,SJ1C-E004	extracted	real P&L amounts redacted
+docs/journal/project-journal.md	2026-08-20 — Two Ratified Decisions: Real Temporal Sparklines + Regime B Promoted	8550	8593	FULL	SJ1C	SJ1C-D001,SJ1C-D002	extracted	
+docs/journal/project-journal.md	2026-08-20 — Console Top-Panel and Left-Sidebar Reconciliation	8594	8677	FULL	SJ1C	SJ1C-E005,SJ1C-E006,SJ1C-E007,SJ1C-D003	extracted	
+docs/journal/project-journal.md	2026-08-20 — Console Left Rail Redesign: Portfolio Snapshot	8678	8747	FULL	SJ1C	SJ1C-E005	no-new-knowledge	implementation detail later superseded by SJ1C-D007 shell triad
+docs/journal/project-journal.md	2026-08-20 — Portfolio Capital Reconciliation: Inventory Defect and Evidence Authority Discovery	8748	8834	FULL	SJ1C	SJ1C-E008,SJ1C-E009,SJ1C-D008	extracted	real balances redacted; entry internally layered (fix then revert)
+docs/journal/project-journal.md	2026-08-20 — Portfolio Capital V1 Ratified: Aggregate Formula Empirically Verified	8835	8920	FULL	SJ1C	SJ1C-E010,SJ1C-E011,SJ1C-D004	extracted	real balances redacted
+docs/journal/project-journal.md	2026-08-20 — Buy-Write Economic Investigation: Lot-Pairing Defect + Execution Drift	8921	9012	FULL	SJ1C	SJ1C-E012,SJ1C-E013,SJ1C-E014,SJ1C-E015	extracted	BNO drift reading later falsified
+docs/journal/project-journal.md	2026-08-20 — Console Consequence Columns: Activity-Derived BW Lot Attribution	9013	9122	FULL	SJ1C	SJ1C-E016,SJ1C-D005	extracted	
+docs/journal/project-journal.md	2026-08-20 — Console Consequence Columns: Semantic/UI Refinement	9123	9230	FULL	SJ1C	SJ1C-E017,SJ1C-E018,SJ1C-D006	extracted	
+docs/journal/project-journal.md	2026-08-20 — Console Consequence Columns: Final Presentation Model	9231	9306	FULL	SJ1C	SJ1C-E018,SJ1C-D006	extracted	
+docs/journal/project-journal.md	2026-08-20 — Real-Portfolio Reconciliation: Console Economics Validated Against Fidelity Source Evidence	9307	9424	FULL	SJ1C	SJ1C-E019	extracted	per-position specimen tables kept by reference only
+docs/journal/project-journal.md	2026-08-21 — Persistent Portfolio Context / Application-Shell Ownership	9425	9550	FULL	SJ1C	SJ1C-E020	extracted	
+docs/journal/project-journal.md	2026-08-21 — Persistent Portfolio Context: Convergence Decision	9551	9641	FULL	SJ1C	SJ1C-D007	extracted	
+docs/journal/project-journal.md	2026-08-21 — Multi-Expiration DTE Surface: From Hypothesis to Production	9642	9689	FULL	SJ1C	SJ1C-E021,SJ1C-E022,SJ1C-D009	extracted	
+docs/journal/project-journal.md	2026-08-21 — Portfolio Capital Trajectory Discovery	9690	9818	FULL	SJ1C	SJ1C-E023,SJ1C-E024,SJ1C-E025,SJ1C-E026,SJ1C-D010	extracted	
+docs/journal/project-journal.md	2026-08-22 — PL-PROD-EVENTS: Production Economic Event Ledger — Thin-Slice Experiment	9819	9917	FULL	SJ1C	SJ1C-E027	extracted	
+docs/journal/project-journal.md	2026-08-24 — Opening-Relevant Evidence Experiment: First Live Observation	9918	10072	FULL	SJ1C	SJ1C-E028,SJ1C-E029,SJ1C-E030,SJ1C-E031	extracted	
+docs/journal/project-journal.md	2026-08-24 (evening) — Tuesday Continuation Plan: Clean-Host Opening Test	10073	10170	FULL	SJ1C	SJ1C-E029	extracted	protocol/SQL detail not extracted
+docs/journal/project-journal.md	2026-08-24 — Post-Execution CSV Review: Buy-Write Capital-Erosion Check	10171	10238	FULL	SJ1C	SJ1C-E034	extracted	
+docs/journal/project-journal.md	2026-08-24 — Console Refinement + Runtime Evidence	10239	10296	FULL	SJ1C	SJ1C-E035,SJ1C-E036,SJ1C-E037,SJ1C-D012	extracted	lines 10252-10266 contain real balances and account-number-bearing filenames — withheld
+docs/journal/project-journal.md	2026-08-25 — Opening-Relevant Evidence Experiment: Tuesday Clean-Host Observation	10297	10431	FULL	SJ1C	SJ1C-E032,SJ1C-E033,SJ1C-D011	extracted	
+docs/journal/project-journal.md	2026-08-25 — Console Perceptual Legibility: Blur-Ability Experiments	10432	10525	FULL	SJ1C	SJ1C-E038	extracted	
+docs/journal/project-journal.md	2026-08-25 — Kreature V1: First Running Surface + Cognitive-Role Discovery	10526	10627	FULL	SJ1C	SJ1C-E039	extracted	
+docs/journal/project-journal.md	2026-08-25 — Kreature Laboratory: Perceptual Instruments for Unknown Phenomena	10628	10715	FULL	SJ1C	SJ1C-E040	extracted	candidate experiment list not itemized
+docs/journal/project-journal.md	2026-08-25 — Kreature Laboratory: Classification and Temporal-Memory Pressure	10716	10888	FULL	SJ1C	SJ1C-E040,SJ1C-E041,SJ1C-E042	extracted	
+docs/journal/project-journal.md	2026-08-25 — Kreature Laboratory: d3-force Physics Substrate Spike	10889	10955	FULL	SJ1C	SJ1C-E043	extracted	
+docs/journal/project-journal.md	2026-08-26 — Incident: Kreature Debugging Excursion Into Operational Code	10956	11068	FULL	SJ1C	SJ1C-E044,SJ1C-E045,SJ1C-D013	extracted	
+docs/journal/project-journal.md	2026-08-26 — Architectural Decision: Kreature as Independent Observer	11069	11139	FULL	SJ1C	SJ1C-E046,SJ1C-D014	extracted	
+docs/journal/project-journal.md	2026-08-26 — Architecture Recovery Direction: Boring Wheelwright, Weird Kreature	11140	11192	FULL	SJ1C	SJ1C-E049,SJ1C-D015	extracted	
+docs/journal/project-journal.md	2026-08-26 — Console Navigation Freeze: RCA + 3AM Architecture Recovery Direction	11193	11243	FULL	SJ1C	SJ1C-E047,SJ1C-E048,SJ1C-D015	extracted	
+docs/journal/project-journal.md	2026-08-26 — DTE Production Surface / Capital Feedback Cadence	11244	11294	FULL	SJ1C	SJ1C-E050,SJ1C-E051	extracted	
+docs/journal/project-journal.md	2026-08-27 — Evidence–Decision Temporal Coherence: The DTE-22 Collapse	11295	11371	FULL	SJ1C	SJ1C-E052,SJ1C-E053	extracted	
+docs/journal/project-journal.md	2026-08-27 — Console Sparklines: Temporal-Evidence Candidate Finding (related to Finding #1)	11372	11429	FULL	SJ1C	SJ1C-E054	extracted	
+docs/journal/project-journal.md	2026-08-27 — Production Capacity + Simplified-Scheduler Experiment: Session-Close Evidence Record	11430	11476	FULL	SJ1C	SJ1C-E055,SJ1C-E056,SJ1C-E057	extracted	
+docs/journal/project-journal.md	2026-08-27 — 3AM Architecture Ruling: Universe Governance Direction	11477	11589	FULL	SJ1C	SJ1C-E058,SJ1C-E059,SJ1C-E060,SJ1C-E061,SJ1C-D016	extracted	
+docs/journal/project-journal.md	2026-08-28 — Opportunity-History Fact Plane: Activated + Live Acceptance Verified	11590	11639	FULL	SJ1C	SJ1C-E062,SJ1C-E063,SJ1C-D017	extracted	
+docs/journal/project-journal.md	2026-09-01 — Deployment Evidence Age (PL-EVID-AGE) reconciliation and first-slice design	11640	11690	FULL	SJ1C	SJ1C-E064,SJ1C-E065,SJ1C-E068	extracted	
+docs/journal/project-journal.md	2026-09-01 — PL-EVID-AGE ratified as an architecture decision (ADR-015), and a process-gate correction	11691	11731	FULL	SJ1C	SJ1C-E066,SJ1C-E067,SJ1C-D018	extracted	
+docs/journal/project-journal.md	2026-09-01 — PL-EVID-AGE / ADR-015 shipped to production (before close); experiment regime boundary	11732	11782	FULL	SJ1C	SJ1C-E068,SJ1C-D018	extracted	
+docs/journal/project-journal.md	2026-09-01 — PL-EVID-AGE/ADR-015 post-release correction (review findings)	11783	11813	FULL	SJ1C	SJ1C-E069	extracted	
+docs/journal/project-journal.md	2026-09-01 — Colored-line / result-surface / scheduler audit: three durable discoveries (D1–D3)	11814	11875	FULL	SJ1C	SJ1C-E070,SJ1C-E071	extracted	contains inline 2026-09-02 correction notes
+docs/journal/project-journal.md	2026-09-01 — Opportunity-history economics-preservation defect (PL-DEPLOY-02-DEF01)	11876	11926	FULL	SJ1C	SJ1C-E072,SJ1C-E073,SJ1C-D019	extracted	
+docs/journal/project-journal.md	2026-09-02 — Chronology correction to the D1–D3 audit record (Codex review)	11927	11952	FULL	SJ1C	SJ1C-E072	extracted	dated 09-02 but precedes a 09-01 entry (chronology defect)
+docs/journal/project-journal.md	2026-09-01 — PL-DEPLOY-02-DEF01 repaired, deployed, verified live; economics-valid boundary established	11953	12000	FULL	SJ1C	SJ1C-E074,SJ1C-D019	extracted	
+docs/journal/project-journal.md	2026-09-02 — Provider availability tiers / degraded-mode failover (PL-PROV-FAILOVER)	12001	12055	FULL	SJ1C	SJ1C-E075,SJ1C-E076,SJ1C-D020	extracted	account funding detail kept generic
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER refined into automatic self-healing failover/failback (design)	12056	12100	FULL	SJ1C	SJ1C-E077,SJ1C-E078,SJ1C-D020	extracted	
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER: Codex implementation-reality findings; upgrade to three-concept model + Evidence Regime	12101	12142	FULL	SJ1C	SJ1C-E079,SJ1C-D020	extracted	
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER: separation-of-concerns correction (regime identity is control/provenance, not domain state)	12143	12176	FULL	SJ1C	SJ1C-E080,SJ1C-D020	extracted	
+docs/journal/project-journal.md	2026-09-02 — Tradier execution-bridge discovery + broker-modularity Principal requirement (3AM Design/Reconciliation)	12177	12232	FULL	SJ1C	SJ1C-E082,SJ1C-D021	extracted	
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER: final Principal reconciliation before commit review	12233	12276	FULL	SJ1C	SJ1C-E081,SJ1C-D020	extracted	
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER: canonical cleanup before commit (wording/invariant coherence + commit hygiene)	12277	12304	FULL	SJ1C	SJ1C-E081,SJ1C-E086	extracted	
+docs/journal/project-journal.md	2026-09-02 — Tradier execution / broker-modularity: Codex-review corrections (design sharpened, hypotheses NOT ratified)	12305	12383	FULL	SJ1C	SJ1C-E083,SJ1C-E084,SJ1C-E085,SJ1C-D021	extracted	
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER: canonical active-item row simplified; fencing prerequisite made explicit	12384	12404	FULL	SJ1C	SJ1C-E081,SJ1C-E086	extracted	
+docs/journal/project-journal.md	2026-09-02 — Tradier execution / broker-modularity: documentation-hygiene addendum (narrow corrections before commit)	12405	12447	FULL	SJ1C	SJ1C-E085,SJ1C-D021	extracted	
+docs/journal/project-journal.md	2026-09-02 — PL-PROV-FAILOVER: two final canonical corrections; commit from stable cb87614 base	12448	12469	FULL	SJ1C	SJ1C-E086	extracted	file ends at 12469 (assignment said 12470)

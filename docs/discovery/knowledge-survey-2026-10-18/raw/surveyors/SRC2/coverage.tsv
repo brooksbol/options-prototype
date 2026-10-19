@@ -1,0 +1,599 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/research/2026-10-12-income-wheel-methodology-notes.md	Income Wheel methodology notes — 2026-10-12	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/2026-10-12-income-wheel-methodology-notes.md	Operating objectives	5	12	FULL	SRC2	SRC2-E074,SRC2-E076	extracted	real-account capital/target amounts redacted
+docs/research/2026-10-12-income-wheel-methodology-notes.md	Volatility methodology and provenance	13	23	FULL	SRC2	SRC2-E075	extracted	
+docs/research/2026-10-12-income-wheel-methodology-notes.md	Analytical process to revisit/codify	24	33	FULL	SRC2		no-new-knowledge	
+docs/research/2026-10-12-income-wheel-methodology-notes.md	Findings requiring further validation	34	43	FULL	SRC2		no-new-knowledge	
+docs/research/academic-paper-register.md	Academic Research Register	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/academic-paper-register.md	Research posture	7	24	FULL	SRC2	SRC2-E011	extracted	
+docs/research/academic-paper-register.md	Goldman Sachs Options Research — *The Art of Put Selling: A 10 Year Study* (2013)	25	62	FULL	SRC2	SRC2-E012	extracted	
+docs/research/academic-paper-register.md	Francesco Carlier — *A Simple Options Trading Strategy based on Technical Indicators* (2021)	63	92	FULL	SRC2		no-new-knowledge	
+docs/research/academic-paper-register.md	de Silva, So & Smith — *Losing is Optional: Retail Option Trading and Expected Announcement Volatility* (2025 working pa	93	123	FULL	SRC2		no-new-knowledge	
+docs/research/academic-paper-register.md	Khomyn, Putniņš & Zoican — *The Value of ETF Liquidity* (Review of Financial Studies, 2024)	124	171	FULL	SRC2	SRC2-E017	extracted	
+docs/research/academic-paper-register.md	Poterba & Shoven — *Exchange-Traded Funds: A New Investment Option for Taxable Investors* (AEA Papers and Proceedings, 2	172	209	FULL	SRC2		no-new-knowledge	
+docs/research/academic-paper-register.md	Cross-paper findings currently worth carrying forward	210	237	FULL	SRC2	SRC2-E013,SRC2-E014,SRC2-E015	extracted	
+docs/research/academic-paper-register.md	Open research questions	238	248	FULL	SRC2	SRC2-E016,SRC2-E018	extracted	
+docs/research/academic-paper-register.md	Governance	249	272	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	Comparative Options-Trading Practitioner Landscape — Primary-Source Redo	1	9	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	1. Research Completion Statement	10	47	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	2. Consensus Inventory (per-phrase, with the false-consensus matrix)	48	88	FULL	SRC2	SRC2-E055	extracted	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	3. Divergence Inventory — the emergence map	89	114	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	4. Hypothesis Audit (H1–H9)	115	175	FULL	SRC2	SRC2-E055,SRC2-E056	extracted	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	5. Emergent Dimensions (derived from the corpus, not imported)	176	190	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	6. Slogans and Folklore (falsified, narrowed, or confirmed)	191	214	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	7. Contradictions and Evolution (preserved, not smoothed)	215	245	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	8. Empirical-Claim Audit I — index vs. single-name VRP, correlation risk, skew/jumps, earnings, option returns, liquidit	246	295	FULL	SRC2	SRC2-E057	extracted	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	9. Empirical-Claim Audit II — transaction costs (incl. the spintwig 20.77% claim)	296	322	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	10. Cross-Corpus Comparison vs. the Frozen Cashflow Academy Corpus	323	334	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	11. Self-Audit — what this study may have gotten wrong	335	347	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	12. Reassessment of the "Missing Conversations"	348	365	FULL	SRC2	SRC2-E057	extracted	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	13. What the Reconnaissance Got Wrong (and right)	366	387	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	14. What We Didn't Know to Ask	388	404	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	15. Consolidated Evidence Ledger	405	421	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-2026-09-27.md	16. Backlog — ranked by information value	422	437	FULL	SRC2		no-new-knowledge	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-analysis-2026-09-27.md	Comparative Options-Trading Practitioner Landscape — Primary-Source Redo Analysis	1	42	FULL	SRC2	SRC2-E058	extracted	
+docs/research/comparative-options-trading-practitioner-landscape-primary-source-redo-analysis-2026-09-27.md	Preservation boundary	43	45	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	Dynamic Management of Covered Calls in a Growth/Compounding Regime	1	1	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	Wheelwright Research Memo — Delta-Band (“Delta Staircase”) Covered Calls	2	14	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	1. Executive conclusion	15	35	FULL	SRC2	SRC2-E019	extracted	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	2. Existing terminology and history	36	49	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	3. What the academic/institutional literature says about dynamic covered-call management	50	89	FULL	SRC2	SRC2-E022	extracted	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	4. Delta as a lifecycle feedback variable	90	116	FULL	SRC2	SRC2-E020	extracted	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	5. Economics of successive upward rolls	117	154	FULL	SRC2	SRC2-E021	extracted	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	6. Whether the “staircase” interpretation is economically legitimate	155	166	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	7. Duration-extension problem (duration treadmill)	167	182	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	8. Lower-rail / exhausted-call management	183	197	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	9. Behavior across market regimes (Paths A–H)	198	216	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	10. Comparison with simpler low-delta strategies	217	228	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	11. Comparison with intermittent overwriting	229	238	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	12. Comparison with partial overwriting	239	253	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	13. Relevant index and empirical evidence	254	275	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	14. Execution-cost and liquidity implications	276	285	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	15. Strongest evidence FOR dynamic management	286	296	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	16. Strongest evidence AGAINST dynamic management	297	306	FULL	SRC2	SRC2-E023	extracted	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	17. Important questions for which good evidence does not exist	307	323	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	18. Recommended smallest Wheelwright experiment	324	344	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	19. Specific hypotheses and falsification criteria	345	367	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	20. Bibliography (primary first; URLs verbatim as retrieved 2026-10-02)	368	411	FULL	SRC2		no-new-knowledge	
+docs/research/covered-call-delta-band-growth-memo-2026-10-02.md	Compact conclusion — questions A–I answered independently	412	439	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	EVA-001 — Conversation Recovery and Hypothesis Evolution (October 2026)	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	Principal's objectives (NOT in priority order)	5	15	FULL	SRC2	SRC2-E065	extracted	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	How the hypothesis evolved	16	28	FULL	SRC2	SRC2-E066,SRC2-E067,SRC2-E068	extracted	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	Current and proposed experimental specimens — keep authority separate	29	34	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	Muse research 1 — prior art / competitive landscape (relayed Oct 15)	35	46	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	Muse research 2 — empirical methodology (relayed Oct 15)	47	58	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	Data feasibility and platform questions	59	66	FULL	SRC2	SRC2-E069,SRC2-E070	extracted	
+docs/research/eva-001/CONVERSATION-RECOVERY-2026-10.md	Authorization and preservation boundary	67	69	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/DATA-AUDIT.md	EVA-001 — Retained Data and Retrieval Feasibility	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/DATA-AUDIT.md	What is actually held	5	21	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/DATA-AUDIT.md	Current access versus historical access	22	27	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/DATA-AUDIT.md	What the vendor documents	28	36	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/DATA-AUDIT.md	Sufficiency verdict by question	37	51	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	EVA-001 — Historical Backtesting Feasibility: Deferred Investigation Plan	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	Context and source-of-truth boundaries	7	14	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	Bounded operator question	15	20	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	Candidates — no winner yet	21	28	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	Investigation sequence — when resumed	29	51	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	Explicit separation of later experiments	52	58	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/HISTORICAL-BACKTESTING-FEASIBILITY-PLAN.md	Resume checklist	59	63	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/MUSE-PROMPT.md	Muse Research Assignment — EVA-001 Evidence Feasibility	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/MUSE-PROMPT.md	Research question	5	12	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/MUSE-PROMPT.md	What Codex has actually verified	13	22	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/MUSE-PROMPT.md	Your research tasks	23	29	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/MUSE-PROMPT.md	Required return	30	43	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	EVA-001 — Prospective Paper-Trading Provider Vetting Plan	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Preserve evidence	5	8	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Goal	9	12	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Candidates	13	19	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Gate 0 — Documentation and entitlements (no spend)	20	23	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Gate 1 — One complete prospective paper lifecycle (only when authorized)	24	27	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Gate 2 — Decision memo	28	31	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROSPECTIVE-PAPER-TRADING-PROVIDER-VETTING-PLAN.md	Future experiments — outside this plan	32	36	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	EVA-001 — Empirical Expected Value Feasibility Protocol	1	5	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	1. Question and independent tests	6	16	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	2. Conditional scope and data pilot	17	38	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	3. Proposed candidate selection	39	51	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	4. Fixed experimental management	52	63	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	5. Pricing, costs and capital	64	83	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	6. Minimal predictive comparison	84	102	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	7. Chronology, overlap and regimes	103	112	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	8. Outcomes, benchmarks and falsifiers	113	130	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/PROTOCOL.md	9. Freeze checklist and division of work	131	137	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/README.md	EVA-001 — Data Feasibility and Experimental Design	1	11	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/README.md	Deliverables	12	21	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/README.md	Recovered precedents and boundaries	22	29	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/README.md	Completion and continuation	30	32	FULL	SRC2	SRC2-E073	extracted	
+docs/research/eva-001/ROUND-1-VERIFICATION.md	EVA-001 — Muse Round One Source Verification	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/ROUND-1-VERIFICATION.md	Directly checked findings	5	12	FULL	SRC2	SRC2-E071	extracted	
+docs/research/eva-001/ROUND-1-VERIFICATION.md	Review findings and research implications	13	20	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/ROUND-1-VERIFICATION.md	Continuation	21	23	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/ROUND-2-VERIFICATION.md	EVA-001 — Muse Second Report Verification and Draft Disposition	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/ROUND-2-VERIFICATION.md	Primary evidence checks	5	14	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/ROUND-2-VERIFICATION.md	Conclusions that need correction	15	24	FULL	SRC2	SRC2-E072	extracted	
+docs/research/eva-001/ROUND-2-VERIFICATION.md	Applied changes and unresolved scope	25	31	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	Empirical Expected Value Estimation for Options Strategies — Prior-Art Investigation	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	EXECUTIVE SUMMARY	7	26	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	RESEARCH QUESTIONS — FINDINGS	27	124	PARTIAL	SRC2		no-new-knowledge	read lines 27-27
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	PRIOR-ART MATRIX	125	224	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	THREE MOST REUSABLE METHODS	225	240	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	STRONGEST COUNTEREVIDENCE	241	253	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	MINIMUM DEFENSIBLE EXPERIMENT	254	270	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	OPEN QUESTIONS	271	282	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	RECOMMENDATIONS	283	300	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	EVIDENCE CLASSIFICATIONS (per major conclusion)	301	314	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/ev-estimation-prior-art-20261014.md	SOURCES	315	351	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	EVA Prior-Art and Competitive-Landscape Investigation	1	8	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	Executive Summary	9	28	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	1. Prior-Art Matrix	29	68	PARTIAL	SRC2		no-new-knowledge	read lines 29-29
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	2. Existing Implementations	69	88	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	3. Candidate Quantitative Methods	89	103	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	4. Evidence For and Against Economic Value	104	124	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	5. Commercial Capability Comparison	125	136	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	6. Novelty Assessment	137	151	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	7. Secrecy and Publication Bias	152	160	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	8. Open Research Questions	161	171	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	9. Recommended Next Research Directions	172	182	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	FINAL QUESTION	183	192	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/eva-prior-art-landscape-report-20261015.md	Sources	193	231	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	Options Backtesting Platforms — Capability and Cost Comparison	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	Evidence labels	8	22	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	1. Executive Summary	23	51	FULL	SRC2		no-new-knowledge	
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	2. Platform Comparison (six platforms in depth)	52	152	PARTIAL	SRC2		no-new-knowledge	read lines 52-52
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	3. Detailed Capability Matrix	153	231	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	4. Historical Data and Execution-Quality Assessment	232	257	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	5. Current Pricing Comparison (as-of 2026-10-14)	258	278	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	6. Three Recommended Candidates	279	306	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	7. Specific Limitations That Would Invalidate Use for Empirical EV Research	307	320	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	8. Recommended Trial / Proof-of-Concept Evaluation	321	334	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	9. Buy / Build / Hybrid Recommendation	335	352	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	Final Question — Answered Directly	353	360	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	Appendix A — Key primary sources consulted	361	371	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/options-backtesting-platforms-20261014.md	Appendix B — Open verifications (for follow-up, not assumed)	372	379	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/eva-001/muse-raw/prospective-options-paper-trading-20261015.html	(whole file, HTML)	1	494	SKIPPED	SRC2		deferred	HTML rendering of research report; per assignment .html skipped. Companion .md analysis read where present.
+docs/research/external-artifacts/README.md	External Research Artifacts	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	The Cashflow Academy — Options Trading Knowledge Base	1	5	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	How this was built	6	16	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	Table of contents	17	41	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	Part A — Master Playbook	42	43	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	1. Foundations: calls, puts, and how options actually work	44	53	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	2. The Greeks, in plain English	54	63	FULL	SRC2	SRC2-E089	extracted	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	3. Probability: the math that decides everything	64	73	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	4. Theta and implied volatility: the seller's two edges	74	81	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	5. The Wheel strategy (the channel's flagship)	82	95	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	6. Covered calls: five brutal truths	96	105	PARTIAL	SRC2		no-new-knowledge	read lines 96-96
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	7. Cash-secured puts: getting paid to wait	106	112	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	8. Credit spreads (bull put / bear call)	113	123	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	9. Iron condors	124	130	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	10. Straddles & strangles: trading volatility itself	131	135	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	11. LEAPS: selling time at scale	136	144	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	12. The poor man's covered call (PMCC)	145	151	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	13. 0DTE options	152	158	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	14. Exercise & expiration: rules that save you money	159	165	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	15. Risk management & position sizing	166	175	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	16. Psychology, process & journaling	176	184	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	17. Beginner roadmap: capital, brokers, first strategies	185	195	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	Part B — Per-Video Deep Dives	196	197	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	1. How I Combine Direction, Volatility, and Time for BANGER Option Trades	198	212	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	2. The Lazy Old Trader's Guide To Crushing It With Options	213	224	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	3. If You Don't Understand Probability, You Don't Understand Options	225	237	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	4. 25 Years Of Brutal Covered Call Advice In 17 Minutes	238	248	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	5. 25 Years Of Brutal LEAPS Trading Advice In 24 Minutes	249	259	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	6. 25 Years Of Brutal Options Selling Advice In 19 Minutes	260	269	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	7. Every Options Greek Explained (You'll FINALLY Understand It)	270	279	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	8. Every Options Trading Strategy Explained	280	292	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	9. 25 Years Of Brutal Options Trading Advice In 17 Minutes	293	303	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	10. The "Wheel" Options Strategy I Will Use For Life	304	315	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	11. You Should Be Putting Your Stocks To WORK (Covered Calls)	316	326	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	12. I Tested Using Options Trading To Pay For My Gas	327	336	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	13. Interactive Brokers TWS Tutorial | How To Trade Stocks, Options, and Futures **[description-based]**	337	348	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	14. How To Find WINNING Wheel Strategy Stocks **[description-based]**	349	358	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	15. This Options Trade Works in ANY Market Direction (Strangle Strategy) **[description-based]**	359	368	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	16. Iron Condor Option Strategy | 10% ROI IN 45 DAYS!? **[description-based]**	369	378	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	17. Straddle Options Explained | Trade Volatility WITHOUT Picking A Direction **[description-based]**	379	387	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	18. Bear Call Spread: The Options Strategy That Makes Money When Stocks Fall **[description-based]**	388	396	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	19. THESE 5 Wheel Strategy Stocks Made My Small Account List... **[description-based]**	397	405	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	20. If I Wanted To Run The Wheel Strategy With [amount-redacted], I'd Do This **[description-based]**	406	415	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	21. Position Sizing in Options The RIGHT Way (Most Traders Get This Wrong) **[description-based]**	416	424	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	22. I Reveal My SECRET Options Trading Journal... **[description-based]**	425	433	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	23. I Tested The Bull Put Credit Spread For 30 Days...Results SHOCKED Me! **[description-based]**	434	442	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	24. I've traded options for 29 years...THIS is the strategy beginners should learn. **[description-based]**	443	451	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	25. Is the Poor Man's Covered Call options strategy really worth the hype?	452	463	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	26. Theta In Options Trading: How We Sell TIME For CASH	464	475	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	27. We Asked ChatGPT How To Get GOOD At Trading Options...Here's What It Said!	476	486	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	28. 0DTE Options: Are They Worth The Risk?	487	498	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	29. Why Exercising an OTM Option is a Terrible Idea	499	509	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	30. What Is Delta In Options Trading? (+How To Use It!)	510	520	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	31. The #1 Reason Options Traders Lose Money (It's Not the Stock Price)	521	532	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	32. Call Options Explained (Simply)	533	545	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	33. Options Trading For Beginners: How To Start Trading Options	546	558	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	34. How Much You ACTUALLY Need To Start Trading Options	559	570	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	35. Put Options Explained: Shorting Stocks for Beginners	571	581	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/cashflow-academy-options-knowledge-base.md	36. Maximize Your Stock Options: The Best Time to Exercise	582	592	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/muse-cohort-84-options-liquidity-research-2026-09-23.md	84-ETF Cohort: Options-Market Liquidity, Current and Historical	1	13	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/muse-cohort-84-options-liquidity-research-2026-09-23.md	1) Symbol-by-symbol evidence table	14	104	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/external-artifacts/muse-cohort-84-options-liquidity-research-2026-09-23.md	2) Aggregate observations	105	134	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/muse-cohort-84-options-liquidity-research-2026-09-23.md	Sources and provenance	135	140	PARTIAL	SRC2		no-new-knowledge	read lines 135-139
+docs/research/external-artifacts/muse-options-friendly-etfs-report-2026-09-23.md	Options-Friendly ETFs: Ranked Research Report	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/muse-options-friendly-etfs-report-2026-09-23.md	1. What "options-friendly" means (my criteria)	8	25	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/muse-options-friendly-etfs-report-2026-09-23.md	2. The ranked list	26	70	PARTIAL	SRC2		no-new-knowledge	read lines 26-26
+docs/research/external-artifacts/muse-wheelwright-universe-options-report-2026-09-23.md	Wheelwright Universe: Options-Liquidity Ranking & Elimination Report	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/muse-wheelwright-universe-options-report-2026-09-23.md	Tier definitions	8	22	FULL	SRC2		no-new-knowledge	
+docs/research/external-artifacts/muse-wheelwright-universe-options-report-2026-09-23.md	1) The ranking	23	46	PARTIAL	SRC2		no-new-knowledge	read lines 23-25
+docs/research/external-artifacts/muse-wheelwright-universe-options-report-2026-09-23.md	2) Suggested eliminations	47	121	PARTIAL	SRC2		no-new-knowledge	read lines 112-121
+docs/research/external-artifacts/muse-wheelwright-universe-options-report-2026-09-23.md	3) Why didn't Muse find the "keepers" in your list?	122	132	PARTIAL	SRC2		no-new-knowledge	read lines 122-131
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	Fidelity Brokerage Evidence Capabilities: Can Cross-Observation Continuity of an Option Obligation Be Established?	1	8	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	1. Executive finding	9	23	FULL	SRC2	SRC2-E035	extracted	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	2. Evidence sources investigated	24	44	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	3. Fidelity evidence-access map	45	64	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	4. Identifier/semantics analysis	65	86	FULL	SRC2	SRC2-E036	extracted	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	5. Lifecycle-completeness analysis	87	101	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	6. Adversarial history tests	102	126	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	7. Third-party-access analysis	127	142	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	8. Maximum proposition that can actually be proven	143	155	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	9. What cannot be proven	156	171	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	10. Smallest missing evidence capability	172	183	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	11. Source-quality and uncertainty notes	184	193	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	12. Sources with direct links	194	233	FULL	SRC2		no-new-knowledge	
+docs/research/fidelity-brokerage-evidence-capabilities-option-obligation-continuity-2026-09-28.md	Verdict	234	236	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Growth / Capital Protection Strategy Taxonomy — Discovery	1	5	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Purpose	6	9	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Thesis under investigation	10	24	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Structural problem	25	50	FULL	SRC2	SRC2-E026	extracted	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Open taxonomy hypothesis	51	77	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Important unresolved distinction	78	91	FULL	SRC2	SRC2-E030	extracted	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Objective-function implication	92	101	FULL	SRC2	SRC2-E027	extracted	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Adversarial qualifications	102	162	FULL	SRC2	SRC2-E028	extracted	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Re-entry is a separate policy problem	163	188	FULL	SRC2	SRC2-E029	extracted	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Questions for later reconciliation	189	199	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Existing work to reconcile	200	210	FULL	SRC2		no-new-knowledge	
+docs/research/growth-capital-protection-strategy-taxonomy-discovery-2026-10-07.md	Non-decision	211	222	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Growth Overwrite Strategy Taxonomy and Experiment Structure	1	8	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Why this exists	9	25	FULL	SRC2	SRC2-E024	extracted	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Semantic discipline	26	41	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Strategy catalog	42	263	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Interesting simple combinations	264	300	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Reusable Growth-overwrite observables	301	327	FULL	SRC2	SRC2-E025	extracted	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Backtesting ladder — earn complexity	328	367	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Muse's proposed five-arm falsifiable experiment	368	395	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Market-regime map from the research	396	421	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Current research classification	422	432	FULL	SRC2		no-new-knowledge	
+docs/research/growth-overwrite-strategy-taxonomy-2026-10-02.md	Durable interpretation	433	445	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Muse ETF Options Research — Wheelwright Synthesis	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Executive narrative	8	29	FULL	SRC2	SRC2-E059	extracted	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Source set	30	81	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Patterns and convergences	82	105	FULL	SRC2	SRC2-E059	extracted	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Central contradiction — the 84 historical keepers	106	147	FULL	SRC2	SRC2-E060	extracted	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Insights	148	172	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Red flags in the Muse evidence	173	214	FULL	SRC2	SRC2-E061	extracted	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Contradictions and tensions to preserve	215	222	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Evidence gaps	223	237	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Hypotheses and falsifiers	238	274	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Research segmentation — longitudinal 2×2 falsification frame	275	299	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Consulting-style synthesis frame	300	328	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Research-process lesson — preserve actor independence	329	336	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Take-aways	337	350	FULL	SRC2		no-new-knowledge	
+docs/research/muse-etf-options-liquidity-synthesis-2026-09-23.md	Authority boundary	351	369	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	Reconciled Next Research Wave — Sustainable Options Operation	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	1. Purpose	7	16	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	2. Epistemic boundary	17	30	FULL	SRC2	SRC2-E038	extracted	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	3. Reconciled failure model	31	46	FULL	SRC2	SRC2-E048	extracted	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	4. Wave questions	47	199	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	5. Parked branches	200	215	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	6. Brokerage research rule	216	227	FULL	SRC2	SRC2-E052	extracted	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	7. Macro/micro interpretation	228	237	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	8. Wave-wide stopping rules	238	253	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	9. Sequence and authorization boundary	254	268	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-next-wave-reconciliation-2026-09-27.md	10. Current research-program state	269	293	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	Analysis — Options Research-Program Reorientation Memo	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	Status and authority	7	18	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	1. Reorientation judgment	19	30	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	2. Forced liquidation: important mechanism, overstrong universalization	31	48	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	3. Path survivability is more important than expiration payoff	49	62	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	4. Brokerage capability has two sides	63	74	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	5. Reserve empirics should be reframed as capital adequacy	75	86	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	6. Sequential funded-account accounting remains load-bearing	87	96	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	7. Revision governance is a central Wheelwright problem	97	113	FULL	SRC2	SRC2-E049	extracted	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	8. Human factors: avoid a behavioral-nanny model	114	125	FULL	SRC2	SRC2-E050	extracted	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	9. Blow-up research: mechanisms, not incidence	126	145	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	10. Q-R1 should not lead with population incidence	146	159	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	11. Earnings contradiction is valuable only if in scope	160	169	FULL	SRC2	SRC2-E054	extracted	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	12. Compensation-vs-mispricing should remain parked	170	183	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	13. Macro versus micro should classify consequence, not causal mechanism	184	194	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	14. Research stopping rules are strong and should survive	195	210	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	15. Principal-question reconciliation	211	238	FULL	SRC2	SRC2-E053	extracted	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	16. Recommended next-wave correction	239	259	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-analysis-2026-09-27.md	17. Durable research-program interpretation	260	268	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	Research-Program Reorientation Memo	1	11	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	1. Principal's actual objective as understood	12	23	FULL	SRC2	SRC2-E046	extracted	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	2. Where the program drifted	24	36	FULL	SRC2	SRC2-E047	extracted	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	3. What existing research still contributes	37	50	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	4. Macro-optima versus micro-optima — provisional classification	51	82	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	5. Important practical domains currently under-researched	83	101	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	6. Lessons from practitioner research that deserve deeper testing	102	122	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	7. Failure modes and blow-up research opportunities	123	142	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	8. Human/operator research opportunities	143	158	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	9. Portfolio/capital-survival research opportunities	159	173	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	10. Brokerage/capability research opportunities	174	187	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	11. Candidate next-question map	188	259	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	12. Reassessment of compensation-vs-mispricing	260	280	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	13. Proposed next research wave	281	294	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	14. What should remain parked	295	307	FULL	SRC2		no-new-knowledge	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	15. Research stopping/rabbit-hole rules appropriate to this objective	308	322	FULL	SRC2	SRC2-E051	extracted	
+docs/research/options-research-program-reorientation-memo-2026-09-27.md	16. Open questions for the Principal	323	333	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	Options-Trading Domain Research Program — Control Pipeline	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	1. Purpose	8	19	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	2. Evidence-state vocabulary	20	30	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	3. Research-program invariants	31	47	FULL	SRC2	SRC2-E037	extracted	
+docs/research/options-trading-research-program-control-2026-09-27.md	4. Independent evidence lineages	48	61	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	5. Long-horizon pipeline	62	74	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	6. Current position	75	91	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	7. Current highest-information question	92	111	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	8. Q1 branch commitment	112	131	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	9. Preregistration gate	132	156	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	10. Completion discipline	157	164	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	11. Low-information work currently deprioritized	165	175	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	12. Research-state transition rule	176	188	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-control-2026-09-27.md	13. Next authorized research action	189	195	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	Options Trading Research Program Design	1	9	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	1. Executive finding	10	22	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	2. What the practitioner corpus can and cannot establish	23	41	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	3. The major unanswered questions	42	61	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	4. Independently derived research vectors	62	235	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	5. Evidence hierarchy within each vector	236	269	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	6. Cross-vector overlap and independence	270	293	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	7. Important evidence-boundary failures	294	323	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	8. Highest-information-value questions	324	359	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	9. Proposed research waves	360	427	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	10. Parallel research tracks within each wave	428	438	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	11. Dependencies between research tracks	439	452	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	12. Completion gates	453	464	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	13. Falsifiers	465	479	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	14. Research directions that look attractive but are probably low-information	480	492	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	15. What evidence ecosystem is currently most underused	493	506	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	16. What question should be researched next, and why	507	522	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	17. What should be researched after that	523	532	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	18. Long-horizon research backlog	533	549	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	19. What we do not yet know to ask	550	562	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-program-design-2026-09-27.md	20. Source and evidence ledger	563	660	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	Options-Trading Research Program — State Transition to Q0 Execution Calibration	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	1. Prior durable state	8	21	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	2. Evidence satisfying the gate	22	33	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	3. Findings controlling the transition	34	61	FULL	SRC2	SRC2-E040	extracted	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	4. Why Q1 cannot yet be preregistered	62	102	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	5. Research-state transition	103	112	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	6. Q0	113	136	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	7. Q0 evidence targets	137	148	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	8. Q0 deliverable	149	178	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	9. Q0 completion gate	179	194	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	10. Q1 re-entry gate	195	207	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	11. Evidence-state discipline	208	221	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	12. Independence firewall	222	229	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-execution-calibration-2026-09-27.md	13. Current authorized research action	230	238	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	Options-Trading Research Program — State Transition After Q0 Lead Inspection	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	Prior state	8	27	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	Completed authorized action	28	39	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	Result	40	51	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	State transition	52	59	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	Decision now required	60	83	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-post-lead-inspection-2026-09-27.md	No automatic default	84	90	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Options-Trading Research Program — Q0 Execution-Calibration Branch Parked	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Principal disposition	8	15	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Prior state preserved	16	25	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Q0 disposition	26	39	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Scope of the unresolved finding	40	54	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Parked follow-up paths	55	64	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Broader research program	65	72	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	State transition	73	78	FULL	SRC2		no-new-knowledge	
+docs/research/options-trading-research-state-transition-q0-rabbit-hole-parked-2026-09-27.md	Research disposition	79	85	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/DATA.md	Data provenance and limitations	1	12	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/DATA.md	ThetaData	13	21	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/METHOD.md	Test 1 predeclared method — Partial Collar Protected Growth	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/METHOD.md	Reconciliation completion record	5	14	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/METHOD.md	Frozen candidate resolutions (before performance inspection)	15	28	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/METHOD.md	Data and temporal rules	29	34	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/METHOD.md	Matrix and falsification	35	50	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/PRINCIPAL-REVIEW.md	Test 1 — Principal review	1	6	FULL	SRC2	SRC2-E062	extracted	
+docs/research/partial-collar-test1/PRINCIPAL-REVIEW.md	Accepted result and scope	7	12	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/PRINCIPAL-REVIEW.md	Preliminary interpretation and unresolved diagnosis	13	18	FULL	SRC2	SRC2-E063	extracted	
+docs/research/partial-collar-test1/PRINCIPAL-REVIEW.md	Evidence navigation	19	26	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/README.md	Partial Collar Protected Growth — Test 1	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/README.md	Reproduce	7	32	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/README.md	Artifacts	33	48	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Test 1 findings — Partial Collar Protected Growth	1	4	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Scope and evidence	5	10	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Fixed illustration and appropriate controls	11	26	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Chronology, plateau and walk-forward	27	32	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Stress findings	33	52	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	What RVX confirmation adds	53	56	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Assumption and starting-allocation dependence	57	64	FULL	SRC2		no-new-knowledge	
+docs/research/partial-collar-test1/REPORT.md	Verification and unresolved boundaries	65	72	FULL	SRC2	SRC2-E064	extracted	
+docs/research/partial-collar-test1/REPORT.md	Artifact links	73	83	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	Primary-Evidence Upgrade: The Canonical Short-Premium Trade at Retail Execution	1	20	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	1. Executive verdict	21	34	FULL	SRC2	SRC2-E039	extracted	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	2. Claims upgraded to VERIFIED	35	117	FULL	SRC2	SRC2-E041,SRC2-E043	extracted	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	3. Claims remaining IDENTIFIED-TRACEABLE	118	180	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	4. Claims remaining INFERENCE	181	223	FULL	SRC2	SRC2-E042,SRC2-E043	extracted	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	5. Claims became CONTRADICTED	224	309	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	6. Claims whose wording must be narrowed	310	332	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	7. Primary-source ledger	333	401	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	8. Canonical-strategy replication audit	402	420	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	9. 45/50/21 composite provenance audit	421	436	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	10. Index VRP evidence	437	451	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	11. Single-name VRP evidence	452	465	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	12. Correlation-risk evidence	466	485	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	13. Retail execution and transaction-cost evidence	486	515	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	14. Strategy-index evidence	516	549	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	15. Regulatory and enforcement-grade evidence	550	569	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	16. Participant/origin-data feasibility	570	602	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	17. Premium-incidence feasibility	603	626	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	18. Boundary-failure audit	627	652	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	19. Strongest falsifiers found	653	675	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	20. What changed relative to the existing research-program design	676	690	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	21. Whether Q1 remains the highest-information-value next experiment	691	703	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	22. If Q1 remains next, what must be frozen in its preregistration	704	718	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	23. If Q1 does not remain next, what should replace it and why	719	735	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	24. Remaining primary-evidence gaps	736	762	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	25. Recommended next research action	763	776	FULL	SRC2		no-new-knowledge	
+docs/research/primary-evidence-upgrade-canonical-short-premium-retail-execution-2026-09-27.md	26. Full source/evidence ledger	777	829	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Q0 Executable Retail Friction — Analysis	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Source	8	17	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Plain-English conclusion	18	25	FULL	SRC2	SRC2-E044	extracted	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	What Q0 established	26	73	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Relationship to observed operator execution behavior	74	100	FULL	SRC2	SRC2-E045	extracted	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Consequence for downstream strategy research	101	113	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Remaining evidence gap	114	127	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-analysis-2026-09-27.md	Research-state implication	128	143	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	Q0 — Executable Retail Friction for Options Trading	1	1	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	Instrument × Order Type × Size × DTE × Period Matrix (Primary-Evidence Calibration)	2	11	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	1. Executive verdict	12	24	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	2. Q0 answer	25	50	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	3. SPX retail-effective-spread verdict	51	58	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	4. Friction matrix	59	118	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	5. Explicit-fee matrix	119	159	PARTIAL	SRC2		no-new-knowledge	read lines 119-120
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	6. Measurement glossary	160	180	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	7. SPX/SPXW evidence	181	190	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	8. SPY/ETF evidence	191	204	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	9. Single-name evidence	205	219	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	10. Retail execution literature	220	228	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	11. Price-improvement evidence	229	237	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	12. Order-size effects	238	245	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	13. DTE effects	246	252	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	14. Historical-period effects	253	270	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	15. Broker fee evidence	271	279	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	16. Exchange and regulatory evidence	280	288	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	17. Rule 606 findings	289	297	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	18. Dataset feasibility map	298	314	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	19. SPY → SPX transfer audit	315	333	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	20. 0DTE → non-0DTE transfer audit	334	343	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	21. Simple → complex transfer audit	344	353	INDEXED	SRC2		deferred	headings only; long external reproduction body not read
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	22. Fill-model evidence ladder	354	368	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	23. Strongest falsifiers	369	383	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	24. Empty cells	384	398	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	25. Claims upgraded to VERIFIED	399	417	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	26. Claims remaining IDENTIFIED-TRACEABLE	418	432	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	27. Claims remaining INFERENCE	433	443	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	28. Claims classified ABSENCE-OF-EVIDENCE	444	459	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	29. Claims classified CONTRADICTED	460	480	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	30. What changed during Q0	481	493	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	31. Whether calibration suffices for later preregistration	494	502	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	32. Exact remaining blockers	503	510	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	33. Recommended next research question	511	520	FULL	SRC2		no-new-knowledge	
+docs/research/q0-executable-retail-friction-options-trading-2026-09-27.md	34. Full evidence ledger	521	559	PARTIAL	SRC2		no-new-knowledge	read lines 521-523
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Q0 Follow-on — Primary Inspection of Longer-Tenor / Complex-Execution Leads	1	7	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Research question	8	19	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Verdict	20	25	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Lead 1 — Garcia-Ares et al. (2026)	26	53	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Lead 2 — Li–Musto–Pearson complex-order execution work	54	99	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Lead 3 — Huang–Jorion–Schwarz expanded retail execution experiment	100	143	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Cross-lead reconciliation	144	155	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Newly sharpened measurement requirement	156	178	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Decision on direct data collection	179	192	FULL	SRC2		no-new-knowledge	
+docs/research/q0-primary-lead-inspection-longer-tenor-complex-execution-2026-09-27.md	Research disposition	193	197	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	2026-09-29 conversation record — XSP defined-risk strategy, tastytrade, and Sosnoff review	1	10	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	Fidelity note on completeness	11	25	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A. Structured record of the earlier compacted conversation	26	27	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A1. Why tastytrade entered the discussion	28	54	FULL	SRC2	SRC2-E082,SRC2-E087	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A2. Canonical XSP research strategy under discussion	55	82	FULL	SRC2	SRC2-E079	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A3. Capacity arithmetic and the unresolved economics	83	127	FULL	SRC2		sensitive-withheld	real-account capital figures present; redacted, not reproduced
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A4. Why Tom Sosnoff’s “11 Boring Strategies” video mattered	128	161	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A5. The first Codex strategy review	162	192	FULL	SRC2	SRC2-E080	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	A6. tastytrade education question	193	200	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B. Exact/near-verbatim active-context conversation	201	202	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B1. Principal	203	206	FULL	SRC2	SRC2-E077	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B2. ChatGPT	207	212	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B3. Principal	213	216	FULL	SRC2		duplicate-of:SRC2-E077	Principal wording captured as variant in SRC2-E077
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B4. ChatGPT — transcript-derived strategy commentary	217	238	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B5. Principal	239	242	FULL	SRC2		duplicate-of:SRC2-E077	Principal wording captured as variant in SRC2-E077
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B6. ChatGPT — Codex prompt	243	260	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B7. Principal — first Codex review	261	273	FULL	SRC2	SRC2-E081	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B8. ChatGPT — synthesis of first Codex review	274	286	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B9. Principal	287	290	FULL	SRC2		duplicate-of:SRC2-E077	Principal wording captured as variant in SRC2-E077
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B10. ChatGPT	291	302	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B11. Principal — second Codex review	303	341	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B12. ChatGPT — synthesis of second Codex review	342	357	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	B13. Principal	358	365	FULL	SRC2	SRC2-E078	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	C. Provided artifacts	366	389	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	D. Durable research state at persistence	390	391	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	Established as conversation/review findings	392	411	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	Still unresolved / pending evidence	412	421	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	Explicit non-conclusions	422	434	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	E. Resume point	435	450	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F. 2026-09-29 afternoon checkpoint — historical-data substrate and backtest engine	451	452	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F1. Historical data requirement resurfaced	453	464	FULL	SRC2	SRC2-E085	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F2. Nearby mini-index products	465	472	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F3. tastytrade advanced-order observations	473	487	FULL	SRC2	SRC2-E082	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F4. ThetaData acquisition status	488	495	FULL	SRC2	SRC2-E086	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F5. Canonical backtest engine corrections completed	496	511	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F6. Study document checkpoint	512	519	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	F7. Current state / resume point	520	530	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	G. 2026-09-29 late-afternoon snapshot — XSP historical results received; independent audit pending	531	532	FULL	SRC2	SRC2-E083	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	G1. Muse historical-results report received	533	554	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	G2. Epistemic status changed from “pending result” to “reported adverse result, unverified”	555	566	FULL	SRC2	SRC2-E084	extracted	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	G3. No optimization authorized	567	570	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	G4. tastytrade curriculum observation	571	578	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/conversation-record.md	G5. Current state / resume point	579	586	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/github-url.md	Provided source artifact — GitHub URL	1	3	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Development Operating Model	1	8	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Principles	9	10	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	GitHub is the source of project truth	11	22	FULL	SRC2	SRC2-E088	extracted	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Evidence over assumption	23	39	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Discussion Modes	40	45	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Exploration	46	63	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Design	64	77	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Decision	78	87	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Implementation	88	97	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Proposal Style	98	111	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Journal Discipline	112	132	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Documentation Discipline	133	148	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Commit Discipline	149	161	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Implementation Reviews	162	174	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	UI Acceptance	175	186	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Priority Changes	187	196	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Architectural Escalation	197	206	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	Reminder Behavior	207	222	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/kiro-op-model.md	End-of-Increment Checklist	223	232	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/xsp-historical-viability-study-checkpoint.md	XSP Put-Credit-Spread Systematic Strategy: Historical Viability Study — checkpoint copy	1	6	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/xsp-historical-viability-study-checkpoint.md	Checkpoint methodology	7	25	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/xsp-historical-viability-study-checkpoint.md	Report state	26	41	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/xsp-historical-viability-study-checkpoint.md	Acquisition checkpoint	42	45	FULL	SRC2		no-new-knowledge	
+docs/research/session-artifacts/2026-09-29/xsp-historical-viability-study-checkpoint.md	Test checkpoint	46	50	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Sosnoff on Money / Cashflow Academy research analysis — 2026-09-26	1	8	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Why this research matters	9	18	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Strategy family is not Operating Program	19	32	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Operating Program is strategy-family-neutral	33	48	FULL	SRC2	SRC2-E008	extracted	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Methodology fidelity and methodology validity remain separate	49	61	FULL	SRC2	SRC2-E009	extracted	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Evidence-quality lesson	62	72	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Brokerage-friction finding	73	78	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Relationship to Doc 65	79	91	FULL	SRC2	SRC2-E010	extracted	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Explicit non-authority	92	107	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-cashflow-cross-corpus-analysis-2026-09-26.md	Reconciliation pressure	108	121	FULL	SRC2		no-new-knowledge	
+docs/research/sosnoff-on-money-research-report-2026-09-26.html	(whole file, HTML)	1	382	SKIPPED	SRC2		deferred	HTML rendering of research report; per assignment .html skipped. Companion .md analysis read where present.
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	SPY Growth Overwrite Backtest Evidence — 2026-10-02	1	2	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Purpose	3	6	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Frozen baseline construction	7	23	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	CSV accounting facts	24	44	FULL	SRC2	SRC2-E031	extracted	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Overlap and reusable inventory	45	68	FULL	SRC2	SRC2-E032	extracted	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Correct persistent-inventory accounting	69	90	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Six-point unmanaged delta sweep	91	134	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Corrected interpretation of "assignment is expensive"	135	144	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	p50 experiment: null / unresolved semantics	145	180	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	10Δ exit-management experiment: 21-day limit	181	225	FULL	SRC2		no-new-knowledge	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Evidence hierarchy / cautions	226	237	FULL	SRC2	SRC2-E034	extracted	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Current research conclusions	238	249	FULL	SRC2	SRC2-E033	extracted	
+docs/research/spy-growth-overwrite-backtest-evidence-2026-10-02.md	Next research direction	250	260	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	Wheel Family Research — Wheelwright Analysis	1	9	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	1. Executive analysis	10	23	FULL	SRC2	SRC2-E001,SRC2-E002	extracted	
+docs/research/wheel-family-research-analysis-2026-09-25.md	2. Relationship to the frozen thin-slice outcome	24	39	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	3. Operating Program identity is load-bearing	40	65	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	4. "By the book" becomes Program-relative	66	88	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	5. Folk parameters are doctrine, not universal truth	89	109	FULL	SRC2	SRC2-E003	extracted	
+docs/research/wheel-family-research-analysis-2026-09-25.md	6. Cost basis is accounting evidence, not generic forward policy	110	126	FULL	SRC2	SRC2-E004	extracted	
+docs/research/wheel-family-research-analysis-2026-09-25.md	7. Rolling should not collapse lifecycle semantics	127	145	FULL	SRC2	SRC2-E005	extracted	
+docs/research/wheel-family-research-analysis-2026-09-25.md	8. Evidence ranking changes what deserves design attention	146	159	FULL	SRC2	SRC2-E006	extracted	
+docs/research/wheel-family-research-analysis-2026-09-25.md	9. Mandate-specific Wheel configurations remain empirically unvalidated	160	175	FULL	SRC2	SRC2-E007	extracted	
+docs/research/wheel-family-research-analysis-2026-09-25.md	10. Relationship to prior Doc 62a	176	191	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	11. Decomposition implications — pressure, not inventory	192	214	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	12. What the first thin slice explicitly does not gain from this research	215	233	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	13. Research limitations that must remain visible	234	245	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-analysis-2026-09-25.md	14. Durable conclusion	246	258	FULL	SRC2		no-new-knowledge	
+docs/research/wheel-family-research-report-2026-09-25.html	(whole file, HTML)	1	331	SKIPPED	SRC2		deferred	HTML rendering of research report; per assignment .html skipped. Companion .md analysis read where present.

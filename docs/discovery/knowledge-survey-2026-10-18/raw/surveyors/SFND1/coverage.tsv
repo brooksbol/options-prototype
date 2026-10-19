@@ -1,0 +1,444 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/foundations/acquisition-scheduler-policy.md	# Acquisition Scheduler Policy	1	8	FULL	SFND1	SFND1-E051	extracted	HEADER: Implemented - pending active-session validation (Jul 2026) | prior-run items re-verified by full re-read
+docs/foundations/acquisition-scheduler-policy.md	## Governing Principle	9	16	FULL	SFND1	SFND1-E051	extracted	prior-run items re-verified by full re-read
+docs/foundations/acquisition-scheduler-policy.md	## Service Classes	17	27	FULL	SFND1	SFND1-E051	extracted	prior-run items re-verified by full re-read
+docs/foundations/acquisition-scheduler-policy.md	## Ordering (Strict Priority Cascade)	28	39	FULL	SFND1	SFND1-E051	extracted	prior-run items re-verified by full re-read
+docs/foundations/acquisition-scheduler-policy.md	## Anti-Starvation Floors	40	60	FULL	SFND1	SFND1-E051	extracted	prior-run items re-verified by full re-read
+docs/foundations/acquisition-scheduler-policy.md	## Capacity	61	83	FULL	SFND1	SFND1-E051	extracted	prior-run items re-verified by full re-read
+docs/foundations/acquisition-scheduler-policy.md	## Background Age Semantics	84	97	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Independent Freshness Domains	98	110	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Session-Opening Behavior	111	119	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Publication Coalescing	120	128	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Configuration Defaults	129	141	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Key Invariants Preserved	142	153	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Telemetry Semantics (Architectural Contract)	154	174	FULL	SFND1		no-new-knowledge	
+docs/foundations/acquisition-scheduler-policy.md	## Recovery Probe Policy	175	195	FULL	SFND1		no-new-knowledge	
+docs/foundations/architectural-evolution-methodology.md	# Architectural Retooling Methodology	1	8	FULL	SFND1		no-new-knowledge	HEADER: Governing methodology (Jul 2026); no ratification line
+docs/foundations/architectural-evolution-methodology.md	## Purpose	9	16	FULL	SFND1		no-new-knowledge	
+docs/foundations/architectural-evolution-methodology.md	## 1. Architecture Should Be Derived from Invariants	17	46	FULL	SFND1	SFND1-E052	extracted	prior-run items re-verified by full re-read
+docs/foundations/architectural-evolution-methodology.md	## 2. Review Architecture, Not Code	47	68	FULL	SFND1	SFND1-E052	extracted	prior-run items re-verified by full re-read
+docs/foundations/architectural-evolution-methodology.md	## 3. Every Engineering Claim Requires Evidence	69	95	FULL	SFND1	SFND1-E052	extracted	prior-run items re-verified by full re-read
+docs/foundations/architectural-evolution-methodology.md	## 4. Ratified Invariants Are Authoritative	96	128	FULL	SFND1	SFND1-E052	extracted	prior-run items re-verified by full re-read
+docs/foundations/architectural-evolution-methodology.md	## 5. Contradictions Are Architectural Findings	129	148	FULL	SFND1	SFND1-E128	extracted	
+docs/foundations/architectural-evolution-methodology.md	## 6. Separate Domain Policy from Implementation	149	172	FULL	SFND1	SFND1-E128	extracted	
+docs/foundations/architectural-evolution-methodology.md	## 7. Emerging Patterns	173	201	FULL	SFND1	SFND1-E128	extracted	
+docs/foundations/architectural-evolution-methodology.md	## Relationship to Closed-Loop Engineering	202	211	FULL	SFND1		no-new-knowledge	
+docs/foundations/backend-behavioral-invariants.md	# Wheelwright Backend Behavioral Invariants	1	9	FULL	SFND1		no-new-knowledge	HEADER: Ratified (Jul 2026)
+docs/foundations/backend-behavioral-invariants.md	## 1. Executive Definition	10	30	FULL	SFND1	SFND1-E022	extracted	prior-run items re-verified by full re-read
+docs/foundations/backend-behavioral-invariants.md	## 2. Invariant Classification Rules	31	41	FULL	SFND1	SFND1-E022	extracted	prior-run items re-verified by full re-read
+docs/foundations/backend-behavioral-invariants.md	## 3. Ratified Invariant Catalog	42	399	FULL	SFND1	SFND1-E014;SFND1-E019;SFND1-E020;SFND1-E021	extracted	prior-run items re-verified by full re-read
+docs/foundations/backend-behavioral-invariants.md	## 4. Ratification Decisions (Resolved)	400	456	FULL	SFND1		no-new-knowledge	
+docs/foundations/backend-behavioral-invariants.md	## 5. Explicit Non-Invariants	457	477	FULL	SFND1		no-new-knowledge	
+docs/foundations/backend-behavioral-invariants.md	## 6. Negative Invariants / Prohibited Behaviors	478	495	FULL	SFND1		no-new-knowledge	
+docs/foundations/backend-behavioral-invariants.md	## 7. Repository Conflicts or Ambiguities	496	535	FULL	SFND1		no-new-knowledge	
+docs/foundations/backend-behavioral-invariants.md	## 8. Ratification Record	536	553	FULL	SFND1	SFND1-E018	extracted	prior-run items re-verified by full re-read
+docs/foundations/backend-behavioral-invariants.md	## 9. Boundary of Step 3	554	580	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	# Closed-Loop Engineering	1	2	FULL	SFND1		no-new-knowledge	HEADER: No header status; only final section marked Ratified Aug 26 2026
+docs/foundations/closed-loop-engineering.md	## Purpose	3	10	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Core Insight	11	18	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Four Nested Loops	19	55	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Loop 1: Engineering Loop	56	148	FULL	SFND1	SFND1-E119	extracted	
+docs/foundations/closed-loop-engineering.md	## Loop 2: Financial Control Loop	149	179	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Loop 3: Application Introspection Loop	180	209	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Loop 4: Organizational Learning Loop	210	240	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## How the Loops Feed Each Other	241	267	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## The Mirror Principle	268	282	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Implications for Contributors	283	293	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Observation Cadence	294	316	FULL	SFND1		no-new-knowledge	
+docs/foundations/closed-loop-engineering.md	## Ownership Boundary: Build vs Adopt	317	345	FULL	SFND1	SFND1-E066	extracted	prior-run items re-verified by full re-read
+docs/foundations/closed-loop-engineering.md	## Experimental Record Discipline	346	378	FULL	SFND1	SFND1-E118	extracted	
+docs/foundations/closed-loop-engineering.md	## Experimental Isolation and Operational Discipline	379	418	FULL	SFND1	SFND1-E065	extracted	prior-run items re-verified by full re-read
+docs/foundations/cognitive-role-separation.md	# Cognitive Role Separation	1	8	FULL	SFND1		no-new-knowledge	HEADER: Governing architectural principle (Jul/Aug 2026); no ratification line
+docs/foundations/cognitive-role-separation.md	## Purpose	9	18	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## Core Insight	19	30	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## The Three Roles	31	73	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## The Principle	74	87	FULL	SFND1	SFND1-E038	extracted	prior-run items re-verified by full re-read
+docs/foundations/cognitive-role-separation.md	## Current Manifestations in Wheelwright	88	99	FULL	SFND1	SFND1-E038	extracted	prior-run items re-verified by full re-read
+docs/foundations/cognitive-role-separation.md	## Why Conflation Fails	100	115	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## The Separation Test	116	129	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## Relationship to Other Principles	130	141	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## The Naming Is Flexible	142	156	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## Domain Independence	157	166	FULL	SFND1		no-new-knowledge	
+docs/foundations/cognitive-role-separation.md	## Historical Note	167	173	FULL	SFND1	SFND1-E039	extracted	prior-run items re-verified by full re-read
+docs/foundations/conditioned-operating-opportunity.md	# Conditioned Operating Opportunity and Lifecycle Quality	1	8	FULL	SFND1		no-new-knowledge	HEADER: Design concept - not yet implemented (Jul 2026)
+docs/foundations/conditioned-operating-opportunity.md	## Core Idea	9	33	FULL	SFND1	SFND1-E053;SFND1-E099	extracted	prior-run items re-verified by full re-read
+docs/foundations/conditioned-operating-opportunity.md	## Domain Sequence	34	49	FULL	SFND1	SFND1-E053	extracted	prior-run items re-verified by full re-read
+docs/foundations/conditioned-operating-opportunity.md	## Domain Distinctions	50	123	FULL	SFND1	SFND1-E053;SFND1-E099	extracted	prior-run items re-verified by full re-read
+docs/foundations/conditioned-operating-opportunity.md	## Example	124	145	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Architectural Fit	146	165	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Recommendation Brief Implication	166	188	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Cross-References	189	201	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Open Design Questions	202	227	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Initial Posture	228	244	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Concept Maturity	245	261	FULL	SFND1		no-new-knowledge	
+docs/foundations/conditioned-operating-opportunity.md	## Implementation Direction (July 2026)	262	278	FULL	SFND1	SFND1-E130	extracted	
+docs/foundations/death-spiral-avoidance-protocol.md	# Death Spiral Avoidance Protocol — Wheelwright	1	10	FULL	SFND1		no-new-knowledge	HEADER: Ratified methodology, Category B (Sep 27 2026)
+docs/foundations/death-spiral-avoidance-protocol.md	## Purpose	11	26	FULL	SFND1	SFND1-E123	extracted	
+docs/foundations/death-spiral-avoidance-protocol.md	## Definition — Death Spiral	27	46	FULL	SFND1	SFND1-E054	extracted	prior-run items re-verified by full re-read
+docs/foundations/death-spiral-avoidance-protocol.md	## Mandatory Traversal Question	47	66	FULL	SFND1	SFND1-E054	extracted	prior-run items re-verified by full re-read
+docs/foundations/death-spiral-avoidance-protocol.md	## REJECT Transition	67	112	FULL	SFND1	SFND1-E054	extracted	prior-run items re-verified by full re-read
+docs/foundations/death-spiral-avoidance-protocol.md	## Escalate Abstraction, Not Verbosity	113	129	FULL	SFND1	SFND1-E054	extracted	prior-run items re-verified by full re-read
+docs/foundations/death-spiral-avoidance-protocol.md	## Semantic Loop Identity	130	155	FULL	SFND1	SFND1-E054	extracted	prior-run items re-verified by full re-read
+docs/foundations/death-spiral-avoidance-protocol.md	## Principal Protection	156	173	FULL	SFND1		no-new-knowledge	
+docs/foundations/death-spiral-avoidance-protocol.md	## Multi-Actor Completion	174	188	FULL	SFND1	SFND1-E123	extracted	
+docs/foundations/death-spiral-avoidance-protocol.md	## Detection Cues	189	206	FULL	SFND1		no-new-knowledge	
+docs/foundations/death-spiral-avoidance-protocol.md	## Required Escape Procedure	207	223	FULL	SFND1	SFND1-E123	extracted	
+docs/foundations/death-spiral-avoidance-protocol.md	## Relationship to Existing Controls	224	239	FULL	SFND1	SFND1-E123	extracted	
+docs/foundations/death-spiral-avoidance-protocol.md	## Completion Test	240	247	FULL	SFND1	SFND1-E123	extracted	
+docs/foundations/epistemic-precision.md	# Epistemic Precision	1	2	FULL	SFND1		no-new-knowledge	HEADER: Governing principle (Aug 2026); ratified via principles.md:71
+docs/foundations/epistemic-precision.md	## Date: August 2026	3	3	FULL	SFND1		no-new-knowledge	
+docs/foundations/epistemic-precision.md	## Status: Governing principle	4	7	FULL	SFND1		no-new-knowledge	
+docs/foundations/epistemic-precision.md	## Core Claim	8	15	FULL	SFND1	SFND1-E076	extracted	
+docs/foundations/epistemic-precision.md	## The Principle	16	27	FULL	SFND1	SFND1-E076	extracted	
+docs/foundations/epistemic-precision.md	## Manifestations	28	53	FULL	SFND1	SFND1-E077	extracted	
+docs/foundations/epistemic-precision.md	## Relationship to Other Principles	54	63	FULL	SFND1	SFND1-E077	extracted	
+docs/foundations/epistemic-precision.md	## Domain Independence	64	70	FULL	SFND1		no-new-knowledge	
+docs/foundations/evidence-appliance.md	# Evidence Appliance	1	7	FULL	SFND1	SFND1-E010	extracted	HEADER: Governing architectural concept - ratified (Jul 16 2026) | prior-run items re-verified by full re-read
+docs/foundations/evidence-appliance.md	## Core Definition	8	25	FULL	SFND1	SFND1-E010	extracted	prior-run items re-verified by full re-read
+docs/foundations/evidence-appliance.md	## What It Is Not	26	54	FULL	SFND1	SFND1-E011	extracted	prior-run items re-verified by full re-read
+docs/foundations/evidence-appliance.md	## Architectural Consequences	55	136	FULL	SFND1	SFND1-E012	extracted	prior-run items re-verified by full re-read
+docs/foundations/evidence-appliance.md	## Relationship to Existing Foundations	137	155	FULL	SFND1	SFND1-E025	extracted	prior-run items re-verified by full re-read
+docs/foundations/evidence-appliance.md	## Current Implementation Maturity	156	188	FULL	SFND1	SFND1-E084	extracted	
+docs/foundations/evidence-appliance.md	## The Conceptual Shift	189	213	FULL	SFND1		no-new-knowledge	
+docs/foundations/evidence-appliance.md	## Open Questions	214	222	FULL	SFND1	SFND1-E013	extracted	prior-run items re-verified by full re-read
+docs/foundations/holistic-domain-first-api-design-principle-2026-10-18.md	# Holistic Domain-First API Design — Principal Architectural Principle	1	6	FULL	SFND1	SFND1-E004	extracted	HEADER: Principal explicitly established as principle (Oct 18 2026) | prior-run items re-verified by full re-read
+docs/foundations/holistic-domain-first-api-design-principle-2026-10-18.md	## Principle	7	10	FULL	SFND1	SFND1-E004	extracted	prior-run items re-verified by full re-read
+docs/foundations/holistic-domain-first-api-design-principle-2026-10-18.md	## Principal provenance	11	18	FULL	SFND1	SFND1-E004	extracted	prior-run items re-verified by full re-read
+docs/foundations/holistic-domain-first-api-design-principle-2026-10-18.md	## Design/review test	19	23	FULL	SFND1	SFND1-E004;SFND1-E131	extracted	prior-run items re-verified by full re-read
+docs/foundations/idea-intake-reconciliation.md	# Idea Intake and Reconciliation Pipeline	1	9	FULL	SFND1		no-new-knowledge	HEADER: Ratified methodology, Category B (Sep 1 2026)
+docs/foundations/idea-intake-reconciliation.md	## Purpose	10	29	FULL	SFND1	SFND1-E121	extracted	
+docs/foundations/idea-intake-reconciliation.md	## 1. Discovery Does Not Modify the Roadmap	30	56	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## 2. Durable Intake Gives the Idea a Stable Identity	57	85	FULL	SFND1	SFND1-E121	extracted	
+docs/foundations/idea-intake-reconciliation.md	## 3. Strategic Reconciliation	86	116	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## 4. Architectural Reconciliation	117	136	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## 5. Preserve Why-State	137	152	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## 6. Implementation Decomposition and Commitment Come Last	153	170	FULL	SFND1	SFND1-E121	extracted	
+docs/foundations/idea-intake-reconciliation.md	## State Model	171	188	FULL	SFND1	SFND1-E121	extracted	
+docs/foundations/idea-intake-reconciliation.md	## Required Intake Record	189	204	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## Reconciliation Completion Record — Required Observable Output	205	227	FULL	SFND1	SFND1-E043	extracted	prior-run items re-verified by full re-read
+docs/foundations/idea-intake-reconciliation.md	## GitHub Issues and Standalone Intake Documents	228	242	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## Defect Tracking — `docs/bugs/` is the Defect System of Record	243	262	FULL	SFND1	SFND1-E044;SFND1-E122	extracted	prior-run items re-verified by full re-read
+docs/foundations/idea-intake-reconciliation.md	## Actor Responsibilities	263	293	FULL	SFND1	SFND1-E122	extracted	
+docs/foundations/idea-intake-reconciliation.md	## One Algorithm; Multiple Signposts	294	301	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## Cold-Start Rule	302	315	FULL	SFND1		no-new-knowledge	
+docs/foundations/idea-intake-reconciliation.md	## Canonical Short Form	316	324	FULL	SFND1		no-new-knowledge	
+docs/foundations/market-priced-risk.md	# Market-Priced Risk as Evidence — Research Topic	1	8	FULL	SFND1	SFND1-E079	extracted	HEADER: Research topic - not feature/implementation (Jul 2026)
+docs/foundations/market-priced-risk.md	## Core Question	9	16	FULL	SFND1	SFND1-E079	extracted	
+docs/foundations/market-priced-risk.md	## Motivating Observations	17	42	FULL	SFND1	SFND1-E079	extracted	
+docs/foundations/market-priced-risk.md	## Research Principle	43	52	FULL	SFND1	SFND1-E079	extracted	
+docs/foundations/market-priced-risk.md	## What the Market Prices (Observable Factors)	53	71	FULL	SFND1	SFND1-E079	extracted	
+docs/foundations/market-priced-risk.md	## Architectural Implications	72	114	FULL	SFND1	SFND1-E079	extracted	
+docs/foundations/market-priced-risk.md	## Relationship to Existing Architecture	115	127	FULL	SFND1		no-new-knowledge	
+docs/foundations/market-priced-risk.md	## Possible Research Directions	128	143	FULL	SFND1		no-new-knowledge	
+docs/foundations/market-priced-risk.md	## Important Constraints	144	153	FULL	SFND1	SFND1-E080	extracted	
+docs/foundations/market-priced-risk.md	## Expected Outcomes	154	168	FULL	SFND1	SFND1-E080	extracted	
+docs/foundations/market-priced-risk.md	## Data Requirements (Preliminary)	169	185	FULL	SFND1	SFND1-E080	extracted	
+docs/foundations/market-priced-risk.md	## Maturity	186	195	FULL	SFND1	SFND1-E080	extracted	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	# Multi-Actor Repeatability and Temporal Synchronization Operating Model	1	10	FULL	SFND1		no-new-knowledge	HEADER: Ratified methodology, Category B; no date
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 1. Purpose	11	49	FULL	SFND1	SFND1-E090	extracted	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 2. Three Repeatability Requirements	50	93	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 3. Authority Provenance	94	120	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 4. Bootstrap and Synchronization	121	172	FULL	SFND1	SFND1-E090	extracted	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 5. Synchronization Boundaries and Staleness	173	243	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 6. Live Principal Authority and Contextual Authorization	244	289	FULL	SFND1	SFND1-E070	extracted	prior-run items re-verified by full re-read
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 7. Authority Mutation Gate	290	312	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 8. Divergence, Evidence Completeness, and Convergence	313	383	FULL	SFND1	SFND1-E089	extracted	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 9. Scoped Execution Ownership	384	436	FULL	SFND1	SFND1-E093	extracted	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 10. Shared Working-State Discipline	437	472	FULL	SFND1	SFND1-E069	extracted	prior-run items re-verified by full re-read
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 11. Urgent Incident Exception	473	497	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 12. Normal Actor Loop	498	547	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## 13. Governing Axioms	548	578	FULL	SFND1	SFND1-E069	extracted	prior-run items re-verified by full re-read
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	# Appendix A — Constitutional Relationship	579	596	FULL	SFND1	SFND1-E092	extracted	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	# Appendix B — Candidate Conformance Specifications	597	660	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	# Appendix C — Provisional Failure Taxonomy	661	726	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	# Appendix D — Optional Coordination Visibility Pattern	727	758	FULL	SFND1		no-new-knowledge	
+docs/foundations/multi-actor-repeatability-temporal-synchronization.md	## Desired Outcome	759	775	FULL	SFND1	SFND1-E091	extracted	
+docs/foundations/operational-surface-design.md	# Operational Surface Design Principles	1	2	FULL	SFND1		no-new-knowledge	HEADER: No header status or date
+docs/foundations/operational-surface-design.md	## Purpose	3	10	FULL	SFND1		no-new-knowledge	
+docs/foundations/operational-surface-design.md	## Impatient Mode versus Reflective Mode	11	40	FULL	SFND1	SFND1-E126	extracted	
+docs/foundations/operational-surface-design.md	## Operational Density	41	67	FULL	SFND1		no-new-knowledge	
+docs/foundations/operational-surface-design.md	## Above-the-Fold Priority	68	84	FULL	SFND1	SFND1-E126	extracted	
+docs/foundations/operational-surface-design.md	## Applicability	85	99	FULL	SFND1	SFND1-E126	extracted	
+docs/foundations/operational-surface-design.md	## Compression over Concealment	100	151	FULL	SFND1	SFND1-E047;SFND1-E126	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	# Wheelwright Options Domain Competence Contract	1	10	FULL	SFND1	SFND1-E027	extracted	HEADER: Principal-ratified, Category B (Sep 16 2026) | prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 1. Purpose	11	20	FULL	SFND1	SFND1-E027	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 2. Entry Condition	21	30	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-competence-contract.md	## 3. Core Obligation	31	51	FULL	SFND1	SFND1-E074	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 4. Independent Domain Grounding	52	71	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-competence-contract.md	## 5. Mechanics, Evidence, and Policy	72	91	FULL	SFND1	SFND1-E028	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 6. Complete-Position Invariant	92	101	FULL	SFND1	SFND1-E074	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 7. Capital and Closure Invariant	102	126	FULL	SFND1	SFND1-E029	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 8. Lifecycle and Quantity Invariant	127	136	FULL	SFND1	SFND1-E074	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 9. Exposure, Probability, and Roll Invariant	137	144	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-competence-contract.md	## 10. Intent Invariant	145	162	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-competence-contract.md	## 11. Support Status	163	180	FULL	SFND1	SFND1-E094	extracted	
+docs/foundations/options-domain-competence-contract.md	## 12. Diagnostic Routing	181	219	FULL	SFND1	SFND1-E030;SFND1-E094	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-competence-contract.md	## 13. Verification and Acceptance	220	241	FULL	SFND1	SFND1-E100	extracted	
+docs/foundations/options-domain-competence-contract.md	## 14. Effectiveness and Falsification	242	253	FULL	SFND1	SFND1-E100	extracted	
+docs/foundations/options-domain-competence-contract.md	## 15. Scope	254	268	FULL	SFND1	SFND1-E027	extracted	prior-run items re-verified by full re-read
+docs/foundations/options-domain-reference.md	# Wheelwright Options Domain Reference	1	10	FULL	SFND1		no-new-knowledge	HEADER: Principal-ratified specialized reference, Category E (Sep 16 2026); Sep 19 section appended
+docs/foundations/options-domain-reference.md	## How to read this reference	11	39	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	# PART 1 — Options Economic Model (the always-read core)	40	43	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 1. An option is a contract with two asymmetric sides	44	57	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 2. The four order actions (open vs close)	58	68	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 3. Premium = intrinsic + extrinsic value	69	79	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 4. Moneyness	80	88	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 5. Lifecycle events (four distinct kinds)	89	99	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 6. Settlement: standard equity/ETF options ordinarily settle physically	100	107	FULL	SFND1	SFND1-E096	extracted	real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	## 7. The capital ladder — the most misused part of the domain	108	120	FULL	SFND1	SFND1-E096	extracted	real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	## 8. Mechanics / Evidence / Policy — keep three questions separate	121	130	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 9. Complete-position rule	131	136	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	# PART 2 — Lifecycle / Structure Matrices	137	150	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 2.1 Cash-Secured Put (CSP)	151	163	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 2.2 Covered Call (CC)	164	176	FULL	SFND1		no-new-knowledge	
+docs/foundations/options-domain-reference.md	## 2.3 Buy-Write (BW)	177	194	FULL	SFND1	SFND1-E032	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	## 2.4 Roll (any short leg)	195	206	FULL	SFND1	SFND1-E095	extracted	real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	# PART 3 — Semantic Specimens	207	247	FULL	SFND1	SFND1-E095	extracted	real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	# PART 4 — Focused Depth (retrieve only on trigger)	248	277	FULL	SFND1	SFND1-E097	extracted	real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	# PART 5 — External Grounding Map	278	305	FULL	SFND1	SFND1-E033	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	## Reconciliation notes	306	316	FULL	SFND1	SFND1-E097	extracted	real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	## Intentional-boundary note	317	323	FULL	SFND1	SFND1-E034	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/options-domain-reference.md	## Fidelity broker-account balance semantics (September 19, 2026)	324	368	FULL	SFND1	SFND1-E031;SFND1-E098	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/parking-lot-continuation-governance.md	# Parking-Lot Continuation Governance	1	9	FULL	SFND1	SFND1-E078	extracted	HEADER: Ratified methodology, Category B (Aug 29 2026)
+docs/foundations/parking-lot-continuation-governance.md	## Invariant	10	22	FULL	SFND1	SFND1-E078	extracted	
+docs/foundations/policy-over-prediction.md	# Policy over Prediction	1	2	FULL	SFND1		no-new-knowledge	HEADER: No header status; ratified via principles.md:59
+docs/foundations/policy-over-prediction.md	## Purpose	3	8	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## Core Insight	9	18	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## The Distinction	19	38	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## Why Policy Wins	39	52	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## The Hierarchy	53	70	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## Manifestations in This Project	71	87	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## When Prediction Is Appropriate	88	104	FULL	SFND1	SFND1-E023	extracted	prior-run items re-verified by full re-read
+docs/foundations/policy-over-prediction.md	## The Policy Lifecycle	105	117	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## Relationship to Other Principles	118	127	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## Domain Independence	128	142	FULL	SFND1		no-new-knowledge	
+docs/foundations/policy-over-prediction.md	## Strategy-Level Manifestation	143	201	FULL	SFND1	SFND1-E026	extracted	prior-run items re-verified by full re-read
+docs/foundations/policy-over-prediction.md	## Scope Clarification: Operating Forecast (August 2026)	202	240	FULL	SFND1	SFND1-E023;SFND1-E024	extracted	prior-run items re-verified by full re-read
+docs/foundations/portfolio-capital.md	# Portfolio Capital	1	7	FULL	SFND1		no-new-knowledge	HEADER: V1 derivation ratified Aug 20 2026; persistence pending
+docs/foundations/portfolio-capital.md	## Definition	8	17	FULL	SFND1	SFND1-E035	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## V1 Derivation (Ratified)	18	63	FULL	SFND1	SFND1-E035	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Ratified Accounting Semantics	64	99	FULL	SFND1	SFND1-E129	extracted	real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Conceptual Separation	100	113	FULL	SFND1	SFND1-E037;SFND1-E129	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Fidelity Reconciliation	114	132	FULL	SFND1		no-new-knowledge	
+docs/foundations/portfolio-capital.md	## What Portfolio Capital Is NOT	133	145	FULL	SFND1	SFND1-E035	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Denominators	146	158	FULL	SFND1	SFND1-E129	extracted	real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Historical Trajectory	159	168	FULL	SFND1	SFND1-E129	extracted	real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Open Implementation Questions	169	179	FULL	SFND1	SFND1-E036	extracted	prior-run items re-verified by full re-read | real-account amounts/nicknames withheld
+docs/foundations/portfolio-capital.md	## Cross-References	180	190	FULL	SFND1		no-new-knowledge	
+docs/foundations/principal-decision-surface.md	# Principal Decision Surface — Wheelwright	1	6	FULL	SFND1		no-new-knowledge	HEADER: Ratified Decision / Accepted Operating-Model Design, Category B (Sep 17 2026)
+docs/foundations/principal-decision-surface.md	## Purpose	7	16	FULL	SFND1	SFND1-E005	extracted	prior-run items re-verified by full re-read
+docs/foundations/principal-decision-surface.md	## Governing distinction	17	32	FULL	SFND1	SFND1-E006	extracted	prior-run items re-verified by full re-read
+docs/foundations/principal-decision-surface.md	## Outcome-level engineering delegation — Principal reconciliation, October 13, 2026	33	44	FULL	SFND1	SFND1-E008	extracted	prior-run items re-verified by full re-read
+docs/foundations/principal-decision-surface.md	## Fixed reply grammar	45	80	FULL	SFND1	SFND1-E007	extracted	prior-run items re-verified by full re-read
+docs/foundations/principal-decision-surface.md	## Authority provenance rule	81	86	FULL	SFND1	SFND1-E007	extracted	prior-run items re-verified by full re-read
+docs/foundations/principal-decision-surface.md	## Principal cognitive conditioning	87	96	FULL	SFND1	SFND1-E007;SFND1-E086	extracted	prior-run items re-verified by full re-read
+docs/foundations/principal-decision-surface.md	## Actor conditioning	97	100	FULL	SFND1		no-new-knowledge	
+docs/foundations/principal-decision-surface.md	## September 17 behavioral specimen	101	113	FULL	SFND1	SFND1-E087	extracted	
+docs/foundations/principal-decision-surface.md	## Design consequences	114	121	FULL	SFND1	SFND1-E086	extracted	
+docs/foundations/principal-personal-objectives-2026-10-14.md	# Principal personal objectives — October 14, 2026	1	16	FULL	SFND1	SFND1-E001;SFND1-E002;SFND1-E134	extracted	HEADER: Principal-stated personal objectives; not LVT (Oct 14/18 2026) | prior-run items re-verified by full re-read
+docs/foundations/principal-rest-uri-design-review-intent-2026-10-18.md	# Principal REST API design-review intent — October 18, 2026	1	11	FULL	SFND1	SFND1-E003	extracted	HEADER: Principal-stated review intent; not a rule (Oct 18 2026) | prior-run items re-verified by full re-read
+docs/foundations/principles-governance-model.md	# Principles as Domain Model	1	7	FULL	SFND1	SFND1-E114	extracted	HEADER: Governing architectural foundation (Jul 16 2026); candidates unratified
+docs/foundations/principles-governance-model.md	## Core Claim	8	23	FULL	SFND1	SFND1-E114	extracted	
+docs/foundations/principles-governance-model.md	## The Distinction That Matters	24	53	FULL	SFND1	SFND1-E114	extracted	
+docs/foundations/principles-governance-model.md	## The Layered Architecture	54	110	FULL	SFND1		no-new-knowledge	
+docs/foundations/principles-governance-model.md	## Candidate Operating Principles	111	190	FULL	SFND1	SFND1-E113	extracted	
+docs/foundations/principles-governance-model.md	## How Principles Relate to Current Implementation	191	211	FULL	SFND1	SFND1-E063	extracted	prior-run items re-verified by full re-read
+docs/foundations/principles-governance-model.md	## What Changes When Principles Become First-Class	212	273	FULL	SFND1		no-new-knowledge	
+docs/foundations/principles-governance-model.md	## What This Is Not	274	309	FULL	SFND1	SFND1-E064	extracted	prior-run items re-verified by full re-read
+docs/foundations/principles-governance-model.md	## Implementation Maturity	310	342	FULL	SFND1		no-new-knowledge	
+docs/foundations/principles-governance-model.md	## Relationship to Existing Foundations	343	354	FULL	SFND1	SFND1-E063	extracted	prior-run items re-verified by full re-read
+docs/foundations/principles-governance-model.md	## Open Questions	355	383	FULL	SFND1	SFND1-E064;SFND1-E114	extracted	prior-run items re-verified by full re-read
+docs/foundations/principles-governance-model.md	## Provenance	384	386	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	# Recommendation Set Analysis	1	8	FULL	SFND1		no-new-knowledge	HEADER: Architectural concept - not yet implemented (Jul 2026)
+docs/foundations/recommendation-set-analysis.md	## Core Concept	9	20	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Distinction from Individual Evaluation	21	32	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Architectural Abstraction: Grouping Heuristic	33	69	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## The Engine Asks One Question	70	86	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Evidence over Interpretation	87	106	FULL	SFND1	SFND1-E049	extracted	prior-run items re-verified by full re-read
+docs/foundations/recommendation-set-analysis.md	## Relationship to Portfolio Context	107	122	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Relationship to Market-Priced Risk	123	136	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Relationship to Existing Architecture	137	148	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Data Requirements	149	166	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Open Questions	167	180	FULL	SFND1		no-new-knowledge	
+docs/foundations/recommendation-set-analysis.md	## Maturity	181	191	FULL	SFND1		no-new-knowledge	
+docs/foundations/regime-objective-function.md	# Cash-Flow Operating Regime	1	2	FULL	SFND1	SFND1-E059	extracted	HEADER: Documented (2026-08-10) | prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Status: Documented (2026-08-10)	3	8	FULL	SFND1	SFND1-E059	extracted	prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Operating Regime	9	16	FULL	SFND1	SFND1-E059;SFND1-E115	extracted	prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Mission	17	24	FULL	SFND1	SFND1-E059	extracted	prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Operational Objectives	25	36	FULL	SFND1	SFND1-E059	extracted	prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Constraints	37	48	FULL	SFND1	SFND1-E059	extracted	prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Evidence Architecture — Three Levels of Maturity	49	106	FULL	SFND1	SFND1-E060	extracted	prior-run items re-verified by full re-read
+docs/foundations/regime-objective-function.md	## Entry Mechanisms	107	132	FULL	SFND1	SFND1-E116	extracted	
+docs/foundations/regime-objective-function.md	## Policy Architecture Implications	133	166	FULL	SFND1	SFND1-E116	extracted	
+docs/foundations/regime-objective-function.md	## Current Implementation Posture	167	174	FULL	SFND1	SFND1-E116	extracted	
+docs/foundations/regime-objective-function.md	## Open Questions (deferred, not resolved)	175	212	FULL	SFND1	SFND1-E117	extracted	
+docs/foundations/regime-objective-function.md	## Relationship to Governing Principles	213	226	FULL	SFND1		no-new-knowledge	
+docs/foundations/retooling-charter.md	# Wheelwright Backend Retooling Charter	1	7	FULL	SFND1		no-new-knowledge	HEADER: Ratified (Jul 2026)
+docs/foundations/retooling-charter.md	## Architectural Identity	8	19	FULL	SFND1	SFND1-E016	extracted	prior-run items re-verified by full re-read
+docs/foundations/retooling-charter.md	## Durable Principles	20	41	FULL	SFND1		no-new-knowledge	
+docs/foundations/retooling-charter.md	## Stable Boundaries	42	55	FULL	SFND1		no-new-knowledge	
+docs/foundations/retooling-charter.md	## Transitional Boundaries	56	69	FULL	SFND1	SFND1-E081	extracted	
+docs/foundations/retooling-charter.md	## Migration Constraints	70	85	FULL	SFND1	SFND1-E082	extracted	
+docs/foundations/retooling-charter.md	## Acceptance Criteria	86	104	FULL	SFND1	SFND1-E081;SFND1-E083	extracted	
+docs/foundations/retooling-charter.md	## Explicitly Deferred Decisions	105	120	FULL	SFND1	SFND1-E081	extracted	
+docs/foundations/retooling-charter.md	## Sequence	121	134	FULL	SFND1	SFND1-E082	extracted	
+docs/foundations/roadmap-self-documenting-meta-state.md	# Roadmap as Self-Documenting Meta-State	1	8	FULL	SFND1		no-new-knowledge	HEADER: Governing architectural concept - ratified, Category A (Sep 2026)
+docs/foundations/roadmap-self-documenting-meta-state.md	## Governing thesis	9	12	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## Two kinds of state	13	20	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## The recursive property	21	26	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## The critical maintenance property	27	36	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## Authority relationship	37	46	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## Log lens semantics	47	54	FULL	SFND1	SFND1-E045	extracted	prior-run items re-verified by full re-read
+docs/foundations/roadmap-self-documenting-meta-state.md	## The feedback loop	55	60	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## Consequence for the Principal	61	68	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## What this concept is not	69	73	FULL	SFND1		no-new-knowledge	
+docs/foundations/roadmap-self-documenting-meta-state.md	## Relationship to existing foundations	74	81	FULL	SFND1		no-new-knowledge	
+docs/foundations/secondary-observation.md	# Secondary Observation	1	2	FULL	SFND1		no-new-knowledge	HEADER: No header status or date
+docs/foundations/secondary-observation.md	## Purpose	3	10	FULL	SFND1		no-new-knowledge	
+docs/foundations/secondary-observation.md	## Core Insight	11	20	FULL	SFND1		no-new-knowledge	
+docs/foundations/secondary-observation.md	## The Pattern	21	42	FULL	SFND1		no-new-knowledge	
+docs/foundations/secondary-observation.md	## The Fundamental Question	43	54	FULL	SFND1	SFND1-E046	extracted	prior-run items re-verified by full re-read
+docs/foundations/secondary-observation.md	## The Reference Does Not Replace Reality	55	68	FULL	SFND1	SFND1-E046	extracted	prior-run items re-verified by full re-read
+docs/foundations/secondary-observation.md	## Examples Across Domains	69	81	FULL	SFND1	SFND1-E046	extracted	prior-run items re-verified by full re-read
+docs/foundations/secondary-observation.md	## Manifestation in This Project	82	105	FULL	SFND1	SFND1-E046	extracted	prior-run items re-verified by full re-read
+docs/foundations/secondary-observation.md	## Implementation Sequencing	106	118	FULL	SFND1	SFND1-E046	extracted	prior-run items re-verified by full re-read
+docs/foundations/secondary-observation.md	## Relationship to Other Principles	119	128	FULL	SFND1		no-new-knowledge	
+docs/foundations/secondary-observation.md	## Domain Independence	129	141	FULL	SFND1		no-new-knowledge	
+docs/foundations/shared-execution-contract.md	# Wheelwright Shared Execution Contract — SUSPENDED AS RUNTIME CONTROL	1	10	FULL	SFND1	SFND1-E009	extracted	HEADER: Original ratification Sep 16 2026; currently SUSPENDED as runtime control | prior-run items re-verified by full re-read
+docs/foundations/shared-execution-contract.md	## Current cold-start routing	11	27	FULL	SFND1	SFND1-E009	extracted	prior-run items re-verified by full re-read
+docs/foundations/shared-execution-contract.md	## Current interpretation	28	41	FULL	SFND1	SFND1-E009;SFND1-E124	extracted	prior-run items re-verified by full re-read
+docs/foundations/state-oriented-console.md	# State-Oriented Operator Console	1	7	FULL	SFND1	SFND1-E050	extracted	HEADER: Architectural principle (Jul 2026); no ratification line | prior-run items re-verified by full re-read
+docs/foundations/state-oriented-console.md	## Governing Principle	8	15	FULL	SFND1	SFND1-E050	extracted	prior-run items re-verified by full re-read
+docs/foundations/state-oriented-console.md	## Observable State vs Operational State	16	74	FULL	SFND1	SFND1-E127	extracted	
+docs/foundations/state-oriented-console.md	## The Distinction in Practice	75	87	FULL	SFND1		no-new-knowledge	
+docs/foundations/state-oriented-console.md	## Relationship to Backend-Owned Acquisition	88	100	FULL	SFND1		no-new-knowledge	
+docs/foundations/state-oriented-console.md	## Relationship to Evidence	101	126	FULL	SFND1		no-new-knowledge	
+docs/foundations/state-oriented-console.md	## Scan as Transitional Artifact	127	144	FULL	SFND1		no-new-knowledge	
+docs/foundations/state-oriented-console.md	## Scalability	145	161	FULL	SFND1	SFND1-E050	extracted	prior-run items re-verified by full re-read
+docs/foundations/state-oriented-console.md	## Information Layers	162	190	FULL	SFND1	SFND1-E127	extracted	
+docs/foundations/state-oriented-console.md	## Cross-References	191	204	FULL	SFND1		no-new-knowledge	
+docs/foundations/state-oriented-console.md	## Open Questions	205	215	FULL	SFND1		no-new-knowledge	
+docs/foundations/step4-conformance-assessment.md	# Step 4: Conformance Assessment	1	9	FULL	SFND1		no-new-knowledge	HEADER: Assessment step 4 of 6 (Jul 2026); no status line
+docs/foundations/step4-conformance-assessment.md	## Conformance Table	10	39	FULL	SFND1		no-new-knowledge	
+docs/foundations/step4-conformance-assessment.md	## Summary	40	48	FULL	SFND1	SFND1-E017	extracted	prior-run items re-verified by full re-read
+docs/foundations/step4-conformance-assessment.md	## Gap Classification	49	90	FULL	SFND1		no-new-knowledge	
+docs/foundations/step4-conformance-assessment.md	## Remediation Status	91	115	FULL	SFND1		no-new-knowledge	
+docs/foundations/step4-conformance-assessment.md	## Boundary of Step 4	116	142	FULL	SFND1	SFND1-E017	extracted	prior-run items re-verified by full re-read
+docs/foundations/strategy-architecture-reconciliation.md	# Strategy–Architecture Reconciliation	1	8	FULL	SFND1		no-new-knowledge	HEADER: Ratified methodology (Aug 31 2026)
+docs/foundations/strategy-architecture-reconciliation.md	## Purpose	9	18	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-architecture-reconciliation.md	## Core Principles	19	141	FULL	SFND1	SFND1-E067;SFND1-E068;SFND1-E120	extracted	prior-run items re-verified by full re-read
+docs/foundations/strategy-architecture-reconciliation.md	## Three Actor Model Responsibilities	142	189	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-architecture-reconciliation.md	## The Operating Loops	190	260	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-architecture-reconciliation.md	## Choosing What to Work on Next	261	285	FULL	SFND1	SFND1-E120	extracted	
+docs/foundations/strategy-architecture-reconciliation.md	## Course Correction	286	326	FULL	SFND1	SFND1-E068	extracted	prior-run items re-verified by full re-read
+docs/foundations/strategy-architecture-reconciliation.md	## Durable Working Views	327	387	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-architecture-reconciliation.md	## Reconciliation Vocabulary	388	407	FULL	SFND1	SFND1-E120	extracted	
+docs/foundations/strategy-architecture-reconciliation.md	## Discipline	408	436	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	# Strategy Expansion Governance — August 29, 2026 Amendment	1	6	FULL	SFND1		no-new-knowledge	HEADER: Accepted scope correction (Aug 29 2026)
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Credit-Spread Scope Correction	7	16	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Why the Premise Changed	17	32	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Vertical Spreads Remain Distinct From Narrow-Range Structures	33	40	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Required Four-Lens Work Before Any Admission	41	59	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Additional Composed Candidate	60	78	FULL	SFND1	SFND1-E056	extracted	prior-run items re-verified by full re-read
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Relationship to Deployment	79	88	FULL	SFND1	SFND1-E103	extracted	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Relationship to Behavioral Decision Discipline	89	100	FULL	SFND1	SFND1-E103	extracted	
+docs/foundations/strategy-expansion-governance-2026-08-29-amendment.md	## Governing Disposition	101	105	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	# Strategy Expansion Governance	1	7	FULL	SFND1		no-new-knowledge	HEADER: Exploratory - scope hypothesis under evaluation (Aug 2026)
+docs/foundations/strategy-expansion-governance.md	## Purpose	8	15	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	## Architectural Admission Test	16	45	FULL	SFND1	SFND1-E101	extracted	
+docs/foundations/strategy-expansion-governance.md	## Current Operational Strategy Set	46	59	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	## Candidate Strategies Under Study	60	100	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	## Currently Out of Scope (Absent Architectural Reconsideration)	101	123	FULL	SFND1	SFND1-E102	extracted	
+docs/foundations/strategy-expansion-governance.md	## Four-Lens Evaluation Framework	124	170	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	## Relationship to Deployment Opportunity	171	186	FULL	SFND1	SFND1-E055	extracted	prior-run items re-verified by full re-read
+docs/foundations/strategy-expansion-governance.md	## Relationship to Governing Principles	187	200	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	## Open Questions	201	216	FULL	SFND1		no-new-knowledge	
+docs/foundations/strategy-expansion-governance.md	## Maturation Path	217	229	FULL	SFND1		no-new-knowledge	
+docs/foundations/system-goal-hierarchy.md	# Wheelwright System Goal Hierarchy	1	8	FULL	SFND1	SFND1-E104	extracted	HEADER: Foundational orientation, non-authorizing (Aug 29 2026)
+docs/foundations/system-goal-hierarchy.md	## Why this foundation exists	9	24	FULL	SFND1	SFND1-E104	extracted	
+docs/foundations/system-goal-hierarchy.md	## The hierarchy	25	155	FULL	SFND1	SFND1-E057;SFND1-E104;SFND1-E105;SFND1-E106;SFND1-E108	extracted	prior-run items re-verified by full re-read
+docs/foundations/system-goal-hierarchy.md	## The nested dependency	156	189	FULL	SFND1	SFND1-E104	extracted	
+docs/foundations/system-goal-hierarchy.md	## Goldratt and Senge	190	239	FULL	SFND1	SFND1-E104;SFND1-E109	extracted	
+docs/foundations/system-goal-hierarchy.md	## Evidence is what allows the hierarchy to learn	240	257	FULL	SFND1	SFND1-E057;SFND1-E107	extracted	prior-run items re-verified by full re-read
+docs/foundations/system-goal-hierarchy.md	## Local optimization warning	258	280	FULL	SFND1		no-new-knowledge	
+docs/foundations/system-goal-hierarchy.md	## Relationship to current work	281	292	FULL	SFND1	SFND1-E058	extracted	prior-run items re-verified by full re-read
+docs/foundations/system-goal-hierarchy.md	## Revisit protocol	293	312	FULL	SFND1		no-new-knowledge	
+docs/foundations/system-goal-hierarchy.md	## Non-authorization	313	329	FULL	SFND1	SFND1-E104	extracted	
+docs/foundations/technology-quality-constitution-v1.md	# Wheelwright Technology Quality Constitution — Version 1	1	10	FULL	SFND1		no-new-knowledge	HEADER: Ratified methodology, Category B; Principal ratified v1 (Sep 3 2026)
+docs/foundations/technology-quality-constitution-v1.md	## 1. Purpose and authority boundary	11	24	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	# Constitutional principles	25	26	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Article I — Architecture must be explicit and transmissible	27	34	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Article II — Responsibility, authority, and state must be intentional	35	46	FULL	SFND1	SFND1-E062	extracted	prior-run items re-verified by full re-read
+docs/foundations/technology-quality-constitution-v1.md	## Article III — Complexity must be earned and change must remain economical	47	58	FULL	SFND1	SFND1-E111	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Article IV — Architecture evolves through evidence and deliberate change	59	77	FULL	SFND1	SFND1-E111	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Article V — Technology quality is multidimensional	78	87	FULL	SFND1	SFND1-E111	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Article VI — Important characteristics may receive earned fitness functions	88	103	FULL	SFND1	SFND1-E110;SFND1-E111	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Article VII — Existence and correct boundaries precede remediation	104	118	FULL	SFND1	SFND1-E110	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Article VIII — Evidence informs; explicit authority governs change	119	130	FULL	SFND1	SFND1-E061	extracted	prior-run items re-verified by full re-read
+docs/foundations/technology-quality-constitution-v1.md	# Technology Quality Operating Model	131	140	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Standing technology-optimization loop	141	152	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Architecture & Quality Balanced Scorecard	153	171	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Measurement reproducibility	172	186	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Exceptions and retirement	187	204	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	# Day-to-day architecture practice	205	208	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Before changing code	209	216	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## While designing	217	234	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Before acceptance	235	248	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	# Version-one baseline authorization	249	252	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Objective	253	256	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Snapshot rule	257	262	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Evidence streams	263	279	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Scope and exclusions	280	285	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Coherence discipline	286	302	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Finding disposition	303	310	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	## Exit criteria	311	328	FULL	SFND1	SFND1-E112	extracted	
+docs/foundations/technology-quality-constitution-v1.md	# Actor model for technology-quality work	329	341	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	# Immediate next actions after ratification	342	353	FULL	SFND1		no-new-knowledge	
+docs/foundations/technology-quality-constitution-v1.md	## Governing summary	354	368	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	# Three Actor Development Model	1	8	FULL	SFND1		no-new-knowledge	HEADER: Active development methodology (Aug 2026)
+docs/foundations/three-actor-model.md	## Purpose	9	16	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## The Three Actors	17	96	FULL	SFND1	SFND1-E040;SFND1-E041	extracted	prior-run items re-verified by full re-read
+docs/foundations/three-actor-model.md	## AI Role Mapping and Reconciliation Conduit	97	121	FULL	SFND1	SFND1-E040;SFND1-E042;SFND1-E088	extracted	prior-run items re-verified by full re-read
+docs/foundations/three-actor-model.md	## The Development Learning Loop	122	148	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## Why Three Roles, Not Two or One	149	164	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## Relationship to Cognitive Role Separation	165	178	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## Relationship to Closed-Loop Engineering	179	190	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## Disciplines	191	216	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## The Cold-Start Test	217	230	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## Domain Independence	231	242	FULL	SFND1		no-new-knowledge	
+docs/foundations/three-actor-model.md	## Continuous proof-carrying engineering — October 13, 2026 reconciliation	243	247	FULL	SFND1		no-new-knowledge	
+docs/foundations/training-mode-exploration.md	# Training Mode: Portfolio-Operations Simulator	1	9	FULL	SFND1		no-new-knowledge	HEADER: Exploratory (Aug 2026)
+docs/foundations/training-mode-exploration.md	## Core Concept	10	27	FULL	SFND1	SFND1-E071	extracted	prior-run items re-verified by full re-read
+docs/foundations/training-mode-exploration.md	## Three Operating Environments	28	80	FULL	SFND1	SFND1-E132	extracted	
+docs/foundations/training-mode-exploration.md	## Behavioral Training Philosophy	81	122	FULL	SFND1		no-new-knowledge	
+docs/foundations/training-mode-exploration.md	## Experience Compression	123	141	PARTIAL	SFND1		no-new-knowledge	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Sequential Learning: Complexity Is Earned	142	165	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Capital as Optionality	166	189	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Progression Through Demonstrated Competence	190	204	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Operator Skills (RPG-like Model)	205	237	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Scenario Design	238	266	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Game Time	267	278	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Assignment as Experiential Teaching	279	295	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Brokerage Literacy	296	307	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Simulated Brokerage Separation	308	328	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Simulation Engine: Broader Architectural Significance	329	367	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Architectural Relationship Analysis	368	422	PARTIAL	SFND1		no-new-knowledge	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Principles Proposed for Evaluation	423	440	FULL	SFND1	SFND1-E071	extracted	prior-run items re-verified by full re-read
+docs/foundations/training-mode-exploration.md	## Possible Shared Ecosystem (Long-Term Loop)	441	456	FULL	SFND1		no-new-knowledge	
+docs/foundations/training-mode-exploration.md	## What This Is Not	457	466	FULL	SFND1		no-new-knowledge	
+docs/foundations/training-mode-exploration.md	## Agent War-Gaming	467	520	FULL	SFND1		no-new-knowledge	
+docs/foundations/training-mode-exploration.md	## WAIT as First-Class Action	521	559	FULL	SFND1	SFND1-E071	extracted	prior-run items re-verified by full re-read
+docs/foundations/training-mode-exploration.md	## Simulation Control Room vs Simulated World	560	617	PARTIAL	SFND1		no-new-knowledge	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Game Repertoire and Visible Progression	618	681	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Simulation Concept Taxonomy	682	698	INDEXED	SFND1		deferred	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Design Sensibility: Simulation Control Room	699	722	PARTIAL	SFND1		no-new-knowledge	read ranges 1-130, 422-561, 722-805 only
+docs/foundations/training-mode-exploration.md	## Competitive Landscape and Differentiation	723	793	FULL	SFND1	SFND1-E133	extracted	
+docs/foundations/training-mode-exploration.md	## Next Steps (Not Implementation)	794	805	FULL	SFND1	SFND1-E132	extracted	
+docs/foundations/visual-design-principles.md	# Wheelwright Visual Design Principles	1	6	FULL	SFND1	SFND1-E125	extracted	HEADER: Inferred from implementation, ratified Aug 20 2026
+docs/foundations/visual-design-principles.md	## Design Principles	7	32	FULL	SFND1	SFND1-E048;SFND1-E125	extracted	prior-run items re-verified by full re-read
+docs/foundations/visual-design-principles.md	## Typography	33	69	FULL	SFND1		no-new-knowledge	
+docs/foundations/visual-design-principles.md	## Color System	70	120	FULL	SFND1		no-new-knowledge	
+docs/foundations/visual-design-principles.md	## Layout	121	145	FULL	SFND1		no-new-knowledge	
+docs/foundations/visual-design-principles.md	## Component Patterns	146	175	FULL	SFND1		no-new-knowledge	
+docs/foundations/visual-design-principles.md	## Moneyness Visual Encoding	176	186	FULL	SFND1	SFND1-E125	extracted	
+docs/foundations/visual-design-principles.md	## Token Authority	187	189	FULL	SFND1	SFND1-E125	extracted	

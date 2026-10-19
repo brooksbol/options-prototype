@@ -1,0 +1,88 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/parking-lot.md	Header / Last reviewed	1	8	FULL	SPL1	SPL1-E001	extracted	Header date stale vs in-place amendments through Oct 14
+docs/parking-lot.md	Intake Discipline	9	17	FULL	SPL1	SPL1-E001	extracted	
+docs/parking-lot.md	Principal Decisions (Unresolved): PL-ARCH-06, PL-GOV-EXPR	18	26	FULL	SPL1	SPL1-E002,SPL1-E003,SPL1-E004	extracted	
+docs/parking-lot.md	Accepted Direction: PL-SHELL, PL-DEPLOY, PL-DEC-BEH, PL-CLEANUP, PL-GOV-02	27	36	FULL	SPL1	SPL1-E005,SPL1-E006,SPL1-E007,SPL1-E008,SPL1-E010,SPL1-E011,SPL1-E012,SPL1-D023,SPL1-D024,SPL1-D029	extracted	
+docs/parking-lot.md	Implementation Work: PL-UX-01..PL-PROD-EVENTS	37	52	FULL	SPL1	SPL1-E009,SPL1-E013,SPL1-E014,SPL1-E015,SPL1-E016,SPL1-E017,SPL1-E018,SPL1-E019,SPL1-E020,SPL1-E021,SPL1-D025,SPL1-D028	extracted	PL-UX-04, PL-EVID-03, PL-GOV-01, PL-POL-04 read; low new knowledge
+docs/parking-lot.md	Unresolved Architectural Work: PL-EVID-07..PL-DEPLOY-02	53	65	FULL	SPL1	SPL1-E022,SPL1-E023,SPL1-E024,SPL1-E025,SPL1-E026,SPL1-E027,SPL1-E028,SPL1-E029,SPL1-D026,SPL1-D027,SPL1-D031,SPL1-D038	extracted	PL-PROD-VALUE real-account amounts withheld
+docs/parking-lot.md	Infrastructure Prerequisites: PL-OPS-01, PL-ARCH-03	66	72	FULL	SPL1	SPL1-E030	extracted	
+docs/parking-lot.md	Blocked: PL-EVID-04, PL-EVID-05, PL-RESEARCH-04	73	80	FULL	SPL1		no-new-knowledge	PL-EVID-04 detail lives in parking-lot-10 (out of scope)
+docs/parking-lot.md	Active Research: PL-RESEARCH-01	81	86	FULL	SPL1	SPL1-E036,SPL1-D030	extracted	
+docs/parking-lot.md	Exploratory seeds: PL-ARCH-02..PL-META-01	87	100	FULL	SPL1	SPL1-E030,SPL1-E031,SPL1-E032,SPL1-E033,SPL1-E034,SPL1-E035,SPL1-D037	extracted	PL-ARCH-02/ARCH-01/POL-01/CALL-03 thin seeds
+docs/parking-lot.md	Research Instruments: PL-RESEARCH-03	101	108	FULL	SPL1		no-new-knowledge	
+docs/parking-lot.md	Capability Families: Governance	109	120	FULL	SPL1		no-new-knowledge	
+docs/parking-lot.md	Historical / Observational Family	121	132	FULL	SPL1	SPL1-E029	extracted	
+docs/parking-lot.md	Strategy-Specific Semantics	133	146	FULL	SPL1	SPL1-E037	extracted	
+docs/parking-lot.md	Graduated / Closed Index	147	184	FULL	SPL1	SPL1-E038	extracted	
+docs/parking-lot.md	Merge / Split / Supersession History	185	217	FULL	SPL1	SPL1-E038	extracted	
+docs/parking-lot.md	Historical Context	218	228	FULL	SPL1		no-new-knowledge	
+docs/parking-lot.md	Source Integrity Note	229	231	FULL	SPL1	SPL1-E038	extracted	
+docs/parking-lot-2.md	Header / Continuation Invariant	1	25	FULL	SPL1	SPL1-E001	duplicate-of:SPL1-E001	
+docs/parking-lot-2.md	Active Items: PL-EVID-MVPTA	26	35	FULL	SPL1	SPL1-E039,SPL1-E040	extracted	
+docs/parking-lot-2.md	Continuation History	36	40	FULL	SPL1		no-new-knowledge	
+docs/parking-lot-3.md	Header / Continuation Invariant	1	23	FULL	SPL1	SPL1-E041	extracted	
+docs/parking-lot-3.md	PL-EVID-AGE row	24	33	FULL	SPL1	SPL1-E042	extracted	
+docs/parking-lot-3.md	PL-EVID-AGE Reconciliation Completion Record	34	91	FULL	SPL1	SPL1-E042,SPL1-E043,SPL1-E044,SPL1-E045,SPL1-D015,SPL1-D039	extracted	
+docs/parking-lot-3.md	Colored-Line / Surface / Scheduler Audit: PL-POSTURE-01, PL-SURF-01, PL-SCHED-DRIFT	92	103	FULL	SPL1	SPL1-E046,SPL1-E047,SPL1-E048	extracted	
+docs/parking-lot-3.md	Opportunity-History Instrument: PL-DEPLOY-02-DEF01 + browser-only emission	104	117	FULL	SPL1	SPL1-E049,SPL1-E050	extracted	
+docs/parking-lot-3.md	DEF01 Reconciliation + Remediation closure	118	165	FULL	SPL1	SPL1-E049,SPL1-D033	extracted	
+docs/parking-lot-3.md	PL-PROV-FAILOVER row	166	175	FULL	SPL1	SPL1-E051	extracted	
+docs/parking-lot-3.md	PROV-FAILOVER Reconciliation: intake/strategic/architectural/taxonomy/health	176	197	FULL	SPL1	SPL1-E051,SPL1-E056	extracted	
+docs/parking-lot-3.md	Separation of concerns (Principal correction)	198	226	FULL	SPL1	SPL1-E052,SPL1-D032	extracted	
+docs/parking-lot-3.md	Final architecture A–J + canonical invariants I1–I13	227	264	FULL	SPL1	SPL1-E053,SPL1-E054,SPL1-E055,SPL1-D032	extracted	
+docs/parking-lot-3.md	Codex implementation-reality findings	265	281	FULL	SPL1	SPL1-E051	extracted	
+docs/parking-lot-3.md	Single-authority / recovery observation	282	292	FULL	SPL1	SPL1-E055	extracted	
+docs/parking-lot-3.md	PROV disposition / decomposition / why / next	293	327	FULL	SPL1	SPL1-E055	extracted	
+docs/parking-lot-3.md	Continuation History	328	344	FULL	SPL1	SPL1-E057	extracted	
+docs/parking-lot-3.md	Final PL-CLEANUP Reconciliation (packages, exclusions, exit criterion, evidence)	345	480	FULL	SPL1	SPL1-E058,SPL1-E059,SPL1-D023,SPL1-D024	extracted	
+docs/parking-lot-3.md	PL-CLEANUP + PL-SHELL Reconciliation Completion Record	481	509	FULL	SPL1	SPL1-E058	extracted	
+docs/parking-lot-4.md	Header / Continuation Invariant	1	23	FULL	SPL1		duplicate-of:SPL1-E041	
+docs/parking-lot-4.md	PL-ARCH-FITNESS-01 row + intake note	24	45	FULL	SPL1	SPL1-E060	extracted	
+docs/parking-lot-4.md	PL-PROD-EXPORT-01 row + intake note	46	65	FULL	SPL1	SPL1-E061,SPL1-E062,SPL1-E064	extracted	
+docs/parking-lot-4.md	PROD-EXPORT Second Design Pass	66	109	FULL	SPL1	SPL1-E063,SPL1-E064	extracted	#11 specimen amounts withheld
+docs/parking-lot-4.md	PROD-EXPORT Implementation / Trust-Correction / Final / Verdict	110	191	FULL	SPL1	SPL1-E065,SPL1-D035	extracted	
+docs/parking-lot-5.md	Header / Continuation Invariant	1	23	FULL	SPL1		duplicate-of:SPL1-E041	
+docs/parking-lot-5.md	PL-STRAT-01 HBWB refinement	24	64	FULL	SPL1	SPL1-E066	extracted	
+docs/parking-lot-5.md	HBWB Reconciliation Completion Record	65	132	FULL	SPL1	SPL1-E067	extracted	
+docs/parking-lot-5.md	Comparative Options Strategy Surface	133	187	FULL	SPL1	SPL1-E068	extracted	
+docs/parking-lot-5.md	Strategy surface Reconciliation	188	245	FULL	SPL1		no-new-knowledge	
+docs/parking-lot-5.md	Operator Strategy Policy / Governed Strategy Matching	246	348	FULL	SPL1	SPL1-E069,SPL1-E070	extracted	
+docs/parking-lot-5.md	Operator Strategy Policy Reconciliation	349	415	FULL	SPL1	SPL1-E070	extracted	
+docs/parking-lot-5.md	Continuation History	416	422	FULL	SPL1		no-new-knowledge	
+docs/parking-lot-6.md	Header / Continuation Invariant	1	16	FULL	SPL1		no-new-knowledge	
+docs/parking-lot-6.md	PL-STRAT-01 Fidelity Options-Tier Execution Eligibility	17	78	FULL	SPL1	SPL1-E071,SPL1-D036	extracted	
+docs/parking-lot-6.md	Fidelity tier Reconciliation	79	124	FULL	SPL1	SPL1-E071	extracted	
+docs/parking-lot-6.md	PL-DEPLOY Capital-State Management and Deployment Paths	125	204	FULL	SPL1	SPL1-E072,SPL1-E073,SPL1-E074,SPL1-E075	extracted	
+docs/parking-lot-6.md	Capital-state Reconciliation	205	258	FULL	SPL1	SPL1-E072	extracted	
+docs/parking-lot-6.md	PL-DEPLOY Covered-Call Basis-Positive Optionality	259	300	FULL	SPL1	SPL1-E076,SPL1-D040	extracted	
+docs/parking-lot-6.md	Continuation History	301	307	FULL	SPL1		no-new-knowledge	
+docs/parking-lot-7.md	Header / Continuation Invariant	1	16	FULL	SPL1		no-new-knowledge	
+docs/parking-lot-7.md	PL-DEPLOY Share-Capital Release Cost	17	71	FULL	SPL1	SPL1-E077,SPL1-E078	extracted	GDX share-capital amount withheld
+docs/parking-lot-7.md	Release-cost Reconciliation	72	127	FULL	SPL1	SPL1-E077	extracted	
+docs/parking-lot-7.md	PL-OPS-08 Observation Continuity / Gap Recovery	128	180	FULL	SPL1	SPL1-E079,SPL1-E080,SPL1-E081,SPL1-E082,SPL1-D034	extracted	
+docs/parking-lot-7.md	PL-OPS-08 Reconciliation Completion Record	181	210	FULL	SPL1	SPL1-E079	extracted	
+docs/parking-lot-7.md	Continuation History	211	217	FULL	SPL1		no-new-knowledge	
+docs/07c-adrs.md	Header	1	6	FULL	SPL1	SPL1-E084	extracted	
+docs/07c-adrs.md	ADR-001	7	23	FULL	SPL1	SPL1-D001	extracted	
+docs/07c-adrs.md	ADR-002	24	39	FULL	SPL1	SPL1-D002,SPL1-E086	extracted	
+docs/07c-adrs.md	ADR-003	40	55	FULL	SPL1	SPL1-D003	extracted	
+docs/07c-adrs.md	ADR-004	56	72	FULL	SPL1	SPL1-D004	extracted	
+docs/07c-adrs.md	ADR-005	73	89	FULL	SPL1	SPL1-D005	extracted	
+docs/07c-adrs.md	ADR-006	90	110	FULL	SPL1	SPL1-D006	extracted	
+docs/07c-adrs.md	ADR-007	111	123	FULL	SPL1	SPL1-D007	extracted	
+docs/07c-adrs.md	ADR-008	124	139	FULL	SPL1	SPL1-D008,SPL1-E085	extracted	
+docs/07c-adrs.md	ADR-009	140	156	FULL	SPL1	SPL1-D009	extracted	
+docs/07c-adrs.md	ADR-010	157	177	FULL	SPL1	SPL1-D010	extracted	
+docs/07c-adrs.md	ADR-011	178	219	FULL	SPL1	SPL1-D011,SPL1-E097	extracted	
+docs/07c-adrs.md	ADR-012	220	261	FULL	SPL1	SPL1-D012,SPL1-E086	extracted	
+docs/07c-adrs.md	ADR-013 (+ Resolution Outlook amendment)	262	389	FULL	SPL1	SPL1-D013,SPL1-E091	extracted	
+docs/07c-adrs.md	ADR-014	390	474	FULL	SPL1	SPL1-D014,SPL1-E089,SPL1-E090	extracted	
+docs/07c-adrs.md	ADR-015	475	518	FULL	SPL1	SPL1-D015,SPL1-E087	extracted	
+docs/07c-adrs.md	ADR-016	519	598	FULL	SPL1	SPL1-D016,SPL1-E087	extracted	
+docs/07c-adrs.md	ADR-017	599	653	FULL	SPL1	SPL1-D017,SPL1-E088	extracted	
+docs/07c-adrs.md	ADR-018	654	689	FULL	SPL1	SPL1-D018,SPL1-E098	extracted	
+docs/07c-adrs.md	ADR-019 (+ implementation note)	690	773	FULL	SPL1	SPL1-D019,SPL1-E092,SPL1-E099,SPL1-E100	extracted	
+docs/07c-adrs.md	ADR-020	774	818	FULL	SPL1	SPL1-D020,SPL1-E083,SPL1-E095	extracted	Contains real account number at :778 (redacted in outputs)
+docs/07c-adrs.md	ADR-021	819	897	FULL	SPL1	SPL1-D021,SPL1-E093	extracted	
+docs/07c-adrs.md	ADR-022	898	919	FULL	SPL1	SPL1-D022,SPL1-E094,SPL1-E096	extracted	
+docs/07c-adrs.md	ADR-023	920	967	SKIPPED	SPL1		deferred	Out of assigned scope

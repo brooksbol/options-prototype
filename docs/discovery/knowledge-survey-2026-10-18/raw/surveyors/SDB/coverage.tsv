@@ -1,0 +1,165 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+docs/api-v2/README.md	(whole file)	1	23	PARTIAL	SDB	SDB-E0001 SDB-E0002 SDB-E0003 SDB-E0004	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/bugs/BUG-001-assigned-call-closure-projection.md	(whole file)	1	93	PARTIAL	SDB	SDB-E0005 SDB-E0006 SDB-E0007 SDB-E0008	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/bugs/BUG-002-called-away-share-basis.md	(whole file)	1	101	PARTIAL	SDB	SDB-E0009 SDB-E0010 SDB-E0011	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-003-produced-composite-legibility.md	(whole file)	1	75	PARTIAL	SDB	SDB-E0012 SDB-E0013	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/bugs/BUG-004-incoherent-composed-evidence.md	(whole file)	1	90	PARTIAL	SDB	SDB-E0014 SDB-E0015 SDB-E0016	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-005-kreature-empty-surface.md	(whole file)	1	66	PARTIAL	SDB	SDB-E0017 SDB-E0018	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/bugs/BUG-006-capital-returned-strike-notional.md	(whole file)	1	98	PARTIAL	SDB	SDB-E0019 SDB-E0020 SDB-E0021	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-007-unknown-basis-appears-reconciled.md	(whole file)	1	66	PARTIAL	SDB	SDB-E0022 SDB-E0023	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/bugs/BUG-008-inflated-contract-counts.md	(whole file)	1	70	PARTIAL	SDB	SDB-E0024 SDB-E0025	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/bugs/BUG-009-capital-label-amount-divergence.md	(whole file)	1	69	PARTIAL	SDB	SDB-E0026 SDB-E0027	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/bugs/BUG-010-phantom-open-delay-session-gate.md	(whole file)	1	83	PARTIAL	SDB	SDB-E0028 SDB-E0029 SDB-E0030 SDB-E0031 SDB-E0032 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md	(whole file)	1	110	PARTIAL	SDB	SDB-E0034 SDB-E0035 SDB-E0036	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md	(whole file)	1	109	PARTIAL	SDB	SDB-E0037 SDB-E0038 SDB-E0039 SDB-E0040 SDB-E0041 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md	(whole file)	1	77	PARTIAL	SDB	SDB-E0044 SDB-E0045 SDB-E0046 SDB-E0047	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md	(whole file)	1	88	PARTIAL	SDB	SDB-E0048 SDB-E0049 SDB-E0050 SDB-E0051 SDB-E0052	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md	(whole file)	1	86	PARTIAL	SDB	SDB-E0053 SDB-E0054 SDB-E0055 SDB-E0056 SDB-E0057	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-016-funnel-aggregate-counts-lack-exportable-membership.md	(whole file)	1	100	PARTIAL	SDB	SDB-E0058 SDB-E0059 SDB-E0060 SDB-E0061	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/bugs/BUG-017-deployment-csv-export-row-limit.md	(whole file)	1	91	PARTIAL	SDB	SDB-E0062 SDB-E0063 SDB-E0064	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md	(whole file)	1	88	PARTIAL	SDB	SDB-E0065 SDB-E0066 SDB-E0067 SDB-E0068 SDB-E0069	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md	(whole file)	1	96	PARTIAL	SDB	SDB-E0070 SDB-E0071 SDB-E0072 SDB-E0073 SDB-E0074 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/bugs/BUG-020-todays-gl-uses-first-observation-not-prior-close.md	(whole file)	1	126	PARTIAL	SDB	SDB-E0076 SDB-E0077 SDB-E0078 SDB-E0079 SDB-E0080	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-021-btc-misclassified-as-asset-purchase.md	(whole file)	1	259	PARTIAL	SDB	SDB-E0081 SDB-E0082 SDB-E0083 SDB-E0084 SDB-E0085 …	extracted	mechanical marker scan; 28 marker lines; prose not read
+docs/bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md	(whole file)	1	229	PARTIAL	SDB	SDB-E0109 SDB-E0110 SDB-E0111	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md	(whole file)	1	133	PARTIAL	SDB	SDB-E0112 SDB-E0113 SDB-E0114	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md	(whole file)	1	167	PARTIAL	SDB	SDB-E0115 SDB-E0116 SDB-E0117 SDB-E0118 SDB-E0119 …	extracted	mechanical marker scan; 10 marker lines; prose not read
+docs/bugs/BUG-025-deployment-overlapping-snapshot-responses-regress-evidence-state.md	(whole file)	1	83	PARTIAL	SDB	SDB-E0125 SDB-E0126 SDB-E0127 SDB-E0128 SDB-E0129 …	extracted	mechanical marker scan; 14 marker lines; prose not read
+docs/bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md	(whole file)	1	136	PARTIAL	SDB	SDB-E0139 SDB-E0140 SDB-E0141 SDB-E0142 SDB-E0143	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-027-activity-upload-slot-status-ephemeral.md	(whole file)	1	93	PARTIAL	SDB	SDB-E0144 SDB-E0145 SDB-E0146 SDB-E0147 SDB-E0148 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/bugs/BUG-028-gradlew-clean-test-exceeds-slo.md	(whole file)	1	83	PARTIAL	SDB	SDB-E0150 SDB-E0151	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/bugs/BUG-029-tradier-source-event-time-parser.md	(whole file)	1	160	PARTIAL	SDB	SDB-E0152 SDB-E0153 SDB-E0154 SDB-E0155 SDB-E0156 …	extracted	mechanical marker scan; 13 marker lines; prose not read
+docs/bugs/BUG-030-shared-solidus-passthrough-route-regression.md	(whole file)	1	37	PARTIAL	SDB	SDB-E0165 SDB-E0166 SDB-E0167 SDB-E0168	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/bugs/BUG-031-show-complete-table-timestamps.md	(whole file)	1	60	PARTIAL	SDB	SDB-E0169 SDB-E0170 SDB-E0171 SDB-E0172 SDB-E0173 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/bugs/BUG-032-show-change-color-scope.md	(whole file)	1	75	PARTIAL	SDB	SDB-E0176 SDB-E0177 SDB-E0178 SDB-E0179 SDB-E0180 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/bugs/BUG-033-active-position-greeks-stale-during-open-session.md	(whole file)	1	156	PARTIAL	SDB	SDB-E0184 SDB-E0185 SDB-E0186	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/bugs/BUG-034-tt-live-closed-session-values.md	(whole file)	1	69	PARTIAL	SDB	SDB-E0187 SDB-E0188 SDB-E0189 SDB-E0190	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md	(whole file)	1	71	PARTIAL	SDB	SDB-E0191 SDB-E0192 SDB-E0193 SDB-E0194 SDB-E0195 …	extracted	mechanical marker scan; 12 marker lines; prose not read
+docs/bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md	(whole file)	1	124	PARTIAL	SDB	SDB-E0203 SDB-E0204 SDB-E0205 SDB-E0206 SDB-E0207 …	extracted	mechanical marker scan; 24 marker lines; prose not read
+docs/bugs/BUG-037-tastytrade-json-incomplete-source-scope.md	(whole file)	1	29	PARTIAL	SDB	SDB-E0227 SDB-E0228 SDB-E0229 SDB-E0230 SDB-E0231	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-038-tastytrade-body-timeout.md	(whole file)	1	29	PARTIAL	SDB	SDB-E0232 SDB-E0233 SDB-E0234 SDB-E0235 SDB-E0236	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/bugs/BUG-039-buywrite-underlying-chain-mispairing-economically-impossible-candidate.md	(whole file)	1	93	PARTIAL	SDB	SDB-E0237 SDB-E0238 SDB-E0239 SDB-E0240 SDB-E0241 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/bugs/BUG-040-tt-live-inconsistent-package-aborts-scan.md	(whole file)	1	98	PARTIAL	SDB	SDB-E0243 SDB-E0244 SDB-E0245 SDB-E0246 SDB-E0247 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md	(whole file)	1	154	PARTIAL	SDB	SDB-E0252 SDB-E0253 SDB-E0254 SDB-E0255 SDB-E0256 …	extracted	mechanical marker scan; 15 marker lines; prose not read
+docs/bugs/BUG-042-portfolio-capital-422-missing-validation-details.md	(whole file)	1	98	PARTIAL	SDB	SDB-E0267 SDB-E0268 SDB-E0269 SDB-E0270 SDB-E0271 …	extracted	mechanical marker scan; 11 marker lines; prose not read
+docs/bugs/INDEX.md	(whole file)	1	94	PARTIAL	SDB	SDB-E0278 SDB-E0279 SDB-E0280 SDB-E0281 SDB-E0282 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/bugs/README.md	(whole file)	1	128	PARTIAL	SDB	SDB-E0284 SDB-E0285 SDB-E0286 SDB-E0287 SDB-E0288	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/cli/tradier-market-data-capabilities-2026-10-05.md	(whole file)	1	23	PARTIAL	SDB	SDB-E0289	extracted	mechanical marker scan; 1 marker lines; prose not read
+docs/cli/tt-live-panel-history.md	(whole file)	1	222	PARTIAL	SDB	SDB-E0290 SDB-E0291 SDB-E0292 SDB-E0293 SDB-E0294 …	extracted	mechanical marker scan; 38 marker lines; prose not read
+docs/cli/tt-live-panel.md	(whole file)	1	59	PARTIAL	SDB	SDB-E0328 SDB-E0329 SDB-E0330 SDB-E0331 SDB-E0332 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/cli/ww-account-evidence.md	(whole file)	1	157	PARTIAL	SDB	SDB-E0336 SDB-E0337 SDB-E0338 SDB-E0339 SDB-E0340 …	extracted	mechanical marker scan; 20 marker lines; prose not read
+docs/cli/ww-bare-fetch-experiment-2026-10-04.md	(whole file)	1	91	PARTIAL	SDB	SDB-E0356 SDB-E0357 SDB-E0358 SDB-E0359	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/cli/ww-composition-friction-acceptance.md	(whole file)	1	331	PARTIAL	SDB	SDB-E0360 SDB-E0361 SDB-E0362 SDB-E0363 SDB-E0364 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/cli/ww-fetch-acceptance-2026-10-04.md	(whole file)	1	493	PARTIAL	SDB	SDB-E0367 SDB-E0368 SDB-E0369 SDB-E0370 SDB-E0371 …	extracted	mechanical marker scan; 29 marker lines; prose not read
+docs/cli/ww-ls-acceptance-2026-10-05.md	(whole file)	1	237	PARTIAL	SDB	SDB-E0396 SDB-E0397 SDB-E0398 SDB-E0399 SDB-E0400 …	extracted	mechanical marker scan; 21 marker lines; prose not read
+docs/cli/ww-positions-command-2026-10-15.md	(whole file)	1	258	PARTIAL	SDB	SDB-E0417 SDB-E0418 SDB-E0419 SDB-E0420 SDB-E0421 …	extracted	mechanical marker scan; 35 marker lines; prose not read
+docs/cli/ww-positions-human-presentation-2026-10-17.md	(whole file)	1	186	PARTIAL	SDB	SDB-E0452 SDB-E0453 SDB-E0454 SDB-E0455 SDB-E0456 …	extracted	mechanical marker scan; 14 marker lines; prose not read
+docs/cli/ww-show-acceptance-2026-10-05.md	(whole file)	1	104	PARTIAL	SDB	SDB-E0466 SDB-E0467 SDB-E0468 SDB-E0469 SDB-E0470 …	extracted	mechanical marker scan; 14 marker lines; prose not read
+docs/cli/ww-show-query-acceptance-2026-10-05.md	(whole file)	1	178	PARTIAL	SDB	SDB-E0480 SDB-E0481 SDB-E0482 SDB-E0483 SDB-E0484 …	extracted	mechanical marker scan; 25 marker lines; prose not read
+docs/cli/ww-update-product-clarifications-2026-10-15.md	(whole file)	1	74	PARTIAL	SDB	SDB-E0505 SDB-E0506 SDB-E0507 SDB-E0508 SDB-E0509 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/contracts/api-v2-direct-quote-acquisition-proposal.md	(whole file)	1	97	PARTIAL	SDB	SDB-E0514 SDB-E0515 SDB-E0516 SDB-E0517 SDB-E0518 …	extracted	mechanical marker scan; 17 marker lines; prose not read
+docs/contracts/api-v2-held-quotes-read.md	(whole file)	1	185	PARTIAL	SDB	SDB-E0531 SDB-E0532 SDB-E0533 SDB-E0534 SDB-E0535 …	extracted	mechanical marker scan; 18 marker lines; prose not read
+docs/contracts/api-v2-subject-show-held-quote.md	(whole file)	1	398	PARTIAL	SDB	SDB-E0549 SDB-E0550 SDB-E0551 SDB-E0552 SDB-E0553 …	extracted	mechanical marker scan; 27 marker lines; prose not read
+docs/contracts/evidence-snapshot-v1.md	(whole file)	1	397	PARTIAL	SDB	SDB-E0576 SDB-E0577 SDB-E0578 SDB-E0579	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/design/api-documentation-github-pages-product-checkpoint-2026-10-15.md	(whole file)	1	49	PARTIAL	SDB	SDB-E0580 SDB-E0581 SDB-E0582 SDB-E0583 SDB-E0584 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/api-v2-domain-facade-rest-reconciliation-2026-10-13.md	(whole file)	1	47	PARTIAL	SDB	SDB-E0586 SDB-E0587 SDB-E0588 SDB-E0589 SDB-E0590 …	extracted	mechanical marker scan; 10 marker lines; prose not read
+docs/design/existing-short-obligation-hold-vs-close-v1-design.md	(whole file)	1	347	PARTIAL	SDB	SDB-E0596 SDB-E0597 SDB-E0598 SDB-E0599 SDB-E0600 …	extracted	mechanical marker scan; 14 marker lines; prose not read
+docs/design/lifecycle-forward-transition-comparison-v1-design.md	(whole file)	1	323	PARTIAL	SDB	SDB-E0610 SDB-E0611 SDB-E0612 SDB-E0613 SDB-E0614 …	extracted	mechanical marker scan; 12 marker lines; prose not read
+docs/design/lvt-init-consequence-release-cost-v1-design.md	(whole file)	1	253	PARTIAL	SDB	SDB-E0622 SDB-E0623 SDB-E0624 SDB-E0625 SDB-E0626 …	extracted	mechanical marker scan; 12 marker lines; prose not read
+docs/design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md	(whole file)	1	268	PARTIAL	SDB	SDB-E0634 SDB-E0635 SDB-E0636 SDB-E0637 SDB-E0638 …	extracted	mechanical marker scan; 43 marker lines; prose not read
+docs/design/pl-cli-01-historical-position-candidate.md	(whole file)	1	60	PARTIAL	SDB	SDB-E0677 SDB-E0678 SDB-E0679 SDB-E0680 SDB-E0681 …	extracted	mechanical marker scan; 12 marker lines; prose not read
+docs/design/pl-cli-01-portfolio-capital-history.md	(whole file)	1	75	PARTIAL	SDB	SDB-E0689 SDB-E0690 SDB-E0691 SDB-E0692 SDB-E0693 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/design/pl-conv-01-managed-position-visual-acceptance-specimen.md	(whole file)	1	28	PARTIAL	SDB	SDB-E0698 SDB-E0699 SDB-E0700 SDB-E0701 SDB-E0702	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/design/pl-conv-01-step3-candidate.md	(whole file)	1	226	PARTIAL	SDB	SDB-E0703 SDB-E0704 SDB-E0705 SDB-E0706 SDB-E0707 …	extracted	mechanical marker scan; 26 marker lines; prose not read
+docs/design/pl-conv-01-step5-candidate.md	(whole file)	1	110	PARTIAL	SDB	SDB-E0729 SDB-E0730 SDB-E0731 SDB-E0732 SDB-E0733 …	extracted	mechanical marker scan; 22 marker lines; prose not read
+docs/design/pl-recipe-01-first-experiment-v1-design.md	(whole file)	1	216	PARTIAL	SDB	SDB-E0751 SDB-E0752 SDB-E0753 SDB-E0754 SDB-E0755 …	extracted	mechanical marker scan; 13 marker lines; prose not read
+docs/design/position-payoff-visual-contract/README.md	(whole file)	1	37	PARTIAL	SDB	SDB-E0764 SDB-E0765 SDB-E0766 SDB-E0767 SDB-E0768 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/position-payoff-visual-contract/golden/README.md	(whole file)	1	16	PARTIAL	SDB	SDB-E0770 SDB-E0771 SDB-E0772	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/design/tt-live-economic-story/README.md	(whole file)	1	91	PARTIAL	SDB	SDB-E0773 SDB-E0774 SDB-E0775 SDB-E0776 SDB-E0777 …	extracted	mechanical marker scan; 10 marker lines; prose not read
+docs/design/tt-live-economic-story/design-history.md	(whole file)	1	240	PARTIAL	SDB	SDB-E0783 SDB-E0784 SDB-E0785 SDB-E0786 SDB-E0787 …	extracted	mechanical marker scan; 36 marker lines; prose not read
+docs/design/tt-live-economic-story/verification.md	(whole file)	1	93	PARTIAL	SDB	SDB-E0819 SDB-E0820 SDB-E0821 SDB-E0822 SDB-E0823 …	extracted	mechanical marker scan; 16 marker lines; prose not read
+docs/design/ww-accounts-2026-10-17/README.md	(whole file)	1	303	PARTIAL	SDB	SDB-E0835 SDB-E0836 SDB-E0837 SDB-E0838 SDB-E0839 …	extracted	mechanical marker scan; 17 marker lines; prose not read
+docs/design/ww-history-approved-checkpoint-2026-10-15.md	(whole file)	1	13	PARTIAL	SDB	SDB-E0852 SDB-E0853	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/design/ww-history-candidate-2026-10-15/README.md	(whole file)	1	64	PARTIAL	SDB	SDB-E0854 SDB-E0855 SDB-E0856 SDB-E0857 SDB-E0858 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/ww-history-product-and-technical-proposal-2026-10-15.md	(whole file)	1	198	PARTIAL	SDB	SDB-E0860 SDB-E0861 SDB-E0862 SDB-E0863 SDB-E0864 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/design/ww-history-specimens-2026-10-15/README.md	(whole file)	1	28	PARTIAL	SDB	SDB-E0869 SDB-E0870	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/design/ww-integrated-update-candidate-2026-10-15/README.md	(whole file)	1	38	PARTIAL	SDB	SDB-E0871 SDB-E0872 SDB-E0873 SDB-E0874 SDB-E0875	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/design/ww-live-integrated-specimen-2026-10-16.md	(whole file)	1	36	PARTIAL	SDB	SDB-E0876 SDB-E0877 SDB-E0878 SDB-E0879 SDB-E0880 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/ww-live-p2-backend-specimen-2026-10-16.md	(whole file)	1	43	PARTIAL	SDB	SDB-E0882 SDB-E0883 SDB-E0884 SDB-E0885 SDB-E0886 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/ww-live-p2-principal-disposition-2026-10-16.md	(whole file)	1	21	PARTIAL	SDB	SDB-E0888 SDB-E0889	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/design/ww-live-product-plan-2026-10-16.md	(whole file)	1	86	PARTIAL	SDB	SDB-E0890 SDB-E0891 SDB-E0892 SDB-E0893 SDB-E0894 …	extracted	mechanical marker scan; 17 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/README.md	(whole file)	1	68	PARTIAL	SDB	SDB-E0907 SDB-E0908 SDB-E0909 SDB-E0910 SDB-E0911 …	extracted	mechanical marker scan; 19 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/backend-r1/independent-review.md	(whole file)	1	86	PARTIAL	SDB	SDB-E0926 SDB-E0927 SDB-E0928 SDB-E0929 SDB-E0930 …	extracted	mechanical marker scan; 12 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/backend-r2/engineering-closeout.md	(whole file)	1	14	PARTIAL	SDB	SDB-E0938 SDB-E0939	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/backend-r2/independent-review.md	(whole file)	1	55	PARTIAL	SDB	SDB-E0940 SDB-E0941 SDB-E0942 SDB-E0943 SDB-E0944 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/integrated-r1/engineering-closeout.md	(whole file)	1	20	PARTIAL	SDB	SDB-E0949 SDB-E0950 SDB-E0951	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/integrated-r1/independent-review.md	(whole file)	1	50	PARTIAL	SDB	SDB-E0952 SDB-E0953 SDB-E0954 SDB-E0955 SDB-E0956 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/p1-design/independent-review.md	(whole file)	1	79	PARTIAL	SDB	SDB-E0961 SDB-E0962 SDB-E0963 SDB-E0964 SDB-E0965 …	extracted	mechanical marker scan; 11 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/p1-design/proposal.md	(whole file)	1	233	PARTIAL	SDB	SDB-E0972 SDB-E0973 SDB-E0974 SDB-E0975 SDB-E0976 …	extracted	mechanical marker scan; 24 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/p2-design/independent-review.md	(whole file)	1	66	PARTIAL	SDB	SDB-E0996 SDB-E0997 SDB-E0998 SDB-E0999 SDB-E1000 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/p2-design/proposal.md	(whole file)	1	205	PARTIAL	SDB	SDB-E1004 SDB-E1005 SDB-E1006 SDB-E1007 SDB-E1008 …	extracted	mechanical marker scan; 23 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/p2-design/source-admission.md	(whole file)	1	65	PARTIAL	SDB	SDB-E1027 SDB-E1028 SDB-E1029	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/specimen-records/ww-live-integrated-specimen-2026-10-16.md	(whole file)	1	36	PARTIAL	SDB	SDB-E1030 SDB-E1031 SDB-E1032 SDB-E1033 SDB-E1034 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/specimen-records/ww-live-p2-backend-specimen-2026-10-16.md	(whole file)	1	43	PARTIAL	SDB	SDB-E1036 SDB-E1037 SDB-E1038 SDB-E1039 SDB-E1040 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/specimen-records/ww-live-visual-parity-specimen-2026-10-16.md	(whole file)	1	40	PARTIAL	SDB	SDB-E1042 SDB-E1043 SDB-E1044 SDB-E1045 SDB-E1046 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/visual-r1/engineering-closeout.md	(whole file)	1	14	PARTIAL	SDB	SDB-E1050 SDB-E1051 SDB-E1052	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/design/ww-live-session-2026-10-16/evidence/visual-r1/independent-review.md	(whole file)	1	42	PARTIAL	SDB	SDB-E1053 SDB-E1054 SDB-E1055 SDB-E1056 SDB-E1057 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/design/ww-live-visual-parity-specimen-2026-10-16.md	(whole file)	1	40	PARTIAL	SDB	SDB-E1060 SDB-E1061 SDB-E1062 SDB-E1063 SDB-E1064 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/design/ww-position-scan-draft-recovery-2026-10-14/README.md	(whole file)	1	12	PARTIAL	SDB	SDB-E1068 SDB-E1069 SDB-E1070	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/design/ww-position-scan-v2-capability-gaps-2026-10-13.md	(whole file)	1	64	PARTIAL	SDB	SDB-E1071 SDB-E1072 SDB-E1073 SDB-E1074 SDB-E1075 …	extracted	mechanical marker scan; 11 marker lines; prose not read
+docs/design/ww-pull-ux-feedback-2026-10-15.md	(whole file)	1	41	PARTIAL	SDB	SDB-E1082 SDB-E1083 SDB-E1084	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/design/ww-show-held-quote-solution-design.md	(whole file)	1	276	PARTIAL	SDB	SDB-E1085 SDB-E1086 SDB-E1087 SDB-E1088 SDB-E1089 …	extracted	mechanical marker scan; 32 marker lines; prose not read
+docs/design/ww-show-held-quote-transport-reconciliation.md	(whole file)	1	188	PARTIAL	SDB	SDB-E1117 SDB-E1118 SDB-E1119 SDB-E1120 SDB-E1121 …	extracted	mechanical marker scan; 29 marker lines; prose not read
+docs/design/ww-show-positions-v2-architectural-proposal-2026-10-13.md	(whole file)	1	404	PARTIAL	SDB	SDB-E1146 SDB-E1147 SDB-E1148 SDB-E1149 SDB-E1150 …	extracted	mechanical marker scan; 36 marker lines; prose not read
+docs/discovery/00-design-notes.md	(whole file)	1	215	PARTIAL	SDB	SDB-E1182 SDB-E1183	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/discovery/01-temporal-capability-vocabulary.md	(whole file)	1	177	PARTIAL	SDB	SDB-E1184 SDB-E1185 SDB-E1186 SDB-E1187 SDB-E1188	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/discovery/02-prior-art-findings.md	(whole file)	1	230	PARTIAL	SDB	SDB-E1189 SDB-E1190	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/discovery/4am-csvlod-artifact-meta-standard-planning-snapshot-2026-10-18.md	(whole file)	1	169	PARTIAL	SDB	SDB-E1191 SDB-E1192 SDB-E1193 SDB-E1194 SDB-E1195 …	extracted	mechanical marker scan; 19 marker lines; prose not read
+docs/discovery/4am-knowledge-architecture-learning-loop-snapshot-2026-10-18.md	(whole file)	1	244	PARTIAL	SDB	SDB-E1210 SDB-E1211 SDB-E1212 SDB-E1213 SDB-E1214 …	extracted	mechanical marker scan; 28 marker lines; prose not read
+docs/discovery/4am-round6-api-reconciliation-2026-10-18.md	(whole file)	1	168	PARTIAL	SDB	SDB-E1238 SDB-E1239	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/discovery/4am-successor-knowledge-architecture-preratification-2026-10-18.md	(whole file)	1	195	PARTIAL	SDB	SDB-E1240 SDB-E1241 SDB-E1242 SDB-E1243 SDB-E1244 …	extracted	mechanical marker scan; 21 marker lines; prose not read
+docs/discovery/cloud-readiness-brainstorm-2026-08-27.md	(whole file)	1	413	PARTIAL	SDB	SDB-E1261 SDB-E1262 SDB-E1263 SDB-E1264 SDB-E1265 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/discovery/cold-start-authority-provenance-incident-2026-09-03.md	(whole file)	1	209	PARTIAL	SDB	SDB-E1270 SDB-E1271 SDB-E1272 SDB-E1273 SDB-E1274 …	extracted	mechanical marker scan; 24 marker lines; prose not read
+docs/discovery/conv-web-kiro-rewrite-plan-2026-10-11.md	(whole file)	1	122	PARTIAL	SDB	SDB-E1294 SDB-E1295 SDB-E1296 SDB-E1297 SDB-E1298 …	extracted	mechanical marker scan; 11 marker lines; prose not read
+docs/discovery/decision-surface-expanded-row-vs-drawer-2026-09-09.md	(whole file)	1	123	PARTIAL	SDB	SDB-E1305 SDB-E1306 SDB-E1307 SDB-E1308 SDB-E1309	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/discovery/lvt-owned-capital-consequence-reconciliation-2026-09-09.md	(whole file)	1	133	PARTIAL	SDB	SDB-E1310 SDB-E1311 SDB-E1312 SDB-E1313 SDB-E1314 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/discovery/pass-minus-one-v0-occ-tradier-identity-snapshot-2026-10-01.md	(whole file)	1	66	PARTIAL	SDB	SDB-E1316	extracted	mechanical marker scan; 1 marker lines; prose not read
+docs/discovery/pass-one-coordinate-history-comparison-2026-10-01.md	(whole file)	1	56	PARTIAL	SDB	SDB-E1317 SDB-E1318	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/discovery/pass-one-specimen-selection-bounded-pilot-2026-10-01.md	(whole file)	1	62	PARTIAL	SDB	SDB-E1319 SDB-E1320 SDB-E1321 SDB-E1322	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/discovery/pass-zero-v1-class-geometry-method-2026-10-01.md	(whole file)	1	46	PARTIAL	SDB	SDB-E1323 SDB-E1324	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/discovery/tastytrade-iron-condor-operator-learning-2026-09-30.md	(whole file)	1	122	PARTIAL	SDB	SDB-E1325 SDB-E1326 SDB-E1327 SDB-E1328 SDB-E1329 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/discovery/ww-income-wheel-capability-gap-survey-2026-10-12.md	(whole file)	1	313	PARTIAL	SDB	SDB-E1332 SDB-E1333 SDB-E1334 SDB-E1335 SDB-E1336 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/engineering-spikes/api-ninjas-etf-catalog.md	(whole file)	1	166	PARTIAL	SDB		no-new-knowledge	mechanical marker scan; 0 marker lines; prose not read
+docs/engineering-spikes/fidelity-activity-history.md	(whole file)	1	242	PARTIAL	SDB	SDB-E1341	extracted	mechanical marker scan; 1 marker lines; prose not read
+docs/engineering-spikes/fmp-etf-reference-data.md	(whole file)	1	194	PARTIAL	SDB		no-new-knowledge	mechanical marker scan; 0 marker lines; prose not read
+docs/experiments/2026-09-02-opening-bell-corrected-capture/README.md	(whole file)	1	97	PARTIAL	SDB	SDB-E1342 SDB-E1343	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/experiments/2026-09-08-covered-call-basis-positive-exploration/README.md	(whole file)	1	14	PARTIAL	SDB		no-new-knowledge	mechanical marker scan; 0 marker lines; prose not read
+docs/experiments/operating-model-pending-corrections-2026-09-17.md	(whole file)	1	137	PARTIAL	SDB	SDB-E1344 SDB-E1345 SDB-E1346 SDB-E1347 SDB-E1348 …	extracted	mechanical marker scan; 12 marker lines; prose not read
+docs/experiments/ww-bootstrap-provenance-verifier-001.md	(whole file)	1	187	PARTIAL	SDB	SDB-E1356 SDB-E1357 SDB-E1358 SDB-E1359 SDB-E1360 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/experiments/ww-gate-experiment-001.md	(whole file)	1	193	PARTIAL	SDB	SDB-E1364 SDB-E1365 SDB-E1366 SDB-E1367 SDB-E1368 …	extracted	mechanical marker scan; 11 marker lines; prose not read
+docs/historical/shared-execution-contract-2026-09-16.md	(whole file)	1	11	PARTIAL	SDB	SDB-E1375	extracted	mechanical marker scan; 1 marker lines; prose not read
+docs/reference-data/xle-fidelity-2026-07-02.md	(whole file)	1	723	INDEXED	SDB		sensitive-withheld	may contain real account data; not extracted
+docs/reviews/kiro-black-box-acceptance-2026-10-15.md	(whole file)	1	181	PARTIAL	SDB	SDB-E1376 SDB-E1377 SDB-E1378 SDB-E1379 SDB-E1380 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/reviews/pl-api-02-independent-release-review-handoff-2026-10-15.md	(whole file)	1	40	PARTIAL	SDB	SDB-E1385 SDB-E1386 SDB-E1387 SDB-E1388 SDB-E1389 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md	(whole file)	1	49	PARTIAL	SDB	SDB-E1394 SDB-E1395	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/reviews/pl-api-02-kiro-triage-2026-10-15.md	(whole file)	1	51	PARTIAL	SDB	SDB-E1396 SDB-E1397 SDB-E1398 SDB-E1399 SDB-E1400 …	extracted	mechanical marker scan; 10 marker lines; prose not read
+docs/reviews/pl-api-02-pages-publication-2026-10-15.md	(whole file)	1	53	PARTIAL	SDB	SDB-E1406 SDB-E1407 SDB-E1408 SDB-E1409 SDB-E1410 …	extracted	mechanical marker scan; 10 marker lines; prose not read
+docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md	(whole file)	1	41	PARTIAL	SDB	SDB-E1416 SDB-E1417 SDB-E1418 SDB-E1419 SDB-E1420 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/reviews/pl-api-02-public-cleanup-delivery-2026-10-15.md	(whole file)	1	56	PARTIAL	SDB	SDB-E1424 SDB-E1425 SDB-E1426 SDB-E1427 SDB-E1428 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/reviews/pl-api-02-step5-cold-start-2026-10-15.md	(whole file)	1	87	PARTIAL	SDB	SDB-E1431 SDB-E1432 SDB-E1433 SDB-E1434 SDB-E1435 …	extracted	mechanical marker scan; 11 marker lines; prose not read
+docs/reviews/pl-api-02-step5-cold-start-initial-2026-10-15.md	(whole file)	1	76	PARTIAL	SDB	SDB-E1442 SDB-E1443 SDB-E1444 SDB-E1445 SDB-E1446 …	extracted	mechanical marker scan; 7 marker lines; prose not read
+docs/reviews/pl-api-02-step5-integration-candidate-2026-10-15.md	(whole file)	1	11	PARTIAL	SDB	SDB-E1449 SDB-E1450	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/reviews/pl-api-02-step5-review-and-test-2026-10-15.md	(whole file)	1	51	PARTIAL	SDB	SDB-E1451 SDB-E1452 SDB-E1453 SDB-E1454 SDB-E1455 …	extracted	mechanical marker scan; 14 marker lines; prose not read
+docs/supplementary/ai-assisted-engineering-patterns-and-smells.md	(whole file)	1	184	PARTIAL	SDB	SDB-E1465 SDB-E1466 SDB-E1467	extracted	mechanical marker scan; 3 marker lines; prose not read
+docs/universe/01-requirements.md	(whole file)	1	125	PARTIAL	SDB		no-new-knowledge	mechanical marker scan; 0 marker lines; prose not read
+docs/universe/02-design.md	(whole file)	1	113	PARTIAL	SDB		no-new-knowledge	mechanical marker scan; 0 marker lines; prose not read
+docs/universe/disposition/BASELINE-gen29066.md	(whole file)	1	226	PARTIAL	SDB	SDB-E1468 SDB-E1469 SDB-E1470 SDB-E1471 SDB-E1472 …	extracted	mechanical marker scan; 6 marker lines; prose not read
+docs/universe/disposition/CHECKSUMS-gen29066.md	(whole file)	1	86	PARTIAL	SDB	SDB-E1474	extracted	mechanical marker scan; 1 marker lines; prose not read
+docs/universe/disposition/DTE-DISCREPANCY-followup.md	(whole file)	1	37	PARTIAL	SDB	SDB-E1475	extracted	mechanical marker scan; 1 marker lines; prose not read
+docs/universe/disposition/IMPLEMENTATION-gen29066.md	(whole file)	1	250	PARTIAL	SDB	SDB-E1476 SDB-E1477 SDB-E1478 SDB-E1479	extracted	mechanical marker scan; 4 marker lines; prose not read
+docs/universe/disposition/wheelwright-universe-disposition-gen29066.md	(whole file)	1	948	PARTIAL	SDB		no-new-knowledge	mechanical marker scan; 0 marker lines; prose not read
+docs/velvet-rope/00-domain-model.md	(whole file)	1	433	PARTIAL	SDB	SDB-E1480 SDB-E1481 SDB-E1482 SDB-E1483 SDB-E1484	extracted	mechanical marker scan; 5 marker lines; prose not read
+docs/velvet-rope/01-requirements.md	(whole file)	1	311	PARTIAL	SDB	SDB-E1485 SDB-E1486 SDB-E1487 SDB-E1488 SDB-E1489 …	extracted	mechanical marker scan; 8 marker lines; prose not read
+docs/velvet-rope/02-design.md	(whole file)	1	436	PARTIAL	SDB	SDB-E1493 SDB-E1494 SDB-E1495 SDB-E1496 SDB-E1497 …	extracted	mechanical marker scan; 9 marker lines; prose not read
+docs/velvet-rope/03-product-structure-requirements.md	(whole file)	1	106	PARTIAL	SDB	SDB-E1502 SDB-E1503	extracted	mechanical marker scan; 2 marker lines; prose not read
+docs/velvet-rope/04-product-structure-design.md	(whole file)	1	96	PARTIAL	SDB	SDB-E1504	extracted	mechanical marker scan; 1 marker lines; prose not read

@@ -1,0 +1,386 @@
+path	segment	line_start	line_end	depth	surveyor	item_ids	disposition	note
+AGENTS.md	Wheelwright — Agent Entry Point	1	6	FULL	SFND2	SFND2-D030	extracted	
+AGENTS.md	Product-first proof obligation	7	10	FULL	SFND2	SFND2-D030	extracted	
+AGENTS.md	Mandatory cold start	11	22	FULL	SFND2	SFND2-D030	extracted	
+AGENTS.md	Separation of audiences	23	31	FULL	SFND2	SFND2-D030	extracted	
+README.md	Wheelwright	1	6	FULL	SFND2		no-new-knowledge	
+README.md	What works today	7	22	FULL	SFND2	SFND2-E061,SFND2-E062	extracted	
+README.md	Architecture at a glance	23	31	FULL	SFND2	SFND2-E062	extracted	
+README.md	Everyday commands	32	59	FULL	SFND2	SFND2-E061	extracted	cited as variant/evidence in listed items
+README.md	Local development	60	92	FULL	SFND2	SFND2-E059	extracted	cited as variant/evidence in listed items
+README.md	Repository map	93	108	FULL	SFND2		no-new-knowledge	
+README.md	Documentation and project history	109	113	FULL	SFND2	SFND2-E040,SFND2-E049,SFND2-E082	extracted	cited as variant/evidence in listed items
+docs/AGENTS.md	Wheelwright Documentation — Agent Instructions	1	4	FULL	SFND2	SFND2-D030	extracted	
+docs/AGENTS.md	Required cold start	5	42	FULL	SFND2	SFND2-D032,SFND2-E098	extracted	
+docs/AGENTS.md	Actor-specific cold starts	43	52	FULL	SFND2		no-new-knowledge	
+docs/AGENTS.md	Shared actor protocols	53	64	FULL	SFND2	SFND2-E024	extracted	cited as variant/evidence in listed items
+docs/AGENTS.md	Authority boundary	65	67	FULL	SFND2		no-new-knowledge	
+docs/README.md	Documentation Guide	1	6	FULL	SFND2		no-new-knowledge	
+docs/README.md	Parking-Lot Continuation Rule — August 29, 2026	7	12	FULL	SFND2	SFND2-D011	extracted	
+docs/README.md	Project-Journal Continuation Rule — September 3, 2026	13	18	FULL	SFND2	SFND2-D012	extracted	
+docs/README.md	Material Idea Intake Rule — September 1, 2026	19	26	FULL	SFND2	SFND2-D013	extracted	
+docs/README.md	Defect Tracking Rule — September 11, 2026	27	34	FULL	SFND2	SFND2-D010	extracted	
+docs/README.md	Document Authority Model	35	49	FULL	SFND2	SFND2-E016	extracted	
+docs/README.md	Execution-Control Transition — September 17, 2026	50	61	FULL	SFND2	SFND2-D009,SFND2-D030,SFND2-D032,SFND2-E017	extracted	
+docs/README.md	Product and Architectural Principles Routing — September 27, 2026	62	69	FULL	SFND2	SFND2-D008	extracted	
+docs/README.md	Reading Paths	70	125	FULL	SFND2	SFND2-D030,SFND2-E071	extracted	
+docs/README.md	Complete Document Index	126	338	FULL	SFND2	SFND2-E053,SFND2-E061,SFND2-E070,SFND2-E094	extracted	cited as variant/evidence in listed items
+docs/README.md	Document Status Conventions	339	348	FULL	SFND2		no-new-knowledge	
+docs/KNOWN-FAILURE-MODES.md	⚠️ KNOWN FAILURE MODES — READ BEFORE ACTING	1	12	FULL	SFND2	SFND2-E018,SFND2-E078	extracted	
+docs/KNOWN-FAILURE-MODES.md	Before consequential work	13	138	FULL	SFND2	SFND2-D035,SFND2-E018,SFND2-E019,SFND2-E079	extracted	
+docs/KNOWN-FAILURE-MODES.md	The recurring meta-failure	139	150	FULL	SFND2	SFND2-E018,SFND2-E077	extracted	
+docs/KNOWN-FAILURE-MODES.md	Provenance, not duplication	151	164	FULL	SFND2	SFND2-E018	extracted	
+docs/principles.md	Wheelwright Principles Register	1	6	FULL	SFND2		no-new-knowledge	
+docs/principles.md	Semantic contract	7	30	FULL	SFND2	SFND2-D008,SFND2-E010	extracted	
+docs/principles.md	Inclusion rule (governance)	31	37	FULL	SFND2	SFND2-D008,SFND2-E010	extracted	
+docs/principles.md	Families	38	46	FULL	SFND2	SFND2-D008	extracted	
+docs/principles.md	Ratified principles	47	74	FULL	SFND2	SFND2-D006,SFND2-D007,SFND2-D008,SFND2-E011,SFND2-E012,SFND2-E013,SFND2-E014,SFND2-E015	extracted	
+docs/principles.md	Not (yet) in this register — explicitly excluded	75	82	FULL	SFND2	SFND2-D008,SFND2-E015	extracted	
+docs/principles.md	Solution reconciliation artifacts	83	94	FULL	SFND2	SFND2-D008,SFND2-E010	extracted	
+docs/principles.md	Register metadata	95	103	FULL	SFND2		no-new-knowledge	
+docs/roadmap.md	Wheelwright Strategic Roadmap	1	8	FULL	SFND2	SFND2-D001,SFND2-E070	extracted	
+docs/roadmap.md	Purpose	9	20	FULL	SFND2	SFND2-D001	extracted	
+docs/roadmap.md	Current North Star — Question-Driven Design	21	38	FULL	SFND2	SFND2-D026,SFND2-E004	extracted	
+docs/roadmap.md	Trade Finder — Repertoire and Broker Handoff	39	93	FULL	SFND2	SFND2-D027,SFND2-E005,SFND2-E006	extracted	
+docs/roadmap.md	Lean Value Tree Vocabulary	94	104	FULL	SFND2	SFND2-E068	extracted	
+docs/roadmap.md	Canonical LVT Identifier and Presentation Convention	105	125	FULL	SFND2	SFND2-E068	extracted	
+docs/roadmap.md	Canonical Lean Value Tree	126	244	FULL	SFND2	SFND2-D001,SFND2-E001,SFND2-E003,SFND2-E066,SFND2-E067	extracted	
+docs/roadmap.md	LVT Notes Preserved from the Prior Representation	245	260	FULL	SFND2	SFND2-D001,SFND2-D033,SFND2-E007,SFND2-E009,SFND2-E069	extracted	
+docs/roadmap.md	Cross-Cutting Quality and Differentiation Lens	261	275	FULL	SFND2		no-new-knowledge	
+docs/roadmap.md	Emerging differentiator — Trustability	276	285	FULL	SFND2	SFND2-E008	extracted	
+docs/roadmap.md	Good enough as intentional timing	286	293	FULL	SFND2		no-new-knowledge	
+docs/roadmap.md	Current Structural Reading	294	303	FULL	SFND2	SFND2-E003	extracted	
+docs/roadmap.md	Roadmap Change Discipline	304	314	FULL	SFND2		no-new-knowledge	
+docs/roadmap-priority.md	Wheelwright Provisional Priority Stack	1	6	FULL	SFND2		no-new-knowledge	
+docs/roadmap-priority.md	Semantics	7	12	FULL	SFND2		no-new-knowledge	
+docs/roadmap-priority.md	Governing rules	13	19	FULL	SFND2		no-new-knowledge	
+docs/roadmap-priority.md	Ranked stack	20	35	FULL	SFND2	SFND2-D004,SFND2-D033,SFND2-E040	extracted	
+docs/roadmap-coming-soon.md	Wheelwright Coming Soon (Now / Next / Later)	1	6	FULL	SFND2		no-new-knowledge	
+docs/roadmap-coming-soon.md	Governing contract	7	14	FULL	SFND2	SFND2-D005,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Semantics	15	22	FULL	SFND2	SFND2-D005,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Governing rules	23	32	FULL	SFND2	SFND2-D005,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Maintenance (two triggers, no separate ceremony)	33	39	FULL	SFND2	SFND2-D005,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Now	40	44	FULL	SFND2	SFND2-D005,SFND2-D028,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Next	45	48	FULL	SFND2	SFND2-D005,SFND2-D028,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Later	49	55	FULL	SFND2	SFND2-D005,SFND2-D028,SFND2-E041	extracted	
+docs/roadmap-coming-soon.md	Register metadata	56	63	FULL	SFND2		no-new-knowledge	
+docs/architecture-roadmap.md	Wheelwright Architecture Roadmap	1	8	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	Purpose	9	25	FULL	SFND2		no-new-knowledge	
+docs/architecture-roadmap.md	Current Architecture Baseline	26	40	FULL	SFND2	SFND2-E042	extracted	cited as variant/evidence in listed items
+docs/architecture-roadmap.md	Architectural Pressure Revealed by Strategic Reconciliation	41	44	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR1 — Authoritative State Must Mature Beyond Market Evidence	45	63	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR2 — Attention Emerges as a Distinct Responsibility	64	79	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR3 — From Strategy-Specific Recommendations Toward Governed Alternatives	80	102	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR4 — Consequence Semantics Before Explanation	103	124	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR5 — Separate Eligibility, Acceptability, and Comparative Fitness	125	136	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR6 — Durable Decision Context and Computation Ownership	137	148	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR7 — Decision → Execution → Lifecycle → Outcome Identity	149	169	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR8 — Learning Requires a Reproducible Temporal Substrate	170	183	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR9 — Continuity Is a Cross-Cutting System Property	184	200	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	AR10 — Access Is a Cross-Cutting Client/Operator Property	201	218	FULL	SFND2	SFND2-D002	extracted	
+docs/architecture-roadmap.md	Cross-Cutting Quality and Differentiation Pressure	219	232	FULL	SFND2		no-new-knowledge	
+docs/architecture-roadmap.md	Trustability as a system-wide architectural concern	233	256	FULL	SFND2	SFND2-E008	extracted	cited as variant/evidence in listed items
+docs/architecture-roadmap.md	Candidate Responsibility Model	257	274	FULL	SFND2	SFND2-E097	extracted	
+docs/architecture-roadmap.md	Reconciliation With the Current Four Engines	275	287	FULL	SFND2	SFND2-E097	extracted	
+docs/architecture-roadmap.md	Good Enough and Architectural Timing	288	303	FULL	SFND2		no-new-knowledge	
+docs/architecture-roadmap.md	Simplicity Constraint	304	311	FULL	SFND2	SFND2-E043	extracted	
+docs/architecture-roadmap.md	Change Discipline	312	326	FULL	SFND2	SFND2-E070	extracted	cited as variant/evidence in listed items
+docs/architecture-roadmap.md	2026-09-24 Governed-Decision Persistence / Replay Reconciliation	327	330	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR1 — bounded partial resolution	331	342	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR2 — unchanged, but explicitly preserved	343	348	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR3 — compatible, no new pressure	349	356	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR4 — compatible, no collapse	357	364	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR5 — unchanged	365	370	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR6 — first-slice ownership question materially resolved	371	380	FULL	SFND2	SFND2-D003,SFND2-E042	extracted	
+docs/architecture-roadmap.md	AR7 — Decision-side identity/provenance seam established; downstream remains open	381	399	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR8 — first-slice reproducible Decision substrate established	400	418	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	AR9 / AR10 — no new decision	419	422	FULL	SFND2	SFND2-D003	extracted	
+docs/architecture-roadmap.md	Simplicity result	423	434	FULL	SFND2	SFND2-D003	extracted	
+docs/technology-quality-baseline-charter-v1.md	Wheelwright Untouched Technology Quality Baseline — SCA Charter v1	1	10	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	1. Purpose	11	20	FULL	SFND2	SFND2-E081	extracted	
+docs/technology-quality-baseline-charter-v1.md	2. Principal decisions recorded	21	37	FULL	SFND2	SFND2-D021	extracted	
+docs/technology-quality-baseline-charter-v1.md	3. Immutable subject	38	49	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	4. Harness identity	50	67	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	5. Scope and method (per required scope, separately)	68	95	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	6. Disclosure and data-custody boundary	96	104	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	7. Isolation	105	111	FULL	SFND2	SFND2-E055	extracted	cited as variant/evidence in listed items
+docs/technology-quality-baseline-charter-v1.md	8. Raw-result custody and integrity	112	120	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	9. Reproducible command sequence	121	145	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	10. Materiality threshold	146	151	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-baseline-charter-v1.md	11. Baseline exit criteria (SCA stream)	152	168	FULL	SFND2	SFND2-D021	extracted	
+docs/technology-quality-baseline-charter-v1.md	12. Authority and change	169	171	FULL	SFND2		duplicate-of:SFND2-D021	harness/scope/custody detail; decisions captured in SFND2-D021
+docs/technology-quality-fitness-controls-v1.md	Wheelwright Technology Quality — Fitness Controls v1	1	10	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	1. Purpose	11	20	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	2. The three-layer quality model (ratified)	21	38	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	3. Governing operating principle — trend/visibility over build-killers	39	70	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	4. Layer 1 — Strict Sonar profile (GRADUATED as quality policy)	71	106	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	5. Layer 2 — ArchUnit (GRADUATED as an approved mechanism; individual invariants ratified separately)	107	129	FULL	SFND2	SFND2-D019,SFND2-E037	extracted	
+docs/technology-quality-fitness-controls-v1.md	6. Durable / reproducible implementation required (design, not yet built)	130	146	FULL	SFND2	SFND2-D019,SFND2-E037	extracted	
+docs/technology-quality-fitness-controls-v1.md	7. What became durable vs what remains experimental	147	161	FULL	SFND2	SFND2-D019,SFND2-E037	extracted	
+docs/technology-quality-fitness-controls-v1.md	Proposed fitness specimen: presentation versus backend authority (October 13, 2026)	162	167	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	8. Further Principal decisions actually required	168	178	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-fitness-controls-v1.md	9. Reconciliation with existing authority	179	188	FULL	SFND2	SFND2-D019	extracted	
+docs/technology-quality-program-v1.md	Wheelwright Technology Quality Program — Version 1	1	11	FULL	SFND2	SFND2-D018,SFND2-E036	extracted	
+docs/technology-quality-program-v1.md	1. Program purpose	12	31	FULL	SFND2	SFND2-D018,SFND2-E036	extracted	
+docs/technology-quality-program-v1.md	2. Mandate and authority	32	63	FULL	SFND2	SFND2-D018,SFND2-D033,SFND2-E036	extracted	
+docs/technology-quality-program-v1.md	3. Program operating model	64	92	FULL	SFND2	SFND2-E091	extracted	
+docs/technology-quality-program-v1.md	4. Program workstreams and sequence	93	96	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	Workstream 0 — Establish durable program authority	97	110	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	Workstream 1 — Reconcile existing parking-lot identities	111	138	FULL	SFND2	SFND2-E090	extracted	cited as variant/evidence in listed items
+docs/technology-quality-program-v1.md	Workstream 2 — Complete project-memory and journal routing	139	152	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	Workstream 3 — Charter the untouched Technology Quality Baseline	153	178	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	Workstream 4 — Freeze and execute the untouched baseline	179	202	FULL	SFND2	SFND2-D033	extracted	
+docs/technology-quality-program-v1.md	Workstream 5 — Reconcile findings before remediation	203	226	FULL	SFND2	SFND2-E091	extracted	
+docs/technology-quality-program-v1.md	Workstream 6 — Establish the Architecture & Quality Balanced Scorecard	227	262	FULL	SFND2	SFND2-E036	extracted	cited as variant/evidence in listed items
+docs/technology-quality-program-v1.md	Workstream 7 — Create the technology-optimization roadmap	263	284	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	Workstream 8 — Execute bounded interventions through the normal delivery loop	285	298	FULL	SFND2	SFND2-E055	extracted	cited as variant/evidence in listed items
+docs/technology-quality-program-v1.md	Workstream 9 — Promote earned fitness functions into CI/CD	299	322	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	Workstream 10 — Enter steady-state technology optimization	323	340	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	5. Program deliverables	341	359	FULL	SFND2		no-new-knowledge	
+docs/technology-quality-program-v1.md	6. Program governance and actor responsibilities	360	400	FULL	SFND2	SFND2-E051,SFND2-E070	extracted	cited as variant/evidence in listed items
+docs/technology-quality-program-v1.md	7. Program controls	401	402	FULL	SFND2	SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	Untouched-baseline protection	403	406	FULL	SFND2	SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	Active-investigation protection	407	410	FULL	SFND2	SFND2-D033,SFND2-E082,SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	Tool neutrality	411	414	FULL	SFND2	SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	No metric gaming	415	418	FULL	SFND2	SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	No quality theater	419	422	FULL	SFND2	SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	No cleanup-by-accumulation	423	428	FULL	SFND2	SFND2-E090	extracted	
+docs/technology-quality-program-v1.md	8. Initial execution order	429	449	FULL	SFND2	SFND2-D018	extracted	
+docs/technology-quality-program-v1.md	9. Initial program completion criteria	450	469	FULL	SFND2	SFND2-D018	extracted	
+docs/technology-quality-program-v1.md	10. Versioning and change	470	482	FULL	SFND2	SFND2-D018	extracted	
+docs/technology-quality-slo-build-test-v1.md	Wheelwright Technology Quality — Build/Test SLO: `gradlew clean test` v1	1	10	FULL	SFND2	SFND2-D020,SFND2-E038	extracted	
+docs/technology-quality-slo-build-test-v1.md	SLO-BUILD-01 — Backend `gradlew clean test` wall-clock	11	23	FULL	SFND2	SFND2-D020,SFND2-E038,SFND2-E094	extracted	
+docs/technology-quality-slo-build-test-v1.md	1. Why this SLO exists	24	34	FULL	SFND2	SFND2-D020,SFND2-E038	extracted	
+docs/technology-quality-slo-build-test-v1.md	2. Current baseline (informational, not the objective)	35	53	FULL	SFND2	SFND2-D020,SFND2-E038	extracted	
+docs/technology-quality-slo-build-test-v1.md	3. Measurement discipline	54	63	FULL	SFND2	SFND2-D020	extracted	
+docs/technology-quality-slo-build-test-v1.md	4. Authority boundaries	64	74	FULL	SFND2	SFND2-D020	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	⚠ FINAL FIELD-TEST REPORT — Wheelwright Operating Model Reality Report	1	16	FULL	SFND2	SFND2-D023,SFND2-E030	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	1. Executive finding	17	34	FULL	SFND2	SFND2-E030	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	2. Why stopping incomplete is evidence, not a defect in the experiment	35	48	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	3. Clock time and execution economics	49	86	FULL	SFND2	SFND2-E034	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	4. The explicit guardrail that did not control execution	87	107	FULL	SFND2	SFND2-E030	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-FINAL.md	5. The observed death spiral	108	133	FULL	SFND2	SFND2-E031	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	6. Rework amplification, not random scope creep	134	167	FULL	SFND2	SFND2-E031	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	7. Patching falsifiers instead of internalizing invariants	168	190	FULL	SFND2	SFND2-E031	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	8. Actor reality — Kiro	191	213	FULL	SFND2	SFND2-E088	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-FINAL.md	9. Actor reality — Codex	214	249	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	10. Actor reality — ChatGPT	250	278	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	11. The four-actor model is not disproven; its feedback topology is	279	305	FULL	SFND2	SFND2-D029,SFND2-E032	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	12. Root-cause hierarchy	306	329	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	13. Contracts: what improved and what did not	330	349	FULL	SFND2	SFND2-E085	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	14. The regression system amplified the operating-model failure	350	365	FULL	SFND2	SFND2-D034,SFND2-E086	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	15. Competing semantic authority was a real architecture failure	366	379	FULL	SFND2	SFND2-E087	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	16. Model/configuration fitness remains a serious hypothesis	380	406	FULL	SFND2	SFND2-E034	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	17. Synchronization evidence	407	421	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	18. Experimental contamination boundary	422	438	FULL	SFND2	SFND2-D031	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	19. Environmental context is not an excuse	439	446	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	20. What not to conclude	447	464	FULL	SFND2		no-new-knowledge	
+docs/WARNING-operating-model-reality-report-FINAL.md	21. Corrective-design directives	465	497	FULL	SFND2	SFND2-E032	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	22. Do not design a better BUG-021 process	498	511	FULL	SFND2	SFND2-E083	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	23. Minimum falsifiable next experiment	512	538	FULL	SFND2	SFND2-E083	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	24. Conditions for retiring this warning	539	556	FULL	SFND2	SFND2-D023	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	25. Final warning	557	564	FULL	SFND2	SFND2-E084	extracted	
+docs/WARNING-operating-model-reality-report-FINAL.md	26. Required posture for the cross-actor retrospective	565	573	FULL	SFND2	SFND2-E051,SFND2-E089	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	⚠ ACTIVE WARNING — Wheelwright Operating Model Reality Report	1	10	FULL	SFND2	SFND2-E035	extracted	
+docs/WARNING-operating-model-reality-report-active.md	1. Why BUG-021 was selected	11	22	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	2. Principal result so far	23	41	FULL	SFND2	SFND2-E030	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	3. Clearest example: the Principal-confirmation gate	42	60	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	4. The death spiral	61	72	FULL	SFND2	SFND2-E031	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	5. Requirement accretion and rework amplification	73	84	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	6. Patching falsifiers instead of internalizing invariants	85	100	FULL	SFND2	SFND2-E088	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	7. Contract recital without behavioral compliance	101	108	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	8. Actor reality — Kiro	109	125	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	9. Actor reality — Codex	126	135	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	10. Actor reality — ChatGPT	136	154	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	11. The multi-actor model itself	155	177	FULL	SFND2	SFND2-E023	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	12. The missing transition control	178	187	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	13. Temporary fifth diagnostic actor	188	197	FULL	SFND2	SFND2-E089	extracted	
+docs/WARNING-operating-model-reality-report-active.md	14. Execution economics	198	218	FULL	SFND2	SFND2-E084	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	15. Regression latency	219	231	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	16. Permanently known-red regression	232	245	FULL	SFND2	SFND2-D034	extracted	
+docs/WARNING-operating-model-reality-report-active.md	17. Architectural warning: competing lifecycle authority	246	255	FULL	SFND2	SFND2-E087	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	18. Critical counterfactual	256	265	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	19. What this says about the new contracts	266	279	FULL	SFND2	SFND2-E085	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	20. What not to conclude yet	280	292	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	21. Current root-cause hierarchy	293	314	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	22. What prevention must eventually demonstrate	315	328	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	23. Conditions for closing the eventual warning	329	346	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	24. Current warning statement	347	352	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	Active-field-test continuation note	353	362	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	25. Directives for the corrective actor retrospective	363	407	FULL	SFND2	SFND2-E033	extracted	
+docs/WARNING-operating-model-reality-report-active.md	26. Open hypothesis — actor/model/configuration fitness	408	430	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	27. Model price is not task cost	431	463	FULL	SFND2	SFND2-E034	extracted	cited as variant/evidence in listed items
+docs/WARNING-operating-model-reality-report-active.md	28. Third-amendment evidence and continuing falsification	464	488	FULL	SFND2	SFND2-E088	extracted	
+docs/WARNING-operating-model-reality-report-active.md	29. Synchronization attestation failure and recovery	489	505	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/WARNING-operating-model-reality-report-active.md	30. Field-test contamination boundary	506	522	FULL	SFND2	SFND2-D031	extracted	
+docs/WARNING-operating-model-reality-report-active.md	31. ChatGPT warning-on / warning-excluded observation	523	551	FULL	SFND2		duplicate-of:docs/WARNING-operating-model-reality-report-FINAL.md	restated in FINAL report
+docs/bootstrap/api-v2-documentation-update-procedure.md	API v2 documentation — end-of-session update procedure	1	6	FULL	SFND2	SFND2-D017,SFND2-E029	extracted	
+docs/bootstrap/api-v2-documentation-update-procedure.md	1. Scope, prerequisites and safety	7	39	FULL	SFND2	SFND2-E029	extracted	
+docs/bootstrap/api-v2-documentation-update-procedure.md	2. Establish the deployed baseline and classify the session	40	86	FULL	SFND2		no-new-knowledge	mechanical publication procedure; no new domain/decision knowledge
+docs/bootstrap/api-v2-documentation-update-procedure.md	3. Common tool provisioning; accepted-change verification and identity refresh	87	143	FULL	SFND2		no-new-knowledge	mechanical publication procedure; no new domain/decision knowledge
+docs/bootstrap/api-v2-documentation-update-procedure.md	4. Build and observe a publication candidate	144	168	FULL	SFND2		no-new-knowledge	mechanical publication procedure; no new domain/decision knowledge
+docs/bootstrap/api-v2-documentation-update-procedure.md	5. Persist, publish and verify the exact run	169	196	FULL	SFND2		no-new-knowledge	mechanical publication procedure; no new domain/decision knowledge
+docs/bootstrap/api-v2-documentation-update-procedure.md	6. Failure handling, safe retries and final closeout	197	217	FULL	SFND2	SFND2-E029	extracted	cited as variant/evidence in listed items
+docs/bootstrap/api-v2-documentation-update-procedure.md	7. Cold-start acceptance test (safe simulation before adoption)	218	222	FULL	SFND2		no-new-knowledge	mechanical publication procedure; no new domain/decision knowledge
+docs/bootstrap/chatgpt-cold-start.md	ChatGPT Cold-Start Bootstrap — Wheelwright	1	8	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/chatgpt-cold-start.md	Continuous proof and architectural conservation	9	12	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/chatgpt-cold-start.md	Operator-facing Product check	13	18	FULL	SFND2	SFND2-E064	extracted	
+docs/bootstrap/chatgpt-cold-start.md	Role	19	24	FULL	SFND2	SFND2-D024	extracted	
+docs/bootstrap/chatgpt-cold-start.md	Untasked bootstrap — bounded orientation and on-demand retrieval	25	41	FULL	SFND2	SFND2-E095	extracted	
+docs/bootstrap/chatgpt-cold-start.md	First action — reacquire current authority	42	51	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/chatgpt-cold-start.md	Mandatory API v2 authority boundary	52	61	FULL	SFND2	SFND2-E076	extracted	cited as variant/evidence in listed items
+docs/bootstrap/chatgpt-cold-start.md	Authority discipline	62	74	FULL	SFND2	SFND2-E074	extracted	cited as variant/evidence in listed items
+docs/bootstrap/chatgpt-cold-start.md	Principal Decision Surface	75	99	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/chatgpt-cold-start.md	Active operating-model experiment	100	113	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/chatgpt-cold-start.md	Reasoning discipline	114	121	FULL	SFND2	SFND2-E063	extracted	cited as variant/evidence in listed items
+docs/bootstrap/chatgpt-cold-start.md	Death-spiral avoidance	122	125	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/chatgpt-cold-start.md	Project memory	126	129	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/chatgpt-cold-start.md	Cold-start attestation	130	141	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/chatgpt-cold-start.md	Continuous engineering authority — October 13, 2026 reconciliation	142	146	FULL	SFND2	SFND2-D036	extracted	
+docs/bootstrap/codex-cold-start.md	Codex Cold-Start Bootstrap — Wheelwright	1	6	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/codex-cold-start.md	Role	7	17	FULL	SFND2	SFND2-D024,SFND2-E023	extracted	
+docs/bootstrap/codex-cold-start.md	Product-first, proof-carrying architecture	18	21	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/codex-cold-start.md	First action	22	29	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/codex-cold-start.md	Mandatory API v2 authority boundary	30	39	FULL	SFND2	SFND2-E076	extracted	cited as variant/evidence in listed items
+docs/bootstrap/codex-cold-start.md	Principal operator acceptance — zero configuration burden	40	47	FULL	SFND2	SFND2-D015,SFND2-E022	extracted	
+docs/bootstrap/codex-cold-start.md	Authority discipline	48	59	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/codex-cold-start.md	Principal Decision Surface	60	84	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/codex-cold-start.md	Gate Experiment 001	85	98	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/codex-cold-start.md	Death-spiral avoidance	99	102	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/codex-cold-start.md	Architecture boundary	103	108	FULL	SFND2	SFND2-E063	extracted	
+docs/bootstrap/codex-cold-start.md	Review boundary	109	114	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/codex-cold-start.md	Cold-start attestation	115	125	FULL	SFND2		duplicate-of:docs/bootstrap/kiro-cold-start.md	parallel bootstrap text
+docs/bootstrap/codex-cold-start.md	Continuous engineering authority — October 13, 2026 reconciliation	126	130	FULL	SFND2	SFND2-D036	extracted	
+docs/bootstrap/end-of-session-protocol.md	End-of-Session Protocol — Wheelwright	1	9	FULL	SFND2	SFND2-D016	extracted	
+docs/bootstrap/end-of-session-protocol.md	Purpose	10	31	FULL	SFND2	SFND2-D016	extracted	
+docs/bootstrap/end-of-session-protocol.md	Canonical Principal Invocation	32	51	FULL	SFND2	SFND2-D016,SFND2-E024	extracted	
+docs/bootstrap/end-of-session-protocol.md	Execution Contract	52	94	FULL	SFND2	SFND2-D016	extracted	
+docs/bootstrap/end-of-session-protocol.md	Continue Unless Genuinely Blocked	95	125	FULL	SFND2	SFND2-D016	extracted	
+docs/bootstrap/end-of-session-protocol.md	Relationship to the Project-Memory Protocol	126	137	FULL	SFND2	SFND2-D016	extracted	
+docs/bootstrap/end-of-session-protocol.md	Completion Condition	138	145	FULL	SFND2	SFND2-D016	extracted	
+docs/bootstrap/kiro-cold-start.md	Kiro Cold-Start Bootstrap — Wheelwright	1	8	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/kiro-cold-start.md	Role	9	14	FULL	SFND2	SFND2-D024	extracted	
+docs/bootstrap/kiro-cold-start.md	Product-first architectural proof	15	18	FULL	SFND2	SFND2-E021	extracted	cited as variant/evidence in listed items
+docs/bootstrap/kiro-cold-start.md	First action — reacquire current authority	19	28	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/kiro-cold-start.md	Mandatory API v2 authority boundary	29	38	FULL	SFND2	SFND2-D006,SFND2-E076	extracted	
+docs/bootstrap/kiro-cold-start.md	Authority discipline	39	53	FULL	SFND2	SFND2-E074	extracted	
+docs/bootstrap/kiro-cold-start.md	Principal Decision Surface	54	78	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/kiro-cold-start.md	Active operating-model experiment	79	92	FULL	SFND2	SFND2-D032	extracted	
+docs/bootstrap/kiro-cold-start.md	Death-spiral avoidance	93	96	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/kiro-cold-start.md	Architecture and reasoning	97	106	FULL	SFND2	SFND2-E075	extracted	
+docs/bootstrap/kiro-cold-start.md	Product evidence and review	107	112	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/kiro-cold-start.md	End-of-session invocation	113	120	FULL	SFND2	SFND2-E024	extracted	cited as variant/evidence in listed items
+docs/bootstrap/kiro-cold-start.md	Project memory	121	139	FULL	SFND2	SFND2-D035	extracted	
+docs/bootstrap/kiro-cold-start.md	Cold-start attestation	140	152	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/kiro-cold-start.md	Continuous engineering authority — October 13, 2026 reconciliation	153	157	FULL	SFND2	SFND2-D036,SFND2-E096	extracted	
+docs/bootstrap/project-memory-protocol.md	Documentation Diligence / Project-Memory Protocol	1	9	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Relationship to End-of-Session Closeout	10	19	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Central Invariant	20	33	FULL	SFND2	SFND2-E025	extracted	
+docs/bootstrap/project-memory-protocol.md	Two Symmetrical Obligations	34	43	FULL	SFND2	SFND2-E025	extracted	
+docs/bootstrap/project-memory-protocol.md	The Memory Loop	44	60	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Start with the Authority Model	61	79	FULL	SFND2	SFND2-E016,SFND2-E060	extracted	cited as variant/evidence in listed items
+docs/bootstrap/project-memory-protocol.md	Read Before Reasoning	80	107	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Reconcile While Learning	108	132	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Persistence Discipline	133	214	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Retrieval Discipline	215	241	FULL	SFND2	SFND2-E060	extracted	
+docs/bootstrap/project-memory-protocol.md	Epistemic Integrity	242	307	FULL	SFND2	SFND2-E026,SFND2-E027	extracted	
+docs/bootstrap/project-memory-protocol.md	Contradictions Are Findings	308	327	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Parking-Lot Discipline	328	355	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Commit Governance	356	369	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	End-of-Workstream Memory Check	370	394	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Roadmap Freshness Invariant	395	506	FULL	SFND2	SFND2-D035,SFND2-E028	extracted	
+docs/bootstrap/project-memory-protocol.md	Preserve Significant Rejected Approaches	507	520	FULL	SFND2		no-new-knowledge	
+docs/bootstrap/project-memory-protocol.md	Actor-Specific Responsibilities	521	534	FULL	SFND2	SFND2-E092	extracted	
+docs/bootstrap/project-memory-protocol.md	The Remembering Rule	535	539	FULL	SFND2	SFND2-E025	extracted	
+docs/mandates/product-first-continuous-engineering-2026-10-13.md	Principal mandate — Product-first continuous engineering	1	13	FULL	SFND2	SFND2-D014,SFND2-E020	extracted	
+docs/mandates/product-first-continuous-engineering-2026-10-13.md	Continuous proof and architectural conservation — Principal clarification, October 13, 2026	14	26	FULL	SFND2	SFND2-D014,SFND2-D032,SFND2-E020,SFND2-E021	extracted	
+docs/prompts/codex-factory-floor-measurement.md	Codex Prompt — Factory-Floor Measurement Order	1	10	FULL	SFND2	SFND2-E080	extracted	
+docs/prompts/codex-factory-floor-measurement.md	Authority and scope	11	20	FULL	SFND2	SFND2-E080	extracted	
+docs/prompts/codex-factory-floor-measurement.md	Hypothesis under test	21	30	FULL	SFND2	SFND2-E080	extracted	
+docs/prompts/codex-factory-floor-measurement.md	Primary question	31	36	FULL	SFND2	SFND2-E080	extracted	
+docs/prompts/codex-factory-floor-measurement.md	Absolute prohibitions	37	56	FULL	SFND2	SFND2-E080	extracted	
+docs/prompts/codex-factory-floor-measurement.md	Part 1 — Reproduce August 28 indirect evidence	57	83	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Part 2 — Build the observer only from the approved measurement order	84	143	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Sampling and non-interference	144	161	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Live-run conditions	162	176	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Required derived analysis	177	195	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Required plots	196	206	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Artifact layout	207	235	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Manifest requirements	236	257	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	`analysis.md` format	258	281	FULL	SFND2		no-new-knowledge	
+docs/prompts/codex-factory-floor-measurement.md	Completion criteria	282	295	FULL	SFND2	SFND2-E080	extracted	cited as variant/evidence in listed items
+docs/prompts/kiro-constraint-identification.md	Kiro Prompt — Constraint Identification Restart	1	12	FULL	SFND2	SFND2-E060	extracted	cited as variant/evidence in listed items
+docs/prompts/kiro-constraint-identification.md	Governing problem-space discipline	13	28	FULL	SFND2	SFND2-E065	extracted	
+docs/prompts/kiro-constraint-identification.md	Forbidden work	29	40	FULL	SFND2	SFND2-E065	extracted	
+docs/prompts/kiro-constraint-identification.md	First required checkpoint	41	53	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Primary discriminating question	54	59	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Reproduce existing indirect evidence first	60	82	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Build an observability inventory	83	101	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Use Codex as the measurement technician	102	123	FULL	SFND2	SFND2-E072	extracted	cited as variant/evidence in listed items
+docs/prompts/kiro-constraint-identification.md	Pre-market work	124	141	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Live measurement design	142	153	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Non-interference	154	161	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Analysis gate	162	177	FULL	SFND2	SFND2-E065	extracted	cited as variant/evidence in listed items
+docs/prompts/kiro-constraint-identification.md	Reporting standard	178	190	FULL	SFND2		no-new-knowledge	
+docs/prompts/kiro-constraint-identification.md	Credit discipline	191	203	FULL	SFND2		no-new-knowledge	
+docs/technology-quality/baseline-context-2026-09-09.md	Technology Quality Baseline — Context Capture (2026-09-09)	1	9	FULL	SFND2		no-new-knowledge	
+docs/technology-quality/baseline-context-2026-09-09.md	1. Immutable baseline subject SHA	10	17	FULL	SFND2	SFND2-E039	extracted	
+docs/technology-quality/baseline-context-2026-09-09.md	2. Measurement context	18	35	FULL	SFND2	SFND2-E037,SFND2-E052	extracted	cited as variant/evidence in listed items
+docs/technology-quality/baseline-context-2026-09-09.md	3. What this capture is and is not	36	42	FULL	SFND2		no-new-knowledge	
+docs/technology-quality/baseline-context-2026-09-09.md	4. Findings surfaced during capture (recorded, not remediated)	43	52	FULL	SFND2		no-new-knowledge	
+docs/technology-quality/baseline-context-2026-09-09.md	5. Comparability limitations (record before trend)	53	59	FULL	SFND2		no-new-knowledge	
+docs/technology-quality/baseline-context-2026-09-09.md	6. Next Program steps (not performed here; not authorized by this record)	60	69	FULL	SFND2		no-new-knowledge	
+.kiro/steering/architecture.md	Wheelwright — Architecture	1	2	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/architecture.md	Runtime Topology	3	17	FULL	SFND2	SFND2-E059	extracted	cited as variant/evidence in listed items
+.kiro/steering/architecture.md	Technology Stack	18	30	FULL	SFND2	SFND2-E045	extracted	
+.kiro/steering/architecture.md	Backend Responsibilities	31	45	FULL	SFND2	SFND2-E045,SFND2-E046	extracted	
+.kiro/steering/architecture.md	Frontend Responsibilities	46	56	FULL	SFND2	SFND2-E046	extracted	
+.kiro/steering/architecture.md	HTTP API	57	66	FULL	SFND2	SFND2-E048	extracted	cited as variant/evidence in listed items
+.kiro/steering/architecture.md	Evidence Snapshot Contract (v1 — Frozen)	67	73	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/architecture.md	Market Session Model (6 states)	74	84	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/architecture.md	Tiered Acquisition Scheduler	85	93	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/architecture.md	Ownership Boundary	94	101	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/architecture.md	Architectural Invariants (Summary)	102	113	FULL	SFND2	SFND2-E057	extracted	
+.kiro/steering/current-investigation.md	ACTIVE INVESTIGATION — Constraint Identification	1	41	FULL	SFND2	SFND2-D025,SFND2-E049,SFND2-E072	extracted	
+.kiro/steering/development-workflow.md	Wheelwright — Development Workflow	1	2	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Prerequisites	3	8	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Running the System	9	23	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Running Tests	24	35	FULL	SFND2	SFND2-E052	extracted	
+.kiro/steering/development-workflow.md	Build Commands	36	45	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Principal Git Workflow	46	64	FULL	SFND2	SFND2-D022,SFND2-E055	extracted	
+.kiro/steering/development-workflow.md	Authority Before Consumers	65	77	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Existing Capability Before New Machinery	78	93	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Project Layout	94	115	FULL	SFND2	SFND2-E044	extracted	cited as variant/evidence in listed items
+.kiro/steering/development-workflow.md	Code Style Conventions	116	131	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Important Constraints	132	139	FULL	SFND2	SFND2-E043	extracted	cited as variant/evidence in listed items
+.kiro/steering/development-workflow.md	Environment Variables	140	145	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/development-workflow.md	Ports	146	151	FULL	SFND2	SFND2-E059	extracted	
+.kiro/steering/domain-vocabulary.md	Wheelwright — Domain Vocabulary	1	2	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/domain-vocabulary.md	System Concepts	3	17	FULL	SFND2	SFND2-E044	extracted	
+.kiro/steering/domain-vocabulary.md	Recommendation Domain	18	28	FULL	SFND2	SFND2-E050	extracted	
+.kiro/steering/domain-vocabulary.md	Options Domain	29	43	FULL	SFND2	SFND2-E054	extracted	
+.kiro/steering/domain-vocabulary.md	Operational Concepts	44	55	FULL	SFND2	SFND2-E048,SFND2-E058	extracted	
+.kiro/steering/domain-vocabulary.md	Acquisition Concepts	56	68	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/domain-vocabulary.md	Architectural Terminology	69	79	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Primary Outcome-Execution Contract	1	10	FULL	SFND2	SFND2-E047	extracted	
+.kiro/steering/engineering-methodology.md	Options Domain Competence Contract	11	22	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Wheelwright — Engineering Methodology	23	24	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Three Actor Development Model	25	51	FULL	SFND2	SFND2-E051	extracted	
+.kiro/steering/engineering-methodology.md	Closed-Loop Engineering	52	66	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Learning Checkpoints	67	87	FULL	SFND2	SFND2-E063	extracted	cited as variant/evidence in listed items
+.kiro/steering/engineering-methodology.md	Documentation Follows Learning	88	96	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Cold-Start Reconstruction	97	100	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Observation Cadence	101	104	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/engineering-methodology.md	Spec-Driven Development	105	111	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/idea-intake-reconciliation.md	Idea Intake / Reconciliation Steering	1	22	FULL	SFND2	SFND2-D013	extracted	
+.kiro/steering/parking-lot-continuation.md	Wheelwright — Parking-Lot Continuation	1	11	FULL	SFND2	SFND2-E056	extracted	
+.kiro/steering/project-identity.md	Wheelwright — Project Identity	1	2	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/project-identity.md	What This System Is	3	8	FULL	SFND2	SFND2-E046	extracted	cited as variant/evidence in listed items
+.kiro/steering/project-identity.md	What This System Is Not	9	16	FULL	SFND2	SFND2-E093	extracted	
+.kiro/steering/project-identity.md	Governing Principles	17	34	FULL	SFND2	SFND2-E013	extracted	cited as variant/evidence in listed items
+.kiro/steering/project-identity.md	Cognitive Role Separation (Product Surfaces)	35	46	FULL	SFND2	SFND2-E053	extracted	cited as variant/evidence in listed items
+.kiro/steering/project-identity.md	Four Conceptual Engines	47	53	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/project-identity.md	Naming	54	62	FULL	SFND2	SFND2-E053	extracted	
+.kiro/steering/project-identity.md	Repository	63	67	FULL	SFND2		no-new-knowledge	operational instructions; no contradiction beyond listed items
+.kiro/steering/project-identity.md	Key Reference Documents	68	78	FULL	SFND2	SFND2-E051,SFND2-E057	extracted	cited as variant/evidence in listed items
+docs/development-machine.md	(whole file)	1	369	SKIPPED	SFND2		sensitive-withheld	assignment: coverage row only; content not read or reproduced

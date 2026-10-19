@@ -1,0 +1,236 @@
+sha7	date	subject_redacted	class	related_ids	note
+bef03dd	2026-10-18	docs: ratify successor knowledge architecture D1-D5 as ADR-023	ratification	ADR-023	subject-only keyword classification
+8aef049	2026-10-18	docs: register ratified holistic domain-first API principle	ratification		subject-only keyword classification
+b339b58	2026-10-18	docs: record Principal-ratified holistic domain-first API design principle	ratification		subject-only keyword classification
+b16af09	2026-10-17	docs: preserve accepted human Positions presentation contract	acceptance		subject-only keyword classification
+301aee2	2026-10-16	docs: preserve ww live stopping point and pending visual acceptance	acceptance		subject-only keyword classification
+7ae274c	2026-10-16	docs: consolidate final ww live Principal decisions and Codex handoff	decision		subject-only keyword classification
+4685abe	2026-10-16	docs: finalize Principal ww live Product decisions and Codex handoff	decision		subject-only keyword classification
+379feb2	2026-10-16	docs: record ww live membership precedence decision	decision		subject-only keyword classification
+e5a67df	2026-10-15	docs: correct fresh-checkout no-op setup and reconcile Product acceptance	acceptance		subject-only keyword classification
+704cbe5	2026-10-15	docs(api): record verified public cleanup deployment	deploy		subject-only keyword classification
+e710167	2026-10-15	docs(api): record verified live Pages deployment and Product handoff	deploy		subject-only keyword classification
+3ae78b8	2026-10-15	ci(docs): publish accepted v2 reference to GitHub Pages	acceptance		subject-only keyword classification
+9460f27	2026-10-15	docs(api): reconcile independent ACCEPT and resolve BUG-042	acceptance	BUG-042	subject-only keyword classification
+2a60f19	2026-10-15	docs(api): register BUG-042 and rejected release state	reversal	BUG-042	subject-only keyword classification
+65bbd48	2026-10-15	docs: persist black-box Kiro acceptance boundary	acceptance		subject-only keyword classification
+450106a	2026-10-15	docs: make human and agent usability coequal PL-API-02 release gates	release	PL-API-02	subject-only keyword classification
+0bef172	2026-10-15	docs: add agent usability goal and future web v2 migration validation	migration		subject-only keyword classification
+3ee1a5c	2026-10-15	fix(api): correct accepted v2 OpenAPI contracts and conformance checks	acceptance		subject-only keyword classification
+f6681c3	2026-10-15	docs: record COTS-first acceptance checks for PL-API-02	acceptance	PL-API-02	subject-only keyword classification
+8914658	2026-10-15	docs: record PL-API-02 Principal decisions and bounded Codex delivery plan	decision	PL-API-02	subject-only keyword classification
+36e7d6f	2026-10-15	docs(cli): close Principal-accepted installed Positions delivery	acceptance		subject-only keyword classification
+798b307	2026-10-15	merge: reconcile Positions command with accepted history delivery	acceptance		subject-only keyword classification
+7732138	2026-10-15	docs: close accepted integrated Wheelwright update history delivery	acceptance		subject-only keyword classification
+ed8a48d	2026-10-15	docs: record installed pull history verification pending Principal acceptance	acceptance		subject-only keyword classification
+9a0f731	2026-10-15	docs: link approved GitHub Pages API documentation decision to PL-API-02	decision	PL-API-02	subject-only keyword classification
+e7b09da	2026-10-15	docs(ww): require installed pull and history acceptance workflow	acceptance		subject-only keyword classification
+c2bf81c	2026-10-14	Accept no-protective-exit marker and reconcile orphaned WW draft	acceptance		subject-only keyword classification
+94e08ad	2026-10-14	Accept TT Live economic-state prototype with experimental semantics excluded	acceptance		subject-only keyword classification
+bfe3073	2026-10-14	Record Principal acceptance and close TT Live credit spread workstream	acceptance		subject-only keyword classification
+6f5d706	2026-10-13	Reconcile API facade review note with ratified guardrail clarification	ratification		subject-only keyword classification
+1b47a6a	2026-10-13	Ratify v2 domain facade, REST layered resource and read-through boundary clarification	ratification		subject-only keyword classification
+b4fdf75	2026-10-13	Record Principal acceptance of CC/CSP shape and restrained color direction	acceptance		subject-only keyword classification
+0bf6256	2026-10-13	Record Principal acceptance of CC/CSP shape and restrained color direction	acceptance		subject-only keyword classification
+6c0882f	2026-10-13	Record Principal acceptance of CC/CSP shape and restrained color direction	acceptance		subject-only keyword classification
+3afc730	2026-10-13	feat(PL-CLI-01): persist accepted PTS Portfolio Capital history graph	acceptance	PL-CLI-01	subject-only keyword classification
+9a92421	2026-10-13	Record Principal-confirmed tt live visual acceptance specimen for managed ww Positions	acceptance		subject-only keyword classification
+f3943c3	2026-10-12	feat(PL-EVID-04): interim v1 IV Rank on Deployment tables via tastytrade /market-metrics	deploy	PL-EVID-04	subject-only keyword classification
+ad0e8d1	2026-10-12	Deliver accepted historical Position reads and compact Unix presentation	acceptance		subject-only keyword classification
+39b0bb4	2026-10-12	Deployment: add filter parity for Covered Calls and Buy-Writes	deploy		subject-only keyword classification
+e764927	2026-10-11	Preserve CONV-UX Position visualization discovery and rejected specimens	reversal		subject-only keyword classification
+5c2f0b7	2026-10-11	Deliver accepted backend-owned tastytrade holdings admission	acceptance		subject-only keyword classification
+14f9110	2026-10-11	Refresh human README for accepted v1/v2/tt capabilities and current architecture	acceptance		subject-only keyword classification
+2db0cb4	2026-10-11	Apply accepted tt color motif to ww Account discovery	acceptance		subject-only keyword classification
+ed68d61	2026-10-11	Codex cold-start: require configuration-free Principal operator acceptance	acceptance		subject-only keyword classification
+83d8bd3	2026-10-11	Record accepted CONV-WEB rewrite plan intake pending full Kiro artifact	acceptance		subject-only keyword classification
+3ea0ee6	2026-10-11	Ratify PRIN-ARCH-BACKEND-AUTHORITY as enduring architectural principle	ratification		subject-only keyword classification
+d41d985	2026-10-11	Record BUG-036 independent rejection and session closeout	reversal	BUG-036	subject-only keyword classification
+9833747	2026-10-11	Constrain PL-CONV-01 delivery plan by historical ratified invariants	ratification	PL-CONV-01	subject-only keyword classification
+dada93a	2026-10-11	Preserve incomplete Kiro web FE to v2 migration assessment under CONV-WEB	migration		subject-only keyword classification
+21c69d6	2026-10-11	Ratify Model A Account isolation and fail-closed artifact authorization	ratification		subject-only keyword classification
+e6ef665	2026-10-11	Record PL-CONV-01 Account ratification checkpoint and deferred scope	ratification	PL-CONV-01	subject-only keyword classification
+d40b60e	2026-10-11	Ratify v2 Account GUID, nickname interaction and confidentiality invariants	ratification		subject-only keyword classification
+1118d73	2026-10-11	Record undecided PL-CONV-01 convergence entry-point milestone	decision	PL-CONV-01	subject-only keyword classification
+9793edd	2026-10-11	Record Principal acceptance and close out tt live UX iteration	acceptance		subject-only keyword classification
+8c7105f	2026-10-11	Record Principal acceptance of Account evidence operating loop	acceptance		subject-only keyword classification
+e2da238	2026-10-08	Record Principal acceptance of bounded Test 1 failure	acceptance		subject-only keyword classification
+3c9630a	2026-10-07	Ratify v2 resource design candidate and ledger semantics	ratification		subject-only keyword classification
+dfdb7f4	2026-10-07	docs: ratify v2 ontology resource coverage reconciliation	ratification		subject-only keyword classification
+23d4222	2026-10-07	Ratify HTTP-only client caching for API v2	ratification		subject-only keyword classification
+1d6920f	2026-10-07	Ratify v2 backend state and business logic authority	ratification		subject-only keyword classification
+8db28e2	2026-10-07	Ratify MVP 1 evaluation technology direction	ratification		subject-only keyword classification
+6a37a00	2026-10-07	Ratify MVP 1 capability decomposition	ratification		subject-only keyword classification
+fdd3898	2026-10-07	Ratify MVP 1 call-entry solution overview	ratification		subject-only keyword classification
+7daadad	2026-10-07	docs(bugs): reconcile BUG-033 epistemic status; Principal stopping decision (keep Open, no further work today); regen roadmap projection	decision	BUG-033	subject-only keyword classification
+a95b4ab	2026-10-05	Record principal acceptance of styled quote table	acceptance		subject-only keyword classification
+ec417f0	2026-10-05	Record Principal show table acceptance and session closeout	acceptance		subject-only keyword classification
+3ac333e	2026-10-05	Record type selector acceptance and session closeout	acceptance		subject-only keyword classification
+711d493	2026-10-05	Accept held-quote inventory and complete CLI closeout	acceptance		subject-only keyword classification
+2982eb8	2026-10-05	Record Principal-run ww fetch acceptance test result	acceptance		subject-only keyword classification
+019d1f8	2026-10-05	Show commands and captured output in ww fetch acceptance tests	acceptance		subject-only keyword classification
+fd78f13	2026-10-05	Migrate ww fetch to v2 direct-quote acquisition	migration		subject-only keyword classification
+1d5a87e	2026-10-05	fix(api-v2): correct four Codex acceptance defects in direct-quote slice	acceptance		subject-only keyword classification
+20b3ff0	2026-10-05	fix(api-v2): remediate rejected direct-quote slice against Doc 79 invariants	reversal		subject-only keyword classification
+afcb13e	2026-10-05	feat(api-v2): implement ratified POST /v2/quotes direct-quote slice	ratification		subject-only keyword classification
+eff2600	2026-10-05	docs: index v2 reject invariant reconciliation	reversal		subject-only keyword classification
+bf0bc89	2026-10-05	docs: reconcile rejected v2 quote implementation invariants	reversal		subject-only keyword classification
+3a390ef	2026-10-05	docs: ratify v2 direct quote API contract	ratification		subject-only keyword classification
+1acf2e7	2026-10-05	docs: ratify fetch boundary and record provider capabilities	ratification		subject-only keyword classification
+818c8a2	2026-10-05	docs: ratify API v2 architectural guardrails	ratification		subject-only keyword classification
+aca6500	2026-10-04	docs: snapshot PL-CLI-01 bare-fetch experimental acceptance	acceptance	PL-CLI-01	subject-only keyword classification
+070e144	2026-10-04	Index CLI composition friction acceptance suite	acceptance		subject-only keyword classification
+842b350	2026-10-04	Add explicit CLI composition friction acceptance specimens	acceptance		subject-only keyword classification
+05abae7	2026-10-04	Promote ww fetch and preserve acceptance checkpoint	acceptance		subject-only keyword classification
+2ab3277	2026-10-04	Persist accepted ww refresh prices composition slice	acceptance		subject-only keyword classification
+de9b7c1	2026-10-03	docs: record ww implementation language decision gate	decision		subject-only keyword classification
+4a948cc	2026-10-02	docs: preserve unified deployment v1 discovery	deploy		subject-only keyword classification
+4c7d71b	2026-10-02	Move Iron Condors table to Deployment and expand columns/filters	deploy		subject-only keyword classification
+18138b0	2026-10-02	docs: ratify Iron Condors deployment projection	ratification		subject-only keyword classification
+4177ee6	2026-10-01	Add Appreciation to Strike column to Cash Deployment — Prod v0 table	deploy		subject-only keyword classification
+8bc41ae	2026-09-28	Remediate continuity REJECT: 5 ADR-022/Doc 70 conformance defects	reversal	ADR-022	subject-only keyword classification
+1eb448e	2026-09-28	docs: accept bounded continuity design for implementation	acceptance		subject-only keyword classification
+350f4a5	2026-09-27	docs: ratify death spiral avoidance protocol	ratification		subject-only keyword classification
+86ea76e	2026-09-27	Ratify Assignment-Centric Wheel v1	ratification		subject-only keyword classification
+bd8baec	2026-09-27	Ratify Product Principles governance	ratification		subject-only keyword classification
+e28a0ac	2026-09-26	docs: transition Q0 to execution data-path decision	decision		subject-only keyword classification
+1b36f3c	2026-09-26	docs(journal): ADR-021 slice stopping-point snapshot (browser-accepted; governed-entry held)	acceptance	ADR-021	subject-only keyword classification
+e317935	2026-09-26	docs: ratify unresolved predicate resolution model	ratification		subject-only keyword classification
+df246ba	2026-09-26	fix(governed-decision): project governed Recommendation onto existing Console rows	decision		subject-only keyword classification
+6c456db	2026-09-26	feat(governed-decision): P0-P3 bounded production Console walking slice (Doc 65, Candidate B)	decision		subject-only keyword classification
+1446d4c	2026-09-26	docs: ratify bounded production Console Wheel rules	ratification		subject-only keyword classification
+063c4d0	2026-09-25	docs(journal): record BUG-026/BUG-027 acceptance and Log bug-event legibility resolution	acceptance	BUG-026 BUG-027	subject-only keyword classification
+a9b4e24	2026-09-25	Add Spot and Strike columns to Cash Deployment — Prod v0 table	deploy		subject-only keyword classification
+b486a41	2026-09-24	docs: record Principal acceptance of BUG-026/BUG-027; intake PL-OPS-CSV-01 (operator CSV burden)	acceptance	BUG-026 BUG-027 PL-OPS-CSV-01	subject-only keyword classification
+12d2873	2026-09-24	docs: reconcile governed decision ADR with AR roadmap	decision		subject-only keyword classification
+75db701	2026-09-24	docs: ratify governed decision replay ADR	ratification		subject-only keyword classification
+79caa27	2026-09-24	docs: ratify governed decision persistence architecture	ratification		subject-only keyword classification
+b68e388	2026-09-24	docs: reconcile canonical decision replay bundle	decision		subject-only keyword classification
+4d43de8	2026-09-24	docs: reconcile concrete decision persistence design	decision		subject-only keyword classification
+7c09932	2026-09-24	docs: reconcile decision contract with current architecture	decision		subject-only keyword classification
+e07055d	2026-09-24	docs: reconcile minimum decision provenance contract	decision		subject-only keyword classification
+a792e8a	2026-09-24	docs: index Inner Game decision discipline capture	decision		subject-only keyword classification
+19a193b	2026-09-24	docs: capture Inner Game prescriptive decision discipline	decision		subject-only keyword classification
+13c722f	2026-09-23	docs: preserve semantic v1.1 decision why-state	decision		subject-only keyword classification
+3813f8e	2026-09-22	docs(bugs): file BUG-025 — Deployment overlapping snapshot responses can regress evidence state/ETag	deploy	BUG-025	subject-only keyword classification
+fa683f2	2026-09-22	docs: ratify cross-authority Roadmap Log semantics	ratification		subject-only keyword classification
+9dc0382	2026-09-21	docs: record PL-DEPLOY-BAL Sep-2026 cash-layout Deployable fix in canonical authority	deploy	PL-DEPLOY-BAL	subject-only keyword classification
+970f87a	2026-09-21	fix(portfolio): Sawdust Roth Sep-2026 cash Balances layout classifies as cash regime (PL-DEPLOY-BAL)	deploy	PL-DEPLOY-BAL	subject-only keyword classification
+21edff9	2026-09-21	fix(portfolio): restore ratified off-account routing + explicit no-active state on removal (PL-PORT-01)	ratification	PL-PORT-01	subject-only keyword classification
+92a2c1f	2026-09-21	feat(portfolio): compat cleanup, migration completion, async race guard, headroom (PL-PORT-01, increment 8)	migration	PL-PORT-01	subject-only keyword classification
+142fc3d	2026-09-21	feat(portfolio): authoritative brokerageAccountId + account-keyed evidence + safe migration (PL-PORT-01, increment 2)	migration	PL-PORT-01	subject-only keyword classification
+70f5052	2026-09-21	docs(roadmap): record Principal acceptance of Log lens UX (PL-ROADMAP-UI)	acceptance	PL-ROADMAP-UI	subject-only keyword classification
+1a9eafa	2026-09-21	docs(PL-PORT-01): ratify BrokerageAccount account-locality invariant; close Codex authorization review	ratification	PL-PORT-01	subject-only keyword classification
+848daf0	2026-09-21	Deployment Show filters: '-' = all/unlimited across all tables	deploy		subject-only keyword classification
+f9e87ef	2026-09-21	feat(deployment): add symbol filter to Buy-Write Candidates table	deploy		subject-only keyword classification
+4def872	2026-09-18	fix(production): BUG-021 buy-to-close accounting — accepted, Resolved	acceptance	BUG-021	subject-only keyword classification
+5610f3e	2026-09-18	fix(write-desk): known $0 deployable cash no longer empties the board	deploy		subject-only keyword classification
+56210cc	2026-09-17	docs: preserve conceptual-reject model-validation experiment	reversal		subject-only keyword classification
+f0bb947	2026-09-17	docs: route suspended contract to decision surface	decision		subject-only keyword classification
+08eb74f	2026-09-17	docs: add decision surface to ChatGPT cold start	decision		subject-only keyword classification
+7e76054	2026-09-17	docs: ratify Principal decision surface	ratification		subject-only keyword classification
+48752b4	2026-09-17	docs(bugs): file BUG-023 — Activity overlay can double-count share-sale proceeds into Deployable	deploy	BUG-023	subject-only keyword classification
+46132f7	2026-09-17	fix(write-desk): BUG-022 regime-aware deployable cash; resolve on live acceptance	acceptance	BUG-022	subject-only keyword classification
+53ced75	2026-09-17	docs(bugs): file BUG-022 — regime-unaware deployable cash folds margin buying power	deploy	BUG-022	subject-only keyword classification
+018e146	2026-09-17	docs(PL-DEPLOY): covered-call posture plurality — lived-trade intake	deploy	PL-DEPLOY	subject-only keyword classification
+0501cc2	2026-09-16	docs: ratify Options Domain Reference (Category E) + scaffold into cold start	ratification		subject-only keyword classification
+d4b3381	2026-09-16	docs: add Options Domain Reference (ratification candidate, not ratified)	ratification		subject-only keyword classification
+01f823a	2026-09-16	docs: ratify shared execution outcome contract	ratification		subject-only keyword classification
+87884ea	2026-09-16	docs: apply HOLD-vs-CLOSE V1 design-gate amendments (ACCEPT WITH AMENDMENTS)	acceptance		subject-only keyword classification
+b198d5e	2026-09-16	docs(PL-RECIPE-01): durable intake — Recipes decision-lens investigation identity	decision	PL-RECIPE-01	subject-only keyword classification
+7b4a084	2026-09-16	feat(PL-DEPLOY-EXPORT): surface provider Greeks + IV on Deployment evidence	deploy	PL-DEPLOY-EXPORT	subject-only keyword classification
+0bb91c5	2026-09-16	docs(PL-DEPLOY-EXPORT): publish accepted Reconciliation Completion Record — RECONCILED	acceptance	PL-DEPLOY-EXPORT	subject-only keyword classification
+76ed9c7	2026-09-16	docs(PL-DEPLOY-EXPORT): §2 durable intake — Deployment Export Everything capability	deploy	PL-DEPLOY-EXPORT	subject-only keyword classification
+5d1bf40	2026-09-16	docs(BUG-020): close as Resolved — Principal-accepted on live Fidelity comparison	acceptance	BUG-020	subject-only keyword classification
+af5c840	2026-09-14	docs(PL-ELIG): persist accepted Unencumbered Shares V1 Console contract	acceptance	PL-ELIG	subject-only keyword classification
+1683a37	2026-09-14	docs(acceptance): capture PL-GOV-02 acceptance findings — BUG-018 (discoverability) and BUG-019 (forced off-hours admissibility)	acceptance	BUG-018 BUG-019 PL-GOV-02	subject-only keyword classification
+b3e2171	2026-09-14	docs: index BUG-017 deployment CSV export completeness	deploy	BUG-017	subject-only keyword classification
+fceebb2	2026-09-14	docs: file BUG-017 deployment CSV export completeness	deploy	BUG-017	subject-only keyword classification
+0a06bd7	2026-09-14	feat(write-desk): Decision funnel audit CSV export with membership as single accounting authority (BUG-016)	decision	BUG-016	subject-only keyword classification
+a1028a0	2026-09-14	fix(sealed-session): restore Deployment rows across session boundaries (BUG-012/013/014)	deploy	BUG-012	subject-only keyword classification
+2e81ed8	2026-09-11	Merge pull request #20 from brooksbol/docs/bug-tracking-migration	migration		subject-only keyword classification
+0119d5c	2026-09-11	docs(bugs): migrate defect tracking to repository-native BUG-NNN system (knife-edge cutover)	migration		subject-only keyword classification
+c122b61	2026-09-11	docs(#16): ratify authority-precedence lesson as ADR-017 (post-#16 ratchet)	ratification	ADR-017	subject-only keyword classification
+dd9d753	2026-09-10	Merge Cash Deployment targeted refresh (PL-OPS-09 consumer): bulk + per-row refresh with bounded visible-state convergence; zero backend change; smoke-tested live	deploy	PL-OPS-09	subject-only keyword classification
+1fb9ab0	2026-09-10	Cash Deployment refresh: Codex truthfulness corrections (bounded convergence)	deploy		subject-only keyword classification
+d2a4b57	2026-09-10	Cash Deployment: per-row surgical refresh + truthful completion (PL-OPS-09)	deploy	PL-OPS-09	subject-only keyword classification
+152d28d	2026-09-10	Cash Deployment: Refresh top opportunities (PL-OPS-09 consumer, v0)	deploy	PL-OPS-09	subject-only keyword classification
+35d58d6	2026-09-09	docs(PL-DEPLOY): decision-surface discovery + reusable epistemic guardrail	deploy	PL-DEPLOY	subject-only keyword classification
+6786c1b	2026-09-09	fix(LVT-INIT-CONSEQUENCE-RELEASE-COST): FE/BE conformance repair (3 MATERIAL + 3 MINOR)	release		subject-only keyword classification
+4cd9a65	2026-09-09	feat(LVT-INIT-CONSEQUENCE-RELEASE-COST): v1 release/retention consequences	release		subject-only keyword classification
+b536ef1	2026-09-09	docs(LVT-INIT-CONSEQUENCE-RELEASE-COST): bounded post-4AM design corrections	release		subject-only keyword classification
+b22a12d	2026-09-09	docs(LVT-INIT-CONSEQUENCE-RELEASE-COST): apply 2 MATERIAL 4AM findings	release		subject-only keyword classification
+feb61a8	2026-09-09	docs(LVT-INIT-CONSEQUENCE-RELEASE-COST): 3AM design revision (pre-4AM)	release		subject-only keyword classification
+200f022	2026-09-09	docs(LVT-INIT-CONSEQUENCE-RELEASE-COST): v1 bounded design decomposition	release		subject-only keyword classification
+2d4928c	2026-09-09	docs(PL-DEPLOY-02-DEF01): reconcile stale record — defect already remediated	deploy	PL-DEPLOY-02-DEF01	subject-only keyword classification
+addd498	2026-09-09	docs: ratify owned-capital LVT hardenings	ratification		subject-only keyword classification
+7a4f3e8	2026-09-09	docs: preserve ratified owned-capital LVT reconciliation	ratification		subject-only keyword classification
+62acc8f	2026-09-09	feat: provider-aware session gate + settled-cash-only deployable hardening	deploy		subject-only keyword classification
+173d384	2026-09-08	docs(PL-DEPLOY): reconcile share-capital release-cost discovery	release	PL-DEPLOY	subject-only keyword classification
+9537526	2026-09-08	docs(PL-DEPLOY): preserve GDX release-cost decision discovery	release	PL-DEPLOY	subject-only keyword classification
+dec052f	2026-09-07	docs(PL-DEPLOY): preserve third finding — capital state changes the feasible set (SOXX)	deploy	PL-DEPLOY	subject-only keyword classification
+a7841c7	2026-09-07	docs(PL-DEPLOY): preserve second finding — strategy-siloed generation hides cross-state bargains	deploy	PL-DEPLOY	subject-only keyword classification
+87279d6	2026-09-07	feat(write-desk): add capital-range filter to Cash Deployment - Prod v0; CSV respects filters	deploy		subject-only keyword classification
+9005f97	2026-09-07	feat(write-desk): covered-call per-DTE + basis-positive instrumentation; preserve PL-DEPLOY discovery	deploy	PL-DEPLOY	subject-only keyword classification
+02117e5	2026-09-07	feat(write-desk): add DTE/symbol filters and frozen headers to Cash Deployment table	deploy		subject-only keyword classification
+168fb54	2026-09-07	docs(parking-lot): reconcile capital-state deployment discovery	deploy		subject-only keyword classification
+df7a259	2026-09-05	docs(pl): record PL-PROD-EXPORT-01 V1 trust contract and acceptance	acceptance	PL-PROD-EXPORT-01	subject-only keyword classification
+7340f97	2026-09-05	docs(adr): ratify evidence-to-domain association authority	ratification		subject-only keyword classification
+51ee08f	2026-09-04	refactor(cleanup): reconcile deployment vocabulary and ownership	deploy		subject-only keyword classification
+475ae1a	2026-09-04	refactor(labs): remove superseded historical surfaces	supersession		subject-only keyword classification
+ce371a0	2026-09-04	docs(backlog): record PL-CLEANUP Package 3 complete/accepted; P1 next	acceptance	PL-CLEANUP	subject-only keyword classification
+f9d2685	2026-09-04	docs(backlog): record PL-CLEANUP Package 2 complete/accepted; P3 next	acceptance	PL-CLEANUP	subject-only keyword classification
+edcbfb2	2026-09-04	docs(journal): PL-CLEANUP re-baseline + ratified residual PL-SHELL boundary decision	ratification	PL-CLEANUP PL-SHELL	subject-only keyword classification
+693445a	2026-09-04	Ratify GitHub Issues as Wheelwright defect system of record	ratification		subject-only keyword classification
+1933e35	2026-09-03	Route ratified multi-actor repeatability methodology	ratification		subject-only keyword classification
+21caaa7	2026-09-03	Ratify multi-actor repeatability operating model	ratification		subject-only keyword classification
+53b4734	2026-09-03	Ratify Technology Quality Constitution v1	ratification		subject-only keyword classification
+e5cea15	2026-09-01	docs(PL-DEPLOY-02-DEF01): record economics-valid boundary; arm 2026-09-02 opening-bell capture	deploy	PL-DEPLOY-02-DEF01	subject-only keyword classification
+c5df959	2026-09-01	fix(PL-DEPLOY-02-DEF01): preserve winner economics across opportunity-history HTTP boundary	deploy	PL-DEPLOY-02-DEF01	subject-only keyword classification
+4398502	2026-09-01	docs(PL-DEPLOY-02-DEF01): record opportunity-history winner-economics preservation defect	deploy	PL-DEPLOY-02-DEF01	subject-only keyword classification
+ff2fbab	2026-09-01	fix(PL-EVID-AGE/ADR-015): post-release correction pass	release	ADR-015 PL-EVID-AGE	subject-only keyword classification
+194b1a3	2026-09-01	docs(journal): record PL-EVID-AGE/ADR-015 production deployment and experiment regime boundary	deploy	ADR-015 PL-EVID-AGE	subject-only keyword classification
+88e8720	2026-09-01	feat(PL-EVID-AGE/ADR-015): Deployment evidence Age with upstream-established provenance	deploy	ADR-015 PL-EVID-AGE	subject-only keyword classification
+c93f58f	2026-09-01	docs: ratify ADR-015 evidence provenance authority; document subject-scoped snapshot provenance; correct PL-EVID-AGE record	ratification	ADR-015 PL-EVID-AGE	subject-only keyword classification
+ff73d60	2026-09-01	Ratify standard idea intake and reconciliation pipeline	ratification		subject-only keyword classification
+6d82c50	2026-08-29	docs: preserve Aug 29 spread and behavioral decision discovery	decision		subject-only keyword classification
+4ff5092	2026-08-29	Add behavioral decision discipline parking-lot item	decision		subject-only keyword classification
+630de4b	2026-08-28	docs(journal): opportunity-history plane activated + 8/8 live acceptance verified	acceptance		subject-only keyword classification
+4370723	2026-08-28	feat(opportunity-history): observe-only Decision-fact plane (Piece 1)	decision		subject-only keyword classification
+14e2c34	2026-08-27	docs: retire put-specific risk compensation artifact	supersession		subject-only keyword classification
+9946f1a	2026-08-27	fix(dev): reap backend JVM by port on shutdown so :3100 releases cleanly	release		subject-only keyword classification
+9128c71	2026-08-27	docs: PL-COHERE-01 Finding #1 — Evidence–Decision temporal coherence	decision	PL-COHERE-01	subject-only keyword classification
+3b7d315	2026-08-26	feat: Show N widget on Cash Deployment table	deploy		subject-only keyword classification
+05e72ba	2026-08-22	feat: CSV download button on every deployment table	deploy		subject-only keyword classification
+b543549	2026-08-22	feat: multi-column sort for deployment tables (shift+click)	deploy		subject-only keyword classification
+dc28c4e	2026-08-21	refactor: retire dead scan pipelines (PL-OPS-06)	supersession	PL-OPS-06	subject-only keyword classification
+ca56512	2026-08-21	feat: expose full eligible DTE surface to Decision	decision		subject-only keyword classification
+1890f40	2026-08-21	docs: record application-shell convergence decision	decision		subject-only keyword classification
+507cf2c	2026-08-21	fix: sticky Deployment UI state — affordable toggles and table sort persist across navigation	deploy		subject-only keyword classification
+b5758db	2026-08-18	V2 Production Forecast: prospective deployment + Console-idiom ⓘ modal	deploy		subject-only keyword classification
+667e4c9	2026-08-12	Evidence validity: reject OTM calls with delta > 0.95; remove diagnostic logs	reversal		subject-only keyword classification
+d75c784	2026-08-11	refactor: Deployment consumes Portfolio Store as single runtime authority	deploy		subject-only keyword classification
+3a48136	2026-08-11	Add historical markers to superseded documentation	supersession		subject-only keyword classification
+d391974	2026-08-11	Fix deployment v0 sort semantics: active sort determines population	deploy		subject-only keyword classification
+42c790e	2026-08-11	Rewrite parking-lot.md per ratified reconciliation	ratification		subject-only keyword classification
+d3e6c5e	2026-08-11	Add parking-lot reconciliation against ratified architecture	ratification		subject-only keyword classification
+9a9c2bb	2026-08-11	Apply Principal ratification amendments to reconciliation	ratification		subject-only keyword classification
+c6f58d1	2026-08-11	docs: add PL-DEPLOY-03 — cross-entry multi-path opportunity awareness	deploy	PL-DEPLOY-03	subject-only keyword classification
+797f0dc	2026-08-11	docs: add PL-OPS-07 — retire WriteDesk/write-desk/wd-* vocabulary	supersession	PL-OPS-07	subject-only keyword classification
+6375ec8	2026-08-03	feat: retire TypeScript evidence backend	supersession		subject-only keyword classification
+b96f701	2026-08-03	chore: make Java backend operationally self-contained Relocate universe seed to data/seeds/ (Wheelwright-owned, not implementation-specific). Update Java default paths in application.properties to reference ../data/. Rewrite scripts/dev.sh to start Java backend with root .env sourcing. Add .env.example as tracked credential template. Create data/.gitignore for runtime SQLite exclusion. After this commit + operational database relocation, the Java backend has zero dependencies on evidence-service/. TypeScript retirement can proceed as a separate deletion increment.	supersession		subject-only keyword classification
+00d2012	2026-08-03	test: make worker expiration fixtures time-safe Hardcoded option expiration date (2026-08-03) in worker test fixtures caused deterministic failures once the calendar reached that date. classifyFromChain() correctly rejects expired expirations (DTE < 7), so fixtures with today-or-past dates fail the Class A qualification. Fix: compute FUTURE_EXPIRATION as LocalDate.now().plusDays(21) so fixture expirations always remain in the eligible DTE window. No production behavior changed. 146 tests pass with forced execution.	reversal		subject-only keyword classification
+2a429d4	2026-08-03	docs: record Java backend live-market acceptance Java Evidence Appliance operated during live Regular session (August 3, 2026): generation 4374→4412+, 456 symbols acquired, 0 failures, 39 publications. All retooling-charter acceptance criteria demonstrated: - Identical snapshot contract (ETag/304, chains, universe) - Correct session gating (Regular session → active acquisition) - Failed-refresh preservation (behavioral test: setFailure after ready state preserves chain/expirations) - 146 behavioral-invariant tests passing - Operator validated: Current · 1306/1306 · ~22s · updating Coverage semantics: 960 ready (usable chains) + 346 absent (no options confirmed) = 1306 universe fully assessed. TypeScript retirement is a separate subsequent step.	acceptance		subject-only keyword classification
+17760cb	2026-07-29	docs: record shared portfolio ingestion decision	decision		subject-only keyword classification
+ff4b8ce	2026-07-27	docs: reconcile parking lot and backend status Record Calls decision-completeness work and remaining Horizon B capabilities without selecting the next implementation increment. Update conditioned-opportunity and policy-scaling status, add evidence freshness and call observability items, and clarify TypeScript/Java migration state. Record Epistemic Integrity as an accepted principle awaiting a separate foundation-document increment.	acceptance		subject-only keyword classification
+5c31ac7	2026-07-27	docs: record Projected Call Surface delivery (proposed-put entry point) 23-calls-architecture.md: PCS status updated from planned to delivered. Implementation details recorded: builder-integrated, canonical basis, failure-contained, evidence-only semantics, snapshot-at-open lifecycle. Redundant planning subsections consolidated — design principles preserved in Architecture Decisions table and cross-referenced to conditioned-operating-opportunity.md foundation document. README: Recommendation Brief now mentions Projected Call Surface. parking-lot: PL-CALL-01 updated — PCS proposed-put entry point delivered. Remaining: existing-put entry point, appreciation geometry, call execution handoff. journal: PCS milestone entry with implementation, design decisions, rendered states, and test coverage summary.	decision	PL-CALL-01	subject-only keyword classification
+2d7adfc	2026-07-27	feat(calls): conditioned call surface domain computation Shared evidence assessment for Projected Call Surface. Two functions: loadConditionedCallEvidence() — retrieves expirations and chain data from cache with freshness metadata. Uses explicit DTE range policy. assessConditionedCallSurface() — pure domain function evaluating call landscape from a conditioned ownership basis. No cache access. Accepts normalized ConditionedOwnershipInput independent of PutCandidate or OpenShortPut. Output is structured evidence: per-expiration assessment, aggregate counts, representative qualifying opportunities (bounded to 5, sorted by delta proximity to target), all applicable pass/fail reasons per contract, basis-relative geometry (strike distance, above/below), explicit evidence availability, partiality, and freshness. No quality score or classification. Measurement and policy remain distinct. Reuses existing call admissibility and execution policy. Calls below basis remain measurable evidence. One computation, two entry points: proposed-put (projected-mid basis) and existing-put (strike-only conservative basis). Tests: 13 domain-level (evidence states, basis geometry, policy filtering, yield from basis, multi-expiration aggregation, multiple failure reasons, below-basis measurability, freshness preservation).	acceptance		subject-only keyword classification
+b91e6c3	2026-07-27	docs(journal): record live-market acceptance — TypeScript backend TypeScript Evidence Appliance operated during live Regular session: generation 1162→1435+, 5539 symbols acquired, 0 failures, 273 publications. Frontend produced 127 Actionable / 27 Wait put recommendations from Fidelity portfolio with live evidence. Acceptance criteria: scheduler transitions, generation advances, recommendations update without intervention, zero failures. Runtime: TypeScript backend port 3100, Vite port 5173, SQLite persistence, Tradier sandbox provider.	acceptance		subject-only keyword classification
+128e6e0	2026-07-27	docs(calls): refine Horizon B direction — Projected Call Surface with two entry points Projected Call Surface is a reusable conditioned-ownership computation: one function, two callers. Entry point 1 (put recommendation drawer): evaluates transition quality from a proposed put's known mid-based basis. Put/Call Symmetry evidence. Entry point 2 (existing open short puts): evaluates the call landscape from an actual obligation's conservative strike-based basis. Assignment planning evidence. Both produce the same non-executable evidence output. Neither expands the executable Calls table, which remains scoped to held unencumbered inventory. Key decisions documented: - Basis confidence must be explicit (Unknown Cannot Authorize) - Strike-vs-effective-basis is not interchangeable in narrow ladders - PCS output is evidence, not recommendation - No duplicate implementations Updated: 23-calls-architecture.md (Horizon B refined), conditioned-operating-opportunity.md (maturity + implementation direction), parking-lot.md (PL-CALL-01, PL-CALL-02, PL-EVID-03).	decision	PL-CALL-01 PL-CALL-02 PL-EVID-03	subject-only keyword classification
+67c304d	2026-07-26	feat(calls): call inspection drawer — first Horizon B increment Row-click on CallCandidateTable opens right-side inspection drawer: - Decision summary (mid, premium, yield, max contracts, policy fit) - Position context (basis, underlying price, unrealized gain/loss) - Strike neighborhood (5 calls around selected, with policy tags) - Execution evidence (delta fit, spread, OI, volume) - Evidence provenance (session state, canonical date) PositionEconomics propagated onto CallCandidate from inventory. Call neighborhood reads cached call chains (zero provider calls). Null economics handled gracefully (drawer still functional). Put/call drawers mutually exclusive; Escape-to-close. Tests: 11 new (view model, neighborhood, economics, provenance, tags). Full suite: 979 tests pass. Docs: 23-calls-architecture.md updated (Horizon B in progress), project journal (retrospective Horizon A + current entry), parking-lot PL-CALL-01 partially delivered. Deferred: Fidelity call handoff, appreciation geometry, Projected Call Surface, historical lifecycle linkage.	decision	PL-CALL-01	subject-only keyword classification
+a31f420	2026-07-26	docs: synchronize architecture documentation with current implementation Authoritative documents rewritten: - 07-architecture-current: Java backend, four-engine conceptual decomposition, calls, midpoint economics, scheduler telemetry - 07a-component-map: Java and browser components, legacy section - 07b-diagrams: backend-owned data flow, scheduler cycle, session FSM - 01-environment: Java 21 requirement added New architecture documents: - 23-calls-architecture: Horizon A/B/C design - 24-cloud-deployment: Render deployment direction (post-retooling) Scheduler semantics elevated to architecture: - eligible = total classified population per class - due = actionable subset in work queue - prior-epoch failed gap documented with explicit disposition Historical documents preserved with status banners: - 09-backend-evidence-service-design: implemented in Java note - 09b-migration-and-impact: superseded by Java retooling banner	supersession		subject-only keyword classification
+feb2737	2026-07-17	retrospective: legacy displacement pattern and sequencing heuristics Captures why this migration approach was chosen and what it established as reusable engineering patterns: - Lightweight parallel run: test oracle, not runtime dual-writes - Heuristic: choose the lightest migration that retires the uncertainty - Sequencing: next slice retires most consequential uncertainty and converts learning into permanent complexity reduction - Transition marker: Labs retire uncertainty, Products retire complexity	supersession		subject-only keyword classification
+9c8c0ac	2026-07-17	SQLite persistence: durable evidence store with behavioral equivalence The Evidence Appliance now persists acquisition state to SQLite. Service restarts recover evidence in milliseconds instead of re-acquiring the entire universe (~22min at 496 symbols, ~57min at 1,286). Implementation: - better-sqlite3 with WAL mode and foreign keys enabled - Migration runner (numbered .sql files, tracked in _migrations table) - Schema: symbols, universe_sources, symbol_membership, evidence, symbol_resolution, snapshot_state (6 tables) - SqliteEvidenceStore implements same interface as InMemoryEvidenceStore - Generation advances on publishSnapshot(), not individual writes - Failed refresh preserves last successful payload - Absence is a resolution outcome, not a separate evidence type - EVIDENCE_DB_PATH configurable (default: ./data/evidence.sqlite3) Migration pattern: - InMemoryEvidenceStore retained as test oracle - 11 behavioral equivalence tests prove identical behavior: same operations → same snapshot, restart recovery, work queue correctness, failed-refresh preservation, generation semantics - SQLite authoritative from day one (tests prove equivalence pre-deploy) Wiring: - getEvidenceStore() singleton returns SqliteEvidenceStore - Worker calls store.publishSnapshot() after each batch - Snapshot and status routes unchanged (same method signatures) 929 tests pass (35 backend + 894 frontend).	deploy		subject-only keyword classification
+7cc888a	2026-07-16	Wheelwright: final refinement pass Text readability: - Minimum text color #777777 enforced across all tokens - --wd-text-disabled: #3e3e4a → #777777 - --wd-text-secondary: #8a8a9a → #A0A0A0 - --wd-text-primary: #e4e4ec → #E5E7EB - Added --wd-text-tertiary: #888888 WAIT rows in table: - Table now shows ACTIONABLE + EDGE + WAIT rows - WAIT rows appear after EDGE, amber posture badge - Count distinguishes: 'Showing 56 rows · 46 recommendations · 10 Wait' - WAIT rows are clickable (open Recommendation Workspace) Evidence status: - Moved from title bar to board title line - Appears immediately after 'Cash-Secured Put Candidates' - Title bar now shows only portfolio + session + navigation Unified sticky controls: - Policy controls + table-display controls in one row - Sticky below title bar (z-index 9) - Divider separates policy from display controls - All policy fields visible and editable without disclosure Portfolio popovers: - 5 interactive title-bar popover triggers - Portfolio selector, Deployable Cash, Short Puts, Calls, Pending Intent - Anchored panels with Escape/outside-click dismissal - One popover open at a time, no page reflow - PortfolioDetail body section removed (dead code) 894 tests pass.	deploy		subject-only keyword classification
+d640bad	2026-07-16	Write Desk: restore policy visibility, two-level breakdown, semantic clarity Design diagnosis and holistic restructure: Information architecture: 1. Context bar (identity + trust + session) 2. Active Policy (visible governance: version, params, thresholds) 3. Candidate Board (title + display controls + breakdown + table) Key changes: - Active Policy section shows what governance produced these results (version, target delta/DTE, ranking mode, admissible ranges, floors) - Policy controls moved from board header to Policy section with disclosure - Two-level breakdown distinguishes: 'Not recommended' (policy rejected: below threshold, poor market, no match) 'Not available' (structural: no options, incomplete) - Actionable/Edge split tracked separately in funnel (funnel.actionable + funnel.edge = funnel.eligible) - EDGE semantics clarified: EDGE IS a recommendation (score 35-64), 'Below threshold' is WAIT (score 15-34, NOT recommended) - Board header retains only display controls (Affordable, Show) - Trust indicator moved to Band 1 right side (compact) - Removed Portfolio Detail card from primary flow (deferred to future)	reversal		subject-only keyword classification
+7c7b01b	2026-07-03	Build engineering laboratory and interactive decision probe	decision		subject-only keyword classification
