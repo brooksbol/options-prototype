@@ -226,7 +226,7 @@ describe("parseArchitecture — dated reconciliation identity", () => {
       "## AR2 — unchanged",
       "",
       "Attention stays distinct.",
-    ].join("\\n");
+    ].join("\n");
     const { pressures } = parseArchitecture(source, new Map());
     expect(pressures.map((p: { id: string }) => p.id)).toEqual(["AR1", "AR2"]);
     expect(pressures[0].title).toBe("Original Authority Pressure");
