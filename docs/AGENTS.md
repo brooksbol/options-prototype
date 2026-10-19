@@ -8,6 +8,15 @@ This file applies to agents working in `docs/`. The repository root [AGENTS.md](
 
 At cold start, acquire the compact authority and architecture orientation below. **Scan/index** large registries and continuation sequences for coverage; **read in full only task-relevant sections**. Do not confuse the ability to locate durable knowledge with loading every historical record into context. A plain `bootstrap` with no task must finish without exhaustive backlog or journal reading. Before consequential task work, retrieve relevant sections and evidence. Paths are relative to `docs/`.
 
+**Retrieval terms:** These terms describe evidence coverage; existing instructions determine what must be retrieved.
+
+- **Read:** Inspect the source content required by the applicable instruction. A complete-document requirement is not satisfied by excerpts, search snippets, or truncated retrieval. Scoped reading applies only where already permitted.
+- **Index:** Enumerate the complete referenced set, including continuations, and inspect its required headings, IDs or matches. Indexing does not establish that the underlying entries were read or their claims verified.
+- **Verify:** Check a specified claim against evidence appropriate to it, including applicable authority and scope, revision, task/experiment state, and implementation or operational evidence where relevant. Reading alone does not establish verification.
+
+When reporting retrieval coverage, distinguish these activities and disclose material gaps or truncation. Disclosure does not satisfy a missing mandatory obligation. Keep existing attestations compact; no new report or tracking artifact is required. These terms change no mandatory scope, authority boundary or proof obligation.
+
+
 | # | Document | Required context |
 |---|----------|------------------|
 | 1 | `README.md` | Documentation authority, index, and A–F precedence model. |
