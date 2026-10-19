@@ -18,6 +18,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from v2_oas import COMMON, Contracts
 
 ALLOWLIST = {'index.html', 'LICENSES.txt'}
+CHANGELOG_PATHSPEC = 'docs/contracts/api-v2-*'
 SECURITY_PROSE = re.compile(
     r'authenticat|authoriz|\bgrants?\b|\bpermissions?\b|credentials?|\bBearer\b|\bOAuth\b|'
     r'\busers\.admin\b|\bquote\.(?:read|acquire|force)\b|\baccount\.\w+\.\w+|'
@@ -155,7 +156,10 @@ def main():
     public = public_reference(public_projection(copy.deepcopy(spec)))
     release = json.loads((TOOL / 'release.json').read_text())
     overview = (TOOL / 'overview.md').read_text().replace('2026-10-15', release['previewDate'])
-    history = run('git', 'log', '-5', '--date=short', '--format=%ad — %s', '--', 'docs/contracts')
+    # Public changelog scope is the API v2 contract set only (the same `api-v2-*` files that
+    # are accepted contract inputs and workflow triggers). Unrelated docs/contracts files,
+    # such as the frozen v1 snapshot contract, must not enter public v2 history.
+    history = run('git', 'log', '-5', '--date=short', '--format=%ad — %s', '--', CHANGELOG_PATHSPEC)
     public['info']['title'] = 'Wheelwright API v2'
     public['info']['description'] = overview + '\n# Recent contract changes\n\n' + '\n'.join(
         '- ' + line for line in history.splitlines() if not SECURITY_PROSE.search(line))

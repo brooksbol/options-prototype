@@ -195,6 +195,25 @@ def main():
     # The public introduction discusses HTTP errors without execution instructions.
     overview = public['info']['description']
     assert 'never sends API requests' in overview
+    # Changelog scope regression: "Recent contract changes" is exactly the API v2
+    # contract history, and history touching only other docs/contracts files (for
+    # example the v1 snapshot contract) never appears.
+    # Independent scope: the accepted v2 contract files in release.json, not the
+    # generator's own pathspec (which would make this check self-confirming).
+    release = json.loads((TOOL / 'release.json').read_text())
+    v2_contracts = sorted(name for name in release['acceptedContractInputs'] if name.startswith('docs/contracts/'))
+    assert v2_contracts and all(Path(name).name.startswith('api-v2-') for name in v2_contracts)
+    def git_lines(*args):
+        return subprocess.check_output(['git', *args], cwd=ROOT, text=True).splitlines()
+    listed = [line[2:] for line in overview.split('# Recent contract changes', 1)[1].splitlines() if line.startswith('- ')]
+    expected = [line for line in git_lines('log', '-5', '--date=short', '--format=%ad — %s', '--', *v2_contracts)
+                if not SECURITY_PROSE.search(line)]
+    assert listed and listed == expected, 'Public changelog differs from API v2 contract history'
+    v2_commits = set(git_lines('log', '--format=%H', '--', *v2_contracts))
+    for commit in git_lines('log', '--format=%H', '--', 'docs/contracts'):
+        if commit not in v2_commits:
+            line = git_lines('log', '-1', '--date=short', '--format=%ad — %s', commit)[0]
+            assert line not in listed, 'Unrelated docs/contracts history in public changelog: ' + commit
     descriptions(public)
     site = output / 'site'
     assert {p.name for p in site.iterdir()} == ALLOWLIST
