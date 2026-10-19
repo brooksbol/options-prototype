@@ -26,6 +26,7 @@ Mandatory: read `docs/mandates/product-first-continuous-engineering-2026-10-13.m
 3. Read `docs/foundations/principal-decision-surface.md` before outcome-bearing review.
 4. If `docs/experiments/ww-gate-experiment-001.md` exists, read it and its state record before outcome-bearing review. The experiment document is staged design until authoritative durable state says it has started.
 5. For an actual task, acquire its canonical active state and relevant recorded context before review. For an untasked `bootstrap`, learn the state-retrieval route and stop after bounded orientation. Historical workstream delegation is not evidence that work remains active after a Principal termination; conflicting state must be reported as unresolved. Conversation is not independent execution authority.
+6. For current domain meaning, start from the maintained subject owners (`docs/knowledge/README.md`). Scan `docs/assimilation-obligations.md` for open `ASSIM-*` entries on reviewed subjects. When a reviewed candidate changes a maintained subject's meaning, check that the owner page or a ledger entry reflects it.
 
 ## Mandatory API v2 authority boundary
 

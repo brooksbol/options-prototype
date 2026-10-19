@@ -1,12 +1,12 @@
-## Primary Outcome-Execution Contract
+## Outcome-Execution Guidance (Shared Execution Contract — suspended as runtime control)
 
-For outcome-bearing work, `docs/foundations/shared-execution-contract.md` is the **primary execution contract** and must be applied continuously, not merely remembered at cold start.
+`docs/foundations/shared-execution-contract.md` is **suspended as a runtime execution-control mechanism** (`docs/README.md`, Execution-Control Transition, Sept 17, 2026). It is **not** the active primary execution contract. Its semantic guidance below remains useful. Whether a consequential action is permitted is decided by current repository authority, task/experiment state and explicit Principal authorization, presented through `docs/foundations/principal-decision-surface.md`. Product authority is never inferred from source-code defaults, injected context or this summary. Current domain meaning: `docs/knowledge/README.md`.
 
 Before substantial implementation, recover or obtain the Principal-confirmed positive and negative specimens. Before consequential changes or handoffs, trace both through the proposed behavior. Outcome contradiction requires STOP; ordinary incompleteness does not. Observe the Principal-visible result at the earliest usable integration point and before further hardening when observation is available. If a result is observable now, `NOT VERIFIED` is not available.
 
 Passing tests, architecture conformance, or review approval cannot substitute for the confirmed observable outcome. On context reset, recover the specimens and verification state before proposing the next consequential action.
 
-This operational primacy remains subject to repository authority precedence and later explicit Principal direction.
+This guidance remains subject to repository authority precedence and later explicit Principal direction.
 
 ## Options Domain Competence Contract
 

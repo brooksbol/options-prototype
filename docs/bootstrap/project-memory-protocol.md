@@ -82,6 +82,7 @@ Do not freeze file lists into actor bootstraps or protocol documents when `docs/
 Before substantive work, retrieve relevant:
 
 - Current authority model (`docs/README.md`)
+- Maintained subject owners for any subject the work touches (`docs/knowledge/README.md`), and open `ASSIM-*` entries for those subjects in `docs/assimilation-obligations.md`
 - Governing architecture (Category A documents)
 - Ratified decisions and accepted designs (Category B, especially ADRs)
 - Canonical project state (the complete parking-lot continuation sequence, journal where relevant)
@@ -127,6 +128,8 @@ Not every observation deserves promotion into authority. Work states are:
 | **Implementation** | Building authorized working software |
 
 Do not silently promote one state into another. Exploration does not become architecture merely because it was discussed.
+
+**Assimilation (ADR-023 D3).** When learning changes, narrows or confirms the meaning of a subject that has a maintained owner (`docs/knowledge/README.md`), update that owner, with source standing and scope, or record why not. When the change cannot be applied now (missing decision, destination or permission), record an `ASSIM-*` obligation in `docs/assimilation-obligations.md` so it survives the session. A journal entry alone is preservation, not assimilation. Neither the owner page nor the ledger grants execution permission.
 
 ---
 

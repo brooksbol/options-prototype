@@ -451,6 +451,8 @@ Portfolio state (Fidelity CSV) persists in localStorage as raw imported text. Th
 
 Wheelwright operates within a **cash-flow production regime**: the system exists to support an operator who consciously deploys capital into options positions to produce periodic income. This regime is documented in `foundations/regime-objective-function.md`.
 
+> **Scope note (Oct 19, 2026):** "cash-flow production regime" here is the v1 **system-level** operating stance. The per-scope **Operating Regime** (Principal-ratified Oct 7, 2026) applies to explicitly governed capital/inventory scope, not to an Account or to the whole system. One Account may hold several. Maintained owner: [`knowledge/domain/accounts-and-operating-regimes.md`](knowledge/domain/accounts-and-operating-regimes.md#operating-regime). Position and Governed Quantity: [`knowledge/domain/positions-and-governed-quantity.md`](knowledge/domain/positions-and-governed-quantity.md).
+
 Within this regime, a **Situation** provides cross-cutting operating context that shapes how the entire application reasons about recommendations, explanations, portfolio health, and production targets. A situation contributes context, constraints, optimization priorities, and explanation framing — it is not a page-level input to one surface but a lens that shapes all operational surfaces.
 
 **Current state:** The system operates in an implicit default situation (Situation 0) that matches today's policy behavior. The first named situation — **Bridge Income** (monthly cash-flow production over a finite horizon) — is accepted architectural direction, not yet implemented.
@@ -554,6 +556,8 @@ This preserves the current recommendation-computation boundary while removing br
 Every governed-context, Decision, and disposition record is partitioned by stable `brokerageAccountId`.
 
 For the current trusted single-operator model, the backend may treat `brokerageAccountId` as an opaque stable partition identity supplied by the client. This does **not** make the backend the authoritative BrokerageAccount registry and does not establish multi-user authorization semantics.
+
+*(v1 governed-decision substrate. For current Account identity, access and confidentiality meaning across v1/v2, see the maintained owner [`knowledge/domain/accounts-and-operating-regimes.md`](knowledge/domain/accounts-and-operating-regimes.md#account).)*
 
 Cross-record references must remain within one account partition.
 

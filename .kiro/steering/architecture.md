@@ -1,6 +1,8 @@
 # Wheelwright — Architecture
 
-## Runtime Topology
+> **Scope (Oct 19, 2026):** This file summarizes the **v1** runtime (Evidence Appliance + browser Write Desk/Console). It is an injected summary, not authority. For **API v2**, `docs/77-api-v2-architectural-guardrails.md` governs: **backend owns state and business logic; clients own presentation**. v1 client-side placement is debt/lessons, not a v2 assumption. Current domain meaning lives in `docs/knowledge/README.md`. Where this summary disagrees with those, they win.
+
+## Runtime Topology (v1)
 
 ```
 Java Backend (evidence-service-java)          Browser (options-prototype)
@@ -23,12 +25,12 @@ Java Backend (evidence-service-java)          Browser (options-prototype)
 | Frontend | React 18+, TypeScript (strict), Vite |
 | Frontend tests | Vitest (1112+ tests) |
 | Backend tests | JUnit 5 (173+ tests) |
-| Provider | Tradier sandbox (REST, 15-min delayed, 60 req/min) |
+| Provider | Tradier (v1 originally sandbox, 15-min delayed, 60 req/min; later production profile measured. Do not infer current provider profile or limits from this row) |
 | Styling | CSS custom properties (centralized theme tokens) |
 | State management | React hooks (no external library) |
 | Build | Gradle (Kotlin DSL, Java 21 toolchain) / npm |
 
-## Backend Responsibilities
+## Backend Responsibilities (v1)
 
 The backend owns: provider communication, market evidence lifecycle, session-aware scheduling, durable persistence, snapshot publication.
 
@@ -41,9 +43,9 @@ Key components:
 - `SnapshotController` — ETag/conditional HTTP publication
 - `StatusController` — scheduler telemetry
 
-The backend must NOT: produce recommendations, rank candidates, know about portfolio state.
+**v1 only:** the v1 evidence backend must NOT produce recommendations, rank candidates, or know about portfolio state. This rule does **not** apply to v2. Under Doc 77 the v2 backend owns authoritative state, governance evaluation and business logic, including governed comparisons.
 
-## Frontend Responsibilities
+## Frontend Responsibilities (v1)
 
 The frontend owns: recommendation generation (deterministic, cache-only), portfolio context, presentation, operator interaction.
 

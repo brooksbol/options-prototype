@@ -64,7 +64,7 @@ Key input: `345a4d7b1c91e42937a62f0d9d7276b3bc0edb1f|docs/discovery/4am-knowledg
 
 ```text
 ASSIM-ID: ASSIM-0001
-ASSIM-STATE: PENDING
+ASSIM-STATE: APPLIED
 ASSIM-SUBJECTS: account; operating-regime; governed-quantity
 ASSIM-DEPENDS: ASSIM-0002
 ASSIM-HANDOFF: AH-c55f13e0ce4d
@@ -75,6 +75,8 @@ ASSIM-RESOLVER: Already settled by Principal ratification in Doc 82; no new huma
 ASSIM-PERMISSION: Knowledge-documentation assimilation only, inside the October 19 4AM first-slice authorization. No code, API, policy, data or runtime change.
 ASSIM-RESUME: Maintained destination page exists on accepted remote main
 ASSIM-CLOSURE: Destination states the qualified current answer with source standing and scope; Doc 58 "Account Regime" vs Doc 82 operating regime reconciled as distinct concerns, not a silent winner; a fresh actor answers "Does an Account determine its Operating Regime?" correctly without document-number hints; independent witness recorded
+ASSIM-APPLIED: docs/knowledge/domain/accounts-and-operating-regimes.md#does-an-account-determine-its-operating-regime @ 65e8d61c7f798ad4e3768bb315e76ec95188c17d
+ASSIM-HISTORY: 2026-10-19 PENDING @ b765bae9857cc9575773c7d697d3f25a87038249; 2026-10-19 APPLIED @ 65e8d61c7f798ad4e3768bb315e76ec95188c17d (maintained page created); routing/steering corrections in the following commit
 ```
 
 **Why held:** the meaning is already Principal-ratified (Doc 82, October 7), but it has no maintained subject owner. A fresh actor meets Doc 58's older "Account Regime … applicable to an Account" wording first and has to reconcile it alone. This is the concrete example named in the 4AM stopping point §4.
@@ -98,6 +100,7 @@ ASSIM-RESOLVER: Principal (Product meaning of Position identity and lifecycle), 
 ASSIM-PERMISSION: None granted for resolution. Recording and routing only. Resolving Position identity, designing Inventory Block, or changing v2 resources requires separate Principal authorization.
 ASSIM-RESUME: A Principal-ratified decision on Position identity/lifecycle (Doc 82 open question 1), on Inventory Block survival (question 2), or on Operating Regime representation (question 7); or a v2 specimen result showing whether the 250 SPY = 150 Buy & Hold + 100 Growth Wheel split can be carried as separate Positions without manufacturing brokerage holdings
 ASSIM-CLOSURE: The maintained Position page states the ratified identity/lifecycle rule with source and scope; dependent pages (Operating Regime, Governed Quantity), v2 contract references and steering are reconciled or carry justified non-changes; fresh-actor recovery confirms the revised answer; independent witness recorded
+ASSIM-HISTORY: 2026-10-19 PENDING @ b765bae9857cc9575773c7d697d3f25a87038249; 2026-10-19 open question recorded on maintained page @ 65e8d61c7f798ad4e3768bb315e76ec95188c17d (still PENDING; not resolved)
 ```
 
 **Why held:** a genuinely unresolved Product/architecture question. There is no ratified universal Position identity spanning broker holdings, display rows, governance scopes, constructions and lifecycle continuity. Doc 82 ratified Position only as the *default decision subject* inside a v2 resource-design candidate and explicitly left identity open.

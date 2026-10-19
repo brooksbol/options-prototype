@@ -1,5 +1,17 @@
 # Wheelwright — Domain Vocabulary
 
+> Injected glossary, not authority. Where a maintained subject owner exists (`docs/knowledge/README.md`), it owns the meaning and this table only routes to it. Numeric targets below (delta, DTE) are v1 policy configuration examples, not Product authority. Do not infer Product meaning from them or from source-code defaults.
+
+## Maintained Subjects (route to owners)
+
+| Term | Short meaning | Owner |
+|------|---------------|-------|
+| **Account** | Wheelwright's stable identity for one brokerage account. Distinct from broker account number, nickname, User, access grants and legal ownership. | `docs/knowledge/domain/accounts-and-operating-regimes.md#account` |
+| **Operating Regime** | Applies to explicitly governed capital/inventory scope (cash-side included). An Account does **not** determine it; one Account may hold several. Scope identity unresolved. | `docs/knowledge/domain/accounts-and-operating-regimes.md#operating-regime` |
+| **Account Regime** (older term) | The Account's accounting/execution context (cash vs margin balance dialect). Not the Operating Regime. | `docs/knowledge/domain/accounts-and-operating-regimes.md#account-accounting-execution-context` |
+| **Position** | Default decision subject in the v2 resource-design candidate. No ratified universal Position identity. | `docs/knowledge/domain/positions-and-governed-quantity.md#position` |
+| **Governed Quantity** | Explicit quantity under authoritative governance. Ownership, governance and availability are separate conclusions. | `docs/knowledge/domain/positions-and-governed-quantity.md#governed-quantity` |
+
 ## System Concepts
 
 | Term | Definition |

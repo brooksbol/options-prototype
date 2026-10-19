@@ -4,7 +4,9 @@
 
 Wheelwright is an always-on evidence appliance for policy-governed options-income decision support.
 
-The backend continuously maintains an authoritative model of the options opportunity environment. Consumers apply operator-configured policy, determine recommendation state, explain it, and support — but do not perform — execution.
+The backend continuously maintains an authoritative model of the options opportunity environment. In **v1**, consumers (the browser) apply operator-configured policy, determine recommendation state and explain it. In **API v2**, the backend owns state and business logic, including governance evaluation, and clients own presentation (`docs/77-api-v2-architectural-guardrails.md`). In both, Wheelwright supports but does not perform execution.
+
+> This file is an injected summary, not authority. Current domain meaning: `docs/knowledge/README.md`. Open knowledge-assimilation work: `docs/assimilation-obligations.md`. Where this summary disagrees with them or with ratified sources, they win.
 
 ## What This System Is Not
 
@@ -71,7 +73,10 @@ Conflating these roles in a single interface produces poor outcomes. Each surfac
 - `docs/foundations/retooling-charter.md` — Migration governance
 - `docs/07-architecture-current.md` — Current architecture
 - `docs/foundations/backend-behavioral-invariants.md` — 18 ratified invariants
-- `docs/contracts/evidence-snapshot-v1.md` — Frozen API contract
+- `docs/contracts/evidence-snapshot-v1.md` — Frozen v1 snapshot contract
+- `docs/77-api-v2-architectural-guardrails.md` — v2 authority boundary (backend owns state and business logic)
+- `docs/knowledge/README.md` — Maintained subject owners (current domain meaning)
+- `docs/assimilation-obligations.md` — Open knowledge-assimilation obligations
 - `docs/foundations/closed-loop-engineering.md` — Engineering methodology
 - `docs/foundations/policy-over-prediction.md` — Core reasoning principle
 - `docs/foundations/three-actor-model.md` — Development methodology

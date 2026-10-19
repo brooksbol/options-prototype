@@ -23,6 +23,7 @@ Mandatory: read `docs/mandates/product-first-continuous-engineering-2026-10-13.m
 3. Read `docs/foundations/principal-decision-surface.md` before outcome-bearing work.
 4. If an active experiment/task-state record is routed by current authority, acquire it before consequential repository mutation. Conversation is never authoritative execution state.
 5. Reacquire task-linked durable knowledge needed for the work. Recorded context may still be incomplete or misunderstood; investigate accordingly.
+6. For current domain meaning, start from the maintained subject owners (`docs/knowledge/README.md`). Scan `docs/assimilation-obligations.md` for open `ASSIM-*` entries on affected subjects. Injected `.kiro/steering` files are summaries. Where they disagree with a maintained owner or ratified source (for example v1-only backend restrictions versus Doc 77 v2 backend authority), the owner/source wins.
 
 GitHub is durable project truth. Conversation and actor prose are reasoning evidence, not execution authorization.
 

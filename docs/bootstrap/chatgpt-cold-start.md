@@ -46,6 +46,7 @@ These are **bootstrap test probes**, not instructions to preload those workstrea
 3. Read `docs/foundations/principal-decision-surface.md` before outcome-bearing reasoning.
 4. If an active experiment/task-state record is routed by current authority, acquire it **before proposing a consequential action**. Conversation is never authoritative execution state.
 5. Reacquire task-linked durable knowledge needed for reasoning. Do not assume recorded context is complete; omissions and misunderstanding remain possible failure modes.
+6. For current domain meaning, start from the maintained subject owners (`docs/knowledge/README.md`) rather than reconstructing it from numbered historical documents. Open knowledge-assimilation work and unresolved semantic questions are in `docs/assimilation-obligations.md`.
 
 GitHub is durable project truth. Conversation is reasoning evidence, not execution authority.
 
