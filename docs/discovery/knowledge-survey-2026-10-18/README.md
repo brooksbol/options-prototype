@@ -4,6 +4,8 @@
 
 **Durability:** this directory is **UNTRACKED and uncommitted** in the local working tree at `~/kiro/options`, so it is not durable GitHub memory. Persisting it is a pending Principal decision (decision A in `docs/discovery/4am-*workstream-b-completion-report-checkpoint-2026-10-18.md`, main `ef5c54c`). That decision follows a review of this report and of `raw/prior-ledgers/`. The automated redaction scan found no identifier matches.
 
+> **Current Git state (note added October 19, 2026):** the durability statement above is historical, as of authorship. This directory has since been committed to `main` in the Principal's push `cbcc55b` (October 18, 2026), as recorded in `docs/discovery/4am-knowledge-reconstruction-assimilation-stopping-point-2026-10-18.md` §2. Being committed does not change this survey's non-normative classification. It also does not record that the `raw/prior-ledgers/` human redaction review was completed.
+
 **Baseline:** surveys ran against main `bef03dd`. Main advanced to `d03d8d1`, which adds one discovery snapshot; no surveyed source changed except that new file.
 
 ## Contents

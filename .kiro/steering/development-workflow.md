@@ -24,14 +24,14 @@ The frontend proxies `/api/*` requests to the backend at `localhost:3100` automa
 ## Running Tests
 
 ```bash
-# Java backend (173+ tests, JUnit 5)
+# Java backend (JUnit 5)
 cd evidence-service-java && ./gradlew clean test
 
-# Frontend (1112+ tests, Vitest)
+# Frontend (Vitest)
 cd options-prototype && npx vitest run
 ```
 
-Total: 1,285+ tests across both suites. Always run relevant tests after changes.
+Test counts are not maintained here; run the suites for current figures. Always run relevant tests after changes.
 
 ## Build Commands
 
@@ -104,7 +104,7 @@ Before deferring an authorized task behind new architecture, design, UI, workflo
 │   ├── src/                      Components, recommendation engines, domain logic
 │   └── tests/                    Vitest tests
 ├── data/                         Durable assets
-│   ├── seeds/                    Canonical universe seed CSV (1,286 symbols)
+│   ├── seeds/                    Canonical universe seed CSV
 │   └── evidence.sqlite3          Runtime evidence store (not tracked in Git)
 ├── docs/                         Architecture, design, foundations, journal
 │   ├── foundations/              Constitutional architecture documents
@@ -147,5 +147,8 @@ Before deferring an authorized task behind new architecture, design, UI, workflo
 
 | Service | Port |
 |---------|------|
-| evidence-service-java | 3100 |
-| options-prototype (Vite) | 5173 |
+| evidence-service-java (v1) | 3100 |
+| options-prototype (Vite, v1) | 5173 |
+| evidence-service-java (v2, `data/positions-v2.sqlite3`) | 3101 |
+
+These are the accepted local ports, not deployment defaults; root `README.md` (Local development) owns them. `scripts/dev.sh` controls the v1 stack only. Do not use it to restart v2.

@@ -3,7 +3,7 @@
 **Date:** July 2026
 **Status:** Frozen
 **Authority:** INV-PUB-05 (Published contract versioning)
-**Test coverage:** `evidence-service/tests/snapshot-contract.test.ts`
+**Test coverage:** `evidence-service-java/src/test/java/com/wheelwright/evidence/SnapshotControllerTest.java` (Java evidence appliance). Originally `evidence-service/tests/snapshot-contract.test.ts`, removed with the TypeScript backend in `6375ec8` (August 3, 2026).
 
 ---
 

@@ -284,6 +284,8 @@ All artifacts are under `docs/discovery/knowledge-survey-2026-10-18/` (14 MB). S
 
 They are **UNTRACKED and uncommitted, so not durable GitHub memory.**
 
+> **Current Git state (note added October 19, 2026):** this section's durability and persistence statements are historical, as of authorship. The directory was later committed to `main` in the Principal's push `cbcc55b` (October 18, 2026); see `README.md` in this directory. Being committed does not change the survey's non-normative standing or resolve the review items listed below.
+
 - **Persistence:** pending Principal decision A (checkpoint `ef5c54c`).
 - **Session record:** the 2026-10-18 entry in `docs/journal/project-journal-5.md` records the paths and state.
 

@@ -39,21 +39,14 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-031 | Complete human tables select verbose timestamp rendering | CLI / ww show human presentation | Not established | Resolved | [record](BUG-031-show-complete-table-timestamps.md) | Principal manual acceptance 2026-10-05 |
 | BUG-032 | Human change-cell decoration includes padding and restores green terminal default | CLI / ww show human presentation | Not established | Resolved | [record](BUG-032-show-change-color-scope.md) | Principal manual acceptance 2026-10-05 |
 | BUG-033 | Active-position held-expiration option-chain evidence (and its Greeks) went ≈1 day stale during an open session while underlying fields stayed fresh (IBIT buy-write: Delta 0.83 stale → 0.37 after forced refresh at ~unchanged spot). Established architectural gap: scheduler admission (`getPrioritizedWorkQueue`) uses symbol-level `newestChainAge` and does not independently consult held-expiration age. NOT established: the incident root cause (admission suppression only lasts one freshness-target window; forced-refresh success does not distinguish mechanisms). Earlier internal-Greek-incoherence / normalization-validation / co-temporality / upside-cap / assignment-proximity claims retracted. Principal stopping decision 2026-10-07: preserve findings, keep Open, no further work today. | Backend / scheduler held-expiration admission freshness ↔ Operator Console Greeks | Not established | Open | [record](BUG-033-active-position-greeks-stale-during-open-session.md) | Operator observation 2026-10-07 |
-
 | BUG-034 | tt live suppresses last-session values while markets are closed | CLI / tt live | Not established | Resolved | [record](BUG-034-tt-live-closed-session-values.md) | Principal observation 2026-10-11 |
-
 | BUG-035 | ww ls accounts exposes full brokerage account numbers by default | CLI / ww Account discovery | Not established | Resolved | [record](BUG-035-ww-accounts-exposes-full-broker-account-numbers.md) | Principal / Codex review 2026-10-11 |
-
 | BUG-036 | Unknown mixed-artifact source scope permits cross-Account original-byte disclosure | Backend / v2 artifact content authorization | S2 | Resolved | [record](BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md) | Principal-authorized correction; independently verified and resolved 2026-10-11 |
-
 | BUG-037 | Tastytrade JSON scope ignores content outside inventory items | Backend / v2 original-byte disclosure | S2 | Resolved | [record](BUG-037-tastytrade-json-incomplete-source-scope.md) | R2 independently verified; deployed and Principal accepted |
 | BUG-038 | Tastytrade response-body acquisition deadline incomplete | Backend / v2 acquisition transport | S2 | Resolved | [record](BUG-038-tastytrade-body-timeout.md) | R2 independently verified; deployed and Principal accepted |
-
 | BUG-039 | Buy-Write table admits an economically impossible candidate: underlying price paired with a chain whose contracts cannot belong to it; no coherence/moneyness guard (observed DXJ: price 60.78, strike 170, delta 0.8032, ~$13 premium, ACTIONABLE) | Write Desk (Deployment) / buy-write evidence coherence ↔ upstream price↔chain binding | S2 | Open | [record](BUG-039-buywrite-underlying-chain-mispairing-economically-impossible-candidate.md) | Principal observation 2026-10-12 |
-
 | BUG-040 | Inconsistent package midpoint aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-040-tt-live-inconsistent-package-aborts-scan.md) | Principal report and authorized correction 2026-10-13; installed verification |
 | BUG-041 | Credit vertical holding aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-041-tt-live-credit-vertical-aborts-scan.md) | Principal report and authorized correction 2026-10-14; installed verification |
-
 | BUG-042 | Portfolio Capital non-Fidelity 422 omits required validation details | Backend / v2 Portfolio Capital HTTP contract | S2 | Resolved | [record](BUG-042-portfolio-capital-422-missing-validation-details.md) | IRR-01 corrected; independent re-review ACCEPT of 6126afd, 2026-10-15 |
 
 ## Open-bug audit checkpoint (2026-09-22)

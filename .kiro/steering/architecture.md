@@ -23,8 +23,8 @@ Java Backend (evidence-service-java)          Browser (options-prototype)
 |-----------|--------|
 | Backend | Java 21, Spring Boot 3.4, SQLite (JDBC, WAL mode) |
 | Frontend | React 18+, TypeScript (strict), Vite |
-| Frontend tests | Vitest (1112+ tests) |
-| Backend tests | JUnit 5 (173+ tests) |
+| Frontend tests | Vitest (run the suite for current counts) |
+| Backend tests | JUnit 5 (run the suite for current counts) |
 | Provider | Tradier (v1 originally sandbox, 15-min delayed, 60 req/min; later production profile measured. Do not infer current provider profile or limits from this row) |
 | Styling | CSS custom properties (centralized theme tokens) |
 | State management | React hooks (no external library) |
@@ -39,7 +39,7 @@ Key components:
 - `SessionGate` — market-hours enforcement (injectable clock)
 - `SqliteEvidenceStore` — durable evidence persistence
 - `TradierAdapter` — provider normalization
-- `RequestPacer` — rate-limit compliance (0.9 req/sec)
+- `RequestPacer` — provider rate-limit compliance (configured by `tradier.requests-per-minute` in `evidence-service-java/src/main/resources/application.properties`; do not infer the rate from this summary)
 - `SnapshotController` — ETag/conditional HTTP publication
 - `StatusController` — scheduler telemetry
 
@@ -57,6 +57,8 @@ Decision Engine paths (all zero provider calls):
 Recommendation engine browser placement is **transitional** (documented as PL-ARCH-06), not the architectural end state.
 
 ## HTTP API
+
+Selected v1 endpoints only; not an exhaustive listing. Read the v1 controllers for the full v1 surface. API v2 operations are defined by the v2 OAS routed from `docs/api-v2/README.md`.
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
@@ -82,16 +84,20 @@ Recommendation engine browser placement is **transitional** (documented as PL-AR
 5. `CLOSED_CANONICAL` — after 16:15 ET, evidence sealed
 6. `NON_TRADING_DAY` — weekend/holiday
 
+The delay-window states (`REGULAR_OPEN_DELAY`, `DELAY_DRAIN`) and the 16:15 boundary reflect a delayed (Sandbox) provider authority. Under a real-time authority the backend delay is zero, so those windows are empty (`SessionClassifier`; BUG-010).
+
 Sealed evidence remains valid until superseded by the next session. Wall-clock age does not invalidate sealed evidence.
 
 ## Tiered Acquisition Scheduler
 
 | Class | Definition | Target |
 |-------|-----------|--------|
-| A | Ready symbols with qualifying puts | ≤ 15 min chain age |
+| A | Ready symbols with qualifying puts | Chain-age target unresolved (see note) |
 | B | Ready symbols without qualifying puts | Best-effort, 120 min urgency |
 | C | Lifecycle work (pending, partial, retriable) | Epoch retry policy |
 | D | Prior-epoch absent | Once per epoch |
+
+**Class A target note:** sources currently disagree. `docs/07-architecture-current.md` and `SchedulerConfig.DEFAULT` state 25 min; `docs/foundations/acquisition-scheduler-policy.md` states 15 min. This is an open, separately governed decision. Do not resolve it from this summary.
 
 ## Ownership Boundary
 
@@ -103,7 +109,7 @@ Sealed evidence remains valid until superseded by the next session. Wall-clock a
 
 ## Architectural Invariants (Summary)
 
-18 ratified invariants organized into:
+Ratified invariants (consult the catalog for the current inventory), including:
 - **Lifecycle:** Browser-independent operation, restart durability
 - **Acquisition:** Single authority, autonomous scheduling
 - **Session:** Session-gated acquisition, trading calendar correctness, sealed evidence validity

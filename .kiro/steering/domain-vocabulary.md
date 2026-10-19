@@ -22,7 +22,7 @@
 | **Generation** | Monotonically increasing identifier for snapshot versions. ETag format: `"gen-<N>"`. |
 | **Sealed Evidence** | Evidence from a closed session that remains valid until superseded by the next session. Not stale by wall-clock age. |
 | **Session Gate** | Mechanism preventing acquisition during non-trading hours. Correctness feature, not optimization. |
-| **Universe** | The canonical set of symbols (1,286 ETFs from seed CSV) that the appliance maintains. |
+| **Universe** | The canonical set of ETF symbols that the appliance maintains, seeded from `data/seeds/`. Membership count is not maintained here; see the seed and `docs/universe/`. |
 | **Resolution** | A symbol's lifecycle state: pending → expirations_known → ready OR absent. |
 | **Absence** | A successful observation that a symbol has no options expirations. A resolution outcome, not a failure. |
 | **Epoch** | A trading session day. Evidence lifecycle resets at epoch boundaries for freshness. |
@@ -70,7 +70,7 @@
 | Term | Definition |
 |------|-----------|
 | **Tiered Scheduler** | A/B/C/D classification for acquisition priority based on symbol state and freshness. |
-| **Class A** | Ready symbols with qualifying puts — highest freshness priority (≤ 15 min). |
+| **Class A** | Ready symbols with qualifying puts — highest freshness priority. The chain-age target is unresolved (sources state 15 and 25 min; see the architecture steering note). |
 | **Class B** | Ready symbols without qualifying puts — best-effort freshness. |
 | **Class C** | Lifecycle work (pending, partial, retriable failures). |
 | **Class D** | Prior-epoch absent symbols — one probe per epoch. |

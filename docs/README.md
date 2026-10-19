@@ -95,14 +95,14 @@ Additional architecture references beyond the foundational reading path:
 
 | # | Document | Why |
 |---|----------|-----|
-| 6 | `foundations/policy-over-prediction.md` | Core design principle governing all recommendation logic |
-| 7 | `foundations/principles-governance-model.md` | Principles as architectural entities |
-| 8 | `foundations/regime-objective-function.md` | Operating regime (cash-flow production, entry mechanisms) |
-| 9 | `foundations/acquisition-scheduler-policy.md` | How the backend acquires evidence (tiered A/B/C/D) |
-| 10 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog (consult the source for the current inventory) |
-| 11 | `foundations/retooling-charter.md` | Migration governance (durable principles, boundaries) |
-| 12 | `25-situation-architecture.md` | Accepted direction for multi-situation operation |
-| 13 | `31-architectural-reconciliation.md` | Most recent architectural checkpoint |
+| 8 | `foundations/policy-over-prediction.md` | Core design principle governing all recommendation logic |
+| 9 | `foundations/principles-governance-model.md` | Principles as architectural entities |
+| 10 | `foundations/regime-objective-function.md` | Operating regime (cash-flow production, entry mechanisms) |
+| 11 | `foundations/acquisition-scheduler-policy.md` | How the backend acquires evidence (tiered A/B/C/D) |
+| 12 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog (consult the source for the current inventory) |
+| 13 | `foundations/retooling-charter.md` | Migration governance (durable principles, boundaries) |
+| 14 | `25-situation-architecture.md` | Accepted direction for multi-situation operation |
+| 15 | `31-architectural-reconciliation.md` | Architectural reconciliation checkpoint (August 2026) |
 
 ### Strategic Roadmap / Operating Model
 
@@ -313,7 +313,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `reviews/pl-api-02-pages-publication-2026-10-15.md` | Published [API v2 reference](https://brooksbol.github.io/options-prototype/), restricted Step 4 workflow, accepted/release identities and verified deployment; Principal Product review pending. |
 | `reviews/pl-api-02-independent-rereview-acceptance-2026-10-15.md` | Independent ACCEPT of 6126afd, BUG-042 resolution, actual-response/reproduction evidence identities and publication boundary. |
 | `reviews/pl-api-02-kiro-triage-2026-10-15.md` | Principal-accepted ten-finding Kiro disposition, bounded #5/#7/#9 documentation corrections, original-report identity and separate independent release-review handoff. |
-| `api-v2/README.md` | Authoritative v2 OAS and linked domain-contract entry for repository consumers; unpublished human reference/tooling in `tools/api-docs/README.md`. |
+| `api-v2/README.md` | Authoritative v2 OAS and linked domain-contract entry for repository consumers. The derived human reference was published October 15, 2026 (`reviews/pl-api-02-pages-publication-2026-10-15.md`). Tooling is in `tools/api-docs/README.md`; the adopted update procedure is `bootstrap/api-v2-documentation-update-procedure.md`. |
 | `design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md` | Principal v2-only static documentation requirements and bounded delivery plan; Steps 1–2 contract corrections and unpublished joint human/agent specimens, verification, reproducibility hashes and isolated independent Step 3 handoff; no publication. |
 | `design/ww-history-candidate-2026-10-15/README.md` | Historical transaction-history component verification; subsequent integrated operational delivery and Principal acceptance are recorded in the update/history delivery below. |
 | `design/ww-integrated-update-candidate-2026-10-15/README.md` | Principal-accepted installed `ww pull && ww history`: ordered synchronization/backend subject selection/acquisition, scoped history, verification, operational recovery and closeout limits |

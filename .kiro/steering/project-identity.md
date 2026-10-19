@@ -72,7 +72,7 @@ Conflating these roles in a single interface produces poor outcomes. Each surfac
 - `docs/foundations/evidence-appliance.md` — System identity
 - `docs/foundations/retooling-charter.md` — Migration governance
 - `docs/07-architecture-current.md` — Current architecture
-- `docs/foundations/backend-behavioral-invariants.md` — 18 ratified invariants
+- `docs/foundations/backend-behavioral-invariants.md` — Ratified invariant catalog (consult the source for the current inventory)
 - `docs/contracts/evidence-snapshot-v1.md` — Frozen v1 snapshot contract
 - `docs/77-api-v2-architectural-guardrails.md` — v2 authority boundary (backend owns state and business logic)
 - `docs/knowledge/README.md` — Maintained subject owners (current domain meaning)

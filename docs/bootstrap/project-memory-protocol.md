@@ -67,7 +67,7 @@ Always begin documentation orientation at:
 This is the documentation authority root. It defines:
 
 - The A–F Document Authority Model (what type of authority each document carries)
-- The Minimum Safe Bootstrap (reading path for safe operating competence)
+- The Foundational Reading Path (the agent **Minimum Safe Bootstrap** and cold-start routing are owned by `docs/AGENTS.md`, reached from the repository-root `AGENTS.md`)
 - The Comprehensive Architectural Orientation (deeper reading path)
 - The Complete Document Index with per-document classification and status
 
@@ -230,7 +230,7 @@ Both actors share responsibility for preventing Failure B (persist what matters)
 
 ### Follow the Minimum Safe Bootstrap
 
-Before any Wheelwright work, follow the current Minimum Safe Bootstrap defined in `docs/README.md`. Do not duplicate a frozen file list here — the reading path is owned by `docs/README.md` and evolves. Where that path refers to the parking lot, it means the complete continuation sequence, not only the original file.
+Before any Wheelwright work, follow the current Minimum Safe Bootstrap defined in `docs/AGENTS.md` (reached from the repository-root `AGENTS.md`; `docs/README.md` remains the documentation authority root). Do not duplicate a frozen file list here — the reading path is owned by `docs/AGENTS.md` and evolves. Where that path refers to the parking lot, it means the complete continuation sequence, not only the original file.
 
 ### Retrospective sweeps
 
