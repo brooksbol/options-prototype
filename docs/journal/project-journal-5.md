@@ -2266,3 +2266,47 @@ mock stages, exact selected retained facts/provenance, architectural boundaries 
 resume direction. Principal explicitly requested persistence for later; work is parked,
 no implementation or final full-table acceptance. Existing PL-CLI-01/PL-DEPLOY-BAL owners,
 no new horizon/architecture. ww positions reference and ww live stopping point unchanged.
+
+### October 18, 2026 — Workstream B knowledge-reconstruction survey (Kiro): session close
+
+Workstream B ran under ADR-023 D4/D5. It produced a local, **untracked** survey at
+`docs/discovery/knowledge-survey-2026-10-18/`. The survey's `REPORT.md` is the entry
+point, and its `README.md` maps the contents. It contains:
+- a segment coverage ledger: 5,004 segments, 120,538 lines, of which 77% were read
+  FULL, 19% PARTIAL, and 4% indexed, skipped or not surveyed;
+- the Principal Knowledge Review Catalog: 784 rows, 269 of them read by surveyors;
+- 583 decision candidates;
+- views of domain semantics, precedents, witnesses and contradictions;
+- 19 A8 regression cases;
+- an independent transcription of the Kotusev v3.0 titles (34, not 24);
+- seven redacted prior-session ledgers;
+- a BUG-043 draft.
+
+All of it is non-normative. Nothing was ratified, migrated or filed.
+
+Principal checkpoint `ef5c54c` already records Kiro's completion report and three open
+decisions: A, persist the survey; B, file BUG-043; C, tracked account identifiers. That
+checkpoint states that it authorizes no persistence, filing or redaction.
+
+So the end-of-session protocol left the survey directory and the BUG-043 draft local.
+Committing them would cross those pending Principal decisions. An early closeout commit
+that filed BUG-043 and persisted the survey was undone locally before any push. The
+remote never received it.
+
+Learning worth retaining. Status: survey observation, not ratified.
+- Ratified content often sits inside files whose headers or index entries say
+  "unresolved" or "not ratified". Examples: the Doc 81 closures and MVP 1, the
+  journal-only and PL-only ratified rules, and the 3AM universe ruling. Classifying
+  status at file level misroutes this content.
+- The always-injected `.kiro/steering` contradicts ratified v2 authority on about a
+  dozen facts.
+- Installed reality runs ahead of recorded identity:
+  - v1 on :3100 runs from the working tree with an unknown version.
+  - An applied `002_priorities.sql` exists in no Git commit.
+  - Deploy and recovery tooling lives outside Git.
+
+Unresolved:
+- Decisions A, B and C.
+- Interpreted reading of the folders that so far have only a marker scan.
+- Catalog deduplication.
+- Falsification of A8 once it exists.
