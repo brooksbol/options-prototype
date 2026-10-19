@@ -172,7 +172,7 @@ The Principal directs that the **documentation architecture and governance clean
 
 #### Closeout record — October 19, 2026 (implementation evidence; not yet closed)
 
-Kiro prepared this record as implementation evidence. It is not independent acceptance of Kiro's own corrections.
+Kiro prepared this record as implementation evidence. It is not independent acceptance of Kiro's own corrections. Independent review dispositions below were relayed by the Principal's conduit on October 19, 2026; the review reports themselves are not persisted in-repo.
 
 **Commits on accepted `main`:**
 
@@ -181,7 +181,11 @@ Kiro prepared this record as implementation evidence. It is not independent acce
 | `c134125`, `7ca034b` | `docs/README.md` index/route repairs; `07c-adrs.md` register header | Earlier increments of this cleanup |
 | `f34ed32`, `eeeaa56`, `4411d7a`, `2ceab57` | Roadmap parser AR identity consolidation, dated/shared reconciliation preservation, regression fixtures, regenerated projection | `2ceab57`: ACCEPT WITH NONBLOCKING FINDINGS (independent Kiro review, relayed by the Principal's conduit; report not persisted in-repo) |
 | `1841525` | Thirteen-file ordinary corrections: BUG index table, Doc 77 BUG-035 state, Minimum Safe Bootstrap owner, snapshot-contract test path, payoff screenshot custody, survey commit status, index routes, steering pointers | ACCEPT WITH NONBLOCKING FINDINGS (independent Codex review, relayed; report not persisted in-repo) |
-| `b9d7264` | ADR-008 applicability note; roadmap-priority ADR-024 citation; Doc 63/65 routes and non-exhaustive index note; nudge vs forced-acquisition reconciliation (`PL-OPS-08`); Constraint Identification dated status; Category A numerical routing; RoadmapView Log test bound derivation; regenerated projection | **Pending independent verification** |
+| `b9d7264` | ADR-008 applicability note; roadmap-priority ADR-024 citation; Doc 63/65 routes and non-exhaustive index note; nudge vs forced-acquisition reconciliation (`PL-OPS-08`); Constraint Identification dated status; Category A numerical routing; RoadmapView Log test bound derivation; regenerated projection | ACCEPT WITH NONBLOCKING FINDINGS (independent Codex review). The one identified defect is corrected in the formatting commit below |
+| `01efa32` | This closeout record and journal entry | ACCEPT (independent Codex review) |
+| `86d73b7` | Option A: API v2 changelog scope (`build.py`), changelog regression (`validate.py`), `docs/api-v2/README.md` review wording | ACCEPT (independent Codex review) |
+| `240f227` | Option A candidate evidence in this record | ACCEPT (independent Codex review). Controlled publication: ACCEPT WITH NONBLOCKING FINDINGS, subject to exact-source identity and normal publication controls |
+| Formatting commit (this commit's successor chain; SHA in the publication record below) | `foundations/acquisition-scheduler-policy.md`: the pacing note moved below the complete capacity table (rows unchanged) | Correction of the `b9d7264` nonblocking finding |
 
 **Validation at `b9d7264`:**
 - `check-knowledge-slice.py`: `--self-test` PASS, `--local` PASS, `--remote b9d7264` PASS (all structural only).

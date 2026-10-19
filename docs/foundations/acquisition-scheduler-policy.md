@@ -70,10 +70,10 @@ Unused capacity flows freely to lower classes when A is within target.
 | Class A provider calls | 648 (324 × 2) |
 | Total floor reservation | ~120 calls/15min (40 B + 20 C/D × 2 calls each) |
 | Available for A after floors | ~690 calls/15min |
-
-> **Pacing note (October 19, 2026):** the capacity figures above were derived from the original 0.9 req/sec pacing and have not been recomputed. The configured provider rate is now `tradier.requests-per-minute` in `evidence-service-java/src/main/resources/application.properties` (default 119, the operator-authorized Production target; see Doc 40). Treat these figures as the historical derivation, not current capacity.
 | Sustainable A cadence | 648 / (690/15) ≈ 14.1 minutes ✓ |
 | Uncommitted surplus after A + floors | ~42 calls/15min |
+
+> **Pacing note (October 19, 2026):** the capacity figures above were derived from the original 0.9 req/sec pacing and have not been recomputed. The configured provider rate is now `tradier.requests-per-minute` in `evidence-service-java/src/main/resources/application.properties` (default 119, the operator-authorized Production target; see Doc 40). Treat these figures as the historical derivation, not current capacity.
 
 ### Class B cadence by operating condition
 
