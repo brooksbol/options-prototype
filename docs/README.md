@@ -83,7 +83,7 @@ A foundational orientation to the system and its documentation authority. For ag
 | 2 | `KNOWN-FAILURE-MODES.md` | **Failure checksum. Mistakes Wheelwright has already paid for; do not repeat them.** |
 | 3 | `foundations/evidence-appliance.md` | What Wheelwright is. System identity. |
 | 4 | `07-architecture-current.md` | Current system. Four Engines. Boundaries. Surfaces. |
-| 5 | `07c-adrs.md` | Decisions that constrain changes. ADR-001 through ADR-022 (append-only). |
+| 5 | `07c-adrs.md` | Decisions that constrain changes. append-only ADR headings in `07c-adrs.md` (including ADR-023; consult the register for current range). |
 | 6 | Complete `parking-lot*.md` sequence | What is active, deferred, and resolved. Index all continuations; read matching entries when relevant. |
 | 7 | `principles.md` | Canonical register of ratified Product, Architectural/build, and Epistemic principles; candidate boundary and solution-artifact meanings. |
 
@@ -99,7 +99,7 @@ Additional architecture references beyond the foundational reading path:
 | 7 | `foundations/principles-governance-model.md` | Principles as architectural entities |
 | 8 | `foundations/regime-objective-function.md` | Operating regime (cash-flow production, entry mechanisms) |
 | 9 | `foundations/acquisition-scheduler-policy.md` | How the backend acquires evidence (tiered A/B/C/D) |
-| 10 | `foundations/backend-behavioral-invariants.md` | 18 ratified invariants the system must satisfy |
+| 10 | `foundations/backend-behavioral-invariants.md` | Ratified invariant catalog (consult the source for the current inventory) |
 | 11 | `foundations/retooling-charter.md` | Migration governance (durable principles, boundaries) |
 | 12 | `25-situation-architecture.md` | Accepted direction for multi-situation operation |
 | 13 | `31-architectural-reconciliation.md` | Most recent architectural checkpoint |
@@ -157,7 +157,7 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 
 | Document | Substatus |
 |----------|-----------|
-| `07c-adrs.md` | Ratified architectural decisions (append-only; see current register) |
+| `07c-adrs.md` | Ratified architectural decisions (append-only; ADR headings in this file form the register) |
 | `08-adr-backend-evidence-service.md` | Ratified decision (backend extraction) |
 | `09-backend-evidence-service-design.md` | Ratified design; §3 and §10 are Historical |
 | `09a-backend-diagrams.md` | Ratified design; diagram 6 is Historical |
@@ -188,6 +188,9 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md` | Ratified bounded `UNRESOLVED` predicate semantics (ADR-021) |
 | `69-assignment-centric-wheel-v1-operating-program.md` | Ratified first Wheel Operating Program/configuration |
 | `77-api-v2-architectural-guardrails.md` | Ratified API v2 authority, OAS, security, evidence and acquisition/read boundaries |
+| `82-v2-ontology-resource-semantic-coverage-reconciliation-2026-10-07.md` | Principal-ratified Operating Regime scope and v2 semantic-coverage discipline; resource model is a ratified candidate, not an implementation contract |
+| `64-governed-by-the-book-console-thin-slice-outcome-contract-2026-09-25.md` | Principal-approved frozen outcome contract |
+| `mandates/product-first-continuous-engineering-2026-10-13.md` | Principal-stated Product-first continuous-engineering mandate; operational changes remain subject to existing authority |
 | `contracts/api-v2-held-quotes-read.md` | Ratified held-quote discovery and pure-read contract |
 | `contracts/api-v2-subject-show-held-quote.md` | Ratified held-quote inspection and query contract; see source for amendment history |
 | `cli/ww-ls-acceptance-2026-10-05.md` | October 5 held-quote CLI verification and Principal acceptance evidence |
@@ -197,7 +200,6 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `bootstrap/api-v2-documentation-update-procedure.md` | Adopted API v2 documentation freshness/publication procedure; executable no-op/update/failure paths, independently reviewed and cold-start tested. |
 | `foundations/parking-lot-continuation-governance.md` | Ratified methodology (one logical parking lot across physical continuation files) |
 | `bugs/README.md` | Ratified methodology (repository-native defect tracking: `BUG-NNN` identity, record format, lifecycle — the sole defect system of record) |
-
 | `cli/ww-positions-human-presentation-2026-10-17.md` | Principal-accepted future human Positions table, allocation rows and proposed options/collateral filter; evidence-qualified mocks, not implementation or operational acceptance |
 
 ### C. Canonical Project / Operational State
@@ -212,6 +214,10 @@ Authoritative for their specific project concern. Not system-definition document
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
 | `technology-quality-fitness-controls-v1.md` | Ratified fitness-control set: three-layer quality model, strict Sonar profile, ArchUnit invariant mechanism, trend-over-gates principle |
+| `technology-quality-baseline-charter-v1.md` | Principal-authorized SCA baseline-execution charter; scoped to its program task |
+| `technology-quality-slo-build-test-v1.md` | Principal-ratified build/test SLO; scoped Category C technology-quality control |
+| `roadmap-priority.md` | Canonical Principal-reconciled provisional priority stack; not a committed schedule |
+| `roadmap-coming-soon.md` | Canonical Principal-curated Now / Next / Later Product horizon; not a delivery commitment |
 | `parking-lot.md` + numbered continuations | One canonical backlog and material-idea intake registry expressed across physical pages |
 | `journal/project-journal.md` + numbered continuations (`-2`, `-3`, `-4`, …) | One canonical chronology expressed across physical continuation files |
 | `bugs/INDEX.md` + `bugs/BUG-*.md` records | The one canonical defect corpus and discovery index (`BUG-NNN` records) — sole defect system of record |
