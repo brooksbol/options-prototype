@@ -209,6 +209,35 @@ describe("expandPressureTokens", () => {
   });
 });
 
+describe("parseArchitecture — dated reconciliation identity", () => {
+  it("retains one canonical pressure per ID and appends dated reconciliation without dropping its provenance", () => {
+    const source = [
+      "## AR1 — Original Authority Pressure",
+      "",
+      "Original baseline meaning.",
+      "## AR2 — Independent Pressure",
+      "",
+      "Another baseline.",
+      "# 2026-09-24 Governed-Decision Persistence / Replay Reconciliation",
+      "The reconciliation does not add a new pressure.",
+      "## AR1 — bounded partial resolution",
+      "",
+      "Decision-side progress is ratified, but broader state remains open.",
+      "## AR2 — unchanged",
+      "",
+      "Attention stays distinct.",
+    ].join("\\n");
+    const { pressures } = parseArchitecture(source, new Map());
+    expect(pressures.map((p: { id: string }) => p.id)).toEqual(["AR1", "AR2"]);
+    expect(pressures[0].title).toBe("Original Authority Pressure");
+    expect(pressures[0].summary).toContain("Original baseline meaning.");
+    expect(pressures[0].summary).toContain("2026-09-24");
+    expect(pressures[0].summary).toContain("bounded partial resolution");
+    expect(pressures[0].summary).toContain("broader state remains open");
+    expect(pressures[1].summary).toContain("Attention stays distinct.");
+  });
+});
+
 describe("parseArchitecture", () => {
   const archFixture = [
     "## AR3 — From Strategy-Specific Recommendations Toward Governed Alternatives",
