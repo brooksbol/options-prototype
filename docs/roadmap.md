@@ -258,6 +258,12 @@ Canonical human presentation is:
 
 ---
 
+## Enabling quality initiative — documentation authority and agent recovery
+
+**Principal placement decision (October 19, 2026):** Complete Wheelwright's documentation architecture and governance cleanup under **Technology Quality Program Workstream 2**, linked to existing `PL-COHERE-01`. This is committed enabling-quality work, **not a new Product Bet**, not a fully settled solution design, and not implementation authorization. The initiative covers reliable discoverability of current architectural authority, ADR and standards navigation, classification/status and supersession accuracy, agent cold starts, drift repair, and integrity of generated project-state views. It preserves the A–F authority model, original historical evidence, and genuinely open Product questions.
+
+The canonical workstream scope, bounded execution criteria, exclusions and completion proof live in [the Technology Quality Program](technology-quality-program-v1.md#documentation-architecture-and-governance-cleanup--principal-scope-decision-october-19-2026). Architecture-to-code coherence remains linked through `PL-COHERE-01`; the strategic roadmap records the commitment without duplicating task state or prescribing architectural implementation.
+
 # Cross-Cutting Quality and Differentiation Lens
 
 The LVT answers what outcomes and capabilities Wheelwright currently believes are worth pursuing. It does not imply that every capability deserves the same level of refinement.
