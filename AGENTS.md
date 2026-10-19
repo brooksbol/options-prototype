@@ -18,6 +18,11 @@ Before consequential reasoning, review, design, implementation, reconciliation, 
 4. Acquire current task and experiment state where a task exists, index complete parking-lot/journal continuation sets without exhaustively reading unrelated history, and retrieve applicable principles/decisions/contracts and authorization boundaries. An untasked `bootstrap` must finish after bounded orientation and must not infer that historical workstream authority remains active.
 5. Verify repository synchronization and protect in-flight and unrelated work before any permitted mutation.
 
+## Maintained knowledge and open learning
+
+- **Current domain meaning** (for example Account, Operating Regime, Position, Governed Quantity) lives in maintained subject owners indexed at `docs/knowledge/README.md`. Prefer them over reconstructing meaning from numbered historical documents or injected steering summaries.
+- **Unfinished knowledge-assimilation work** (recognized learning not yet carried into maintained knowledge, and open semantic questions awaiting decision) is tracked in `docs/assimilation-obligations.md`. Check it for open entries on your subject.
+
 Do not treat a prompt, previous session, local checkout, this entry file, or a convenient summary as independent authority. Principal authorization and repository execution gates still govern changes. Apply the documented authority precedence in `docs/README.md` to conflicts. Escalate unresolved conflicts or missing authority to the Principal before proceeding with the affected consequential work.
 
 ## Separation of audiences

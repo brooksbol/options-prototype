@@ -18,6 +18,12 @@ At cold start, acquire the compact authority and architecture orientation below.
 | 6 | Complete `parking-lot*.md` sequence | Enumerate every continuation and inspect headings/IDs/current-state matches across all files; read full entries only for the active task or a specific backlog inquiry. |
 | 7 | `principles.md` | Canonical Principles register, ratified principles, and candidate boundary. |
 
+### Maintained knowledge and assimilation obligations — routing
+
+- `knowledge/README.md` indexes maintained subject owners for current domain meaning. When a task touches a listed subject, read its owner page before historical sources; follow its citations for standing and scope.
+- `assimilation-obligations.md` is the canonical Category C ledger of open knowledge-assimilation work (`ASSIM-*`). At cold start, scan it for `PENDING`/`READY` entries; when a task touches an affected subject, honor the entry's permission boundary and resume trigger. Entries never grant execution permission.
+- Injected steering summaries route to these owners; where a summary disagrees with a maintained owner or ratified source, the owner/source wins.
+
 ### Product-first proof routing — mandatory
 
 Read `mandates/product-first-continuous-engineering-2026-10-13.md` and `technology-quality-fitness-controls-v1.md` during bootstrap. For each outcome-bearing task, recover the closest accepted Product behavior and relevant ratified invariants, ADRs, contracts and fitness functions before proposing new architecture. Identify concrete reuse, a falsifiable capability gap for each new abstraction, and an early runnable operator specimen. Carry those claims and their evidence through design, implementation and delivery. This is a lightweight proof obligation, not a new Principal approval stage. Agent attestations are insufficient; independent falsification and executable checks must verify claims where possible. Current repository instructions alone do not implement an unskippable enforcement substrate; do not claim otherwise.

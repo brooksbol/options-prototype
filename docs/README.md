@@ -30,6 +30,10 @@ The complete `docs/parking-lot*.md` sequence is the system of record for unresol
 
 > **Authority note (knife-edge migration, September 11, 2026):** This **replaces** the September 4, 2026 rule that made GitHub Issues the defect system of record. GitHub Issues are **no longer** a defect registry; new defects must not be filed as Issues, and repository bug records must not be mirrored by parallel defect Issues. Historical defect Issues (#2, #3, #8, #9, #10, #11, #12, #14, #15, #16) were migrated into `BUG-001`–`BUG-010`, preserving their original Issue identity as provenance only. See `docs/bugs/INDEX.md`.
 
+## Maintained Knowledge Rule — October 19, 2026
+
+Under ADR-023 D1/D3/D5, current subject meaning is maintained in bounded subject owners indexed at `knowledge/README.md`. Each owner is Category A **for already-established meaning of its subject only**: it cites the governing decisions, keeps each assertion's original standing and scope visible, and lists open questions. It does not ratify candidate semantics, supersede supported contracts, or rewrite historical sources. Recognized learning not yet assimilated, and open semantic questions awaiting decision, are tracked in the Category C ledger `assimilation-obligations.md`. Neither grants execution permission.
+
 ---
 
 ## Document Authority Model
@@ -144,6 +148,7 @@ Documents a reader should use to answer: *What is Wheelwright now?* This is a de
 | `foundations/state-oriented-console.md` | Governing principle (UI philosophy) |
 | `foundations/roadmap-self-documenting-meta-state.md` | Governing concept (why the Roadmap exists: self-documenting project meta-state) |
 | `foundations/regime-objective-function.md` | Operating regime definition |
+| `knowledge/README.md` | Index of maintained subject owners (bounded Category A for established subject meaning; see Maintained Knowledge Rule) |
 | `foundations/acquisition-scheduler-policy.md` | Current acquisition behavior |
 
 ### B. Ratified Decision / Accepted Design
@@ -202,6 +207,7 @@ Authoritative for their specific project concern. Not system-definition document
 | Document | Domain |
 |----------|--------|
 | `principles.md` | Canonical register of ratified Product, architectural/build and epistemic principles, including backend authority |
+| `assimilation-obligations.md` | Canonical ledger of knowledge-assimilation obligations (`ASSIM-*`): state, receipts, resume triggers and closure evidence. Owns obligation state, not meaning; grants no permission |
 | `roadmap.md` | Current strategic roadmap (Vision → Goals → Bets → Initiatives) |
 | `architecture-roadmap.md` | Current architecture-roadmap pressure and intended structural evolution |
 | `technology-quality-program-v1.md` | Principal-ratified and mandated technology-quality program state and execution plan |
