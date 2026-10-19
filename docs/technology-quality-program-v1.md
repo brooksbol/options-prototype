@@ -150,6 +150,27 @@ The repository now states that numbered project-journal files form one logical c
 
 **Exit:** A cold-start test can recover the September 3 quality discovery, the Constitution, and this Program by following repository instructions alone.
 
+### Documentation architecture and governance cleanup — Principal scope decision, October 19, 2026
+
+**Status:** Principal-approved roadmap/workstream placement; bounded cleanup pending execution and independent verification. This is program state, not ratification of the survey's candidate repairs.
+
+The Principal directs that the **documentation architecture and governance cleanup initiative as a whole** belong in **Technology Quality Program Workstream 2**, with an explicit relationship to the existing active `PL-COHERE-01` architecture-to-code coherence identity. This extends Workstream 2 beyond its original journal-continuation routing specimen to include authority discoverability and documented coherence across architecture, ADRs, principles, API contracts, maintained domain knowledge, actor bootstrap and generated project-state projections. It does **not** replace the original Workstream 2 obligations, create another `PL-*` identity or Lean Value Tree Bet, or redefine `PL-COHERE-01`'s historical temporal findings.
+
+**Intended outcome:** A fresh actor can find and apply governing architectural meaning without knowing numbered document filenames; current and historical standing, unresolved Product decisions, and execution authority remain distinguishable; known stale references and generated-state defects are corrected; verification is repeatable with the existing tools.
+
+**Execution shape (proposed, not automatically authorized by this placement):**
+
+1. Reconcile the repository-wide survey's findings against current `main`; correct evidenced navigation, source/status, ADR lifecycle presentation, and steering-currency problems while preserving original provenance and the A–F model.
+2. Verify the roadmap projection parser's identity semantics before regenerating the derived projection. Reuse existing tests, projection freshness checks and knowledge validation; add only warranted, narrowly scoped regression coverage. Do not hand-edit generated state.
+3. Obtain bounded independent verification of the final revisions and representative cold-start routes, record exact checks and dispositions, and close this **bounded documentation cleanup** only after confirmed in-scope defects and derived freshness are resolved or explicitly dispositioned.
+
+**Historical evidence and open boundaries:** The October 2026 documentation survey and follow-up Codex/Kiro reviews are evidence, not automatically ratified changes. Candidate conflicts involving defect channels, Class A freshness, Doc 81 standing, steering-only policies, or external GitHub issues require their own evidenced disposition and any necessary Principal decision. `ASSIM-0002` Position identity, Operating Regime/Program representation, comprehensive compatibility policy, and other open Product decisions do not block documentary coherence when accurately labeled and routed.
+
+**Completion proof:** No unclassified survey findings; every confirmed in-scope repair verified against exact committed source; original ADRs and historical records preserved; no duplicate canonical authority; roadmap generation and freshness checked after source/parser correction; representative cold-start retrieval independently verified; a durable closeout record points to the accepted commits and unresolved exclusions. This does not authorize backend/runtime, API, trading, external-issue, CI enforcement, or `ww live` changes.
+
+**Provenance:** Principal selection of Option A in the documentation-architecture review thread, October 19, 2026; existing `PL-COHERE-01` and this Program provide canonical ownership. The repository-grounded survey and Experiment 2 assessment remain supporting discovery/provenance, not replacement authority.
+
+
 ## Workstream 3 — Charter the untouched Technology Quality Baseline
 
 **Objective:** Convert the Constitution's baseline authorization into an executable measurement charter before scanning begins.
