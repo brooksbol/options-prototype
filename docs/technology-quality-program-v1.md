@@ -152,7 +152,7 @@ The repository now states that numbered project-journal files form one logical c
 
 ### Documentation architecture and governance cleanup — Principal scope decision, October 19, 2026
 
-**Status:** Principal-approved roadmap/workstream placement. Bounded corrections executed October 19, 2026. **Not closed:** final independent verification and the Option A API documentation publication repair (candidate `86d73b7`, review pending) remain open (closeout record below). This is program state, not ratification of the survey's candidate repairs.
+**Status:** **Bounded documentation cleanup closed, October 19, 2026** (closeout record below). Its corrections were independently reviewed. The Option A API documentation publication repair is published and live-verified. Excluded and independently governed questions remain open with their owners. `PL-COHERE-01` remains open. This is program state, not ratification of the survey's candidate repairs.
 
 The Principal directs that the **documentation architecture and governance cleanup initiative as a whole** belong in **Technology Quality Program Workstream 2**, with an explicit relationship to the existing active `PL-COHERE-01` architecture-to-code coherence identity. This extends Workstream 2 beyond its original journal-continuation routing specimen to include authority discoverability and documented coherence across architecture, ADRs, principles, API contracts, maintained domain knowledge, actor bootstrap and generated project-state projections. It does **not** replace the original Workstream 2 obligations, create another `PL-*` identity or Lean Value Tree Bet, or redefine `PL-COHERE-01`'s historical temporal findings.
 
@@ -170,7 +170,7 @@ The Principal directs that the **documentation architecture and governance clean
 
 **Provenance:** Principal selection of Option A in the documentation-architecture review thread, October 19, 2026; existing `PL-COHERE-01` and this Program provide canonical ownership. The repository-grounded survey and Experiment 2 assessment remain supporting discovery/provenance, not replacement authority.
 
-#### Closeout record — October 19, 2026 (implementation evidence; not yet closed)
+#### Closeout record — October 19, 2026 (closed)
 
 Kiro prepared this record as implementation evidence. It is not independent acceptance of Kiro's own corrections. Independent review dispositions below were relayed by the Principal's conduit on October 19, 2026; the review reports themselves are not persisted in-repo.
 
@@ -185,7 +185,9 @@ Kiro prepared this record as implementation evidence. It is not independent acce
 | `01efa32` | This closeout record and journal entry | ACCEPT (independent Codex review) |
 | `86d73b7` | Option A: API v2 changelog scope (`build.py`), changelog regression (`validate.py`), `docs/api-v2/README.md` review wording | ACCEPT (independent Codex review) |
 | `240f227` | Option A candidate evidence in this record | ACCEPT (independent Codex review). Controlled publication: ACCEPT WITH NONBLOCKING FINDINGS, subject to exact-source identity and normal publication controls |
-| Formatting commit (this commit's successor chain; SHA in the publication record below) | `foundations/acquisition-scheduler-policy.md`: the pacing note moved below the complete capacity table (rows unchanged) | Correction of the `b9d7264` nonblocking finding |
+| `a6ab6a0` | `foundations/acquisition-scheduler-policy.md`: the pacing note moved below the complete capacity table (rows unchanged); review dispositions recorded here. This is the accepted publication source | Mechanical correction of the reviewed `b9d7264` finding plus evidence; not separately reviewed |
+| `7156eef` | `tools/api-docs/release.json` §3 identity refresh: `acceptedSource` → `a6ab6a0…`, `docs/api-v2/README.md` input hash → `637dd010…9c8c` | Procedure-mandated refresh under the accepted controlled publication; not separately reviewed |
+| This commit | Publication evidence and closure in this record; journal entry | Evidence only; not a publication trigger |
 
 **Validation at `b9d7264`:**
 - `check-knowledge-slice.py`: `--self-test` PASS, `--local` PASS, `--remote b9d7264` PASS (all structural only).
@@ -216,8 +218,27 @@ Kiro prepared this record as implementation evidence. It is not independent acce
 - *Historical baseline.* The corrected generator at the accepted source `c2f44a3` reproduces the accepted preview.
 - *Expected refusal.* `--publish` at `86d73b7` refuses only `docs/api-v2/README.md` as an unaccepted contract input. That is the procedure's identity gate working, and it was not bypassed.
 - *Simulated refresh.* A §3 identity refresh simulated on the clean candidate, never committed, changes only `acceptedSource` and the README input hash, keeping `publicationDate` 2026-10-15. Its `--publish` output passes `validate.py` and `human-specimen.mjs` and is byte-identical to the live `index.html` (`f8c5f1b6…c411`) and `LICENSES.txt` (`56872a8c…f377`).
-- *No publication.* No push of `86d73b7`, no workflow run, no deployment and no `release.json` change has occurred.
-- *Pending step.* Independent review of `86d73b7`. Then the procedure §3 refresh with `DOCS_ACCEPTED_SOURCE=86d73b7…` (publication date unchanged, since the public bytes are unchanged), the §4/§5 push, run observation and live comparison.
+- *Pre-review state.* While review was pending, there was no push, workflow run, deployment or `release.json` change.
+
+**Publication record — `LIVE_VERIFIED`, October 19, 2026:**
+- *Accepted source.* `a6ab6a01b2f3cfec22e7aa0197e4ca355ae945a4`: clean and evidence-bearing. It contains the accepted `86d73b7` content, the `240f227` evidence and the formatting correction.
+  - §3 at that source passed: OAS conformance (19 operations); `validate.py` (internal 19 operations / 134 examples; public 15 operations / 106 response examples); `human-specimen.mjs`; two byte-identical preview builds.
+  - Preview `index.html` = `6d26b9bc44b80f45a26336d387643959ef45fd1624ea4e977693fa05f2c56821` (unchanged accepted preview).
+- *Manifest refresh (`7156eef`), using the procedure's exact §3 block.*
+  - Changed: `acceptedSource` → `a6ab6a0…` and `docs/api-v2/README.md` → `637dd010742d454b124611caffa299a88f9c16d73d32a345146128bee0789c8c`.
+  - Unchanged: the other seven input hashes, `acceptedPreviewSha256`, `acceptedLicensesSha256`, `previewDate` and `publicationDate` (2026-10-15). The JSON key order was rewritten by the procedure's script.
+- *Publication candidate (`7156eefa0b4cc3013386e0e27ba77c44de90db31`).* `build.py --publish` passed with `sourceDirty=false` and `PUBLICATION_CANDIDATE`, followed by `validate.py` and `human-specimen.mjs`.
+- *Repository checks.* The roadmap projection is in sync; `tests/roadmap/` passes 178/178; knowledge-slice `--self-test` and `--local` pass; `git diff --check` is clean.
+- *Push.* Fast-forward `01efa32..7156eef` after remote reverification.
+- *Run.* [`39335369824`](https://github.com/brooksbol/options-prototype/actions/runs/39335369824): push event, `headSha` `7156eef…`. Build success, deploy success, completed 2026-10-19 ~22:32 UTC.
+- *Uploaded artifact.* Exactly `./index.html` (2,563,893 bytes) and `./LICENSES.txt` (45,893 bytes), with no symlinks or extra paths. Both are byte-identical to the local publication build.
+- *Live comparison* (`https://brooksbol.github.io/options-prototype/`, 2026-10-19T22:32Z):
+  - `index.html` SHA-256 `f8c5f1b6adeff77b897dd89cfdf4fe2d9995c499d0a4fd42b9b18351d583c411`, unchanged from the prior live bytes.
+  - `LICENSES.txt` SHA-256 `56872a8c6112765251a061ad17fd179d42dae5c9eae53b28eab4ed187ea4f377`.
+  - Both `cmp`-identical to the publication build.
+  - Publication-date labels substituted (no "not published — local preview" marker remains).
+  - The public changelog contains only API v2 contract entries; neither `1841525` nor the Option A commit subject appears.
+  - The live `human-specimen.mjs` run passes.
 
 **Exclusions — independently governed, not bounded-cleanup work:**
 
@@ -238,10 +259,16 @@ Kiro prepared this record as implementation evidence. It is not independent acce
 
 **Preserved:** original ADR text, ratification and standing; historical document status text, with later notes added rather than rewritten; the A–F model and maintained-knowledge routing. `PL-COHERE-01` remains open as the broader architecture-to-code coherence concern.
 
-**Remaining for closure:**
-1. Independent verification of `b9d7264` and this record.
-2. Independent review of candidate `86d73b7`.
-3. After acceptance, the procedure §3 identity refresh, persistence to `main`, run observation and live byte comparison, recorded here with the exact run.
+**Closure:** the completion proof above is met for this bounded cleanup.
+- No unclassified finding remains: each finding is corrected or listed as an exclusion.
+- Every repair is on accepted `main` with exact commits.
+- Original ADRs and historical records are preserved.
+- No duplicate canonical authority was introduced.
+- Projection freshness was checked after each source change.
+- Cold-start routes resolve.
+- Independent dispositions are recorded.
+
+The excluded items stay open under their own owners. Closing this cleanup does not resolve architecture-to-code coherence in general. `PL-COHERE-01` stays open, `ASSIM-0001` stays **VERIFIED** and `ASSIM-0002` stays **PENDING**.
 
 
 ## Workstream 3 — Charter the untouched Technology Quality Baseline

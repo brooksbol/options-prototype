@@ -2320,3 +2320,19 @@ Learning:
 - Stale numbers are best repaired with pointers to the owning source rather than replacement numbers. Universe membership, pacing and test counts all drifted, and the universe has more than one plausible current count.
 
 Unresolved: final independent verification of `b9d7264`; the API documentation identity remedy and the prepared `docs/api-v2/README.md` correction; Class A 15 vs 25 min; Velvet Rope runtime admission; Constraint Identification continuation; `ASSIM-0002` PENDING. `PL-COHERE-01` remains open.
+
+### October 19, 2026 — Workstream 2 bounded documentation cleanup closed; API v2 docs publication repaired
+
+Under Principal Option A, the public API v2 changelog now derives only from `docs/contracts/api-v2-*`. Codex accepted the candidate (`86d73b7`, `240f227`) and the controlled publication.
+
+The publication followed `bootstrap/api-v2-documentation-update-procedure.md`:
+- Accepted source `a6ab6a0` (which also places the scheduler pacing note below its table).
+- Manifest refresh `7156eef`: `acceptedSource` and the README input hash only; publication date 2026-10-15 kept.
+- Run `39335369824`: build and deploy success.
+- Uploaded two-file artifact and live bytes are identical to the publication build. Live `index.html` is unchanged from before (`f8c5f1b6…c411`).
+
+The bounded cleanup is recorded as closed in `docs/technology-quality-program-v1.md` ("Closeout record — October 19, 2026"), with exact commits, dispositions and exclusions.
+
+Learning: a derived public artifact can depend on Git history broader than its declared inputs. The identity gate caught this; the regression now derives expected history from the manifest rather than from the generator.
+
+Still open with their own owners: Class A 15 vs 25 min; Velvet Rope runtime admission; Constraint Identification continuation; `ASSIM-0002` PENDING (`ASSIM-0001` VERIFIED). `PL-COHERE-01` remains open.
