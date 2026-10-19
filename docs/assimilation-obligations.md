@@ -52,6 +52,8 @@ HANDOFF-EXPECTED-COUNT: 2
 HANDOFF-MAPPING: ASSIM-0001; ASSIM-0002
 ```
 
+**Scope of this receipt.** The Principal authorized exactly two obligations for the first slice. The stopping point's other recognized items stay owned by that checkpoint and are **deferred, not dropped**. They are not registered here: priority 3 (Recommendation → Decision → Execution → Outcome), priority 4 (accepted capability vs realized software) and the §10 housekeeping. Priority 1 (stale actor steering) is handled directly by this slice's bounded steering corrections, with no separate obligation. Registering any of them is future, separately authorized work. Authorization and verification evidence for this slice: [`discovery/4am-first-knowledge-slice-verification.md`](discovery/4am-first-knowledge-slice-verification.md).
+
 Key input: `345a4d7b1c91e42937a62f0d9d7276b3bc0edb1f|docs/discovery/4am-knowledge-reconstruction-assimilation-stopping-point-2026-10-18.md|sections 4,6,7|concern=domain:account,operating-regime,position,governed-quantity|consequence=first canonical knowledge slice`.
 
 ---

@@ -9,10 +9,12 @@ Each maintained subject page is a bounded Category A owner of **already-establis
 
 | Subject | Maintained owner | Status |
 |---|---|---|
-| Account | `domain/accounts-and-operating-regimes.md` | Being established by the 4AM first slice |
-| Operating Regime | `domain/accounts-and-operating-regimes.md` | Being established by the 4AM first slice |
-| Position | `domain/positions-and-governed-quantity.md` | Being established by the 4AM first slice |
-| Governed Quantity | `domain/positions-and-governed-quantity.md` | Being established by the 4AM first slice |
+| Account | [Accounts and Operating Regimes](domain/accounts-and-operating-regimes.md#account) | Maintained (Oct 19, 2026) |
+| Operating Regime | [Accounts and Operating Regimes](domain/accounts-and-operating-regimes.md#operating-regime) | Maintained; scope identity open (`ASSIM-0002`) |
+| Position | [Positions and Governed Quantity](domain/positions-and-governed-quantity.md#position) | Maintained; identity open (`ASSIM-0002`) |
+| Governed Quantity | [Positions and Governed Quantity](domain/positions-and-governed-quantity.md#governed-quantity) | Maintained |
+
+Frequent question: *Does an Account determine its Operating Regime?* See the [short answer](domain/accounts-and-operating-regimes.md#does-an-account-determine-its-operating-regime).
 
 Subjects not listed here have no maintained owner yet. Use [`../README.md`](../README.md) and the authorities it indexes.
 
