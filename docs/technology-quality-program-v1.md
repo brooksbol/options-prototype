@@ -152,7 +152,7 @@ The repository now states that numbered project-journal files form one logical c
 
 ### Documentation architecture and governance cleanup — Principal scope decision, October 19, 2026
 
-**Status:** Principal-approved roadmap/workstream placement. Bounded corrections executed October 19, 2026. **Not closed:** final independent verification and the API documentation publication-identity disposition remain open (closeout record below). This is program state, not ratification of the survey's candidate repairs.
+**Status:** Principal-approved roadmap/workstream placement. Bounded corrections executed October 19, 2026. **Not closed:** final independent verification and the Option A API documentation publication repair (candidate `86d73b7`, review pending) remain open (closeout record below). This is program state, not ratification of the survey's candidate repairs.
 
 The Principal directs that the **documentation architecture and governance cleanup initiative as a whole** belong in **Technology Quality Program Workstream 2**, with an explicit relationship to the existing active `PL-COHERE-01` architecture-to-code coherence identity. This extends Workstream 2 beyond its original journal-continuation routing specimen to include authority discoverability and documented coherence across architecture, ADRs, principles, API contracts, maintained domain knowledge, actor bootstrap and generated project-state projections. It does **not** replace the original Workstream 2 obligations, create another `PL-*` identity or Lean Value Tree Bet, or redefine `PL-COHERE-01`'s historical temporal findings.
 
@@ -199,7 +199,21 @@ Kiro prepared this record as implementation evidence. It is not independent acce
 - *Consequence.* No run was triggered and the live site is unaffected. The next trigger-set push will fail closed at `--publish` until this is reconciled.
 - *Remedies.* Either a §3 identity refresh with review of the changed public bytes, or a reviewed tooling correction. Both lie outside ordinary documentation cleanup.
 
-**Prepared but not applied:** `docs/api-v2/README.md` still says "independent Step 3 review remains required before publication". The prepared replacement is: "Step 2 supplied author evidence and Step 3 independent review preceded the October 15, 2026 publication ([publication evidence](../reviews/pl-api-02-pages-publication-2026-10-15.md)); later changes follow the [adopted update procedure](../bootstrap/api-v2-documentation-update-procedure.md)." The file is an accepted publication input (`tools/api-docs/release.json`), so applying this needs that procedure's identity refresh and review. It should be applied together with the identity finding above.
+**Principal decision, October 19, 2026: Option A (reviewed tooling correction).** Kiro prepared candidate `86d73b739ec7cf175ee44f133af48777c1eea9d7`, based on `01efa32`. It is committed but **deliberately not on `main`**: a push touching `tools/api-docs/**` or `docs/api-v2/**` triggers the Pages workflow, which would publish once identity passes.
+- *Changes.* `tools/api-docs/build.py` scopes the public changelog to `docs/contracts/api-v2-*` (the accepted contract inputs and workflow trigger set). `tools/api-docs/validate.py` adds a regression: the public changelog must equal the API v2 contract history derived independently from `release.json`'s accepted inputs, and no commit touching only other `docs/contracts` files may appear. `docs/api-v2/README.md` now says the historical Step 3 review preceded the October 15 publication and that later changes follow the adopted procedure.
+- *What the narrowing excludes.* Only the seven commits that touched nothing but `docs/contracts/evidence-snapshot-v1.md` (including `1841525`). No commit touching an `api-v2-*` file is lost (27 of 27 retained).
+- *Validation at `86d73b7`.* Procedure §3 passes:
+  - OAS conformance: 19 operations.
+  - `validate.py`: internal 19 operations / 134 examples; public 15 operations / 106 response examples.
+  - `human-specimen.mjs`: PASS.
+  - Two preview builds are byte-identical.
+  - Preview `index.html` equals the accepted `acceptedPreviewSha256`, and `LICENSES.txt` matches.
+- *Falsifier.* The new regression fails against a build made with the old `docs/contracts` scope ("Public changelog differs from API v2 contract history").
+- *Historical baseline.* The corrected generator at the accepted source `c2f44a3` reproduces the accepted preview.
+- *Expected refusal.* `--publish` at `86d73b7` refuses only `docs/api-v2/README.md` as an unaccepted contract input. That is the procedure's identity gate working, and it was not bypassed.
+- *Simulated refresh.* A §3 identity refresh simulated on the clean candidate, never committed, changes only `acceptedSource` and the README input hash, keeping `publicationDate` 2026-10-15. Its `--publish` output passes `validate.py` and `human-specimen.mjs` and is byte-identical to the live `index.html` (`f8c5f1b6…c411`) and `LICENSES.txt` (`56872a8c…f377`).
+- *No publication.* No push of `86d73b7`, no workflow run, no deployment and no `release.json` change has occurred.
+- *Pending step.* Independent review of `86d73b7`. Then the procedure §3 refresh with `DOCS_ACCEPTED_SOURCE=86d73b7…` (publication date unchanged, since the public bytes are unchanged), the §4/§5 push, run observation and live comparison.
 
 **Exclusions — independently governed, not bounded-cleanup work:**
 
@@ -220,7 +234,10 @@ Kiro prepared this record as implementation evidence. It is not independent acce
 
 **Preserved:** original ADR text, ratification and standing; historical document status text, with later notes added rather than rewritten; the A–F model and maintained-knowledge routing. `PL-COHERE-01` remains open as the broader architecture-to-code coherence concern.
 
-**Remaining for closure:** (1) independent verification of `b9d7264` and this record; (2) a decision on the API documentation publication-identity remedy, then the `docs/api-v2/README.md` correction through the adopted procedure. Alternatively, an explicit Principal disposition can carry both as exclusions.
+**Remaining for closure:**
+1. Independent verification of `b9d7264` and this record.
+2. Independent review of candidate `86d73b7`.
+3. After acceptance, the procedure §3 identity refresh, persistence to `main`, run observation and live byte comparison, recorded here with the exact run.
 
 
 ## Workstream 3 — Charter the untouched Technology Quality Baseline
