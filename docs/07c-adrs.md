@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-**Status:** Authoritative through September 26, 2026
+**Status:** Append-only architectural decision register; each ADR heading and its own status/ratification record govern its standing. The register includes ADR-023 (October 2026).
 
 ---
 
