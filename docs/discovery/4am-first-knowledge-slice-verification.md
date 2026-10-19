@@ -122,3 +122,13 @@ The checker validates structure only. It does not establish semantic correctness
 - Workspace steering and `AGENTS.md` are injected from the local working tree. It equalled remote `main` at each test, but the readers were not zero-context. In Session Two the corrected steering itself carried a short form of the answer, which is the intended D5 routing behavior but means Q1 is not a test of unaided discovery.
 - No Codex or ChatGPT cold start was run. Their bootstraps were amended but not exercised. That acceptance claim is **NOT VERIFIED**.
 - Semantic correctness of the pages rests on the implementer's source reconciliation (§4) and the reader's spot checks. No independent domain reviewer such as Codex has reviewed the pages.
+
+## 8. Closeout
+
+- **ASSIM-0001:** VERIFIED. The witness is §7 of this record @ `c9949b11569022b12e23665ade8b9b239d431a97`. The witness is the independent reader's result as recorded by the implementer, so the §7 limitations apply.
+- **ASSIM-0002:** stays PENDING. The Principal is the resolver, and resolution is not authorized. Nothing in this slice resolves Position identity.
+- **Receipt AH-c55f13e0ce4d:** RECEIVED; count 2 equals mapped 2.
+- **Final commit:** the commit that adds this section and closes ASSIM-0001, the next commit after `c9949b1` on `main`. It is verified by `git ls-remote` and `--remote` checking at closeout, and reported in the closeout message, not self-referenced here.
+- **Roadmap projection:** no file in this slice is a generator input (`options-prototype/scripts/generate-roadmap-projection.mjs` reads parking lots, ADRs, principles, roadmap files, bugs and the options domain reference). Freshness was checked at closeout.
+- **Credit accounting:** exact Kiro credit consumption is not visible to the implementer from inside the session. No measured figure is claimed.
+- **Not done (by scope):** no Codex/ChatGPT cold-start run; no correction of `current-investigation.md`; no registration of stopping-point priorities 3–4 or §10 housekeeping; no A8 ratification; no wider 784-row assimilation.

@@ -60,11 +60,11 @@ Key input: `345a4d7b1c91e42937a62f0d9d7276b3bc0edb1f|docs/discovery/4am-knowledg
 
 ## Obligations
 
-### ASSIM-0001 — Account does not determine Operating Regime
+### ASSIM-0001 — Account does not determine Operating Regime (closed)
 
 ```text
 ASSIM-ID: ASSIM-0001
-ASSIM-STATE: APPLIED
+ASSIM-STATE: VERIFIED
 ASSIM-SUBJECTS: account; operating-regime; governed-quantity
 ASSIM-DEPENDS: ASSIM-0002
 ASSIM-HANDOFF: AH-c55f13e0ce4d
@@ -76,7 +76,8 @@ ASSIM-PERMISSION: Knowledge-documentation assimilation only, inside the October 
 ASSIM-RESUME: Maintained destination page exists on accepted remote main
 ASSIM-CLOSURE: Destination states the qualified current answer with source standing and scope; Doc 58 "Account Regime" vs Doc 82 operating regime reconciled as distinct concerns, not a silent winner; a fresh actor answers "Does an Account determine its Operating Regime?" correctly without document-number hints; independent witness recorded
 ASSIM-APPLIED: docs/knowledge/domain/accounts-and-operating-regimes.md#does-an-account-determine-its-operating-regime @ 65e8d61c7f798ad4e3768bb315e76ec95188c17d
-ASSIM-HISTORY: 2026-10-19 PENDING @ b765bae9857cc9575773c7d697d3f25a87038249; 2026-10-19 APPLIED @ 65e8d61c7f798ad4e3768bb315e76ec95188c17d (maintained page created); routing/steering corrections in the following commit
+ASSIM-WITNESS: docs/discovery/4am-first-knowledge-slice-verification.md#7-session-two--after-assimilation @ c9949b11569022b12e23665ade8b9b239d431a97 (fresh-context reader on a fresh GitHub clone at 0a6535a answered Q1 and variants a–e correctly and verified the Doc 82 sentence itself; source reconciliation in section 4 of the same record; limitations recorded there)
+ASSIM-HISTORY: 2026-10-19 PENDING @ b765bae9857cc9575773c7d697d3f25a87038249; 2026-10-19 APPLIED @ 65e8d61c7f798ad4e3768bb315e76ec95188c17d (maintained page created); routing/steering corrections @ c8c85c551c3fa9f58b802485786c1fea90ba2dfd; 2026-10-19 VERIFIED (witness above)
 ```
 
 **Why held:** the meaning is already Principal-ratified (Doc 82, October 7), but it has no maintained subject owner. A fresh actor meets Doc 58's older "Account Regime … applicable to an Account" wording first and has to reconcile it alone. This is the concrete example named in the 4AM stopping point §4.
