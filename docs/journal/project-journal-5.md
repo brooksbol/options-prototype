@@ -2310,3 +2310,13 @@ Unresolved:
 - Interpreted reading of the folders that so far have only a marker scan.
 - Catalog deduplication.
 - Falsification of A8 once it exists.
+
+### October 19, 2026 — Workstream 2 documentation cleanup: final corrections executed, closeout pending
+
+Kiro executed the final bounded Workstream 2 corrections in `b9d7264`, on top of the independently accepted `2ceab57` (parser) and `1841525` (thirteen-file corrections). The canonical closeout record, with commits, validation, exclusions and remaining steps, is in `docs/technology-quality-program-v1.md` → "Closeout record — October 19, 2026".
+
+Learning:
+- The API v2 public changelog is derived from `git log -- docs/contracts`, which is broader than the accepted input set (`docs/contracts/api-v2-*`). A non-v2 contract-documentation edit (`1841525`, snapshot-contract test path) therefore changed the preview identity, even though no workflow-triggering path changed. The live site is unaffected, but the next trigger-set publication will fail closed until a reviewed identity refresh or tooling correction.
+- Stale numbers are best repaired with pointers to the owning source rather than replacement numbers. Universe membership, pacing and test counts all drifted, and the universe has more than one plausible current count.
+
+Unresolved: final independent verification of `b9d7264`; the API documentation identity remedy and the prepared `docs/api-v2/README.md` correction; Class A 15 vs 25 min; Velvet Rope runtime admission; Constraint Identification continuation; `ASSIM-0002` PENDING. `PL-COHERE-01` remains open.

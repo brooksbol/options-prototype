@@ -152,7 +152,7 @@ The repository now states that numbered project-journal files form one logical c
 
 ### Documentation architecture and governance cleanup — Principal scope decision, October 19, 2026
 
-**Status:** Principal-approved roadmap/workstream placement; bounded cleanup pending execution and independent verification. This is program state, not ratification of the survey's candidate repairs.
+**Status:** Principal-approved roadmap/workstream placement. Bounded corrections executed October 19, 2026. **Not closed:** final independent verification and the API documentation publication-identity disposition remain open (closeout record below). This is program state, not ratification of the survey's candidate repairs.
 
 The Principal directs that the **documentation architecture and governance cleanup initiative as a whole** belong in **Technology Quality Program Workstream 2**, with an explicit relationship to the existing active `PL-COHERE-01` architecture-to-code coherence identity. This extends Workstream 2 beyond its original journal-continuation routing specimen to include authority discoverability and documented coherence across architecture, ADRs, principles, API contracts, maintained domain knowledge, actor bootstrap and generated project-state projections. It does **not** replace the original Workstream 2 obligations, create another `PL-*` identity or Lean Value Tree Bet, or redefine `PL-COHERE-01`'s historical temporal findings.
 
@@ -169,6 +169,58 @@ The Principal directs that the **documentation architecture and governance clean
 **Completion proof:** No unclassified survey findings; every confirmed in-scope repair verified against exact committed source; original ADRs and historical records preserved; no duplicate canonical authority; roadmap generation and freshness checked after source/parser correction; representative cold-start retrieval independently verified; a durable closeout record points to the accepted commits and unresolved exclusions. This does not authorize backend/runtime, API, trading, external-issue, CI enforcement, or `ww live` changes.
 
 **Provenance:** Principal selection of Option A in the documentation-architecture review thread, October 19, 2026; existing `PL-COHERE-01` and this Program provide canonical ownership. The repository-grounded survey and Experiment 2 assessment remain supporting discovery/provenance, not replacement authority.
+
+#### Closeout record — October 19, 2026 (implementation evidence; not yet closed)
+
+Kiro prepared this record as implementation evidence. It is not independent acceptance of Kiro's own corrections.
+
+**Commits on accepted `main`:**
+
+| Commit | Scope | Independent disposition |
+|---|---|---|
+| `c134125`, `7ca034b` | `docs/README.md` index/route repairs; `07c-adrs.md` register header | Earlier increments of this cleanup |
+| `f34ed32`, `eeeaa56`, `4411d7a`, `2ceab57` | Roadmap parser AR identity consolidation, dated/shared reconciliation preservation, regression fixtures, regenerated projection | `2ceab57`: ACCEPT WITH NONBLOCKING FINDINGS (independent Kiro review, relayed by the Principal's conduit; report not persisted in-repo) |
+| `1841525` | Thirteen-file ordinary corrections: BUG index table, Doc 77 BUG-035 state, Minimum Safe Bootstrap owner, snapshot-contract test path, payoff screenshot custody, survey commit status, index routes, steering pointers | ACCEPT WITH NONBLOCKING FINDINGS (independent Codex review, relayed; report not persisted in-repo) |
+| `b9d7264` | ADR-008 applicability note; roadmap-priority ADR-024 citation; Doc 63/65 routes and non-exhaustive index note; nudge vs forced-acquisition reconciliation (`PL-OPS-08`); Constraint Identification dated status; Category A numerical routing; RoadmapView Log test bound derivation; regenerated projection | **Pending independent verification** |
+
+**Validation at `b9d7264`:**
+- `check-knowledge-slice.py`: `--self-test` PASS, `--local` PASS, `--remote b9d7264` PASS (all structural only).
+- `npm run check:roadmap-projection`: in sync.
+- `npx vitest run tests/roadmap/`: 4 files, 178/178 passing. The Log test failure that predated these corrections is repaired by deriving its bounds from the rendered projection.
+- `git diff --check`: clean.
+- Projection substantive diff, by inspection: only the ADR-008 `consequences` text, the priority #9 `reason`, and `generatedAt`.
+- Representative cold-start routes resolve: root `AGENTS.md` → `docs/AGENTS.md` / `docs/README.md` / `knowledge/README.md` / `assimilation-obligations.md`; `docs/README.md` → this Program, `architecture-roadmap.md`, Doc 77, Docs 63/65, journal continuations; `project-memory-protocol.md` → `docs/AGENTS.md`.
+
+**Open finding: API v2 documentation publication identity.** Under `bootstrap/api-v2-documentation-update-procedure.md` §2/§4:
+- *Baseline.* The deployed baseline is run `38840860205` (source `011defb`, build and deploy success). No trigger-set path changed since that baseline. Live `index.html` and `LICENSES.txt` are byte-identical to an accepted `--publish` build at `2ceab57`.
+- *Failure.* At `1841525` and later, `build.py --publish` fails with "generated preview differs from accepted artifact" (`ACCEPTANCE_PENDING` / identity mismatch).
+- *Cause.* The public "Recent contract changes" list uses `git log -5 -- docs/contracts`, which also counts non-v2 files. `1841525` touched `docs/contracts/evidence-snapshot-v1.md`, which added a public changelog line.
+- *Probe.* Locally narrowing that pathspec to `docs/contracts/api-v2-*` reproduces the accepted preview hash exactly. The probe was reverted and not committed.
+- *Consequence.* No run was triggered and the live site is unaffected. The next trigger-set push will fail closed at `--publish` until this is reconciled.
+- *Remedies.* Either a §3 identity refresh with review of the changed public bytes, or a reviewed tooling correction. Both lie outside ordinary documentation cleanup.
+
+**Prepared but not applied:** `docs/api-v2/README.md` still says "independent Step 3 review remains required before publication". The prepared replacement is: "Step 2 supplied author evidence and Step 3 independent review preceded the October 15, 2026 publication ([publication evidence](../reviews/pl-api-02-pages-publication-2026-10-15.md)); later changes follow the [adopted update procedure](../bootstrap/api-v2-documentation-update-procedure.md)." The file is an accepted publication input (`tools/api-docs/release.json`), so applying this needs that procedure's identity refresh and review. It should be applied together with the identity finding above.
+
+**Exclusions — independently governed, not bounded-cleanup work:**
+
+| Item | Owner / scope | Why excluded |
+|---|---|---|
+| Class A freshness 15 vs 25 min | `foundations/acquisition-scheduler-policy.md` and `07-architecture-current.md` (both Category A); `SchedulerConfig` | Policy conflict. Both sources now carry a routing note; no value is selected here |
+| Velvet Rope runtime admission | `foundations/cognitive-role-separation.md` vs `foundations/secondary-observation.md`; `src/velvet-rope/` | Code presence is not live operational use; Product/Principal question |
+| Position / Governed Quantity identity | `knowledge/domain/positions-and-governed-quantity.md`; `ASSIM-0002` **PENDING** | Open semantic decision. `ASSIM-0001` remains **VERIFIED** |
+| Constraint Identification continuation | `roadmap-priority.md` #4; Docs 39/40; steering | Dated status now qualified; resumption or termination is a Principal sequencing decision |
+| Forced acquisition vs "refresh belongs in diagnostics" | `foundations/evidence-appliance.md` Refresh Semantics; `PL-OPS-08` | The foundation text accurately describes nudge. Whether the Console placement of forced acquisition conflicts with it is not decided here |
+| Parser latent edge cases (undated/shared headings, code fences) | `roadmap-projection-parsers.mjs`; `2ceab57` nonblocking findings | Current canonical source unaffected |
+| Shared reconciliation notes not displayed in the Roadmap UI | Projection `meta.notes`; RoadmapView | Optional presentation improvement |
+| ADR-008 note renders under "Consequences" in the ADR lens | Parser field accumulation | Presentation caveat; the note self-identifies as presentation-only |
+| Comprehensive indexing of historical/discovery files | `docs/README.md` (now states it is non-exhaustive) | Requires per-document classification; optional |
+| Projection CI enforcement | ADR-018 | Excluded by this cleanup's scope ("does not authorize … CI enforcement") |
+| 2026-only trading calendar | Survey draft BUG-043 (Principal decision B) | Defect channel, not documentation cleanup |
+| Illustrative 496 / 0.9 req/sec figures | `foundations/evidence-appliance.md`, `foundations/state-oriented-console.md` | Historical illustrations, not current claims |
+
+**Preserved:** original ADR text, ratification and standing; historical document status text, with later notes added rather than rewritten; the A–F model and maintained-knowledge routing. `PL-COHERE-01` remains open as the broader architecture-to-code coherence concern.
+
+**Remaining for closure:** (1) independent verification of `b9d7264` and this record; (2) a decision on the API documentation publication-identity remedy, then the `docs/api-v2/README.md` correction through the adopted procedure. Alternatively, an explicit Principal disposition can carry both as exclusions.
 
 
 ## Workstream 3 — Charter the untouched Technology Quality Baseline
