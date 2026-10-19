@@ -62,7 +62,7 @@
 | **Bridge Income** | First named operating situation — monthly cash-flow production over a finite horizon (accepted, not implemented). |
 | **Situation** | Cross-cutting operating context that shapes recommendations, explanations, and targets. |
 | **Mission** | Situation-derived production target (e.g., monthly income requirement). |
-| **Nudge** | Administrative action: "Reevaluate whether acquisition work is due." Not a refresh request. |
+| **Nudge** | Administrative action: "Reevaluate whether acquisition work is due." Not a refresh request. It runs only within an already-valid session. `POST /api/evidence/refresh` no longer nudges: since September 9, 2026 it performs **forced one-shot acquisition** (`PL-OPS-08`, `docs/parking-lot-7.md`). |
 | **Broker Handoff** | WriteIntent → pre-populated Fidelity trade link. System opens ticket; broker confirms and submits. |
 
 ## Acquisition Concepts

@@ -4,6 +4,8 @@
 **Scope:** Records the August 31 measurement findings and the after-hours controller/provider experiment. It does **not** identify Herbie and does **not** authorize further production optimization by itself.  
 **Related:** `docs/39-constraint-identification-restart-plan.md`, `.kiro/steering/current-investigation.md`.
 
+> **Later status (note, October 19, 2026):** "ACTIVE" is as of August 31. The Category C priority stack (`docs/roadmap-priority.md` #4, September 20) records this as an evidence checkpoint awaiting a decision. No later record terminates or reauthorizes the investigation. The findings remain evidence.
+
 ---
 
 ## Executive handoff for Kiro

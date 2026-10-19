@@ -5,6 +5,8 @@
 **Scope:** Problem-space analysis and measurement only. No optimization or production-behavior change is authorized by this document.  
 **Related:** `docs/38-herbie-evidence-renewal-constraint.md`, `docs/35-evidence-decision-temporal-coherence.md`, `docs/36-temporal-contract-design-brief.md`, `docs/37-console-sparkline-temporal-evidence-finding.md`, `docs/prompts/kiro-constraint-identification.md`, `docs/prompts/codex-factory-floor-measurement.md`.
 
+> **Later status (note, October 19, 2026):** the "ACTIVE" status above is as of August 28. Doc 40 (August 31) supplied the next evidence checkpoint. The Category C priority stack (`docs/roadmap-priority.md` #4, September 20) records it as awaiting a decision. No later record terminates or reauthorizes the investigation, so continuation is unresolved.
+
 ---
 
 ## 1. Why this document exists

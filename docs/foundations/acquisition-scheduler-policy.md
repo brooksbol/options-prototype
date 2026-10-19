@@ -23,6 +23,8 @@ The scheduler balances freshness of evidence the user is likely to see against s
 | C | Pending, partial, failed lifecycle work | Epoch retry policy | 3 failures/epoch |
 | D | Absent symbols from prior epoch | Once per epoch | 24 hours |
 
+> **Unresolved Class A target (routing note, October 19, 2026):** this document's 15-minute Class A target and its `chainFreshnessTargetMs` default disagree with `07-architecture-current.md`. That document records 25 minutes (`SchedulerConfig.DEFAULT`) as the later value. This is an open, separately governed decision. Neither figure is selected here.
+
 ---
 
 ## Ordering (Strict Priority Cascade)
@@ -62,12 +64,14 @@ Unused capacity flows freely to lower classes when A is within target.
 
 | Metric | Value |
 |--------|-------|
-| Provider rate | 0.9 req/sec (54/min, 810/15min) |
+| Provider rate | 0.9 req/sec (54/min, 810/15min) — original July 2026 basis; see note below |
 | Observed Class A population | 324 symbols |
 | Observed Class B population | 616 symbols |
 | Class A provider calls | 648 (324 × 2) |
 | Total floor reservation | ~120 calls/15min (40 B + 20 C/D × 2 calls each) |
 | Available for A after floors | ~690 calls/15min |
+
+> **Pacing note (October 19, 2026):** the capacity figures above were derived from the original 0.9 req/sec pacing and have not been recomputed. The configured provider rate is now `tradier.requests-per-minute` in `evidence-service-java/src/main/resources/application.properties` (default 119, the operator-authorized Production target; see Doc 40). Treat these figures as the historical derivation, not current capacity.
 | Sustainable A cadence | 648 / (690/15) ≈ 14.1 minutes ✓ |
 | Uncommitted surplus after A + floors | ~42 calls/15min |
 

@@ -129,7 +129,7 @@ Read these when designing or reviewing implementation structure, evaluating tech
 
 ## Complete Document Index
 
-**Navigation only:** Entries identify document authority and purpose, not live acceptance or execution permission. For current milestone and defect disposition, consult the complete parking-lot, journal and bug records. Historical acceptance checkpoints retain their original scope; do not read their snapshot statuses as today's operational state. For v2 work, start with the ratified `principles.md` and `77-api-v2-architectural-guardrails.md`, then the current v2 OAS/Account/Position references and relevant canonical intake.
+**Navigation only:** Entries identify document authority and purpose, not live acceptance or execution permission. Despite its heading, this index does not list every historical, discovery or checkpoint file. An unindexed document keeps the standing stated in its own status header, and omission neither promotes nor demotes it. For current milestone and defect disposition, consult the complete parking-lot, journal and bug records. Historical acceptance checkpoints retain their original scope; do not read their snapshot statuses as today's operational state. For v2 work, start with the ratified `principles.md` and `77-api-v2-architectural-guardrails.md`, then the current v2 OAS/Account/Position references and relevant canonical intake.
 
 ### A. Governing / Current System Definition
 
@@ -186,6 +186,8 @@ Constrain future evolution. Describe what was decided and why. May be ahead of i
 | `foundations/death-spiral-avoidance-protocol.md` | Ratified repeat-work and escalation discipline |
 | `foundations/conditioned-operating-opportunity.md` | Accepted direction (partially realized) |
 | `67-unresolved-predicate-resolution-model-architecture-reconciliation-2026-09-26.md` | Ratified bounded `UNRESOLVED` predicate semantics (ADR-021) |
+| `63-capability-decomposition-method-principal-adoption-2026-09-25.md` | Principal-adopted capability-decomposition methodology (September 25, 2026). Methodology only; no capability inventory, thin-slice endpoint or implementation authority |
+| `65-principal-ratification-bounded-production-console-wheel-rules-2026-09-26.md` | Principal-ratified bounded production Console Wheel rules (September 26, 2026). Two rules only; no broader Wheel policy |
 | `69-assignment-centric-wheel-v1-operating-program.md` | Ratified first Wheel Operating Program/configuration |
 | `77-api-v2-architectural-guardrails.md` | Ratified API v2 authority, OAS, security, evidence and acquisition/read boundaries |
 | `82-v2-ontology-resource-semantic-coverage-reconciliation-2026-10-07.md` | Principal-ratified Operating Regime scope and v2 semantic-coverage discipline; resource model is a ratified candidate, not an implementation contract |

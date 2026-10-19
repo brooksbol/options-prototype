@@ -1,8 +1,8 @@
-# ACTIVE INVESTIGATION — Constraint Identification
+# Constraint Identification Investigation — continuation unresolved
 
-**Status:** ACTIVE until superseded by a newer explicit repository authority record.
+**Status:** Last recorded as ACTIVE on August 31, 2026 (Docs 39/40). **Continuation is unresolved.** The Category C priority stack (`docs/roadmap-priority.md` #4, September 20) records it as an evidence checkpoint awaiting a decision. The human root `README.md` (October 11) does not present it as the current active investigation. No durable record terminates it or reauthorizes work. This file is a routing summary for when the investigation is resumed under explicit authority; it does not authorize resumption.
 
-When resuming Wheelwright investigation work, follow repository bootstrap authority, then read these active records in order:
+When resuming Wheelwright investigation work, follow repository bootstrap authority, then read these records in order:
 
 1. `docs/39-constraint-identification-restart-plan.md` — governing TOC discipline and original restart prescription.
 2. `docs/40-provider-admission-controller-findings-2026-08-31.md` — latest August 31 measurement findings and Kiro handoff.

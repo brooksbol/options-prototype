@@ -188,7 +188,7 @@ This decomposition is the logical consequence of ADR-011 ("Multiple Wheelwright 
 
 | Class | Definition | Target |
 |-------|-----------|--------|
-| A | Ready symbols with qualifying puts | ≤ 25 min chain age (`SchedulerConfig.DEFAULT`; was 15 min scarcity-era — refresh near Decision's 30-min horizon with a 5-min guard band) |
+| A | Ready symbols with qualifying puts | ≤ 25 min chain age (`SchedulerConfig.DEFAULT`; was 15 min scarcity-era — refresh near Decision's 30-min horizon with a 5-min guard band). *Unresolved: `foundations/acquisition-scheduler-policy.md` still states 15 min; this is an open, separately governed decision.* |
 | B | Ready symbols without qualifying puts | Best-effort, 120 min urgency |
 | C | Lifecycle work (pending, partial, retriable) | Epoch retry policy |
 | D | Prior-epoch absent | Once per epoch |
@@ -236,7 +236,7 @@ The Decision Engine produces ranked candidates via three strategy-specific recom
 
 #### Put Recommendations (`recommendPuts`)
 
-- Evaluates the full candidate universe (~1,286 symbols)
+- Evaluates the full candidate universe (see Candidate Universe below; the count is not maintained here)
 - Reads chain evidence from IndexedDB cache (populated by backend snapshot)
 - Applies policy: delta range, DTE range, execution thresholds, governance
 - Produces ranked `PutCandidate[]` with posture (ACTIONABLE, EDGE, WAIT)
@@ -364,6 +364,8 @@ interface RecommendationPolicy {
 5. `CLOSED_CANONICAL` — after 16:15 ET, evidence sealed
 6. `NON_TRADING_DAY` — weekend/holiday
 
+The delay-window states (`REGULAR_OPEN_DELAY`, `DELAY_DRAIN`) and the 16:15 boundary describe a delayed (Sandbox, ~15 min) provider authority. The backend `SessionClassifier` derives the delay from the active provider authority. Under the real-time Production authority the delay is zero, so those windows are empty and `CLOSED_CANONICAL` begins at the market close (BUG-010).
+
 **Session gating:** Acquisition blocked during closed sessions (backend). Sealed canonical evidence remains valid for recommendations during closed sessions (frontend).
 
 **Trading calendar:** 2026 US market holidays (10), early-close days (2). DST via simplified month/day heuristic.
@@ -384,7 +386,7 @@ interface RecommendationPolicy {
 
 ## Candidate Universe
 
-**Canonical source:** Yahoo merged ETF list (1,286 symbols, imported from seed CSV on backend startup).
+**Canonical source:** Yahoo merged ETF list, imported from the seed CSV (`data/seeds/yahoo-merged-etf-tickers.csv`) on backend startup. The original 1,286-symbol figure is historical. Later membership changes are recorded under `PL-GOV-02` and `docs/universe/`; read the seed and those records rather than a count maintained here.
 
 **Call universe:** Derived from `PortfolioSnapshot.inventory` — only held positions with ≥ 100 free shares.
 

@@ -86,10 +86,12 @@ Components are organized by runtime boundary (Java backend vs browser frontend).
 
 | Property | Value |
 |----------|-------|
-| **Responsibility** | Allow operator to request immediate cycle assessment. |
-| **Inputs** | POST request. |
-| **Outputs** | `{"status":"nudged"}`. Worker nudge side-effect. |
-| **Must not** | Bypass session gate. Guarantee cycle execution. |
+| **Responsibility** | `POST /api/evidence/refresh`: operator-forced one-shot acquisition (`PL-OPS-08` bounded recovery control). Without parameters it runs `AcquisitionWorker.forceAcquireOnce()`. With `symbol` parameters it runs `forceAcquireSymbols()` for exactly those symbols. |
+| **Inputs** | POST request; optional repeated `symbol` query parameters. |
+| **Outputs** | `outcome`, `completed`, `symbolsAcquired`, `workQueueDepth`, `generation`, real `sessionPosture`, `targeted`, `recoversHistory: false`; `perSymbol` for targeted requests. |
+| **Must not** | Change scheduler cadence, fabricate timestamps or provenance, or claim historical gap recovery. It bypasses due-time and session gating for the single requested operation, but it still respects the provider-availability gate. |
+
+*History:* this endpoint originally delegated to `AcquisitionWorker.nudge()`, returned `{"status":"nudged"}`, and could not bypass the session gate. Operator testing on September 9, 2026 falsified that control for after-hours recovery, and it was replaced (`docs/parking-lot-7.md`, `PL-OPS-08`). `nudge()` still exists in the worker but is no longer wired to this endpoint. The class name is retained.
 
 ### `QuotesController`
 

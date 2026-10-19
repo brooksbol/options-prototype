@@ -66,7 +66,7 @@ Selected v1 endpoints only; not an exhaustive listing. Read the v1 controllers f
 | `/api/evidence/quotes?symbol=...` | GET | Selective quote observation (ETag) |
 | `/api/status` | GET | Scheduler telemetry |
 | `/api/health` | GET | Health check |
-| `/api/evidence/refresh` | POST | Administrative nudge |
+| `/api/evidence/refresh` | POST | Operator-forced one-shot acquisition (`PL-OPS-08`); optional `symbol` targeting. Not the nudge. |
 
 ## Evidence Snapshot Contract (v1 — Frozen)
 

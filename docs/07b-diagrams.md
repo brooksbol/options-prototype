@@ -2,6 +2,8 @@
 
 **Status:** Authoritative as of August 2026
 
+> **Numerical labels (note, October 19, 2026):** the diagrams keep their August 2026 values, which are no longer current: Sandbox 60 req/min, 0.9 req/sec pacing, ~1,286 symbols, and the 16:15 delayed-session boundary. For current provider pacing, universe source and provider-dependent session windows, use `07-architecture-current.md` and the `tradier.requests-per-minute` setting. The diagram structure is unchanged.
+
 ---
 
 ## 1. Data Flow Diagram

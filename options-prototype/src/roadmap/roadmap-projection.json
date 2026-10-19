@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-19T20:05:11.854Z",
+    "generatedAt": "2026-10-19T21:39:46.076Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4662,7 +4662,7 @@
       "status": "Accepted",
       "context": "The system needed a defined ETF universe for put scanning. Options considered: curated 15-symbol list, SEC/FMP catalog, Yahoo Finance top ETFs list.",
       "decision": "Use the Yahoo 496 ETFs (captured July 13, 2026) as the authoritative put universe. The former `CURATED_UNIVERSE` is renamed to `PRIORITY_WATCHLIST` (non-authoritative, operator additions for priority scheduling).",
-      "consequences": "- Full universe scan covers 496 symbols\n- Priority watchlist symbols are scanned first but don't constitute the universe\n- Velvet Rope (admission gating) remains a future concern — the Yahoo list serves as a practical starting universe"
+      "consequences": "- Full universe scan covers 496 symbols\n- Priority watchlist symbols are scanned first but don't constitute the universe\n- Velvet Rope (admission gating) remains a future concern — the Yahoo list serves as a practical starting universe\n\n**Later applicability (presentation note, October 19, 2026):** The 496-symbol figure is the original July 2026 decision, not the current universe. `07-architecture-current.md` (Category A) names the Yahoo merged ETF seed (`data/seeds/yahoo-merged-etf-tickers.csv`) as the canonical universe source. Later membership changes are recorded under `PL-GOV-02` and `docs/universe/`. This note does not amend the decision text or its status, and it records no ratifier for that evolution."
     },
     {
       "id": "ADR-009",
@@ -4855,7 +4855,7 @@
         "rank": 9,
         "refId": "LVT-DIRECTION-ALWAYS-ON",
         "refResolves": true,
-        "reason": "Continuity / always-on cloud runtime. Sources: `LVT-GOAL-CONTINUITY`, AR9, ADR-024, `PL-OPS-01`, `PL-OPS-08`. Enabling infrastructure whose value compounds after the evidence/decision layer is trustworthy."
+        "reason": "Continuity / always-on cloud runtime. Sources: `LVT-GOAL-CONTINUITY`, AR9, `PL-OPS-01`, `PL-OPS-08`. (The 2026-09-20 entry also cited \"ADR-024\". No ADR-024 existed then or now; the register ran to ADR-018 at ratification. The intended target is unresolved and is not replaced here.) Enabling infrastructure whose value compounds after the evidence/decision layer is trustworthy."
       },
       {
         "rank": 10,

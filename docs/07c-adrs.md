@@ -135,6 +135,8 @@
 - Priority watchlist symbols are scanned first but don't constitute the universe
 - Velvet Rope (admission gating) remains a future concern — the Yahoo list serves as a practical starting universe
 
+**Later applicability (presentation note, October 19, 2026):** The 496-symbol figure is the original July 2026 decision, not the current universe. `07-architecture-current.md` (Category A) names the Yahoo merged ETF seed (`data/seeds/yahoo-merged-etf-tickers.csv`) as the canonical universe source. Later membership changes are recorded under `PL-GOV-02` and `docs/universe/`. This note does not amend the decision text or its status, and it records no ratifier for that evolution.
+
 ---
 
 ## ADR-009: Numbers-First Typography

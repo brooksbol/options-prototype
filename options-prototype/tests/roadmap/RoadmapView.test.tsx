@@ -9,6 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { RoadmapView } from "../../src/roadmap/RoadmapView";
+import { getProjection } from "../../src/roadmap/use-roadmap-projection";
 
 describe("RoadmapView", () => {
   it("renders the strategy lens by default with only the Vision root visible (collapsed)", () => {
@@ -201,12 +202,12 @@ describe("RoadmapView", () => {
     expect([...isos]).toEqual([...isos].sort().reverse());
     // Newest overall date is first; oldest is last. Per the ratified cross-authority
     // Log semantic, canonical governed events across authorities are in scope. The
-    // newest governed event in the corpus is now dated 2026-10-04 (the PL-CLI-01
-    // bare-fetch pre-implementation checkpoint and experiment entries); the prior
-    // 2026-09-24 cohort (PL-SEM-01 / PL-DEC-BEH refinements, BUG-026 / BUG-027) is
-    // no longer the newest.
-    expect(isos[0]).toBe("2026-10-04");
-    expect(isos[isos.length - 1]).toBe("2026-09-01");
+    // bounds are derived from the same projection the view renders. A hardcoded
+    // "newest" date goes stale whenever a later governed event is recorded (this
+    // assertion previously pinned 2026-10-04, then 2026-09-24).
+    const corpusIsos = getProjection().log.map((e) => e.eventDateIso).sort();
+    expect(isos[0]).toBe(corpusIsos[corpusIsos.length - 1]);
+    expect(isos[isos.length - 1]).toBe(corpusIsos[0]);
     // A canonical governed BUG event is projected into the Log (cross-authority),
     // preserving its BUG-NNN identity rather than being given a PL-* identity.
     expect(screen.getAllByText(/^BUG-\d+$/).length).toBeGreaterThan(0);
