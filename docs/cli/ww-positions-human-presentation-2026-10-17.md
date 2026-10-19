@@ -175,6 +175,23 @@ rejected. The Principal chose separate rows for share allocations, separate POSI
 and CONTRACT, separate PURPOSE and COLLATERAL, STATE between them, blanks for no
 data, and no arrows. The final PTS full/options mocks above preserve that result.
 
+## Human and agentic interfaces — Principal clarification (October 19, 2026)
+
+**Human and agentic interfaces do not have to look the same.** The accepted `ww positions`
+human table deliberately omits opaque canonical resource identifiers because they do
+not help ordinary operator comprehension. This does **not** make independently
+addressable API instance resources such as candidate `GET /v2/positions/{positionId}`
+useless. Structured and agentic clients may need stable machine-readable identity,
+explicit relationships, provenance, temporal qualification, and navigation to inspect
+or revisit a Position without reconstructing its identity from display cells.
+
+Client presentation choices neither define nor negate canonical domain resource
+identity. The backend owns authoritative domain semantics; clients may project them
+differently for humans and agents. This clarification supports investigating an
+independently addressable Position resource; it **does not** ratify Position identity,
+its lifecycle, the example URI, a new schema, or implementation. The existing
+`ASSIM-0002` Position/governed-scope identity question remains open.
+
 ## Current state and recovery
 
 - Presentation accepted; implementation, installation and semantic readiness NOT claimed.
