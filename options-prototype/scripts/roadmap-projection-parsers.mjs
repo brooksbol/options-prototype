@@ -327,6 +327,9 @@ export function parseArchitecture(markdown, aliasToId) {
   const notes = [];
 
   let current = null;
+  const byId = new Map();
+  let reconciliation = false;
+  let reconciliationDate = null;
   // Accumulate the AR's descriptive prose — the narrative paragraphs of the
   // record, in document order, EXCLUDING the structured bold-field lines
   // (**Pressure from:**, **Candidate transition:**, **Not yet prescribed:**,
@@ -342,11 +345,18 @@ export function parseArchitecture(markdown, aliasToId) {
       // AR pane has no separate sectioned body, so the summary is the whole
       // narrative; below-the-fold length is acceptable.
       const { text, truncated } = faithfulExcerpt(proseLines.join("\n"), Infinity);
-      current.summary = text;
-      current.summaryTruncated = truncated;
-      pressures.push(current);
+      if (reconciliation) {
+        // A later dated AR reconciliation refines an existing pressure; it
+        // never creates a second canonical identity or overwrites the baseline.
+        current.summary = [current.summary, text].filter(Boolean).join(" ");
+      } else {
+        current.summary = text;
+        current.summaryTruncated = truncated;
+        pressures.push(current);
+      }
     }
     current = null;
+    reconciliation = false;
     proseLines = [];
   };
 
@@ -356,6 +366,13 @@ export function parseArchitecture(markdown, aliasToId) {
     const headingMatch = line.match(/^##\s+(AR\d+)\s*[—–-]\s*(.+?)\s*$/);
     if (headingMatch) {
       finalize();
+      const previous = byId.get(headingMatch[1]);
+      if (previous) {
+        reconciliation = true;
+        current = previous;
+        proseLines = [`Reconciliation ${reconciliationDate || "undated"} — ${headingMatch[1]} — ${headingMatch[2].trim()}.`];
+        continue;
+      }
       current = {
         id: headingMatch[1],
         title: headingMatch[2].trim(),
@@ -365,10 +382,15 @@ export function parseArchitecture(markdown, aliasToId) {
         pressureFromLvtIds: [],
         pressureFromRaw: [],
       };
+      byId.set(current.id, current);
       continue;
     }
 
-    if (!current) continue;
+    if (!current) {
+      const datedHeading = line.match(/^#\s+(\d{4}-\d{2}-\d{2})\s+(.+)$/);
+      if (datedHeading) reconciliationDate = datedHeading[1];
+      continue;
+    }
 
     // Another top-level heading (not an AR) ends AR parsing.
     if (/^#{1,2}\s/.test(line) && !line.startsWith("## AR")) {
