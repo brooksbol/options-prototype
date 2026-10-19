@@ -299,6 +299,12 @@ This is a convention, not REST dogma. V2 MUST deviate when following the convent
 
 This convention complements rather than replaces the acquisition/read distinction. The same natural resource family may support different standard HTTP methods with different semantics when truthful: for example, a POST may acquire/revalidate quote evidence while a GET may read held quote evidence. This example does not by itself authorize either route.
 
+### URI construction by clients — Principal rule, October 19, 2026
+
+**Application code must not manually construct API URI path patterns.** Clients resolve canonical resource addresses through API-provided links, documented discovery, or generated/centralized contract-aware routing rather than concatenating path segments or reconstructing identifiers into URI templates. Given a resolved collection URI, clients may construct and encode documented **query parameters** for filtering, searching, sorting, and projection. Query parameters do not replace authorization, and a query is not an invitation to manufacture undocumented routes.
+
+Example: discover an Instrument using the canonical Instruments collection with `?symbol=SPY`; follow its returned canonical resource link/identity rather than embedding a guessed Instrument path throughout client code. The ticker-based Quote lookup remains a supported current shortcut; its existence does not require clients to own route-construction logic. This is a **Principal-stated architectural direction for client development and future API reconciliation**, not a retroactive claim that current clients conform, not a ratified Instrument schema, and not permission to change operative contracts or software.
+
 Client command vocabulary and HTTP vocabulary remain independent. A CLI verb such as `fetch` or `ls` may map naturally to conventional HTTP operations without requiring the API to expose the CLI command name. Likewise, anticipated client reuse is a useful pressure test but is not the justification for the resource grammar: the convention is selected because it is established, comprehensible, and compatible with one API serving many clients.
 
 ## 21. Patterns not mandated by these guardrails
