@@ -307,6 +307,12 @@ Example: discover an Instrument using the canonical Instruments collection with 
 
 Client command vocabulary and HTTP vocabulary remain independent. A CLI verb such as `fetch` or `ls` may map naturally to conventional HTTP operations without requiring the API to expose the CLI command name. Likewise, anticipated client reuse is a useful pressure test but is not the justification for the resource grammar: the convention is selected because it is established, comprehensible, and compatible with one API serving many clients.
 
+### Extensibility is a virtue; future-proofing is a vice — Principal clarification, October 19, 2026
+
+**Design for extensibility, not speculative future-proofing.** Extensibility preserves clean boundaries and contracts so independently justified capabilities can be added or composed later. Future-proofing invents abstractions, complexity, and requirements for hypothetical needs that have not earned a place in the Product. Keep those distinct.
+
+The `POST /v2/uploads` discussion illustrates the distinction: a clear Upload resource boundary and independently testable domain contracts can support future composition. Backend orchestration *may* use HTTP between domain capabilities or in-process application services; neither choice is ratified here. Evaluate the choice against present requirements, meaningful separation of concerns, independent contract testing, consistency, and operational cost. Do not mandate distributed services merely because they might someday scale, and do not dismiss HTTP orchestration solely as overhead. This principle-like clarification does not grant implementation authority or ratify a new REST resource.
+
 ## 21. Patterns not mandated by these guardrails
 
 V2 should not adopt architectural machinery merely because it is fashionable or because the API is new.
