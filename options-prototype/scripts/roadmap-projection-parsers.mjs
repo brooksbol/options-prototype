@@ -330,6 +330,16 @@ export function parseArchitecture(markdown, aliasToId) {
   const byId = new Map();
   let reconciliation = false;
   let reconciliationDate = null;
+  let contextLines = [];
+  const finalizeContext = () => {
+    if (contextLines.length) {
+      // Shared reconciliation context is not a new pressure or an amendment
+      // to whichever AR happened to precede it. Keep it in existing notes.
+      const { text } = faithfulExcerpt(contextLines.join("\n"), Infinity);
+      if (text) notes.push(text);
+    }
+    contextLines = [];
+  };
   // Accumulate the AR's descriptive prose — the narrative paragraphs of the
   // record, in document order, EXCLUDING the structured bold-field lines
   // (**Pressure from:**, **Candidate transition:**, **Not yet prescribed:**,
@@ -363,9 +373,21 @@ export function parseArchitecture(markdown, aliasToId) {
   for (const rawLine of lines) {
     const line = rawLine.replace(/\r$/, "");
 
+    // Capture the section's explicit date even when its heading ends an active
+    // pressure. An undated top-level section must not inherit an earlier date.
+    if (/^#\s/.test(line)) {
+      finalize();
+      finalizeContext();
+      const datedHeading = line.match(/^#\s+(\d{4}-\d{2}-\d{2})\s+(.+)$/);
+      reconciliationDate = datedHeading ? datedHeading[1] : null;
+      if (datedHeading) contextLines = [line];
+      continue;
+    }
+
     const headingMatch = line.match(/^##\s+(AR\d+)\s*[—–-]\s*(.+?)\s*$/);
     if (headingMatch) {
       finalize();
+      finalizeContext();
       const previous = byId.get(headingMatch[1]);
       if (previous) {
         reconciliation = true;
@@ -386,16 +408,17 @@ export function parseArchitecture(markdown, aliasToId) {
       continue;
     }
 
-    if (!current) {
-      const datedHeading = line.match(/^#\s+(\d{4}-\d{2}-\d{2})\s+(.+)$/);
-      if (datedHeading) reconciliationDate = datedHeading[1];
+    // Another top-level heading (not an AR) ends AR parsing.
+    if (/^##\s/.test(line)) {
+      finalize();
+      finalizeContext();
+      if (reconciliationDate) contextLines = [`Reconciliation ${reconciliationDate} — ${line.slice(3)}`];
+      // Continue scanning; there may be nothing more, but stay safe.
       continue;
     }
 
-    // Another top-level heading (not an AR) ends AR parsing.
-    if (/^#{1,2}\s/.test(line) && !line.startsWith("## AR")) {
-      finalize();
-      // Continue scanning; there may be nothing more, but stay safe.
+    if (!current) {
+      if (reconciliationDate) contextLines.push(line);
       continue;
     }
 
@@ -433,6 +456,7 @@ export function parseArchitecture(markdown, aliasToId) {
   }
 
   finalize();
+  finalizeContext();
   return { pressures, notes };
 }
 

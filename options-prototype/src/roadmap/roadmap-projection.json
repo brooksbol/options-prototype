@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-17T19:04:51.679Z",
+    "generatedAt": "2026-10-19T20:05:11.854Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -31,14 +31,14 @@
         "initiative": 70,
         "experiment": 7
       },
-      "arTotal": 18,
+      "arTotal": 10,
       "plTotal": 75,
       "plWithExplicitRelationship": 9,
       "graduatedTotal": 29,
-      "adrTotal": 22,
+      "adrTotal": 23,
       "priorityTotal": 10,
       "comingSoonTotal": 5,
-      "principleTotal": 10,
+      "principleTotal": 11,
       "domainEntryTotal": 36,
       "bugTotal": 42,
       "logTotal": 119,
@@ -46,7 +46,11 @@
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 61
     },
-    "notes": []
+    "notes": [
+      "# 2026-09-24 Governed-Decision Persistence / Replay Reconciliation The Principal ratified the concrete governed-decision persistence/replay candidate after Muse, Codex, and Kiro falsification (Doc 61 §§42–44; ADR-019). This does **not** add a new architecture-roadmap pressure. It resolves a bounded portion of existing pressure and sharpens what remains open.",
+      "Reconciliation 2026-09-24 — AR9 / AR10 — no new decision The new durable records use the existing always-on durable substrate and are compatible with future multi-client/access needs, but ADR-019 does not itself authorize cloud deployment, multi-user synchronization, authentication/authorization, or remote action.",
+      "Reconciliation 2026-09-24 — Simplicity result The reconciliation reinforces the roadmap's existing simplicity constraint: - no new database technology; - no event sourcing; - no new service topology; - no cryptographic notary for the current threat model; - no backend DECIDE migration merely to obtain durable history; - no generic ontology/runtime framework. The architecture earns one narrow durable responsibility expansion inside the existing backend/SQLite boundary rather than a new subsystem family."
+    ]
   },
   "lvt": [
     {
@@ -1230,7 +1234,7 @@
     {
       "id": "AR1",
       "title": "Authoritative State Must Mature Beyond Market Evidence",
-      "summary": "Current market evidence is backend-authoritative and durable, while important portfolio/decision context remains comparatively client-owned or reconstruction-heavy. Future Bets repeatedly require trustworthy knowledge of: - lot-level ownership and basis; - capital availability and encumbrance; - open obligations and rights; - lifecycle state; - policy version and relevant decision context; - operator attention/acknowledgement where multi-client coherence requires it.",
+      "summary": "Current market evidence is backend-authoritative and durable, while important portfolio/decision context remains comparatively client-owned or reconstruction-heavy. Future Bets repeatedly require trustworthy knowledge of: - lot-level ownership and basis; - capital availability and encumbrance; - open obligations and rights; - lifecycle state; - policy version and relevant decision context; - operator attention/acknowledgement where multi-client coherence requires it. Reconciliation 2026-09-24 — AR1 — bounded partial resolution. AR1 remains open as a broad concern because portfolio authority, lot/basis/capital state, lifecycle state, and other shared decision context remain wider than this slice. The governed-decision slice now has a ratified durable owner: - immutable account-local Governed Context Versions; - immutable Lifecycle Decision Records; - immutable Operator Disposition Records; - existing Java/SQLite as the shared durable substrate. This is a **partial AR1 resolution**, not a declaration that all authoritative state has moved behind the backend boundary.",
       "summaryTruncated": false,
       "candidateTransition": "from market-evidence authority plus browser portfolio context toward a durable authoritative state substrate sufficient for continuous decision support and outcome reconstruction.",
       "pressureFromLvtIds": [
@@ -1246,7 +1250,7 @@
     {
       "id": "AR2",
       "title": "Attention Emerges as a Distinct Responsibility",
-      "summary": "Continuous acquisition is not the same as watching, and watching is not the same as deciding. The reconciliation repeatedly produced a distinct concern: > change → significance → attention Attention answers whether current state deserves operator reconsideration. Decision answers what governed alternatives exist and how they compare.",
+      "summary": "Continuous acquisition is not the same as watching, and watching is not the same as deciding. The reconciliation repeatedly produced a distinct concern: > change → significance → attention Attention answers whether current state deserves operator reconsideration. Decision answers what governed alternatives exist and how they compare. Reconciliation 2026-09-24 — AR2 — unchanged, but explicitly preserved. Attention remains distinct from Decision. The ratified decision-history substrate does not turn a Decision Record into an attention signal and does not authorize continuous browser-independent Attention. A Recommendation may exist without an attention event, and attention/reconsideration remains its own concern.",
       "summaryTruncated": false,
       "candidateTransition": null,
       "pressureFromLvtIds": [
@@ -1262,7 +1266,7 @@
     {
       "id": "AR3",
       "title": "From Strategy-Specific Recommendations Toward Governed Alternatives",
-      "summary": "The strategic tree increasingly asks Wheelwright to reason over: - WAIT; - CSP and covered-call/buy-write choices; - defined-risk multi-leg shapes; - HOLD/CLOSE/ROLL/natural resolution; - capital feasibility; - future optionality. A trade candidate is too narrow because some legitimate alternatives contain no opening trade. An Alternative may describe a possible state transition and may or may not contain a trade shape. This hypothesis must be earned through concrete strategy pressure; it is not authorization for a premature generalized framework.",
+      "summary": "The strategic tree increasingly asks Wheelwright to reason over: - WAIT; - CSP and covered-call/buy-write choices; - defined-risk multi-leg shapes; - HOLD/CLOSE/ROLL/natural resolution; - capital feasibility; - future optionality. A trade candidate is too narrow because some legitimate alternatives contain no opening trade. An Alternative may describe a possible state transition and may or may not contain a trade shape. This hypothesis must be earned through concrete strategy pressure; it is not authorization for a premature generalized framework. Reconciliation 2026-09-24 — AR3 — compatible, no new pressure. The three-record replay architecture does not define the complete Alternative set and does not privilege opening trades over HOLD/WAIT/natural resolution. It is compatible with governed Alternatives because the Decision Record can preserve the Alternatives actually considered without creating a strategy-specific persistence architecture. No new generalized Alternative framework is authorized by ADR-019.",
       "summaryTruncated": false,
       "candidateTransition": "from parallel strategy-specific recommendation pipelines toward a common concept of a **governed Alternative** grounded in authoritative state.",
       "pressureFromLvtIds": [
@@ -1286,7 +1290,7 @@
     {
       "id": "AR4",
       "title": "Consequence Semantics Before Explanation",
-      "summary": "Consequences are not merely explanatory prose. Policy and Decision increasingly need structured consequence semantics before Explanation can render them. Candidate consequence dimensions include: - bounded/unbounded loss; - maximum gain; - breakeven; - capital commitment/encumbrance; - assignment/inventory consequences; - conditional outcomes; - duration; - future optionality; - execution sensitivity. This does **not** imply a separate Consequences service or engine.",
+      "summary": "Consequences are not merely explanatory prose. Policy and Decision increasingly need structured consequence semantics before Explanation can render them. Candidate consequence dimensions include: - bounded/unbounded loss; - maximum gain; - breakeven; - capital commitment/encumbrance; - assignment/inventory consequences; - conditional outcomes; - duration; - future optionality; - execution sensitivity. This does **not** imply a separate Consequences service or engine. Reconciliation 2026-09-24 — AR4 — compatible, no collapse. Structured consequences remain separate from the minimum canonical DECIDE input bundle unless a consequence value becomes load-bearing for Recommendation. Current HOLD/CLOSE consequence facts are not copied into the replay bundle merely because they exist. If a future Decision policy consumes a consequence field, the exact consumed value must then become replay-bound under ADR-019. This preserves “consequence semantics before explanation” without turning replay persistence into a duplicate consequence store.",
       "summaryTruncated": false,
       "candidateTransition": "make consequence/economic semantics first-class domain data usable by Policy, Decision, Execution, Explanation, Outcome, and Learning.",
       "pressureFromLvtIds": [
@@ -1308,7 +1312,7 @@
     {
       "id": "AR5",
       "title": "Separate Eligibility, Acceptability, and Comparative Fitness",
-      "summary": "Relative ranking alone always produces a winner, including on a bad board. WAIT and absolute deployment quality require a distinction between: 1. what is feasible/eligible; 2. what is acceptable at all; 3. what is comparatively preferable among survivors.",
+      "summary": "Relative ranking alone always produces a winner, including on a bad board. WAIT and absolute deployment quality require a distinction between: 1. what is feasible/eligible; 2. what is acceptable at all; 3. what is comparatively preferable among survivors. Reconciliation 2026-09-24 — AR5 — unchanged. Eligibility, absolute acceptability, and comparative fitness remain distinct decision responsibilities. ADR-019 governs persistence/replay of the decision inputs and result; it does not collapse or redefine those stages.",
       "summaryTruncated": false,
       "candidateTransition": "evolve Decision/Policy semantics so absolute acceptability is not hidden inside a relative rank score.",
       "pressureFromLvtIds": [
@@ -1321,7 +1325,7 @@
     {
       "id": "AR6",
       "title": "Durable Decision Context and Computation Ownership",
-      "summary": "The strategic roadmap requires continuous reassessment, multi-client consistency, historical replay, attention, and decision provenance. Those needs cannot all depend on an active browser owning the relevant context. The architectural question is broader than \"move the recommendation engine to the backend\": > **Where does authoritative decision context live, and where should deterministic decision evaluation occur?**",
+      "summary": "The strategic roadmap requires continuous reassessment, multi-client consistency, historical replay, attention, and decision provenance. Those needs cannot all depend on an active browser owning the relevant context. The architectural question is broader than \"move the recommendation engine to the backend\": > **Where does authoritative decision context live, and where should deterministic decision evaluation occur?** Reconciliation 2026-09-24 — AR6 — first-slice ownership question materially resolved. For the governed lifecycle-decision slice, AR6's central ownership question now has a ratified answer: > **Authoritative governed context and Decision/disposition history live behind the existing durable backend/SQLite boundary; deterministic lifecycle evaluation remains browser-side unless separately changed.** This demonstrates that durable context ownership and computation placement are separable. AR6 remains broader than this slice because other recommendation paths, portfolio-state authority, continuous reassessment, multi-client consistency, and future computation placement are not globally resolved.",
       "summaryTruncated": false,
       "candidateTransition": "move appropriate state and computation behind a durable/shared boundary while preserving deterministic behavior and avoiding unnecessary service decomposition.",
       "pressureFromLvtIds": [
@@ -1339,7 +1343,7 @@
     {
       "id": "AR7",
       "title": "Decision → Execution → Lifecycle → Outcome Identity",
-      "summary": "Future learning requires Wheelwright to distinguish: - recommendation/decision quality; - execution quality; - outcome quality. That requires durable identity across what was known, what alternatives existed, what was selected, what was intended for execution, what actually filled, how the position evolved, and how it resolved economically. Two useful conceptual identities emerged: - **Decision episode:** what was known, what choices existed, what was selected, and why. - **Lifecycle episode:** what happened after selection through economic resolution. Their exact cardinality and representation are intentionally unresolved, especially for rolling and compound transitions.",
+      "summary": "Future learning requires Wheelwright to distinguish: - recommendation/decision quality; - execution quality; - outcome quality. That requires durable identity across what was known, what alternatives existed, what was selected, what was intended for execution, what actually filled, how the position evolved, and how it resolved economically. Two useful conceptual identities emerged: - **Decision episode:** what was known, what choices existed, what was selected, and why. - **Lifecycle episode:** what happened after selection through economic resolution. Their exact cardinality and representation are intentionally unresolved, especially for rolling and compound transitions. Reconciliation 2026-09-24 — AR7 — Decision-side identity/provenance seam established; downstream remains open. ADR-019 establishes durable Decision identity/history and explicit later Operator Disposition linkage. It does **not** complete: - contemplated Action identity; - broker instruction identity; - authoritative Execution linkage; - lifecycle-episode identity; - outcome identity/cardinality. Therefore AR7 is narrowed, not closed. The ratified boundary reinforces: - Recommendation ≠ operator disposition; - disposition ≠ Action; - Action/handoff ≠ broker execution; - execution/lifecycle fact requires authoritative brokerage evidence.",
       "summaryTruncated": false,
       "candidateTransition": "strengthen the connective tissue between Decision, broker handoff/execution evidence, lifecycle state, and Production/Outcome.",
       "pressureFromLvtIds": [
@@ -1356,7 +1360,7 @@
     {
       "id": "AR8",
       "title": "Learning Requires a Reproducible Temporal Substrate",
-      "summary": "Empirical policy evolution requires a dependency chain: > temporal evidence → decision context/provenance → execution identity → lifecycle/outcome truth → deployment-quality definition → replay/experimentation → policy change Required supporting concerns include policy/recommendation provenance and explicit deployment-quality definitions. Candidate features such as volatility trajectory, factual price geometry, and cross-DTE optionality remain experiments until evidence demonstrates incremental value.",
+      "summary": "Empirical policy evolution requires a dependency chain: > temporal evidence → decision context/provenance → execution identity → lifecycle/outcome truth → deployment-quality definition → replay/experimentation → policy change Required supporting concerns include policy/recommendation provenance and explicit deployment-quality definitions. Candidate features such as volatility trajectory, factual price geometry, and cross-DTE optionality remain experiments until evidence demonstrates incremental value. Reconciliation 2026-09-24 — AR8 — first-slice reproducible Decision substrate established. For the governed lifecycle-decision slice, replay now has a concrete ratified substrate: ```text pinned immutable Governed Context + exact canonical consumed Decision inputs + authoritative evidence provenance + resolved policy/default/threshold values + policy version + evaluator version + bitemporal effective/recorded-time discipline → historical deterministic Recommendation replay ``` Generation/retrieval/provenance identifiers alone are insufficient unless they resolve to immutable recoverable content. AR8 remains open for the complete learning chain because execution identity, lifecycle/outcome truth, deployment-quality definitions, and historical experimentation remain broader concerns.",
       "summaryTruncated": false,
       "candidateTransition": "make point-in-time decision environments reproducible enough to evaluate candidate policies without hindsight contamination.",
       "pressureFromLvtIds": [
@@ -1387,78 +1391,6 @@
       "pressureFromLvtIds": [
         "LVT-GOAL-ACCESS"
       ],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR1",
-      "title": "bounded partial resolution",
-      "summary": "AR1 remains open as a broad concern because portfolio authority, lot/basis/capital state, lifecycle state, and other shared decision context remain wider than this slice. The governed-decision slice now has a ratified durable owner: - immutable account-local Governed Context Versions; - immutable Lifecycle Decision Records; - immutable Operator Disposition Records; - existing Java/SQLite as the shared durable substrate. This is a **partial AR1 resolution**, not a declaration that all authoritative state has moved behind the backend boundary.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR2",
-      "title": "unchanged, but explicitly preserved",
-      "summary": "Attention remains distinct from Decision. The ratified decision-history substrate does not turn a Decision Record into an attention signal and does not authorize continuous browser-independent Attention. A Recommendation may exist without an attention event, and attention/reconsideration remains its own concern.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR3",
-      "title": "compatible, no new pressure",
-      "summary": "The three-record replay architecture does not define the complete Alternative set and does not privilege opening trades over HOLD/WAIT/natural resolution. It is compatible with governed Alternatives because the Decision Record can preserve the Alternatives actually considered without creating a strategy-specific persistence architecture. No new generalized Alternative framework is authorized by ADR-019.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR4",
-      "title": "compatible, no collapse",
-      "summary": "Structured consequences remain separate from the minimum canonical DECIDE input bundle unless a consequence value becomes load-bearing for Recommendation. Current HOLD/CLOSE consequence facts are not copied into the replay bundle merely because they exist. If a future Decision policy consumes a consequence field, the exact consumed value must then become replay-bound under ADR-019. This preserves “consequence semantics before explanation” without turning replay persistence into a duplicate consequence store.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR5",
-      "title": "unchanged",
-      "summary": "Eligibility, absolute acceptability, and comparative fitness remain distinct decision responsibilities. ADR-019 governs persistence/replay of the decision inputs and result; it does not collapse or redefine those stages.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR6",
-      "title": "first-slice ownership question materially resolved",
-      "summary": "For the governed lifecycle-decision slice, AR6's central ownership question now has a ratified answer: > **Authoritative governed context and Decision/disposition history live behind the existing durable backend/SQLite boundary; deterministic lifecycle evaluation remains browser-side unless separately changed.** This demonstrates that durable context ownership and computation placement are separable. AR6 remains broader than this slice because other recommendation paths, portfolio-state authority, continuous reassessment, multi-client consistency, and future computation placement are not globally resolved.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR7",
-      "title": "Decision-side identity/provenance seam established; downstream remains open",
-      "summary": "ADR-019 establishes durable Decision identity/history and explicit later Operator Disposition linkage. It does **not** complete: - contemplated Action identity; - broker instruction identity; - authoritative Execution linkage; - lifecycle-episode identity; - outcome identity/cardinality. Therefore AR7 is narrowed, not closed. The ratified boundary reinforces: - Recommendation ≠ operator disposition; - disposition ≠ Action; - Action/handoff ≠ broker execution; - execution/lifecycle fact requires authoritative brokerage evidence.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
-      "pressureFromRaw": []
-    },
-    {
-      "id": "AR8",
-      "title": "first-slice reproducible Decision substrate established",
-      "summary": "For the governed lifecycle-decision slice, replay now has a concrete ratified substrate: ```text pinned immutable Governed Context + exact canonical consumed Decision inputs + authoritative evidence provenance + resolved policy/default/threshold values + policy version + evaluator version + bitemporal effective/recorded-time discipline → historical deterministic Recommendation replay ``` Generation/retrieval/provenance identifiers alone are insufficient unless they resolve to immutable recoverable content. AR8 remains open for the complete learning chain because execution identity, lifecycle/outcome truth, deployment-quality definitions, and historical experimentation remain broader concerns. ## AR9 / AR10 — no new decision The new durable records use the existing always-on durable substrate and are compatible with future multi-client/access needs, but ADR-019 does not itself authorize cloud deployment, multi-user synchronization, authentication/authorization, or remote action.",
-      "summaryTruncated": false,
-      "candidateTransition": null,
-      "pressureFromLvtIds": [],
       "pressureFromRaw": []
     }
   ],
@@ -4857,6 +4789,15 @@
       "context": "The first `ATTACH TO…` walking slice uses `call-<underlying>-<strike>-<expiration>` as its covered-call subject. That token identifies a reusable option series, not a bounded economic obligation. Full BTC followed by identical STO incorrectly reuses the old association; an additional identical STO can also make ungoverned quantity appear covered. The actual Fidelity History CSV examined in the September 27–28 investigation contains explicit opening, closing, assignment, and expiration transaction semantics. Under the Principal-supplied *scoped premise* of complete relevant History through a defined economic cut, transaction reconciliation can distinguish replacement from continuity without a persistent broker position-instance identifier. The evidence and rejected claims are preserved in Doc 70. Model synthesis and independent bounded falsification preceded the Principal's ratification.",
       "decision": "1. **Bounded governed subject.** For this slice, an attachable existing short-option subject is an opening-anchored cohort with an explicit whole governed quantity `Q`, brokerage account, option-series geometry, establishment evidence and boundary, and a system-managed opaque governance/cohort identity. One unambiguous opening or an unambiguously bounded set of openings may establish the whole cohort. Partial attachment and allocation of indistinguishable same-series openings are outside this decision.\n2. **Identity and authority remain distinct.** The opaque governance identity durably names the authority act/cohort record; account plus option series identifies neither economic occurrence nor continuity. Brokerage evidence establishes lifecycle facts, not Program membership. Only an authoritative governance act establishes membership from its effective boundary, with its own recorded-time boundary, Program/configuration, and provenance (Doc 69; ADR-016/019/021).\n3. **Conditional continuity.** A later Decision may establish that the *entire original `Q`* remains currently applicable only when an accepted, temporally admissible completeness assertion covers every relevant option lifecycle event economically effective from establishment through the Decision evidence cut; every potentially reducing or extinguishing event is authoritatively interpreted with sufficient ordering; the cohort's full quantity survives every admissible interpretation; and compatible brokerage position observations reconcile at the relevant cuts. Missing completeness, parse coverage, temporal alignment, or reconciliation fails closed. The Principal's assurance is a scoped premise, **not** a universal Fidelity guarantee or a claim that any particular export is automatically Decision-admissible.\n4. **Quantity and exhaustion.** Additional identical-series openings never inherit membership; the original `Q` may remain a governed proper subset of a larger aggregate if no event can have reduced it. An ambiguous later reduction after governed and ungoverned quantities mix prevents affirmative current applicability. Full authoritative exhaustion ends current applicability; identical reopening cannot revive the old cohort. Historical attachment remains true and immutable. A known partial survivor of an entire attached `Q` is an economic fact, but residual Program applicability remains `POLICY_UNDEFINED` until separately ratified. Full-`Q` intact being false is not negative membership.\n5. **Time, correction, and replay.** Economic effective time, governance effective time, evidence/authority recorded time, Decision as-of time, and knowledge cutoff remain distinct. A later-recorded correction or backfill may change future assessments but never silently enters an earlier Decision's knowledge set or rewrites its replay-bound picture. Decisions must pin the exact consumed continuity evidence and accepted completeness premise, or immutable recoverable references, under ADR-019/021.\n6. **Boundary.** Public Recommendation vocabulary remains `LET RESOLVE | SELL CALL | UNRESOLVED`. This decision does not ratify a particular Fidelity export as complete, an assertion-acquisition UX, parser behavior, evidence-admission mechanism, technical Solution Design, partial membership, transfers into a governed cohort, share-block identity, a general event-sourcing framework, or implementation. The existing series-key ATTACH implementation does **not** conform to this decision merely because it persists an association.\n\n**Architectural consequence:** The existing Java/SQLite governed-decision substrate is a compatible durable boundary, and browser-side deterministic evaluation need not move merely to satisfy this decision. A separately reviewed technical design must establish source-row semantic admission, economic/endpoint cut alignment, correction and overlap handling, single ownership of the continuity claim, fresh-client recovery, and exact replay. Doc 70 records the first bounded Solution Design candidate and its independent rejection without promoting it to accepted architecture.",
       "consequences": null
+    },
+    {
+      "id": "ADR-023",
+      "title": "Successor Knowledge Architecture — Maintained Learning, Product Realization and Context",
+      "date": "October 18, 2026",
+      "status": "**Principal-ratified architectural foundation (D1–D5)**; design and implementation details below remain unratified unless explicitly covered here.",
+      "context": null,
+      "decision": null,
+      "consequences": null
     }
   ],
   "priority": {
@@ -4953,6 +4894,13 @@
     ]
   },
   "principles": [
+    {
+      "id": "PRIN-ARCH-HOLISTIC-DOMAIN-API",
+      "name": "Holistic domain-first API design",
+      "family": "Architectural / build",
+      "statement": "Design and evaluate the public API as one coherent representation of Wheelwright's domain and intended capabilities, not as isolated endpoint solutions to the current feature. Inspect URI topology, resource identity, relationships, collection/instance meaning and composition across the API before accepting local additions.",
+      "provenance": "`docs/foundations/holistic-domain-first-api-design-principle-2026-10-18.md` (Principal explicit ratification, October 18, 2026); consistent with Doc 77, Doc 82 and the October 13 REST reconciliation."
+    },
     {
       "id": "PRIN-POLICY-OVER-PREDICTION",
       "name": "Policy over prediction",

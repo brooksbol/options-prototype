@@ -8,6 +8,8 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 // @ts-expect-error - .mjs parser module has no type declarations; shapes asserted in tests.
 import {
   parseLvt,
@@ -235,6 +237,107 @@ describe("parseArchitecture — dated reconciliation identity", () => {
     expect(pressures[0].summary).toContain("bounded partial resolution");
     expect(pressures[0].summary).toContain("broader state remains open");
     expect(pressures[1].summary).toContain("Attention stays distinct.");
+  });
+
+  it("captures a date after other top-level material and distinguishes multiple reconciliations", () => {
+    const source = [
+      "## AR1 — Original Pressure", "Baseline meaning.",
+      "# Other material", "Not pressure prose.",
+      "# 2026-09-24 First reconciliation", "## AR1 — partial resolution",
+      "First scoped result; broader pressure remains open.",
+      "# 2026-10-07 Second reconciliation", "## AR1 — later qualification",
+      "Second result does not authorize implementation.",
+    ].join("\n");
+    const { pressures } = parseArchitecture(source, new Map());
+    expect(pressures).toHaveLength(1);
+    expect(pressures[0].title).toBe("Original Pressure");
+    expect(pressures[0].summary).toBe(
+      "Baseline meaning. Reconciliation 2026-09-24 — AR1 — partial resolution. " +
+      "First scoped result; broader pressure remains open. " +
+      "Reconciliation 2026-10-07 — AR1 — later qualification. " +
+      "Second result does not authorize implementation.",
+    );
+    expect(pressures[0].pressureFromLvtIds).toEqual([]);
+    expect(pressures[0].pressureFromRaw).toEqual([]);
+    expect(pressures[0].candidateTransition).toBeNull();
+  });
+
+  it("does not invent a date or carry an earlier date into an undated section", () => {
+    const source = [
+      "## AR1 — Original Pressure", "Baseline meaning.",
+      "## AR1 — undated update", "No date was supplied.",
+      "# 2026-09-24 Dated reconciliation", "## AR1 — dated update", "Dated result.",
+      "# Undated reconciliation", "## AR1 — unknown date", "Date remains unknown.",
+    ].join("\n");
+    const { pressures } = parseArchitecture(source, new Map());
+    expect(pressures[0].summary).toBe(
+      "Baseline meaning. Reconciliation undated — AR1 — undated update. No date was supplied. " +
+      "Reconciliation 2026-09-24 — AR1 — dated update. Dated result. " +
+      "Reconciliation undated — AR1 — unknown date. Date remains unknown.",
+    );
+  });
+
+  it("keeps shared reconciliation context out of the preceding AR summary", () => {
+    const source = [
+      "## AR8 — Learning Pressure", "Original AR8 meaning.",
+      "## AR9 — Continuity Pressure", "Original AR9 meaning.",
+      "## AR10 — Access Pressure", "Original AR10 meaning.",
+      "# 2026-09-24 Reconciliation", "Ratified partial progress, not implementation permission.",
+      "## AR8 — bounded result", "AR8-specific result, still open.",
+      "## AR9 / AR10 — no new decision", "Neither cloud nor remote action is authorized.",
+      "## Simplicity result", "No new service topology.",
+    ].join("\n");
+    const { pressures, notes } = parseArchitecture(source, new Map());
+    expect(pressures.map((p: { id: string }) => p.id)).toEqual(["AR8", "AR9", "AR10"]);
+    expect(pressures.map((p: { summary: string }) => p.summary)).toEqual([
+      "Original AR8 meaning. Reconciliation 2026-09-24 — AR8 — bounded result. AR8-specific result, still open.",
+      "Original AR9 meaning.", "Original AR10 meaning.",
+    ]);
+    expect(notes).toEqual([
+      "# 2026-09-24 Reconciliation Ratified partial progress, not implementation permission.",
+      "Reconciliation 2026-09-24 — AR9 / AR10 — no new decision Neither cloud nor remote action is authorized.",
+      "Reconciliation 2026-09-24 — Simplicity result No new service topology.",
+    ]);
+  });
+
+  it("preserves all ten canonical pressures and every dated AR1–AR8 reconciliation body", () => {
+    const source = readFileSync(resolve(__dirname, "../../../docs/architecture-roadmap.md"), "utf8");
+    const marker = "# 2026-09-24 Governed-Decision Persistence / Replay Reconciliation";
+    const [original, amendments] = source.split(marker);
+    expect(amendments).toBeDefined();
+    const { aliasToId } = parseLvt(readFileSync(resolve(__dirname, "../../../docs/roadmap.md"), "utf8"));
+    const baseline = parseArchitecture(original, aliasToId).pressures;
+    const { pressures, notes } = parseArchitecture(source, aliasToId);
+    const ids = Array.from({ length: 10 }, (_, i) => `AR${i + 1}`);
+    expect(baseline.map((p: { id: string }) => p.id)).toEqual(ids);
+    expect(pressures.map((p: { id: string }) => p.id)).toEqual(ids);
+    expect(new Set(pressures.map((p: { id: string }) => p.id)).size).toBe(10);
+    const sections = amendments.split(/\n(?=## )/);
+    const sharedNotes = sections.filter((section: string) => !/^## AR[1-8] — /.test(section));
+    expect(sharedNotes).toHaveLength(3);
+    expect(notes).toEqual([
+      ...parseArchitecture(original, aliasToId).notes,
+      faithfulExcerpt(`${marker}\n${sharedNotes[0]}`, Infinity).text,
+      ...sharedNotes.slice(1).map((section: string) =>
+        faithfulExcerpt(`Reconciliation 2026-09-24 — ${section.slice(3)}`, Infinity).text),
+    ]);
+    const reconciled: string[] = [];
+    for (const section of sections) {
+      const match = section.match(/^## (AR[1-8]) — ([^\n]+)\n([\s\S]*)$/);
+      if (!match) continue;
+      const [, id, title, body] = match;
+      reconciled.push(id);
+      const before = baseline.find((p: { id: string }) => p.id === id);
+      const after = pressures.find((p: { id: string }) => p.id === id);
+      // Compare the complete body, including limitations and ratification scope,
+      // not just counts or selected words. Relationships and titles stay intact.
+      expect(after).toEqual({
+        ...before,
+        summary: `${before.summary} ${faithfulExcerpt(`Reconciliation 2026-09-24 — ${id} — ${title}.\n${body}`, Infinity).text}`,
+      });
+    }
+    expect(reconciled).toEqual(ids.slice(0, 8));
+    expect(pressures.slice(8)).toEqual(baseline.slice(8));
   });
 });
 
