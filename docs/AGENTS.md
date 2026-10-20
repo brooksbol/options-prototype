@@ -27,6 +27,18 @@ When reporting retrieval coverage, distinguish these activities and disclose mat
 | 6 | Complete `parking-lot*.md` sequence | Enumerate every continuation and inspect headings/IDs/current-state matches across all files; read full entries only for the active task or a specific backlog inquiry. |
 | 7 | `principles.md` | Canonical Principles register, ratified principles, and candidate boundary. |
 
+### Principal shorthand: "write this down" — durable-learning request
+
+When the Principal says "write this down", "remember this", or an equivalent phrase about Wheelwright work, treat it as an instruction to **complete a bounded knowledge-capture and reconciliation workflow**, not merely to suggest a filename, append indiscriminately to a journal, or propose a new principle. Follow `bootstrap/project-memory-protocol.md`, ADR-023, the A–F authority model and the existing `knowledge/` owner / `assimilation-obligations.md` mechanisms.
+
+1. Capture the **exact Principal wording** where available, subject, practical example, why it matters, date/context, and a source locator. Keep actor interpretations and implications separately labeled.
+2. Recover prior decisions and nearest maintained subject authority; identify whether this reinforces, corrects, contradicts, or adds to it. Preserve proposed, accepted, ratified, rejected and unresolved standing. Do not infer ratification from a memorable phrase or from this instruction.
+3. Use the **existing** appropriate destination: amend an established maintained owner or governing artifact only when its semantics and mutation authority permit; otherwise preserve the scoped historical finding in the existing journal/checkpoint route and make the missing-assimilation disposition explicit. If an `ASSIM-*` obligation is warranted, use the canonical ledger and its required receipt/permission workflow; do not silently create an unsourced obligation or a new register.
+4. Within the actual authorization for repository persistence, carry the work through verification and accepted-main synchronization. Do not demand that the Principal select a document path or restate previously supplied context. A Principal request to record knowledge authorizes documentation handling within existing constraints, **not** new Product ratification, software changes, trading actions or bypass of guarded Git workflows.
+5. If the actor cannot write the repository, or a consequential boundary remains, produce an explicit portable handoff with exact content, proposed existing destination, status, blockers and responsible receiver. Do **not** claim "written down" merely because the chat or an uncommitted local file contains it. Report the verified commit/path when persisted, otherwise say plainly that persistence remains pending.
+
+This shorthand applies to Product, architecture, engineering, UX, operating-model and domain learning, including topics not yet represented under `knowledge/`. Lack of a maintained owner is an assimilation gap to route, not permission to invent authority. Success means a fresh actor can recover the consequential meaning **by subject** without knowing the original quotation or journal number.
+
 ### Maintained knowledge and assimilation obligations — routing
 
 - `knowledge/README.md` indexes maintained subject owners for current domain meaning. When a task touches a listed subject, read its owner page before historical sources; follow its citations for standing and scope.
