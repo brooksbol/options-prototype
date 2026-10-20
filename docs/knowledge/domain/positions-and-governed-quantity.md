@@ -18,6 +18,21 @@
 
 <a id="position"></a>
 
+
+### October 20 Construction reconciliation — scoped subsequent direction
+
+*Standing: Principal-selected working Product/ontology direction in Doc 82's October 20 addendum; independent falsification still pending, and no operative OAS or implementation authorization follows.*
+
+The October 7 candidate above (“construction occurrence is not a separate entity”) is **historical**, and has been superseded **for the Construction resource-design candidate only**. The subsequent Principal direction distinguishes reusable declarative **Construction Models** from actual **Construction Instances** associated with a Position and Account. The latter are independently inspectable, **provisionally write-once** composition states so a Position may link to its earlier and current Construction instances; changes to held constituents can create another instance. A Position's own stable identity and transition/termination semantics remain **unresolved** under `ASSIM-0002`.
+
+A Construction can recursively bind typed financial constituent quantities (cash, long shares and option exposures) or nested Constructions, with a finite leaf boundary and decomposition/recomposition preservation of quantity, traceability, attributable economics, history, collateral and payoff. Subconstructions are not automatically separately managed Positions. A structural match does **not** independently establish constituent membership (ADR-016). Cash/share partitions remain reconciled against actual Account inventory without double counting. Collateral is an evidence-qualified quantity relationship, not automatically an endpoint; availability cannot be inferred merely from residual quantity.
+
+Orders remain independently meaningful brokerage **instructions** and Executions evidence realized changes. A *candidate shared structural grammar* can represent both Position-held constituent composition and an Order's proposed action composition, with any Order-to-Position/Construction association independently evidenced and qualified. No unfilled Order changes held inventory merely by existing.
+
+Current **candidate** URI distinction: `/v2/constructions/{constructionId}` denotes an actual instance; `/v2/constructions/models/{modelId}` denotes a reusable declarative model. Instance `accountId` and `positionId` are relationships/fields, not mandatory nested URI structure. Exact model revisions, schema, algorithm and lifecycle design remain engineering work. Historical model interpretation must remain reproducible. No strategy or margin implementation is implied.
+
+See [Doc 82 October 20 Construction addendum](../../82-v2-ontology-resource-semantic-coverage-reconciliation-2026-10-07.md#october-20-2026--principal-directed-construction-ontology-refinement) and [checkpoint](../../discovery/construction-ontology-uri-order-composition-checkpoint-2026-10-20.md). An independent actor must still falsify this reconciliation before declaring the foundational domain accepted.
+
 ### Current meaning
 
 *Standing: Principal-ratified v2 resource-design candidate, October 7, 2026 (Doc 82). "Resource/semantic authority for the candidate model; not implementation authority."*
