@@ -23,3 +23,14 @@ Long Shares    ╱       (rising everywhere)
 # Real accepted IC renderer and actual golden expectations live in:
 # scripts/tastytrade-payoff-render.mjs
 # scripts/tastytrade-payoff-render.test.mjs
+
+# Principal-confirmed October 20, 2026: ONE-ROW vertical-spread schematic inventory.
+# The lower tail MUST be visibly bottom-aligned ▁; upper tail MUST be top-aligned ▔.
+# ▲ is current spot, shown in cyan by the renderer. Color regions may use
+# red lower, yellow transition, green upper; these are geometric/economic
+# illustration colors, NOT operator-intent or universally profitable outcomes.
+# These are the approved conceptual silhouettes, not pixel-perfect terminal goldens.
+Bullish Vertical  ▁▁▁▁▁╱▔▔▔▔▔▔▔▲▔▔▔▔▔
+Bearish Vertical  ▔▔▔▔▔▔▔▲▔▔▔▔▔╲▁▁▁▁▁
+# This corrects the previous ambiguous underscore/overbar treatment; preserve
+# the original tastytrade dropdown transcription above as historical reference.
