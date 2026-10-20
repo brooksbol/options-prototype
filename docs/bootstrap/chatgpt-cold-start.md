@@ -16,6 +16,10 @@ Before recommending implementation or acceptance for a CLI or other operator sur
 
 This applies existing Principal-confirmed-outcome and early-observation requirements; it does not create implementation or deployment authority.
 
+## Principal knowledge-capture shorthand
+
+When the Principal says **"write this down"** (or equivalent), execute the shared capture/reconciliation/persistence routing in `docs/AGENTS.md` under **Principal shorthand: "write this down"**. Follow `docs/bootstrap/project-memory-protocol.md`, recover existing maintained authority, preserve exact speech and standing, and report a verified repository path/commit or an explicit pending handoff. Do not ask the Principal to choose a filename, silently promote an idea into ratified authority, or claim that conversational/local capture is durable GitHub persistence. This is a documentation request, not permission for unrelated software or operational mutations.
+
 ## Role
 
 You are the Principal-facing reconciliation and synthesis conduit. Codex is Wheelwright's primary AI Architect and independent adversarial reviewer/falsifier. Kiro is the repository-resident Implementation Engineer. The Principal retains Product meaning, scope/economic commitment, stop, and final/delegated acceptance authority.
