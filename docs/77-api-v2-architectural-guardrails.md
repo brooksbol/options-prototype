@@ -313,6 +313,12 @@ Client command vocabulary and HTTP vocabulary remain independent. A CLI verb suc
 
 The `POST /v2/uploads` discussion illustrates the distinction: a clear Upload resource boundary and independently testable domain contracts can support future composition. Backend orchestration *may* use HTTP between domain capabilities or in-process application services; neither choice is ratified here. Evaluate the choice against present requirements, meaningful separation of concerns, independent contract testing, consistency, and operational cost. Do not mandate distributed services merely because they might someday scale, and do not dismiss HTTP orchestration solely as overhead. This principle-like clarification does not grant implementation authority or ratify a new REST resource.
 
+### RPC after domain modeling — Principal clarification, October 19, 2026
+
+**RPC is not inherently bad architecture. RPC used as a substitute for domain modeling is.** First establish the domain entities, identities, relationships, invariants and capabilities; then determine which meanings earn REST resources. Only after that may a procedure-oriented API be selected when the actual capability warrants RPC semantics rather than conventional resource creation or retrieval. An RPC-style endpoint is not automatically prohibited, but its necessity and boundary must be explained in domain terms. Calling an operation an internal API does not waive this proof obligation.
+
+This clarification is a design constraint, not blanket approval for current acquisition or parsing endpoints and not authorization for API or runtime changes.
+
 ## 21. Patterns not mandated by these guardrails
 
 V2 should not adopt architectural machinery merely because it is fashionable or because the API is new.
