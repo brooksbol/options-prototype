@@ -140,3 +140,6 @@ The full sequential suite is active at /tmp/ww-full-reference-session.log (sessi
 
 
 Reference/session full milestone result:901 tests,0 failures/errors,2 skipped,5m15s (/tmp/ww-full-reference-session.log; results/backend-milestone-05.json saved before later test runs). A subsequent sequential Portfolio subset passed7s after clearing generated captures;99 actual Java payloads/0 schema violations (results/runtime-schema-milestone-05.txt). Actual Java/accepted Node session parity9cases passes. This remains a partial implementation milestone, not full API completion, live brokerage or independent acceptance.
+
+
+Post58c6cd9 warning-navigation correction: collection refresh warnings rebase evaluation targets to/items; individual Order source warnings target the Order representation root rather than a nonexistent/items field. AffectedHoldingIds now contains deduplicated actual holding GUIDs and omits unknown support identity instead of emitting empty strings/URIs. Targeted Portfolio suite passes7s (/tmp/ww-warning-targets-and-holding-ids.log); tests resolve every emitted failed-refresh collection pointer and each affected holding ID. The901 full run predates this bounded navigation edit; no claim of a newer full result. Financial quantities, grants and reconciliation decisions are unchanged.

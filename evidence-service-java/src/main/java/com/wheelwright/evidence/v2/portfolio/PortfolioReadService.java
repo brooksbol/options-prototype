@@ -39,7 +39,7 @@ public final class PortfolioReadService {
   }
   if(d.kind()==Kind.CONSTRUCTION){var parent=repo.get(n.at("/position/href").asText());if(parent.isPresent()&&parent.get().value().at("/currentConstruction/href").asText().equals(d.uri())&&!parent.get().value().path("state").asText().equals("CLOSED"))qualifyConstruction(n,reconciliation(d.account(),now));}
   if(d.kind()==Kind.MARKET_OBSERVATION)n=PortfolioSessionEvidence.qualify(n,now,d.account()==null?Optional.empty():PortfolioSessionEvidence.read(repo,d.account(),now));
-  if(d.kind()==Kind.ORDER)for(var warning:sourceWarnings(Set.of(d.account())))((ArrayNode)n.get("warnings")).add(warning);
+  if(d.kind()==Kind.ORDER)for(var warning:sourceWarnings(Set.of(d.account()))){((ObjectNode)warning).set("affected",array().add(""));((ArrayNode)n.get("warnings")).add(warning);}
   return PortfolioAuthorization.project(new Document(d.kind(),d.uri(),d.account(),n,d.snapshot(),d.sourceKey()),p);
  }
  /** Preserve the retained resource's Account boundary even when its underlying reference source is shared. */
@@ -74,8 +74,8 @@ public final class PortfolioReadService {
  /** Global contradictions qualify affected results without deleting broker-reported facts. */
  static void propagate(ObjectNode position,ObjectNode reconciliation){
   String uri=position.at("/self/href").asText(),construction=position.at("/currentConstruction/href").asText();var affected=array();String code=null;
-  for(var balance:reconciliation.path("balances"))if(Set.of("OVERALLOCATED","UNKNOWN").contains(balance.path("status").asText()))for(var c:balance.path("currentConstructions"))if(c.path("href").asText().equals(construction)){affected.add(balance.at("/inventory/holding/href").asText());code=balance.path("status").asText().equals("OVERALLOCATED")?"INVENTORY_OVERALLOCATED":"HOLDING_RECONCILIATION_CONFLICT";}
-  for(var assessment:reconciliation.path("coverageAssessments"))if(!assessment.path("status").asText().equals("SUFFICIENT"))for(var obligation:assessment.path("obligations"))if(obligation.path("href").asText().equals(uri)){affected.add(assessment.at("/supportHolding/href").asText());if(code==null)code=assessment.path("status").asText().equals("INSUFFICIENT")?"COVERAGE_INSUFFICIENT":"ASSOCIATION_UNRESOLVED";}
+  for(var balance:reconciliation.path("balances"))if(Set.of("OVERALLOCATED","UNKNOWN").contains(balance.path("status").asText()))for(var c:balance.path("currentConstructions"))if(c.path("href").asText().equals(construction)){affectedHolding(affected,balance.at("/inventory/holding/href").asText());code=balance.path("status").asText().equals("OVERALLOCATED")?"INVENTORY_OVERALLOCATED":"HOLDING_RECONCILIATION_CONFLICT";}
+  for(var assessment:reconciliation.path("coverageAssessments"))if(!assessment.path("status").asText().equals("SUFFICIENT"))for(var obligation:assessment.path("obligations"))if(obligation.path("href").asText().equals(uri)){affectedHolding(affected,assessment.at("/supportHolding/href").asText());if(code==null)code=assessment.path("status").asText().equals("INSUFFICIENT")?"COVERAGE_INSUFFICIENT":"ASSOCIATION_UNRESOLVED";}
   boolean represented=false;for(var balance:reconciliation.path("balances"))for(var current:balance.path("currentConstructions"))if(current.path("href").asText().equals(construction))represented=true;
   if(code==null&&!represented)code="HOLDING_RECONCILIATION_CONFLICT";
   if(code==null){((ObjectNode)position.path("allocation")).put("status","RECONCILED");return;}boolean conflict=Set.of("INVENTORY_OVERALLOCATED","COVERAGE_INSUFFICIENT").contains(code);String status=conflict?"CONFLICT":"INCOMPLETE";var allocation=(ObjectNode)position.path("allocation");allocation.put("status",conflict?"CONFLICT":"UNKNOWN");allocation.set("affectedHoldingIds",affected);
@@ -86,6 +86,7 @@ public final class PortfolioReadService {
   var payoff=(ObjectNode)evaluation.path("payoff");payoff.put("status",status).putNull("geometry");payoff.set("warningCodes",array().add(code));targets.add("/evaluation/payoff");var range=(ObjectNode)evaluation.path("range");range.put("status",status).put("kind","UNAVAILABLE").putNull("lower").putNull("upper");range.set("warningCodes",array().add(code));targets.add("/evaluation/range");
   var w=warning(code,"/allocation","Broker-reported custody facts remain independently inspectable.","Account-wide competing allocations or coverage invalidate dependent conclusions.");w.set("affected",targets);((ArrayNode)position.get("warnings")).add(w);
  }
+ private static void affectedHolding(ArrayNode affected,String uri){if(!uri.startsWith("/v2/holdings/"))return;String id=uri.substring("/v2/holdings/".length());for(var existing:affected)if(existing.asText().equals(id))return;affected.add(id);}
  /** Request-time global qualifications; retained immutable composition/source records are not rewritten. */
  static void qualifyConstruction(ObjectNode construction,ObjectNode reconciliation){
   String uri=construction.at("/self/href").asText(),position=construction.at("/position/href").asText();
