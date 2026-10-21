@@ -82,6 +82,9 @@ public class BrokerageArtifacts {
                     if(scoped)return new SourceScope(true,Set.of(owner));
                 }catch(Exception invalid){return SourceScope.unknown();}}
             }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_MARKET_SESSION' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next())try{com.wheelwright.evidence.v2.portfolio.PortfolioSessionEvidence.validate(bytes);return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}}
+            }
             return SourceScope.unknown();
         }
         if (!sourceAccount.map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))

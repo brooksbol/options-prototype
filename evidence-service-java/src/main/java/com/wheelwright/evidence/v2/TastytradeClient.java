@@ -120,6 +120,21 @@ public class TastytradeClient {
         catch(Exception e){throw new IllegalStateException("market acquisition unavailable");}
     }
 
+    /** Read-only current equities session context; never a historical price substitute. */
+    public byte[] equitySession()throws Exception {
+        if(!configured())throw new IllegalStateException("session acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();
+        try{
+            String token=accessToken(expires);
+            var request=HttpRequest.newBuilder(base.resolve("/market-time/equities/sessions/current")).timeout(deadline).header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+            var bytes=reply.body();var secrets=List.of(clientId,clientSecret,refreshToken,token);String content=new String(bytes,StandardCharsets.UTF_8);for(String secret:secrets)if(content.contains(secret))throw new IllegalStateException();
+            if(!safeDocument(TastytradeHoldings.document(bytes),secrets))throw new IllegalStateException();return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("session acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("session acquisition unavailable");}
+    }
+
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
 
     /** Fresh OAuth access token via refresh-token exchange. No durable cache; the
