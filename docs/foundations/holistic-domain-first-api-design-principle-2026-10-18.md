@@ -21,3 +21,19 @@ The same session established: "The principal can detect design flaws in a rest a
 Before introducing or expanding an API resource, assess the proposed URI in the context of the **whole current and intended domain resource model**. Ask what domain entity or relationship the URI identifies, whether the collection and instance semantics are faithful, whether it leaks a provider/client/acquisition workflow, and whether adjacent resources compose without competing identities or authority. Begin with a URI-topology critique; use code/contract inspection to validate—not substitute for—that architectural reasoning.
 
 This principle does not mandate a resource for every ontology noun, identical URI nesting, a wholesale API replacement, or a pause in working-software delivery. Apply alongside Doc 77, Doc 82, and the October 13 REST reconciliation.
+
+## Principal clarification — API as an independent Product (October 20, 2026)
+
+**Standing:** Principal-accepted architectural clarification reinforcing the existing ratified holistic domain-first API principle; not a separately ratified principle, new implementation permission, or requirement to preserve alpha API compatibility.
+
+**Principal wording (conversation, October 20, 2026):**
+
+> one more thing on this point: a clean domain model supports extensibility and scalability and ultimately enhances usability if you think of the API itself as a product, separate from any client.
+
+The Principal then explicitly requested that this be written down. In the immediately preceding discussion, the Principal also stated:
+
+> the current v2 is an alpha. we have no compatability constraints. we don't have to explain anything to anyone but ourselves at this point. i reject any sunk cost argument.
+
+**Design consequence (interpretation of the clarification):** Evaluate Wheelwright's public API as an independently usable Product. A coherent financial domain model, clear resource identity, composable relationships and client-independent representations should support extensibility, scalability and usability across CLI, graphical and agentic consumers. The accepted `tt live` experience is an essential Product precedent but its constrained one-row Unicode projection must not limit the domain's exact financial meaning or API representation. Existing alpha v2 routes/schemas/code are implementation evidence and potential reuse, not a backwards-compatibility veto. Preserve authoritative financial evidence, correct semantics and relevant source history; reject features that entrench accidental alpha semantics or optimize only for a single screen.
+
+**Reconciliation:** This clarification strengthens the existing Principle and the ratified API v2 guardrails in `docs/77-api-v2-architectural-guardrails.md` (one API, many clients; backend authority), without adding a second duplicate principle to `docs/principles.md` or independently ratifying a new Product Principle. It informs the ongoing API v2 adversarial-review dispositions, especially Codex Finding 5, whose proposed compatibility obligation was rejected by the Principal for alpha v2. No application code, OAS, or API resource contract is changed by this note.
