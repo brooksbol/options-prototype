@@ -9,6 +9,7 @@ import java.util.*;
 
 /** Pure held read. Exact account grant checked before storage access. */
 @RestController
+@org.springframework.context.annotation.Profile("legacy-position-contract-tests")
 public class PositionsController {
     public record CollectionRead(String requestId,List<PositionSnapshot.Read> snapshots) {}
     public record ObservationCollection(String requestId,List<PositionSnapshot.ObservationSummary> observations) {}

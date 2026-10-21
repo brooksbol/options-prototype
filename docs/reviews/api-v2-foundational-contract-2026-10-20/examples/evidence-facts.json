@@ -1,0 +1,965 @@
+{
+  "standing": "SYNTHETIC_SCOPED_CLAIM_WITNESSES_NOT_BROKER_GUARANTEES",
+  "facts": {
+    "general": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "DOCUMENTED_SYNTHETIC_FACTS",
+      "subjects": [
+        "/v2/accounts/acct_11111111111111111111111111111111"
+      ],
+      "note": "Fixture observations, not live brokerage records"
+    },
+    "membership-87841fd1-ceb7-5603-aae9-e886f4fb6a52": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+      ],
+      "nodes": [
+        "SHARES",
+        "CALL"
+      ]
+    },
+    "holding-3544965f-4cdc-56a4-8485-0bf086d5efd7": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+      ],
+      "quantity": "250",
+      "side": "LONG",
+      "instrument": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f",
+      "snapshotId": "synthetic-source-cut-shares-250"
+    },
+    "allocation-87841fd1-ceb7-5603-aae9-e886f4fb6a52-SHARES": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+      ],
+      "quantity": "100"
+    },
+    "basis-87841fd1-ceb7-5603-aae9-e886f4fb6a52-SHARES": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+      ],
+      "basisMagnitude": "9500",
+      "openingCashFlow": "-9500",
+      "side": "LONG",
+      "unit": "SHARE"
+    },
+    "holding-9f044f52-bafe-58be-8ad9-a6222a69eae9": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/af77f967-6ef5-5abe-a577-2eba68e2f71b"
+      ],
+      "quantity": "1",
+      "side": "SHORT",
+      "instrument": "/v2/instruments/7d791dc8-be51-5382-a1fc-010f12d20bdc",
+      "snapshotId": "synthetic-source-cut-CALL"
+    },
+    "allocation-87841fd1-ceb7-5603-aae9-e886f4fb6a52-CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+        "/v2/holdings/af77f967-6ef5-5abe-a577-2eba68e2f71b"
+      ],
+      "quantity": "1"
+    },
+    "basis-87841fd1-ceb7-5603-aae9-e886f4fb6a52-CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+        "/v2/holdings/af77f967-6ef5-5abe-a577-2eba68e2f71b"
+      ],
+      "basisMagnitude": "200",
+      "openingCashFlow": "200",
+      "side": "SHORT",
+      "unit": "CONTRACT"
+    },
+    "coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "AGGREGATE_COVERAGE",
+      "subjects": [
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361",
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+      ],
+      "eligible": "250",
+      "required": "100",
+      "reservation": false
+    },
+    "membership-50e8938b-d738-573b-94e7-137b87239f72": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72"
+      ],
+      "nodes": [
+        "LOW",
+        "MID",
+        "HIGH"
+      ]
+    },
+    "holding-d845900a-d09b-5e18-b5d2-e3dfc04b60f5": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+      ],
+      "quantity": "1",
+      "side": "LONG",
+      "instrument": "/v2/instruments/1f232b01-90a9-534b-92f2-a622e55ba95d",
+      "snapshotId": "synthetic-source-cut-LOW"
+    },
+    "allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72",
+        "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+      ],
+      "quantity": "1"
+    },
+    "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72",
+        "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+      ],
+      "basisMagnitude": "1500",
+      "openingCashFlow": "-1500",
+      "side": "LONG",
+      "unit": "CONTRACT"
+    },
+    "holding-b739c060-0458-51ec-8520-4bdba9ac718f": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/ef0903ba-0093-5817-b226-7434b3cb4b92"
+      ],
+      "quantity": "2",
+      "side": "SHORT",
+      "instrument": "/v2/instruments/7d791dc8-be51-5382-a1fc-010f12d20bdc",
+      "snapshotId": "synthetic-source-cut-MID"
+    },
+    "allocation-50e8938b-d738-573b-94e7-137b87239f72-MID": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72",
+        "/v2/holdings/ef0903ba-0093-5817-b226-7434b3cb4b92"
+      ],
+      "quantity": "2"
+    },
+    "basis-50e8938b-d738-573b-94e7-137b87239f72-MID": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72",
+        "/v2/holdings/ef0903ba-0093-5817-b226-7434b3cb4b92"
+      ],
+      "basisMagnitude": "1000",
+      "openingCashFlow": "1000",
+      "side": "SHORT",
+      "unit": "CONTRACT"
+    },
+    "holding-02f37b4f-d09c-5668-b7bf-68620196ee37": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/d12ce91a-600b-5367-8274-1046e177703a"
+      ],
+      "quantity": "1",
+      "side": "LONG",
+      "instrument": "/v2/instruments/b75ce10d-2ea8-5c37-80a5-6296ec142406",
+      "snapshotId": "synthetic-source-cut-HIGH"
+    },
+    "allocation-50e8938b-d738-573b-94e7-137b87239f72-HIGH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72",
+        "/v2/holdings/d12ce91a-600b-5367-8274-1046e177703a"
+      ],
+      "quantity": "1"
+    },
+    "basis-50e8938b-d738-573b-94e7-137b87239f72-HIGH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72",
+        "/v2/holdings/d12ce91a-600b-5367-8274-1046e177703a"
+      ],
+      "basisMagnitude": "200",
+      "openingCashFlow": "-200",
+      "side": "LONG",
+      "unit": "CONTRACT"
+    },
+    "membership-640b7e83-6cd0-5748-977f-4acb34c97302": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/640b7e83-6cd0-5748-977f-4acb34c97302"
+      ],
+      "nodes": [
+        "UNKNOWN_CALL",
+        "UNKNOWN_PUTS"
+      ]
+    },
+    "holding-a16eb238-6e8b-5888-96ca-b87aa12fb486": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/fd95d0cb-d9e1-5a86-b67a-07e1cb272e3c"
+      ],
+      "quantity": "1",
+      "side": "LONG",
+      "instrument": "/v2/instruments/7d791dc8-be51-5382-a1fc-010f12d20bdc",
+      "snapshotId": "synthetic-source-cut-UNKNOWN_CALL"
+    },
+    "allocation-640b7e83-6cd0-5748-977f-4acb34c97302-UNKNOWN_CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/640b7e83-6cd0-5748-977f-4acb34c97302",
+        "/v2/holdings/fd95d0cb-d9e1-5a86-b67a-07e1cb272e3c"
+      ],
+      "quantity": "1"
+    },
+    "basis-640b7e83-6cd0-5748-977f-4acb34c97302-UNKNOWN_CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/640b7e83-6cd0-5748-977f-4acb34c97302",
+        "/v2/holdings/fd95d0cb-d9e1-5a86-b67a-07e1cb272e3c"
+      ],
+      "basisMagnitude": "200",
+      "openingCashFlow": "-200",
+      "side": "LONG",
+      "unit": "CONTRACT"
+    },
+    "holding-1e7fe044-74ea-54d6-9f67-2cc51f7e3186": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/d906fa3a-999c-54cd-9530-538ef57b8d91"
+      ],
+      "quantity": "2",
+      "side": "LONG",
+      "instrument": "/v2/instruments/1e339c16-ae8e-526a-ad64-3d80dca0af61",
+      "snapshotId": "synthetic-source-cut-UNKNOWN_PUTS"
+    },
+    "allocation-640b7e83-6cd0-5748-977f-4acb34c97302-UNKNOWN_PUTS": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/640b7e83-6cd0-5748-977f-4acb34c97302",
+        "/v2/holdings/d906fa3a-999c-54cd-9530-538ef57b8d91"
+      ],
+      "quantity": "2"
+    },
+    "basis-640b7e83-6cd0-5748-977f-4acb34c97302-UNKNOWN_PUTS": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/640b7e83-6cd0-5748-977f-4acb34c97302",
+        "/v2/holdings/d906fa3a-999c-54cd-9530-538ef57b8d91"
+      ],
+      "basisMagnitude": "400",
+      "openingCashFlow": "-400",
+      "side": "LONG",
+      "unit": "CONTRACT"
+    },
+    "membership-9ab19a25-f168-5784-9d6c-c0716bf20ebc": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/9ab19a25-f168-5784-9d6c-c0716bf20ebc"
+      ],
+      "nodes": [
+        "SHARES"
+      ]
+    },
+    "allocation-9ab19a25-f168-5784-9d6c-c0716bf20ebc-SHARES": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/9ab19a25-f168-5784-9d6c-c0716bf20ebc",
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+      ],
+      "quantity": "150"
+    },
+    "basis-9ab19a25-f168-5784-9d6c-c0716bf20ebc-SHARES": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/9ab19a25-f168-5784-9d6c-c0716bf20ebc",
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+      ],
+      "basisMagnitude": "14250",
+      "openingCashFlow": "-14250",
+      "side": "LONG",
+      "unit": "SHARE"
+    },
+    "membership-98122c7d-66a0-58d7-a782-3c138bc9e157": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/98122c7d-66a0-58d7-a782-3c138bc9e157"
+      ],
+      "nodes": [
+        "CASH"
+      ]
+    },
+    "holding-72987030-7c1a-5c6d-a9d5-91a9671583e1": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "quantity": "20000",
+      "side": "LONG",
+      "instrument": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f",
+      "snapshotId": "synthetic-source-cut-cash-20000"
+    },
+    "allocation-98122c7d-66a0-58d7-a782-3c138bc9e157-CASH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/98122c7d-66a0-58d7-a782-3c138bc9e157",
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "quantity": "12000"
+    },
+    "basis-98122c7d-66a0-58d7-a782-3c138bc9e157-CASH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/98122c7d-66a0-58d7-a782-3c138bc9e157",
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "basisMagnitude": "12000",
+      "openingCashFlow": "-12000",
+      "side": "LONG",
+      "unit": "MONEY"
+    },
+    "membership-0e349bcf-91a7-5d57-a283-84d9fd175c5e": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/0e349bcf-91a7-5d57-a283-84d9fd175c5e"
+      ],
+      "nodes": [
+        "CASH"
+      ]
+    },
+    "allocation-0e349bcf-91a7-5d57-a283-84d9fd175c5e-CASH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/0e349bcf-91a7-5d57-a283-84d9fd175c5e",
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "quantity": "5000"
+    },
+    "basis-0e349bcf-91a7-5d57-a283-84d9fd175c5e-CASH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/0e349bcf-91a7-5d57-a283-84d9fd175c5e",
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "basisMagnitude": "5000",
+      "openingCashFlow": "-5000",
+      "side": "LONG",
+      "unit": "MONEY"
+    },
+    "membership-9bba8221-412f-503f-83e7-7aef5161012a": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/9bba8221-412f-503f-83e7-7aef5161012a"
+      ],
+      "nodes": [
+        "CASH"
+      ]
+    },
+    "allocation-9bba8221-412f-503f-83e7-7aef5161012a-CASH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/9bba8221-412f-503f-83e7-7aef5161012a",
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "quantity": "3000"
+    },
+    "basis-9bba8221-412f-503f-83e7-7aef5161012a-CASH": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/9bba8221-412f-503f-83e7-7aef5161012a",
+        "/v2/holdings/2d89c0fd-69f4-504a-996f-4f2530f4e0c0"
+      ],
+      "basisMagnitude": "3000",
+      "openingCashFlow": "-3000",
+      "side": "LONG",
+      "unit": "MONEY"
+    },
+    "membership-12e7d877-4983-5e92-9204-6d4b1b67a30f": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/12e7d877-4983-5e92-9204-6d4b1b67a30f"
+      ],
+      "nodes": [
+        "OLD_CALL"
+      ]
+    },
+    "holding-271e27c1-5655-52f9-b3ac-3104e69f0531": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/0f01bc43-0ed9-5114-b4e2-79bea49b1fb3"
+      ],
+      "quantity": "1",
+      "side": "SHORT",
+      "instrument": "/v2/instruments/7d791dc8-be51-5382-a1fc-010f12d20bdc",
+      "snapshotId": "synthetic-source-cut-historical-option-occurrence"
+    },
+    "allocation-12e7d877-4983-5e92-9204-6d4b1b67a30f-OLD_CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/12e7d877-4983-5e92-9204-6d4b1b67a30f",
+        "/v2/holdings/0f01bc43-0ed9-5114-b4e2-79bea49b1fb3"
+      ],
+      "quantity": "1"
+    },
+    "basis-12e7d877-4983-5e92-9204-6d4b1b67a30f-OLD_CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/12e7d877-4983-5e92-9204-6d4b1b67a30f",
+        "/v2/holdings/0f01bc43-0ed9-5114-b4e2-79bea49b1fb3"
+      ],
+      "basisMagnitude": "200",
+      "openingCashFlow": "200",
+      "side": "SHORT",
+      "unit": "CONTRACT"
+    },
+    "membership-bf06502d-f9bb-5cbe-81f1-44b80a6438f7": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/bf06502d-f9bb-5cbe-81f1-44b80a6438f7"
+      ],
+      "nodes": []
+    },
+    "membership-5fbc37e6-6903-515b-a0e5-5a58a75584db": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/5fbc37e6-6903-515b-a0e5-5a58a75584db"
+      ],
+      "nodes": [
+        "CALL"
+      ]
+    },
+    "holding-82b5cee6-2adb-57ff-bbc2-7dafdd318495": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/ec55d51c-dffd-554a-a829-ba5402f40537"
+      ],
+      "quantity": "1",
+      "side": "SHORT",
+      "instrument": "/v2/instruments/7d791dc8-be51-5382-a1fc-010f12d20bdc",
+      "snapshotId": "synthetic-source-cut-reopened-option-occurrence"
+    },
+    "allocation-5fbc37e6-6903-515b-a0e5-5a58a75584db-CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/5fbc37e6-6903-515b-a0e5-5a58a75584db",
+        "/v2/holdings/ec55d51c-dffd-554a-a829-ba5402f40537"
+      ],
+      "quantity": "1"
+    },
+    "basis-5fbc37e6-6903-515b-a0e5-5a58a75584db-CALL": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/5fbc37e6-6903-515b-a0e5-5a58a75584db",
+        "/v2/holdings/ec55d51c-dffd-554a-a829-ba5402f40537"
+      ],
+      "basisMagnitude": "300",
+      "openingCashFlow": "300",
+      "side": "SHORT",
+      "unit": "CONTRACT"
+    },
+    "membership-10b0f73f-459a-57a5-b51a-b6347982659c": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/10b0f73f-459a-57a5-b51a-b6347982659c"
+      ],
+      "nodes": [
+        "SHARES"
+      ]
+    },
+    "holding-10225900-5ebb-50a1-8187-ef3ebf404a05": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/4fb0bed5-299d-5bfc-b35a-a26854c6c1f6"
+      ],
+      "quantity": "100",
+      "side": "LONG",
+      "instrument": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f",
+      "snapshotId": "synthetic-source-cut-historical-shares"
+    },
+    "allocation-10b0f73f-459a-57a5-b51a-b6347982659c-SHARES": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/10b0f73f-459a-57a5-b51a-b6347982659c",
+        "/v2/holdings/4fb0bed5-299d-5bfc-b35a-a26854c6c1f6"
+      ],
+      "quantity": "100"
+    },
+    "basis-10b0f73f-459a-57a5-b51a-b6347982659c-SHARES": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/10b0f73f-459a-57a5-b51a-b6347982659c",
+        "/v2/holdings/4fb0bed5-299d-5bfc-b35a-a26854c6c1f6"
+      ],
+      "basisMagnitude": "9500",
+      "openingCashFlow": "-9500",
+      "side": "LONG",
+      "unit": "SHARE"
+    },
+    "membership-1bf2956f-05b9-51ae-be0f-ec058dd70e7c": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/1bf2956f-05b9-51ae-be0f-ec058dd70e7c"
+      ],
+      "nodes": [
+        "UNKNOWN"
+      ]
+    },
+    "holding-86b0d303-c177-59b5-bd13-4786bbe28a8e": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "CUSTODY_QUANTITY",
+      "subjects": [
+        "/v2/holdings/8ae54b41-0ce0-51ad-a902-c9c441b968ec"
+      ],
+      "quantity": "1",
+      "side": "LONG",
+      "instrument": "/v2/instruments/7d791dc8-be51-5382-a1fc-010f12d20bdc",
+      "snapshotId": "synthetic-source-cut-UNKNOWN"
+    },
+    "allocation-1bf2956f-05b9-51ae-be0f-ec058dd70e7c-UNKNOWN": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/1bf2956f-05b9-51ae-be0f-ec058dd70e7c",
+        "/v2/holdings/8ae54b41-0ce0-51ad-a902-c9c441b968ec"
+      ],
+      "quantity": "1"
+    },
+    "basis-1bf2956f-05b9-51ae-be0f-ec058dd70e7c-UNKNOWN": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ATTRIBUTED_OPENING_COST",
+      "subjects": [
+        "/v2/constructions/1bf2956f-05b9-51ae-be0f-ec058dd70e7c",
+        "/v2/holdings/8ae54b41-0ce0-51ad-a902-c9c441b968ec"
+      ],
+      "basisMagnitude": "0",
+      "openingCashFlow": "0",
+      "side": "LONG",
+      "unit": "CONTRACT"
+    },
+    "order-target-b57321f1-b5c5-5b80-8dcc-ced7a93451d4": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ORDER_TARGET",
+      "subjects": [
+        "/v2/orders/b57321f1-b5c5-5b80-8dcc-ced7a93451d4",
+        "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+      ]
+    },
+    "reported-holding-economics": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "BROKER_REPORTED_EVALUATIONS",
+      "subjects": [
+        "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+      ],
+      "marketValue": "10100",
+      "openPl": "600",
+      "capitalRequirement": "2500"
+    },
+    "coverage-negative": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "AGGREGATE_COVERAGE",
+      "subjects": [
+        "/v2/holdings/f90d7071-d19d-567b-9d45-730d8de431bc",
+        "/v2/positions/8abc4a43-2b76-5959-86ae-d645d8e6d7ba",
+        "/v2/positions/744324db-0f48-59ae-a6a2-e0cb7b04d5dd"
+      ],
+      "eligible": "100",
+      "required": "200",
+      "reservation": false
+    },
+    "worked-history": {
+      "predicate": "SYNTHETIC_DOCUMENTED_CASH_FLOWS",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "note": "Explicit assumptions and numbers in economic-history.json, not a verified broker record."
+    },
+    "cash-secured-put-SP": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88",
+        "/v2/holdings/1977f06a-9367-53b5-872e-873148693d2b"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "1",
+      "basis": "200",
+      "side": "SHORT"
+    },
+    "cash-secured-putSP-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88",
+        "/v2/holdings/1977f06a-9367-53b5-872e-873148693d2b"
+      ],
+      "quantity": "1"
+    },
+    "cash-secured-put-CASH": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88",
+        "/v2/holdings/c45f189b-598d-575a-8fae-891da88ea1b4"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "9500",
+      "basis": "9500",
+      "side": "LONG"
+    },
+    "cash-secured-putCASH-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88",
+        "/v2/holdings/c45f189b-598d-575a-8fae-891da88ea1b4"
+      ],
+      "quantity": "9500"
+    },
+    "cash-secured-put-membership": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88"
+      ],
+      "nodes": [
+        "SP",
+        "CASH"
+      ],
+      "coordinatedOpening": false
+    },
+    "cash-secured-put-members": {
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "nodes": [
+        "SP",
+        "CASH"
+      ]
+    },
+    "coverage-cash-secured-put": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "AGGREGATE_COVERAGE",
+      "subjects": [
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88",
+        "/v2/holdings/c45f189b-598d-575a-8fae-891da88ea1b4"
+      ]
+    },
+    "buy-write-SHARES": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5",
+        "/v2/holdings/9f1ef895-8002-5c9d-a738-d68f94d3c262"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "100",
+      "basis": "10000",
+      "side": "LONG"
+    },
+    "buy-writeSHARES-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5",
+        "/v2/holdings/9f1ef895-8002-5c9d-a738-d68f94d3c262"
+      ],
+      "quantity": "100"
+    },
+    "buy-write-SC": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5",
+        "/v2/holdings/c9a39ab6-bb17-5cf2-a6d9-f15f730c76ef"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "1",
+      "basis": "200",
+      "side": "SHORT"
+    },
+    "buy-writeSC-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5",
+        "/v2/holdings/c9a39ab6-bb17-5cf2-a6d9-f15f730c76ef"
+      ],
+      "quantity": "1"
+    },
+    "buy-write-membership": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5"
+      ],
+      "nodes": [
+        "SHARES",
+        "SC"
+      ],
+      "coordinatedOpening": true
+    },
+    "buy-write-members": {
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "nodes": [
+        "SHARES",
+        "SC"
+      ]
+    },
+    "coverage-buy-write": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "AGGREGATE_COVERAGE",
+      "subjects": [
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5",
+        "/v2/holdings/9f1ef895-8002-5c9d-a738-d68f94d3c262"
+      ]
+    },
+    "iron-condor-LP": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/dc615f86-749d-5e21-b079-496e53b36f6d"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "1",
+      "basis": "100",
+      "side": "LONG"
+    },
+    "iron-condorLP-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/dc615f86-749d-5e21-b079-496e53b36f6d"
+      ],
+      "quantity": "1"
+    },
+    "iron-condor-SP": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/f4997e91-60ad-5821-926a-d09cc0da356b"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "1",
+      "basis": "200",
+      "side": "SHORT"
+    },
+    "iron-condorSP-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/f4997e91-60ad-5821-926a-d09cc0da356b"
+      ],
+      "quantity": "1"
+    },
+    "iron-condor-SC": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/d387cb75-e543-5daa-938e-0dbe99612d3b"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "1",
+      "basis": "200",
+      "side": "SHORT"
+    },
+    "iron-condorSC-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/d387cb75-e543-5daa-938e-0dbe99612d3b"
+      ],
+      "quantity": "1"
+    },
+    "iron-condor-LC": {
+      "predicate": "SYNTHETIC_CUSTODY_AND_COST",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/0e4d0f14-955a-510c-bd4f-9fb5becb0f78"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "quantity": "1",
+      "basis": "100",
+      "side": "LONG"
+    },
+    "iron-condorLC-allocation": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "ECONOMIC_QUANTITY",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/holdings/0e4d0f14-955a-510c-bd4f-9fb5becb0f78"
+      ],
+      "quantity": "1"
+    },
+    "iron-condor-membership": {
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea"
+      ],
+      "nodes": [
+        "LP",
+        "SP",
+        "SC",
+        "LC"
+      ],
+      "coordinatedOpening": false
+    },
+    "iron-condor-members": {
+      "predicate": "COMPOSITION_MEMBERSHIP",
+      "subjects": [
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea"
+      ],
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "nodes": [
+        "LP",
+        "SP",
+        "SC",
+        "LC"
+      ]
+    },
+    "parity-XLF": {
+      "predicate": "OFFLINE_REPLAY_EXPECTATIONS",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "fixture": "scripts/fixtures/tt-live-economic-observed.json",
+      "symbol": "XLF",
+      "explicitAssumption": "USD 100-share standard deliverable; actual feed does not prove all adjusted contract terms."
+    },
+    "parity-UNG": {
+      "predicate": "OFFLINE_REPLAY_EXPECTATIONS",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "fixture": "scripts/fixtures/tt-live-economic-observed.json",
+      "symbol": "UNG",
+      "explicitAssumption": "USD 100-share standard deliverable; actual feed does not prove all adjusted contract terms."
+    },
+    "parity-EWZ": {
+      "predicate": "OFFLINE_REPLAY_EXPECTATIONS",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "fixture": "scripts/fixtures/tt-live-economic-observed.json",
+      "symbol": "EWZ",
+      "explicitAssumption": "USD 100-share standard deliverable; actual feed does not prove all adjusted contract terms."
+    },
+    "parity-XLE": {
+      "predicate": "OFFLINE_REPLAY_EXPECTATIONS",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "fixture": "scripts/fixtures/tt-live-economic-observed.json",
+      "symbol": "XLE",
+      "explicitAssumption": "USD 100-share standard deliverable; actual feed does not prove all adjusted contract terms."
+    },
+    "lifecycle-dbd477e4-8439-5ed2-a721-b11d4f5d9f88": {
+      "predicate": "EXPLICIT_SYNTHETIC_CONTINUITY",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "subjects": [
+        "/v2/positions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88",
+        "/v2/constructions/dbd477e4-8439-5ed2-a721-b11d4f5d9f88"
+      ],
+      "status": "OPEN",
+      "qualification": "Synthetic provided scope, not inferred brokerage lifecycle."
+    },
+    "lifecycle-a79ce443-09b1-530d-9f58-bf5bd1df36f5": {
+      "predicate": "EXPLICIT_SYNTHETIC_CONTINUITY",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "subjects": [
+        "/v2/positions/a79ce443-09b1-530d-9f58-bf5bd1df36f5",
+        "/v2/constructions/a79ce443-09b1-530d-9f58-bf5bd1df36f5"
+      ],
+      "status": "OPEN",
+      "qualification": "Synthetic provided scope, not inferred brokerage lifecycle."
+    },
+    "lifecycle-290f4ba0-f907-5f47-9042-1bc8f55570ea": {
+      "predicate": "EXPLICIT_SYNTHETIC_CONTINUITY",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "subjects": [
+        "/v2/positions/290f4ba0-f907-5f47-9042-1bc8f55570ea",
+        "/v2/constructions/290f4ba0-f907-5f47-9042-1bc8f55570ea"
+      ],
+      "status": "OPEN",
+      "qualification": "Synthetic provided scope, not inferred brokerage lifecycle."
+    },
+    "lifecycle-e86d9a6e-a41c-545b-b48c-964ed964704f": {
+      "predicate": "EXPLICIT_SYNTHETIC_CONTINUITY",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "subjects": [
+        "/v2/positions/e86d9a6e-a41c-545b-b48c-964ed964704f",
+        "/v2/constructions/0d8370d2-130e-5c66-a2e1-702fbc2ebdf4"
+      ],
+      "status": "OPEN",
+      "qualification": "Synthetic provided scope, not inferred brokerage lifecycle."
+    },
+    "lifecycle-a5428846-b28f-5d5e-bbca-6ac9b29cd24b": {
+      "predicate": "EXPLICIT_SYNTHETIC_CONTINUITY",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "subjects": [
+        "/v2/positions/a5428846-b28f-5d5e-bbca-6ac9b29cd24b",
+        "/v2/constructions/630b7fb6-17a9-59ec-9995-c54f248d9d4c"
+      ],
+      "status": "OPEN",
+      "qualification": "Synthetic provided scope, not inferred brokerage lifecycle."
+    },
+    "lifecycle-c28ad284-2b53-52d0-96bf-80914f999837": {
+      "predicate": "EXPLICIT_SYNTHETIC_CONTINUITY",
+      "account": "/v2/accounts/acct_11111111111111111111111111111111",
+      "subjects": [
+        "/v2/positions/c28ad284-2b53-52d0-96bf-80914f999837",
+        "/v2/constructions/32162e3e-9148-56ca-a549-7321760e345d"
+      ],
+      "status": "OPEN",
+      "qualification": "Synthetic provided scope, not inferred brokerage lifecycle."
+    }
+  }
+}

@@ -66,6 +66,13 @@ public class BrokerageArtifacts {
                 q.setString(1,owner);q.setString(2,hash);
                 try(var rs=q.executeQuery()) {if(rs.next()&&TastytradeHoldings.sourceAccount(bytes,sourceAccount.get().brokerAssociation().accountNumber()))return new SourceScope(true,Set.of(owner));}
             }
+            // Order originals use the same retained Artifact/import owner. Backend-only API_ORDERS
+            // provenance establishes the requested URL even for an empty page; content is rechecked.
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_ORDERS' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next()){
+                    try{var root=TastytradeHoldings.document(bytes);String brokerAccount=sourceAccount.get().brokerAssociation().accountNumber();String context=root.path("context").asText();boolean scoped=root.at("/data/items").isArray()&&(context.isBlank()||context.equals("/accounts/"+brokerAccount+"/orders"));for(var item:root.at("/data/items"))scoped&=item.path("account-number").asText().equals(brokerAccount);if(scoped)return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}
+                }}
+            }
             return SourceScope.unknown();
         }
         if (!sourceAccount.map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))

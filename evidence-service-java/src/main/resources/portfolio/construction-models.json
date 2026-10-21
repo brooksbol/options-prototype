@@ -1,0 +1,943 @@
+{
+  "families": [
+    {
+      "id": "COVERED_CALL",
+      "self": {
+        "href": "/v2/constructions/models/COVERED_CALL"
+      },
+      "name": "COVERED CALL",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/COVERED_CALL/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "CALL_BROKEN_WING_BUTTERFLY",
+      "self": {
+        "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY"
+      },
+      "name": "CALL BROKEN WING BUTTERFLY",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "IRON_CONDOR",
+      "self": {
+        "href": "/v2/constructions/models/IRON_CONDOR"
+      },
+      "name": "IRON CONDOR",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/IRON_CONDOR/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "REVERSE_JADE_LIZARD",
+      "self": {
+        "href": "/v2/constructions/models/REVERSE_JADE_LIZARD"
+      },
+      "name": "REVERSE JADE LIZARD",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/REVERSE_JADE_LIZARD/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "CASH",
+      "self": {
+        "href": "/v2/constructions/models/CASH"
+      },
+      "name": "CASH",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/CASH/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "LONG_SHARES",
+      "self": {
+        "href": "/v2/constructions/models/LONG_SHARES"
+      },
+      "name": "LONG SHARES",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/LONG_SHARES/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "CASH_SECURED_PUT",
+      "self": {
+        "href": "/v2/constructions/models/CASH_SECURED_PUT"
+      },
+      "name": "CASH SECURED PUT",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/CASH_SECURED_PUT/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "BUY_WRITE",
+      "self": {
+        "href": "/v2/constructions/models/BUY_WRITE"
+      },
+      "name": "BUY WRITE",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/BUY_WRITE/versions/1"
+        }
+      ]
+    }
+  ],
+  "versions": [
+    {
+      "self": {
+        "href": "/v2/constructions/models/COVERED_CALL/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/COVERED_CALL"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "SHARES",
+          "kind": "LONG_SHARES",
+          "side": "LONG",
+          "unit": "SHARE",
+          "ratio": "1",
+          "optionRight": null,
+          "modelVersion": null
+        },
+        {
+          "name": "CALL",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "SHARES",
+            "CALL"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "SHARES",
+            "CALL"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "SHARES",
+            "CALL"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_COVERAGE",
+          "roles": [
+            "SHARES",
+            "CALL"
+          ],
+          "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "LOW",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        },
+        {
+          "name": "MID",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "2",
+          "optionRight": "CALL",
+          "modelVersion": null
+        },
+        {
+          "name": "HIGH",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "STRIKE_ORDER",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": "LT",
+          "ratio": null
+        },
+        {
+          "kind": "UNEQUAL_WING_WIDTHS",
+          "roles": [
+            "LOW",
+            "MID",
+            "HIGH"
+          ],
+          "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/IRON_CONDOR/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/IRON_CONDOR"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "LP",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        },
+        {
+          "name": "SP",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        },
+        {
+          "name": "SC",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        },
+        {
+          "name": "LC",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "STRIKE_ORDER",
+          "roles": [
+            "LP",
+            "SP",
+            "SC",
+            "LC"
+          ],
+          "relation": "LT",
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/REVERSE_JADE_LIZARD/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/REVERSE_JADE_LIZARD"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "LP",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        },
+        {
+          "name": "SP",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        },
+        {
+          "name": "SC",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "STRIKE_ORDER",
+          "roles": [
+            "LP",
+            "SP",
+            "SC"
+          ],
+          "relation": "LT",
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/CASH/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/CASH"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "CASH",
+          "kind": "CASH",
+          "side": "LONG",
+          "unit": "MONEY",
+          "ratio": "1",
+          "optionRight": null,
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "CASH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "CASH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "CASH"
+          ],
+          "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/LONG_SHARES/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/LONG_SHARES"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "SHARES",
+          "kind": "LONG_SHARES",
+          "side": "LONG",
+          "unit": "SHARE",
+          "ratio": "1",
+          "optionRight": null,
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "SHARES"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "SHARES"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "SHARES"
+          ],
+          "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/CASH_SECURED_PUT/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/CASH_SECURED_PUT"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "SP",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        },
+        {
+          "name": "CASH",
+          "kind": "CASH",
+          "side": "LONG",
+          "unit": "MONEY",
+          "ratio": "9500",
+          "optionRight": null,
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "SP",
+            "CASH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "SP",
+            "CASH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "SP",
+            "CASH"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_COVERAGE",
+          "roles": [
+            "CASH",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/BUY_WRITE/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/BUY_WRITE"
+      },
+      "version": "1",
+      "createdAt": "2026-10-20T18:00:00Z",
+      "roles": [
+        {
+          "name": "SHARES",
+          "kind": "LONG_SHARES",
+          "side": "LONG",
+          "unit": "SHARE",
+          "ratio": "100",
+          "optionRight": null,
+          "modelVersion": null
+        },
+        {
+          "name": "SC",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "SHARES",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "SHARES",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "SHARES",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COORDINATED_OPENING",
+          "roles": [
+            "SHARES",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_COVERAGE",
+          "roles": [
+            "SHARES",
+            "SC"
+          ],
+          "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    }
+  ]
+}

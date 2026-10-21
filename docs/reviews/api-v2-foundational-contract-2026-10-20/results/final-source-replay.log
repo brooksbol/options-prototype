@@ -1,0 +1,27 @@
+✔ tt-live-equivalence.json: opening dates, expiration and actual NY date arithmetic (10.3575ms)
+✔ tt-live-equivalence.json: SPOT clock and evidence come from equity quote, not option quote (2.399042ms)
+✔ tt-live-equivalence.json: QUOTE freshness and timestamps are source-qualified (1.3585ms)
+✔ tt-live-equivalence.json: signed economics and EXIT PROGRESS derived from fills and quotes (0.629959ms)
+✔ tt-live-equivalence.json: TRADE SHAPE and RANGE preserve actual numeric economic meaning (0.381791ms)
+✔ tt-live-expanded-parity.json: opening dates, expiration and actual NY date arithmetic (3.263292ms)
+✔ tt-live-expanded-parity.json: SPOT clock and evidence come from equity quote, not option quote (0.577459ms)
+✔ tt-live-expanded-parity.json: QUOTE freshness and timestamps are source-qualified (0.217875ms)
+✔ tt-live-expanded-parity.json: signed economics and EXIT PROGRESS derived from fills and quotes (0.778042ms)
+✔ tt-live-expanded-parity.json: TRADE SHAPE and RANGE preserve actual numeric economic meaning (1.289584ms)
+✔ negative source mutation falsifies opening date, expiry and spot-clock expectations (11.155333ms)
+✔ repository EWZ and XLE leg fills and quotes reproduce exact candidate package money and DTE (34.7505ms)
+✔ absent opening fills preserve close evidence but do not substitute working limit for credit (1.046083ms)
+✔ ambiguous closing-order evidence withholds management independently of gross P/L (1.427458ms)
+✔ expanded financial meaning: XLF, geometry/range/spot/DTE/exit/quotes/orders/freshness (9.654167ms)
+✔ expanded financial meaning: UNG, geometry/range/spot/DTE/exit/quotes/orders/freshness (9.60825ms)
+✔ expanded financial meaning: EWZ, geometry/range/spot/DTE/exit/quotes/orders/freshness (7.377916ms)
+✔ expanded financial meaning: XLE, geometry/range/spot/DTE/exit/quotes/orders/freshness (6.661833ms)
+✔ stale or unavailable observations remain qualified independently of valid held exposure (10.058208ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 223.922667

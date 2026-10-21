@@ -313,6 +313,14 @@ class ObserverRealPacerIntegrationTest {
                 else assertThrows(Exception.class, () -> adapter.runWithStatus("quote", s));
             } finally { a.pacer().clearPurposeScope(); }
         }
+        // submit returns when its future completes; observer completion is recorded in
+        // the dispatcher's finally block immediately afterwards. Wait for that observable
+        // boundary before shutdown/assertion rather than racing the final 200 record.
+        long completionDeadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
+        while (ofType(rec, ObservationRecorder.RecordType.OPERATION_COMPLETED).size() < statuses.length
+                && System.nanoTime() < completionDeadline) {
+            java.util.concurrent.locks.LockSupport.parkNanos(java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(1));
+        }
         pacer.shutdown();
 
         var completed = ofType(rec, ObservationRecorder.RecordType.OPERATION_COMPLETED);

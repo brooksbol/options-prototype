@@ -68,6 +68,37 @@ public class TastytradeClient {
         }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("transaction acquisition unavailable");}
         catch(Exception e){throw new IllegalStateException("transaction acquisition unavailable");}
     }
+    @FunctionalInterface public interface OrderPageSink { void accept(int offset,byte[] bytes) throws Exception; }
+
+    /** Accepted tt Orders pagination, backend-owned and read-only. Safe originals reach the
+     * sink before semantic validation; a later failure never reports truncated success. */
+    public void orders(String account,OrderPageSink sink)throws Exception {
+        if(!configured()||!account.matches("[A-Za-z0-9]+"))throw new IllegalStateException("Order acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();int expectedPages=-1,expectedItems=-1,count=0,size=0;var identities=new HashSet<String>();
+        try {
+            String token=accessToken(expires);
+            for(int offset=0;offset<100;offset++){
+                var request=HttpRequest.newBuilder(base.resolve("/accounts/"+account+"/orders?per-page=100&page-offset="+offset)).timeout(deadline)
+                    .header("Accept","application/json").header("User-Agent","Wheelwright/foundational-Order-evidence-v1").header("Authorization","Bearer "+token).GET().build();
+                var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+                if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+                byte[] bytes=reply.body();size=Math.addExact(size,bytes.length);if(size>BrokerageArtifacts.MAX_BYTES)throw new IllegalStateException();
+                var root=TastytradeHoldings.document(bytes);if(!safeDocument(root,List.of(clientId,clientSecret,refreshToken,token)))throw new IllegalStateException();
+                sink.accept(offset,bytes);
+                var page=root.path("pagination");var items=root.at("/data/items");String context=root.path("context").asText();
+                if(!items.isArray()||!context.isBlank()&&!context.equals("/accounts/"+account+"/orders"))throw new IllegalStateException();
+                for(String field:List.of("page-offset","total-pages","total-items"))if(!page.path(field).isIntegralNumber()||page.path(field).asInt(-1)<0)throw new IllegalStateException();
+                int pages=page.path("total-pages").asInt(),total=page.path("total-items").asInt();if(page.path("page-offset").asInt()!=offset||pages>100||total>10000)throw new IllegalStateException();
+                if(offset==0){expectedPages=pages;expectedItems=total;}else if(pages!=expectedPages||total!=expectedItems)throw new IllegalStateException();
+                for(var item:items)if(!item.path("account-number").asText().equals(account)||item.path("id").isNull()||item.path("id").isMissingNode()||item.path("id").asText().isBlank()||!identities.add(item.path("id").asText()))throw new IllegalStateException();
+                count=Math.addExact(count,items.size());if(System.nanoTime()>expires)throw new IllegalStateException();
+                if(offset+1>=Math.max(1,pages)){if(count!=total||pages==0&&count!=0)throw new IllegalStateException();return;}if(items.isEmpty())throw new IllegalStateException();
+            }
+            throw new IllegalStateException();
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("Order acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("Order acquisition unavailable");}
+    }
+
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
 
     /** Fresh OAuth access token via refresh-token exchange. No durable cache; the

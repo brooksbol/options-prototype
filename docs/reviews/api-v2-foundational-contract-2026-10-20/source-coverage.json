@@ -1,0 +1,513 @@
+{
+  "baseMain": "2f319d514960d4d69afe66302c56db3cc7c640d0",
+  "verificationBoundary": "Code and representative deterministic fixtures inspected; no live requests or private broker source verification. Availability means demonstrated repository feed/path, not universal provider guarantee. Classifications may overlap; only DOMAIN_MODEL_GAP calls for renewed ontology discussion. No unrepresentable accepted field found in this candidate.",
+  "rows": [
+    {
+      "field": "Account/broker",
+      "classification": [
+        "ALREADY_SUPPORTED"
+      ],
+      "brokerSource": "/customers/me/accounts; holdings data.items[].account-number",
+      "existingAcquisition": "tt brokerGet; v2 AccountDirectory + token grants",
+      "currentV2Normalization": "Account identity and brokerAssociation already retained",
+      "backendInterpretation": "Resolve User grants separately from ownership; mask raw broker numbers",
+      "candidateField": "Position.account; Order.account; SourceInventory.account",
+      "insufficientEvidence": "Deny unauthorized scope; do not accept ID possession",
+      "evidence": [
+        "scripts/tastytrade.mjs:197-216",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionsController.java:30-62",
+        "docs/77-api-v2-architectural-guardrails.md:84-96"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Held constituent contracts and quantities",
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BROKER_AVAILABLE_V2_MISSING"
+      ],
+      "brokerSource": "/accounts/{brokerAccount}/positions: symbol, instrument-type, quantity, quantity-direction, multiplier, expires-at, underlying-symbol",
+      "existingAcquisition": "tt positions; v2 TastytradeClient holdings acquisition",
+      "currentV2Normalization": "TastytradeHoldings retains quantity/symbol/expiry/row, but multiplier and term-rich Instrument projection missing",
+      "backendInterpretation": "Membership is evidenced separately; normalize positive quantity plus side, do not group by shape; holdings remain readable without recognition; no occurrence inferred from custody",
+      "candidateField": "BrokerHolding (independent custody); Construction.composition.*.allocation.holding; SourceInventory projection",
+      "insufficientEvidence": "Retain incomplete/unclassified constituents; known fields survive null terms",
+      "evidence": [
+        "scripts/tastytrade.mjs:395-407",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:104-139",
+        "scripts/tastytrade-live-domain.mjs:62-98"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Recognition/name",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Held options plus instrument responses and qualified Order/association evidence",
+      "existingAcquisition": "tt recognizeHeldTrade + option instrument reads",
+      "currentV2Normalization": "Current v2 has no general declarative recognizer",
+      "backendInterpretation": "Apply versioned typed role constraints and separately supported membership",
+      "candidateField": "Construction.recognition; ModelVersion",
+      "insufficientEvidence": "UNCLASSIFIED/AMBIGUOUS/INCOMPATIBLE; generic economics may remain possible",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:62-98",
+        "scripts/tastytrade-live-domain.mjs:534-568",
+        "docs/82-v2-ontology-resource-semantic-coverage-reconciliation-2026-10-07.md:170-178"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "TRADE SHAPE",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Instrument strike-price, option-type, shares-per-contract, expiration-date, option-chain-type plus signed holdings",
+      "existingAcquisition": "tt option-instruments with bounded single-contract fallback",
+      "currentV2Normalization": "No accepted generic v2 exact geometry",
+      "backendInterpretation": "Signed constituent payoff at declared horizon; basis/premium only if attributed; no glyph definitions",
+      "candidateField": "Position.evaluation.payoff.geometry",
+      "insufficientEvidence": "Missing/adjusted terms or mixed horizon: unsupported exact geometry, constituents retained",
+      "evidence": [
+        "scripts/tastytrade.mjs:418-437",
+        "scripts/tastytrade-live-domain.mjs:534-568",
+        "scripts/tastytrade-payoff-render.mjs:7-80",
+        "docs/design/position-payoff-visual-contract/README.md:13-24"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "RANGE",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Verified short strikes / vertical half-line, not market breakeven",
+      "existingAcquisition": "tt payoffProfile + range projection",
+      "currentV2Normalization": "Absent from current v2 holdings summary",
+      "backendInterpretation": "Derive neutral verified plateau/half-line under model constraints",
+      "candidateField": "Position.evaluation.range",
+      "insufficientEvidence": "UNAVAILABLE with terms warning; never use breakEvenPrices instead",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:439-440",
+        "docs/cli/tt-live-panel.md:14-21"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Opening fills",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING"
+      ],
+      "brokerSource": "/accounts/{brokerAccount}/orders data.items[].legs[].fills[]: quantity, fill-price, filled-at",
+      "existingAcquisition": "tt readOrders pagination",
+      "currentV2Normalization": "No v2 Order/fill admission; transaction executedAt/orderId partial and not equivalent",
+      "backendInterpretation": "Match validated opening legs; validate quantity and timestamp; distinguish ambiguity",
+      "candidateField": "Order.legs[].fills; Position.stateEvidence; timeline.openedAt",
+      "insufficientEvidence": "No invented Execution, credit or opening duration",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:30-59",
+        "scripts/tastytrade-live-domain.mjs:342-354",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeTransactions.java:63-76",
+        "scripts/tastytrade.test.mjs:53-81"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Opening signed cash flow (credit/debit)",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Verified opening fills; short proceeds minus long cost",
+      "existingAcquisition": "tt openingCredit",
+      "currentV2Normalization": "TastytradeHoldings financial values null",
+      "backendInterpretation": "Weighted leg fills then signed aggregate package cash credit; use actual quantity/multiplier, gross before fees; +Account receipt/-payment; historical opening Orders require independently proven association and applicable grants",
+      "candidateField": "Position.evaluation.openingCashFlow (MONEY, total package dollars)",
+      "insufficientEvidence": "Null if fills/linkage unavailable; working limit is never entry",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:40-59",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:134",
+        "scripts/tastytrade.test.mjs:53-69"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Remaining DTE",
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Verified expiry; backend evaluation clock",
+      "existingAcquisition": "tt dayInNewYork; current Java ChronoUnit calculation",
+      "currentV2Normalization": "Expiry and DTE already partly projected, not uniform client lifecycle",
+      "backendInterpretation": "Accepted tt max(0,NY calendar difference); specify this candidate convention; never infer resolution from past expiry",
+      "candidateField": "Evaluation.timeline.remainingDays",
+      "insufficientEvidence": "Null on missing expiry; clamping is display/evaluation convention, not proof of closure",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:20-25",
+        "scripts/tastytrade-live-domain.mjs:381-383",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionReadService.java:151-155"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Original DTE/opening duration",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Final verified opening fill to verified expiration",
+      "existingAcquisition": "tt openingCredit + lifespan",
+      "currentV2Normalization": "Current Java does not retain authoritative opening timeline",
+      "backendInterpretation": "NY calendar difference, actual tenure; final fill max timestamp",
+      "candidateField": "Evaluation.timeline.originalDays/openedAt",
+      "insufficientEvidence": "Null; never assume 45 days",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:40-59",
+        "scripts/tastytrade-live-domain.mjs:425-428",
+        "docs/cli/tt-live-panel.md:23-25"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Manual management checkpoint",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Matching profit Limit closing Order with time-in-force=GTD, gtc-date, received-at, complex-order-id; applicable expired history",
+      "existingAcquisition": "tt Orders and complex Orders",
+      "currentV2Normalization": "Current Java workingOrderCoverage UNKNOWN",
+      "backendInterpretation": "Validate linkage, date bounds, supersession; Principal manual convention only",
+      "candidateField": "Evaluation.management.manualCheckpoint",
+      "insufficientEvidence": "Null when ambiguous; no claim GTD sends a notification or closes Position",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:180-225",
+        "scripts/tastytrade-manual-exit.test.mjs:40-99",
+        "docs/cli/tt-live-panel.md:23-29"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Working closing Orders",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING"
+      ],
+      "brokerSource": "Orders + complex-orders child status, legs/actions, size, complex-order-id, price, stop-trigger",
+      "existingAcquisition": "tt readOrders + readComplexOrders",
+      "currentV2Normalization": "No operative v2 Order resource/acquisition",
+      "backendInterpretation": "Reconcile broad/complex snapshots; detect extra/partial/transition ambiguity; sourceQualified targets",
+      "candidateField": "Order; OrderAssociation; ManagementEvaluation",
+      "insufficientEvidence": "Unknown association does not erase held exposure",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:100-170",
+        "scripts/tastytrade.mjs:403-404",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionReadService.java:129-140"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Profit-taking target",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Reconciled Limit debit close Order price below verified credit",
+      "existingAcquisition": "tt matchingExit",
+      "currentV2Normalization": "Absent from v2 Position",
+      "backendInterpretation": "Gross target = entry cash credit - sized close debit; preserve source limit separately",
+      "candidateField": "Order.limitPrice; Evaluation.management.profitTargetGrossPl",
+      "insufficientEvidence": "Incomplete without either entry or justified target association",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:123-145",
+        "scripts/tastytrade-economic-story.mjs:8-25",
+        "scripts/tastytrade-credit-spreads.test.mjs:49-88"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Stop trigger versus limit",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "SOURCE_UNAVAILABLE_OR_UNVERIFIED"
+      ],
+      "brokerSource": "Stop Limit: stop-trigger distinct from price (execution limit), source status",
+      "existingAcquisition": "tt exposes and checks agreement",
+      "currentV2Normalization": "No v2 Order terms",
+      "backendInterpretation": "Retain reported terms; derived threshold gross P/L explicitly PROVISIONAL, never activation/protection guarantee",
+      "candidateField": "Order.stopTrigger/limitPrice; management.reportedStopThresholdGrossPl",
+      "insufficientEvidence": "Unknown threshold; do not substitute max expiration loss; broker trigger execution semantics unverified",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:158-167",
+        "scripts/tastytrade-economic-story.mjs:8-25",
+        "docs/cli/tt-live-panel.md:27-29"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": false,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Option quotes",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING"
+      ],
+      "brokerSource": "/market-data/by-type?equity-option[]=symbol: bid, ask, mid, mark, updated-at",
+      "existingAcquisition": "tt brokerGet equity-option-quotes",
+      "currentV2Normalization": "Current direct quote OAS excludes option contracts; Fidelity same-day Option Summary bid/ask partial",
+      "backendInterpretation": "Validate quote uniqueness, bid<=mid<=ask, timestamp/session and full leg coverage",
+      "candidateField": "MarketObservation; Metric.evidence",
+      "insufficientEvidence": "Missing/invalid leg suppresses dependent value, preserves inventory",
+      "evidence": [
+        "scripts/tastytrade.mjs:206-216",
+        "scripts/tastytrade.mjs:405-407",
+        "scripts/tastytrade-live-domain.mjs:228-262",
+        "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml:1044-1055",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionMarketEvidence.java:15-49"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Whole-package close value",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "All option midpoints, or complete qualified broker marks for entire package",
+      "existingAcquisition": "tt quoteEconomics",
+      "currentV2Normalization": "No corresponding tastytrade Java financial projection",
+      "backendInterpretation": "Signed package closing debit; complete marks fallback only for invalid negative synthetic midpoint; do not mix arbitrary per-leg methods; signed estimatedClosingCashFlow: -buy-back/+sale, sized once by quantity and multiplier",
+      "candidateField": "Evaluation.estimatedClosingCashFlow; Metric.method/evidence",
+      "insufficientEvidence": "Incomplete on missing/stale/invalid full-package evidence; never label executable proceeds",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:228-262",
+        "scripts/tastytrade-credit-spreads.test.mjs:118-141"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Gross unrealized P/L",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Verified credit and close value; Fidelity Total gain/loss dollar separately reported",
+      "existingAcquisition": "tt formula; FidelityPositions CSV",
+      "currentV2Normalization": "Fidelity openPl admitted; tastytrade financial values null",
+      "backendInterpretation": "Credit - close value in same total package units; gross before fees; broker-reported P/L remains separately method qualified",
+      "candidateField": "Evaluation.grossUnrealizedPl; separately Evaluation.brokerReportedOpenPl (no unverified gross/fees equivalence)",
+      "insufficientEvidence": "Null without valid opening/valuation; do not infer tax basis",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:381-394",
+        "scripts/tastytrade-live-domain.mjs:445-447",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java:63-74",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:134"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Underlying SPOT",
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BROKER_AVAILABLE_V2_MISSING"
+      ],
+      "brokerSource": "/market-data/by-type?equity[]=root: mid,bid,ask,updated-at,instrument-type",
+      "existingAcquisition": "tt equity-quotes; v2 direct quote capability from another provider",
+      "currentV2Normalization": "DirectQuote facts/provenance held; exact tt midpoint semantics not identical to any generic last quote",
+      "backendInterpretation": "Validate unique same-underlying observation and timestamp; use observation basis explicitly",
+      "candidateField": "Evaluation.spot; MarketObservation.instrument/mid",
+      "insufficientEvidence": "Null/qualified stale; no synthetic spot or implied source equivalence",
+      "evidence": [
+        "scripts/tastytrade.mjs:408-416",
+        "scripts/tastytrade-live-domain.mjs:477-489",
+        "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml:1056-1135"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "QUOTE freshness",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Source updated-at on every applicable option and spot plus session evidence",
+      "existingAcquisition": "tt evidenceStatus + usableEvidence",
+      "currentV2Normalization": "v2 provenance concepts available but full option+spot stitching missing",
+      "backendInterpretation": "Oldest materially applicable component; session-valid retained evidence differs from wall-clock stale",
+      "candidateField": "Evaluation.oldestMaterialObservationAt/freshness; per-Metric evidence",
+      "insufficientEvidence": "Unknown on missing source times; receipt not observation; failed refresh preserves prior facts",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:469-489",
+        "scripts/tastytrade-freshness.mjs:8-35",
+        "docs/07c-adrs.md:493-500"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "EXIT PROGRESS zero/current/overflow",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Verified package opening and closing economics",
+      "existingAcquisition": "tt economicObjectives + live render",
+      "currentV2Normalization": "No backend equivalent established",
+      "backendInterpretation": "Expose exact signed gross P/L, zero and objective money; client chooses viewport without clamping numbers",
+      "candidateField": "Evaluation.management.zeroGrossPl; grossUnrealizedPl; profitTargetGrossPl",
+      "insufficientEvidence": "Missing value omits current marker; no fabricated denominator",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:433-448",
+        "scripts/tastytrade-economic-story.mjs:8-25",
+        "docs/cli/tt-live-panel.md:18-21"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Confirmed absent protective stop",
+      "classification": [
+        "BROKER_AVAILABLE_V2_MISSING",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Complete supported reconciled current closing-order scan, not a null stop field",
+      "existingAcquisition": "tt matchingExit and protectiveExitEvidence",
+      "currentV2Normalization": "Working Order coverage UNKNOWN in v2",
+      "backendInterpretation": "Distinguish present, transition, absent and unavailable; profit limit is not protective stop",
+      "candidateField": "ManagementEvaluation.protectiveOrderEvidence; Order.observationCoverage",
+      "insufficientEvidence": "UNKNOWN on incomplete/ambiguous scan, independent financial facts survive",
+      "evidence": [
+        "scripts/tastytrade-live-domain.mjs:100-170",
+        "scripts/tastytrade-live-domain.mjs:430-434",
+        "docs/cli/tt-live-panel.md:50-58"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Fidelity valuations and history",
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "SOURCE_UNAVAILABLE_OR_UNVERIFIED"
+      ],
+      "brokerSource": "Positions Quantity/Current value/Total gain/loss dollar; Option Summary Bid/Ask; Activity Run Date/Amount ($)/Price ($)/fees",
+      "existingAcquisition": "Existing immutable Artifacts and CSV attempts; retained Account transactions",
+      "currentV2Normalization": "FidelityPositions, PositionMarketEvidence, FidelityTransactions",
+      "backendInterpretation": "Admit source meaning only; no intraday fills/Order ID/currency inferred from export labels",
+      "candidateField": "Metric.origin/method; Evaluation.brokerReportedOpenPl; SourceRef; reused Account transactions; BrokerHolding.reportedMarketValue/reportedOpenPl/reportedCapitalRequirement (last only if actually reported and admitted)",
+      "insufficientEvidence": "Date precision, historical coverage, basis attribution and executable valuation remain qualified; capital requirement has no claim of universal feed availability",
+      "evidence": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java:29-83",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionMarketEvidence.java:15-49",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityTransactions.java:8-23",
+        "docs/70-bounded-option-obligation-continuity-checkpoint-2026-09-28.md:11-17"
+      ],
+      "fixture": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PositionsTest.java",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Experimental movement arrows",
+      "classification": [
+        "SOURCE_UNAVAILABLE_OR_UNVERIFIED"
+      ],
+      "brokerSource": "Dated prev-close, prev-close-date, summary-date, prev-close-price-type and continuity",
+      "existingAcquisition": "Standalone experimental comparison",
+      "currentV2Normalization": "Not accepted required scope",
+      "backendInterpretation": "Do not promote into required model/API proof",
+      "candidateField": "No required field",
+      "insufficientEvidence": "Omit; historicalMarketValue is only a qualified optional comparison, not acceptance of arrows",
+      "evidence": [
+        "scripts/tastytrade-economic-story.mjs:26-67",
+        "docs/cli/tt-live-panel.md:31-35"
+      ],
+      "fixture": "scripts/tastytrade-fixtures.mjs",
+      "faithfullyRepresentable": true,
+      "acceptedScope": false,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    },
+    {
+      "field": "Cross-Position quantity/basis/collateral",
+      "classification": [
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "brokerSource": "Aggregate held inventory + evidenced allocations and source basis attribution",
+      "existingAcquisition": "Working holdings admission; synthetic partition falsifier",
+      "currentV2Normalization": "No Account-wide allocation mechanism in operative v2",
+      "backendInterpretation": "Account-cut global quantity conservation with Position conflict propagation; aggregate fungible coverage, no specific-share/tax-lot selection or unproven broker reservation",
+      "candidateField": "BrokerHolding; Position.allocation; InventoryReconciliation.coverageAssessments; FinancialRelationship",
+      "insufficientEvidence": "Conflict/INCOMPLETE, negative residual preserved; never force balance or invent lots",
+      "evidence": [
+        "docs/discovery/api-v2-adversarial-review-dispositions-and-specification-handoff-2026-10-20.md:15-20",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java:85-98"
+      ],
+      "fixture": "examples/resources.json",
+      "faithfullyRepresentable": true,
+      "acceptedScope": true,
+      "verification": "REPOSITORY_CODE_AND_OFFLINE_CANDIDATE_CHECKS_NOT_LIVE_PROVIDER"
+    }
+  ],
+  "authorityMain": "72c602f8740fcbd9c25d67a13b35d81385b6e76b",
+  "originalCandidate": "847315f1b2bf2964db20f417c9936e961eb5f750",
+  "correctionVerification": "Source code rechecked offline; expanded sanitized-fixture replay. No live broker requests or exact Kiro probes.",
+  "finalCorrection": {
+    "baseline": "c8ddbffc28e68dcd4c198ee10a5516603783eb8f",
+    "tests": "final-source-replay.test.mjs",
+    "openingClock": "Final verified opening fill, Order access required",
+    "spotClock": "Actual equity spot quote updated-at / projectLive.spot.at, separate from option quote oldest",
+    "expirationAndDte": "Actual projectLive expiry plus independent NY calendar arithmetic",
+    "qualification": "Synthetic fixtures and explicit contract assumptions, not live provider certification"
+  }
+}

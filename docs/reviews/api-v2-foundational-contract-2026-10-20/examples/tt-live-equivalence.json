@@ -1,0 +1,1077 @@
+{
+  "standing": "EXPLICIT_SYNTHETIC_EQUIVALENCE_NOT_LIVE_FACTS",
+  "source": "scripts/tastytrade-fixtures.mjs",
+  "units": "Gross package dollars: per-unit broker premiums times actual quantity/multiplier; before fees",
+  "positions": [
+    {
+      "symbol": "EWZ",
+      "evaluation": {
+        "evaluatedAt": "2026-10-01T02:00:00.000Z",
+        "openingCashFlow": {
+          "value": "42",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-09-30T16:50:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-09-30",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "ORDER_EVIDENCE"
+          ]
+        },
+        "estimatedClosingCashFlow": {
+          "value": "-33",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/quotes",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/quotes"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T00:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "CURRENT_MARKET"
+          ]
+        },
+        "grossUnrealizedPl": {
+          "value": "9",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-09-30T16:50:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-09-30",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            },
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/quotes",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/quotes"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T00:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "ORDER_EVIDENCE",
+            "CURRENT_MARKET"
+          ]
+        },
+        "marketValue": {
+          "value": "-33",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/quotes",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/quotes"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T00:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "CURRENT_MARKET"
+          ]
+        },
+        "spot": {
+          "value": null,
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "INCOMPLETE",
+          "origin": "UNKNOWN",
+          "method": "SPOT_UNAVAILABLE",
+          "asOf": null,
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "TERMS_UNAVAILABLE"
+          ],
+          "dependencies": [
+            "CURRENT_MARKET"
+          ]
+        },
+        "oldestMaterialObservationAt": "2026-10-01T00:00:00.000Z",
+        "freshness": "CURRENT",
+        "fees": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "INCOMPLETE",
+          "origin": "UNKNOWN",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "HISTORY_INCOMPLETE"
+          ],
+          "dependencies": []
+        },
+        "netUnrealizedPl": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "INCOMPLETE",
+          "origin": "UNKNOWN",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "HISTORY_INCOMPLETE"
+          ],
+          "dependencies": []
+        },
+        "realizedGrossPl": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "NOT_APPLICABLE",
+          "origin": "UNKNOWN",
+          "method": "NOT_APPLICABLE",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [],
+          "dependencies": []
+        },
+        "realizedNetPl": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "NOT_APPLICABLE",
+          "origin": "UNKNOWN",
+          "method": "NOT_APPLICABLE",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [],
+          "dependencies": []
+        },
+        "timeline": {
+          "openedAt": "2026-09-30T16:50:00.000Z",
+          "expiration": "2026-11-20",
+          "calendarZone": "America/New_York",
+          "remainingDays": {
+            "value": "51",
+            "unit": "DAY",
+            "currency": null,
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/holdings",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/holdings"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": null,
+                "observationPrecision": "UNKNOWN",
+                "observationDate": null,
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "UNKNOWN"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": []
+          },
+          "originalDays": {
+            "value": "51",
+            "unit": "DAY",
+            "currency": null,
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/orders",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/orders"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": "2026-09-30T16:50:00.000Z",
+                "observationPrecision": "INSTANT",
+                "observationDate": "2026-09-30",
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "SOURCE"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": [
+              "ORDER_EVIDENCE"
+            ]
+          },
+          "openingEvidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-09-30T16:50:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-09-30",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "openingAccess": "VISIBLE"
+        },
+        "range": {
+          "status": "UNSUPPORTED",
+          "kind": "UNAVAILABLE",
+          "lower": null,
+          "upper": null,
+          "currency": "USD",
+          "evidence": [],
+          "warningCodes": [
+            "TERMS_UNAVAILABLE"
+          ]
+        },
+        "management": {
+          "access": "VISIBLE",
+          "associationStatus": "ESTABLISHED",
+          "orders": [
+            {
+              "href": "/v2/orders/e79ed146-ae70-5ba5-8240-d452462d4ab7"
+            },
+            {
+              "href": "/v2/orders/65874184-3698-5044-8b61-3bb2f034865d"
+            }
+          ],
+          "zeroGrossPl": {
+            "value": "0",
+            "unit": "MONEY",
+            "currency": "USD",
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/holdings",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/holdings"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": null,
+                "observationPrecision": "UNKNOWN",
+                "observationDate": null,
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "UNKNOWN"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": []
+          },
+          "profitTargetGrossPl": {
+            "value": "21",
+            "unit": "MONEY",
+            "currency": "USD",
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/orders",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/orders"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": "2026-09-30T16:50:00.000Z",
+                "observationPrecision": "INSTANT",
+                "observationDate": "2026-09-30",
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "SOURCE"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": [
+              "ORDER_EVIDENCE"
+            ]
+          },
+          "reportedStopThresholdGrossPl": {
+            "value": null,
+            "unit": "MONEY",
+            "currency": "USD",
+            "status": "INCOMPLETE",
+            "origin": "UNKNOWN",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [],
+            "evidence": [],
+            "warningCodes": [
+              "TERMS_UNAVAILABLE"
+            ],
+            "dependencies": [
+              "ORDER_EVIDENCE"
+            ]
+          },
+          "stopInterpretation": "PROVISIONAL_NOT_EXECUTION_GUARANTEE",
+          "protectiveOrderEvidence": "PRESENT",
+          "manualCheckpoint": null,
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T02:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": []
+        },
+        "payoff": {
+          "status": "UNSUPPORTED",
+          "geometry": null,
+          "evaluatedAt": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "TERMS_UNAVAILABLE"
+          ]
+        }
+      },
+      "quote": {
+        "optionOldestEpochMs": 1790812800000,
+        "freshness": "CURRENT",
+        "valuationMethod": "midpoint",
+        "unit": "PER_UNDERLYING_UNIT",
+        "packageMultiplier": "100"
+      }
+    },
+    {
+      "symbol": "XLE",
+      "evaluation": {
+        "evaluatedAt": "2026-10-01T02:00:00.000Z",
+        "openingCashFlow": {
+          "value": "18",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-09-30T16:50:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-09-30",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "ORDER_EVIDENCE"
+          ]
+        },
+        "estimatedClosingCashFlow": {
+          "value": "-31",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/quotes",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/quotes"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T00:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "CURRENT_MARKET"
+          ]
+        },
+        "grossUnrealizedPl": {
+          "value": "-13",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-09-30T16:50:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-09-30",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            },
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/quotes",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/quotes"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T00:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "ORDER_EVIDENCE",
+            "CURRENT_MARKET"
+          ]
+        },
+        "marketValue": {
+          "value": "-31",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [
+            "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/quotes",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/quotes"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T00:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": [
+            "CURRENT_MARKET"
+          ]
+        },
+        "spot": {
+          "value": null,
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "INCOMPLETE",
+          "origin": "UNKNOWN",
+          "method": "SPOT_UNAVAILABLE",
+          "asOf": null,
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "TERMS_UNAVAILABLE"
+          ],
+          "dependencies": [
+            "CURRENT_MARKET"
+          ]
+        },
+        "oldestMaterialObservationAt": "2026-10-01T00:00:00.000Z",
+        "freshness": "CURRENT",
+        "fees": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "INCOMPLETE",
+          "origin": "UNKNOWN",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "HISTORY_INCOMPLETE"
+          ],
+          "dependencies": []
+        },
+        "netUnrealizedPl": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "INCOMPLETE",
+          "origin": "UNKNOWN",
+          "method": "OFFLINE_SOURCE_DERIVATION",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "HISTORY_INCOMPLETE"
+          ],
+          "dependencies": []
+        },
+        "realizedGrossPl": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "NOT_APPLICABLE",
+          "origin": "UNKNOWN",
+          "method": "NOT_APPLICABLE",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [],
+          "dependencies": []
+        },
+        "realizedNetPl": {
+          "value": null,
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "NOT_APPLICABLE",
+          "origin": "UNKNOWN",
+          "method": "NOT_APPLICABLE",
+          "asOf": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [],
+          "dependencies": []
+        },
+        "timeline": {
+          "openedAt": "2026-09-30T16:50:00.000Z",
+          "expiration": "2026-10-16",
+          "calendarZone": "America/New_York",
+          "remainingDays": {
+            "value": "16",
+            "unit": "DAY",
+            "currency": null,
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/holdings",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/holdings"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": null,
+                "observationPrecision": "UNKNOWN",
+                "observationDate": null,
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "UNKNOWN"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": []
+          },
+          "originalDays": {
+            "value": "16",
+            "unit": "DAY",
+            "currency": null,
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/orders",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/orders"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": "2026-09-30T16:50:00.000Z",
+                "observationPrecision": "INSTANT",
+                "observationDate": "2026-09-30",
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "SOURCE"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": [
+              "ORDER_EVIDENCE"
+            ]
+          },
+          "openingEvidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-09-30T16:50:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-09-30",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "openingAccess": "VISIBLE"
+        },
+        "range": {
+          "status": "UNSUPPORTED",
+          "kind": "UNAVAILABLE",
+          "lower": null,
+          "upper": null,
+          "currency": "USD",
+          "evidence": [],
+          "warningCodes": [
+            "TERMS_UNAVAILABLE"
+          ]
+        },
+        "management": {
+          "access": "VISIBLE",
+          "associationStatus": "ESTABLISHED",
+          "orders": [
+            {
+              "href": "/v2/orders/744efbc2-9dba-592f-85eb-16ff6b33f7cc"
+            },
+            {
+              "href": "/v2/orders/1ccc2b1f-5179-5c86-8276-569d2c9b68a4"
+            }
+          ],
+          "zeroGrossPl": {
+            "value": "0",
+            "unit": "MONEY",
+            "currency": "USD",
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/holdings",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/holdings"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": null,
+                "observationPrecision": "UNKNOWN",
+                "observationDate": null,
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "UNKNOWN"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": []
+          },
+          "profitTargetGrossPl": {
+            "value": "9",
+            "unit": "MONEY",
+            "currency": "USD",
+            "status": "QUALIFIED",
+            "origin": "WHEELWRIGHT_DERIVED",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [
+              "Sanitized offline fixture; source-specific interpretation, not live broker validation."
+            ],
+            "evidence": [
+              {
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "live:/orders",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/ttSource/live/orders"
+                },
+                "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+                "environment": "OFFLINE",
+                "observedAt": "2026-09-30T16:50:00.000Z",
+                "observationPrecision": "INSTANT",
+                "observationDate": "2026-09-30",
+                "receivedAt": "2026-10-01T02:00:00.000Z",
+                "timeAuthority": "SOURCE"
+              }
+            ],
+            "warningCodes": [],
+            "dependencies": [
+              "ORDER_EVIDENCE"
+            ]
+          },
+          "reportedStopThresholdGrossPl": {
+            "value": null,
+            "unit": "MONEY",
+            "currency": "USD",
+            "status": "INCOMPLETE",
+            "origin": "UNKNOWN",
+            "method": "OFFLINE_SOURCE_DERIVATION",
+            "asOf": "2026-10-01T02:00:00.000Z",
+            "assumptions": [],
+            "evidence": [],
+            "warningCodes": [
+              "TERMS_UNAVAILABLE"
+            ],
+            "dependencies": [
+              "ORDER_EVIDENCE"
+            ]
+          },
+          "stopInterpretation": "PROVISIONAL_NOT_EXECUTION_GUARANTEE",
+          "protectiveOrderEvidence": "PRESENT",
+          "manualCheckpoint": null,
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.orders.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "live:/orders",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/ttSource/live/orders"
+              },
+              "provider": "REPOSITORY_TASTYTRADE_FIXTURE",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-01T02:00:00.000Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-01",
+              "receivedAt": "2026-10-01T02:00:00.000Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": []
+        },
+        "payoff": {
+          "status": "UNSUPPORTED",
+          "geometry": null,
+          "evaluatedAt": "2026-10-01T02:00:00.000Z",
+          "assumptions": [],
+          "evidence": [],
+          "warningCodes": [
+            "TERMS_UNAVAILABLE"
+          ]
+        }
+      },
+      "quote": {
+        "optionOldestEpochMs": 1790812800000,
+        "freshness": "CURRENT",
+        "valuationMethod": "midpoint",
+        "unit": "PER_UNDERLYING_UNIT",
+        "packageMultiplier": "100"
+      }
+    }
+  ]
+}

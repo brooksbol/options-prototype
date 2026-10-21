@@ -1,0 +1,26 @@
+package com.wheelwright.evidence.v2;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.*;
+import com.wheelwright.evidence.db.SqliteEvidenceStore;
+import com.wheelwright.evidence.v2.portfolio.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.*;
+import java.time.Instant;
+import java.util.*;
+import static org.assertj.core.api.Assertions.*;
+
+/** Retained source decoder tests using explicitly synthetic captured-shape fixtures, not live trading. */
+class PortfolioOrderEvidenceTest {
+ @TempDir Path temp;
+ @Test void normalizedOrdersPreserveReportedInstructionsAndFillsWithoutCreatingExposure()throws Exception{
+  var json=new ObjectMapper();try(var db=new SqliteEvidenceStore(temp.resolve("orders.sqlite3").toString())){
+   var accounts=new AccountDirectory(db.getConnection().getMetaData().getURL());String account=accounts.bind("source","TASTYTRADE","TEST1234");var repository=new PortfolioRepository(db,json);var source=json.readTree(Files.readString(Path.of("../scripts/fixtures/tt-live-economic-observed.json")));var root=json.createObjectNode();root.put("context","/accounts/TEST1234/orders");root.set("data",json.createObjectNode().set("items",source.get("orders")));root.set("pagination",json.createObjectNode().put("total-pages",1).put("page-offset",0).put("total-items",source.path("orders").size()));byte[] bytes=json.writeValueAsBytes(root);String artifact=UUID.randomUUID().toString(),received="2026-10-14T19:21:00Z";
+   try(var c=repository.connection()){c.setAutoCommit(false);try(var q=c.prepareStatement("INSERT INTO brokerage_artifact VALUES (?,?,?,?,?,?,?)")){q.setString(1,account);q.setString(2,artifact);q.setString(3,BrokerageArtifacts.sha(bytes));q.setString(4,"application/json");q.setInt(5,bytes.length);q.setBytes(6,bytes);q.setString(7,received);q.executeUpdate();}new PortfolioOrderSources(repository).admit(c,accounts.get(account).orElseThrow(),artifact,true);c.commit();}
+   var orders=repository.list(PortfolioRepository.Kind.ORDER,Set.of(account));assertThat(orders).hasSize(source.path("orders").size());assertThat(repository.list(PortfolioRepository.Kind.POSITION,Set.of(account))).isEmpty();assertThat(repository.list(PortfolioRepository.Kind.CONSTRUCTION,Set.of(account))).isEmpty();assertThat(orders).allSatisfy(o->{assertThat(o.value().path("associations")).isEmpty();assertThat(o.value().path("observationCoverage").asText()).isEqualTo("COMPLETE_SUPPORTED_SCAN");});int working=0,filled=0;
+   var output=Path.of("build/portfolio-responses");Files.createDirectories(output);for(var order:orders){if(order.value().path("status").asText().equals("WORKING")){working++;for(var leg:order.value().path("legs"))assertThat(leg.path("fills")).isEmpty();}if(order.value().path("status").asText().equals("FILLED")){filled++;for(var leg:order.value().path("legs")){assertThat(leg.path("fills").size()).isGreaterThan(0);for(var fill:leg.path("fills")){assertThat(fill.path("executedAt").isTextual()).isTrue();Instant.parse(fill.path("executedAt").asText());assertThat(fill.path("priceUnit").asText()).isEqualTo("PER_UNDERLYING_UNIT");assertThat(fill.at("/cashFlow/value").isNull()).isTrue();}}}var capture=json.createObjectNode().put("path",order.uri()).put("caller","normalized-source-test");capture.set("body",order.value());Files.writeString(output.resolve(UUID.randomUUID()+".json"),capture.toString());}assertThat(working).isGreaterThan(0);assertThat(filled).isGreaterThan(0);
+   try(var c=repository.connection()){assertThatThrownBy(()->new PortfolioOrderSources(repository).admit(c,accounts.get(accounts.bind("other","TASTYTRADE","OTHER123")).orElseThrow(),artifact,true)).isInstanceOf(IllegalArgumentException.class);}
+  }
+ }
+}
