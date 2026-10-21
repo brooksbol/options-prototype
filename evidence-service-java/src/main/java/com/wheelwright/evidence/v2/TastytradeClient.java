@@ -135,6 +135,22 @@ public class TastytradeClient {
         catch(Exception e){throw new IllegalStateException("session acquisition unavailable");}
     }
 
+    /** Read-only compact reference for one validated underlying; no universal securities scan. */
+    public byte[] compactOptionChain(String underlying)throws Exception {
+        if(underlying==null||!underlying.matches("[A-Z][A-Z0-9.]{0,9}"))throw new IllegalStateException("reference acquisition unavailable");
+        if(!configured())throw new IllegalStateException("reference acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();
+        try{
+            String token=accessToken(expires);
+            var request=HttpRequest.newBuilder(base.resolve("/option-chains/"+encode(underlying)+"/compact")).timeout(deadline).header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+            var bytes=reply.body();var secrets=List.of(clientId,clientSecret,refreshToken,token);String content=new String(bytes,StandardCharsets.UTF_8);for(String secret:secrets)if(content.contains(secret))throw new IllegalStateException();
+            if(!safeDocument(TastytradeHoldings.document(bytes),secrets))throw new IllegalStateException();return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("reference acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("reference acquisition unavailable");}
+    }
+
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
 
     /** Fresh OAuth access token via refresh-token exchange. No durable cache; the

@@ -33,7 +33,7 @@ public final class PortfolioMarketAcquisition {
     // qualified failed refresh, never success with an arbitrarily truncated Account.
     byte[] bytes=client.marketData(equity,options);artifact=retain(account,attempt,bytes);
     try(var connection=repository.connection()){connection.setAutoCommit(false);try{var admissionWarnings=new PortfolioTastyMarketSources(repository).admit(connection,owner.get(),artifact,currencies);warnings.addAll(admissionWarnings);finish(connection,account,attempt,"ACCEPTED",admissionWarnings.isEmpty()?COMPLETE:"Partial requested quote subjects returned; missing subjects are not a successful refresh");connection.commit();}catch(Exception e){connection.rollback();throw e;}}
-    session(account,warnings);
+    references(account,options,warnings);session(account,warnings);
    }catch(Exception e){try(var connection=repository.connection()){if(artifact!=null)finish(connection,account,attempt,"REJECTED","Market source unavailable or unsupported; prior admitted observations preserved");warnings.add(PortfolioJson.warning("MARKET_OBSERVATION_MISSING","","Prior admitted custody and source observations remain inspectable.","Current requested market refresh failed or exceeded its source budget; no source response or successful import is manufactured."));}}
   }return warnings;
  }
@@ -41,6 +41,26 @@ public final class PortfolioMarketAcquisition {
   try(var c=repository.connection();var q=c.prepareStatement("SELECT imported_at,status,result FROM brokerage_import WHERE account=? AND file_type='API_MARKET_DATA' AND imported_at=(SELECT max(imported_at) FROM brokerage_import WHERE account=? AND file_type='API_MARKET_DATA')")){
    q.setString(1,account);q.setString(2,account);try(var r=q.executeQuery()){String at=null;while(r.next()){if(!r.getString("status").equals("ACCEPTED")||!r.getString("result").equals(COMPLETE))return false;at=r.getString("imported_at");}if(at==null)return false;var age=Duration.between(Instant.parse(at),clock.instant());return !age.isNegative()&&age.compareTo(reuse)<0;}
   }
+ }
+ private void references(String account,List<String> options,com.fasterxml.jackson.databind.node.ArrayNode warnings)throws Exception{
+  var groups=new TreeMap<String,Set<String>>();var referenceFreshness=new HashMap<String,Boolean>();var cut=new PortfolioSnapshots(repository).current(account);if(cut.isEmpty())return;
+  for(var p:repository.list(Kind.POSITION,Set.of(account)))if(!p.value().path("state").asText().equals("CLOSED")&&Objects.equals(p.snapshot(),cut.get().snapshotId())){
+   var construction=repository.get(p.value().at("/currentConstruction/href").asText());if(construction.isEmpty())continue;
+   for(var leaf:PortfolioJson.leaves(construction.get().value().path("composition")))if(leaf.path("kind").asText().equals("OPTION")){
+    var subject=repository.get(leaf.at("/instrument/href").asText());var underlying=repository.get(leaf.at("/terms/underlying/href").asText());if(subject.isEmpty()||underlying.isEmpty())continue;
+    String series=subject.get().value().path("symbol").asText(),symbol=underlying.get().value().path("symbol").asText();if(!referenceFreshness.containsKey(symbol))referenceFreshness.put(symbol,referenceFresh(account,symbol));if(subject.get().value().path("option").isObject()&&referenceFreshness.get(symbol))continue;if(options.contains(series))groups.computeIfAbsent(symbol,k->new TreeSet<>()).add(series);
+   }
+  }
+  int budget=10;for(var group:groups.entrySet()){
+   if(--budget<0){warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Admitted contract references remain inspectable.","Reference source request budget reached; later reads can obtain remaining held-series terms. No omitted terms are manufactured."));break;}
+   String attempt=UUID.randomUUID().toString(),artifact=null;
+   try{byte[] bytes=client.compactOptionChain(group.getKey());artifact=retain(account,attempt,bytes,"API_OPTION_CHAIN","tastytrade-option-chain-"+group.getKey()+".json");
+    try(var c=repository.connection()){c.setAutoCommit(false);try{new PortfolioOptionReferenceSources(repository).admit(c,account,artifact,group.getKey(),group.getValue());new PortfolioReferenceEnrichment(repository).apply(c,account,clock.instant());finish(c,account,attempt,"ACCEPTED","Requested held-series reference terms normalized; price multipliers and custody remain independent source facts");c.commit();}catch(Exception e){c.rollback();throw e;}}
+   }catch(Exception e){if(artifact!=null)try(var c=repository.connection()){finish(c,account,attempt,"REJECTED","Unsupported or unavailable reference terms; prior evidence preserved");}warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Reported custody and prior qualified contract references remain inspectable.","Requested held-series reference acquisition is unavailable or unsupported; exact economics remain limited by known terms."));}
+  }
+ }
+ private boolean referenceFresh(String account,String underlying)throws Exception{
+  try(var c=repository.connection();var q=c.prepareStatement("SELECT status,imported_at FROM brokerage_import WHERE account=? AND file_type='API_OPTION_CHAIN' AND original_filename=? ORDER BY imported_at DESC,import_id DESC LIMIT 1")){q.setString(1,account);q.setString(2,"tastytrade-option-chain-"+underlying+".json");try(var row=q.executeQuery()){if(!row.next()||!row.getString("status").equals("ACCEPTED"))return false;var age=Duration.between(Instant.parse(row.getString("imported_at")),clock.instant());return !age.isNegative()&&age.compareTo(Duration.ofDays(1))<0;}}
  }
  private void session(String account,com.fasterxml.jackson.databind.node.ArrayNode warnings)throws Exception{
   String attempt=UUID.randomUUID().toString();String artifact=null;

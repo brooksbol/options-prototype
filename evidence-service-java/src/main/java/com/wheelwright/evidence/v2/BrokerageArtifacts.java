@@ -85,6 +85,11 @@ public class BrokerageArtifacts {
             try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_MARKET_SESSION' LIMIT 1")){
                 q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next())try{com.wheelwright.evidence.v2.portfolio.PortfolioSessionEvidence.validate(bytes);return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}}
             }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT i.original_filename FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_OPTION_CHAIN'")){
+                q.setString(1,owner);q.setString(2,hash);try(var rows=q.executeQuery()){while(rows.next())try{
+                    var m=java.util.regex.Pattern.compile("tastytrade-option-chain-([A-Z][A-Z0-9.]{0,9})\\.json").matcher(rows.getString(1));if(!m.matches())continue;var root=TastytradeHoldings.document(bytes);com.wheelwright.evidence.v2.portfolio.PortfolioOptionReferenceSources.validate(root,m.group(1));boolean scoped=true;for(var item:root.at("/data/items"))scoped&=item.path("underlying-symbol").asText().equals(m.group(1));if(scoped)return new SourceScope(true,Set.of(owner));
+                }catch(Exception invalid){return SourceScope.unknown();}}
+            }
             return SourceScope.unknown();
         }
         if (!sourceAccount.map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))

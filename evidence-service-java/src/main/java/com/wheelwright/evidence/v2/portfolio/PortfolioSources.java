@@ -33,7 +33,7 @@ public final class PortfolioSources {
       }}
      }
      try(var oq=c.prepareStatement("SELECT DISTINCT a.artifact_id,a.received_at FROM brokerage_artifact a JOIN brokerage_import i ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE a.account=? AND i.file_type='API_ORDERS' AND i.status='ACCEPTED' ORDER BY a.received_at,a.artifact_id")){oq.setString(1,account);try(var orders=oq.executeQuery()){while(orders.next()){String artifact=orders.getString("artifact_id"),admission="orders:"+artifact;if(!repository.admitted(c,account,admission)){new PortfolioOrderSources(repository).admit(c,owner.get(),artifact,true);repository.markAdmitted(c,account,admission);}}}}
-     new PortfolioFillEvidence(repository).refresh(c,owner.get());
+     new PortfolioFillEvidence(repository).refresh(c,owner.get());new PortfolioReferenceEnrichment(repository).apply(c,account,Instant.now());
     }new PortfolioMarketSources(repository).refresh(c);c.commit();
    }catch(Exception e){c.rollback();throw e;}
   }
