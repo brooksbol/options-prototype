@@ -226,3 +226,48 @@ Planning hypotheses should be tested by smallest executable specimens, not asser
 7. What cloud/provider guarantees and costs make real private financial data acceptable?
 
 **Status remains PL-MCP-01 INTAKE.** Reconciliation Completion Record not yet prepared, no MCP runtime/SDK/host or CLI-versus-REST choice ratified, and no experiment/implementation/deployment authority asserted by this documentation update.
+
+
+## 12. October 21 continuation — evolutionary question-led development and Wheelwright as a mirror
+
+**Standing:** Principal strategic discovery and assistant interpretation, not a new ratified Product Principle, fixed project plan, Solution Overview, or implementation authorization. Captured under the existing PL-MCP-01 identity at the Principal's request. Related to the already-established question-driven Product north star, PL-CLI-01 composability, and Wheelwright's Product-first engineering mandate.
+
+### 12.1 Principal's five observations — preserved verbatim
+
+- “roadmap as strategic intent, not a laudry list of features in order”
+- “a project plan that is actually a cyclical operating model”
+- “follow the questions”
+- “This is a better way forward than unix commands. it's a shortcut to the questions.”
+- “ww will end up being a mirror: a mirror on my own learning”
+
+The immediate preceding Principal elaboration makes the meaning especially clear: **“i'd like to evolve this rather than plan it out. we can have a project plan but it doesn't dictate where the questions take us”**. The Principal hopes answers naturally uncover new questions and composable Wheelwright capabilities expose useful **unpredicted/emergent** behavior possibilities. Do not flatten this into an instruction to remove the roadmap, abandon the CLI, automatically evolve governance, or give the model open-ended execution authority.
+
+### 12.2 Distinct concerns and candidate interpretation
+
+**Roadmap as strategic intent.** The roadmap preserves direction, desired operator outcomes, bets and boundaries. It need not be treated as a feature-order manifest. Existing `docs/roadmap.md` question-driven design already directs developers from legitimate questions toward governed evidence/capability gaps. Existing roadmap authority and the requirement to reconcile material changes are unchanged.
+
+**Project plan as cyclical operating model.** Rather than committing to a complete upfront decision-support decomposition, proposed cycle: operator asks a consequential question → attempt the answer using existing authorized capabilities → characterize whether blocked by missing evidence, meaning, governance or composition → recover/reuse first and extend only where justified and authorized → run the same question as an executable fitness specimen → observe new useful questions, surprising compositions and failure cases → repeat, pause or stop. The cycle defines **method and quality gates**; it does not predetermine the next Product capability. This must not bypass repository idea intake, ratification or Principal authority.
+
+**Follow the questions.** Natural follow-on questions might progress from positions requiring attention to repeated management interventions, appropriateness of operating policy, and empirical evaluation of an alternative regime. These are *illustrative question paths*, not approved deterministic recommendations or requirements to implement a universal decision engine. Every loop should produce an operator-useful demonstrated result, a falsified claim, or an explicitly characterized blocker; not perpetual speculative redesign.
+
+**Conversation as a shortcut to questions.** The original composable Unix CLI was itself a move away from fixed workflows: humans and agents could compose small governed tools. A conversational MCP client can let an agent attempt composition on behalf of an operator who need not learn CLI command grammar. The Principal expressed this as a preferable potential direction, **not** a decision to retire `ww` or violate ratified one-API/many-clients. CLI remains useful for precision, scripting, inspection, and independent conformance.
+
+**WW as mirror of operator learning.** A possible long-term differentiator is that Wheelwright reflects not only account inventory or financial performance but also the operator's developing questions, changing hypotheses, clarified capital purposes and decision history. In a disciplined implementation, conversation and research may capture tentative preferences and beliefs while authoritative backend domain policy changes only on explicit governed adoption with provenance. The goal is greater operator self-understanding and agency, **not** an agent independently learning a user's secrets into shared model weights, imposing goals or deciding trades.
+
+### 12.3 Emergence is a falsifiable hypothesis
+
+Investigate whether each accepted domain primitive reduces the marginal work necessary to answer previously unforeseen questions, and whether capability composition uncovers genuinely useful operator outcomes. Possible measures: previously unsupported questions answered correctly by composing existing authoritative primitives; independently reproduced answers across CLI/REST/MCP; reduced bespoke backend additions; operator decision quality and effort. These are **candidate measurements**, not ratified KPIs. Curiosity or creative agent output is not authoritative financial meaning, and claims of emergence require observable examples rather than enthusiasm.
+
+### 12.4 Stable constraints versus evolutionary discovery
+
+**Stable authority:** financial and ontological meaning, backend-governed calculations/policies, User–Account grants, source provenance, claim uncertainty, cross-user model-context isolation, and consequential authorization boundaries.
+
+**Evolving discovery:** which operator question is worth pursuing, whether it can already be answered, which evidence/capability is missing, which composition proves useful, which research hypothesis is falsified, and whether an observed capability deserves Product adoption.
+
+Do not conflate operator conversational memory, research hypotheses, backend-governed policy and agent-run working context. The previously documented pre-inference multi-user isolation fitness concern remains central.
+
+### 12.5 Explicit scope and disposition
+
+This continuation **refines the rationale and learning method for PL-MCP-01** but does not expand its immediate experimental implementation beyond a potential bounded read-only MCP/holdings specimen. Decision Support remains a separate domain delivery concern; it should evolve from real questions while preserving existing roadmap and API commitments. No new roadmap Bet, Product Principle, CLI retirement, universal agent framework, hidden recommendation logic, persistent User model or autonomous research mandate is asserted.
+
+**State:** PL-MCP-01 remains INTAKE; strategy and architecture reconciliation plus the required Reconciliation Completion Record are still pending. The Principal requested durable knowledge capture, not ratification or implementation. No runtime, backend/OAS, access, model-memory, deployment, research, or trading mutation is authorized by this record.
