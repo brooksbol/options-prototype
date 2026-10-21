@@ -101,6 +101,7 @@ public final class PortfolioRepository {
             if(!d.uri().equals(prefix+id))throw new IllegalArgumentException("resource kind and GUID must match URI");
         }
         if(d.account()!=null&&!d.value().path("account").path("href").asText().equals("/v2/accounts/"+d.account()))throw new IllegalArgumentException("Account scope mismatch");
+        if(d.kind()==Kind.HOLDING){var quantity=d.value().path("quantity");String side=d.value().path("side").asText();if(!Set.of("LONG","SHORT","UNKNOWN").contains(side)||!quantity.isNull()&&(!quantity.isTextual()||new java.math.BigDecimal(quantity.asText()).signum()<0))throw new IllegalArgumentException("reported held quantity and side invalid");if((quantity.isNull()||side.equals("UNKNOWN"))&&(!d.value().path("snapshotCoverage").asText().equals("PARTIAL")||d.value().path("warnings").isEmpty()))throw new IllegalArgumentException("Unknown held quantity or direction requires partial evidence and warnings");}
         if(d.kind()==Kind.POSITION) {
             UUID.fromString(d.value().path("id").asText());
             if(!Set.of("OPEN","CLOSED","UNRESOLVED").contains(d.value().path("state").asText()))throw new IllegalArgumentException("invalid Position state");

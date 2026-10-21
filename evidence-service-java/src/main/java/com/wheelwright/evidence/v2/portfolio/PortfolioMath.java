@@ -42,7 +42,7 @@ public final class PortfolioMath {
             var fee=x.at("/economics/fees");if(established(fee)){if(!fee.path("currency").asText().equals(currency))feeCurrencyConflict=true;if(!fee.path("unit").asText().equals("MONEY")||number(fee.path("value")).signum()<0)feeInvalid=true;}if(established(fee)&&fee.path("unit").asText().equals("MONEY")&&fee.path("currency").asText().equals(currency)&&number(fee.path("value")).signum()>=0){fees=fees.add(number(fee.get("value")));for(var ev:fee.path("evidence"))feeEvidence.add(ev);}else feesKnown=false;
             BigDecimal value=null;
             if(kind.equals("CASH")){value=number(x.get("quantity"));for(var ev:x.at("/allocation/inventory/evidence"))marketEvidence.add(ev);}
-            else {
+            else if(Set.of("LONG_SHARES","OPTION").contains(kind)) {
                 var observation=observations.get(x.path("instrument").path("href").asText());
                 if(observation!=null&&established(observation.path("mid"))&&observation.at("/mid/currency").asText().equals(currency)){
                     var price=number(observation.at("/mid/value"));var time=observation.at("/mid/asOf");var clock=time.isTextual()?Instant.parse(time.asText()):null;var bid=number(observation.at("/bid/value"));var ask=number(observation.at("/ask/value"));
@@ -52,6 +52,7 @@ public final class PortfolioMath {
             }
             if(value==null)quotesKnown=false;else {market=market.add(value);if(!kind.equals("CASH"))closing=closing.add(value);}
         }
+        if(xs.stream().anyMatch(x->!Set.of("CASH","LONG_SHARES","OPTION").contains(x.path("kind").asText())))for(String field:List.of("marketValue","estimatedClosingCashFlow","grossUnrealizedPl","netUnrealizedPl")){var unsupported=unknown("MONEY",at,"VALUATION_UNSUPPORTED").put("method","UNSUPPORTED_CONSTITUENT_UNIT_MEANING");if(currency==null)unsupported.putNull("currency");else unsupported.put("currency",currency);e.set(field,unsupported);}
         if(currency==null){basisKnown=false;quotesKnown=false;feesKnown=false;for(String field:List.of("marketValue","grossUnrealizedPl","openingCashFlow","estimatedClosingCashFlow","netUnrealizedPl","fees"))e.set(field,unknown("MONEY",at,"MIXED_CURRENCY").putNull("currency"));}
         if(basisKnown)e.set("openingCashFlow",metric(opening,"MONEY",currency,at,"SIGNED_ATTRIBUTED_OPENING_CASH_FLOW","QUALIFIED",basisEvidence,"OPENING_CASH_FLOW"));
         if(feesKnown)e.set("fees",metric(fees,"MONEY",currency,at,"ATTRIBUTED_REPORTED_FEES","QUALIFIED",feeEvidence));

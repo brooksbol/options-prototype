@@ -28,7 +28,7 @@ public final class PortfolioSources {
      var owner=accounts.get(account);if(owner.isEmpty())continue;
      try(var q=c.prepareStatement("SELECT payload_json FROM account_position_snapshot WHERE account=? ORDER BY evidence_date,recorded_at,snapshot_id")){
       q.setString(1,account);try(var r=q.executeQuery()){while(r.next()){
-       var snapshot=mapper.readValue(r.getString(1),PositionSnapshot.class);if(repository.admitted(c,account,snapshot.snapshotId()))continue;
+       var snapshot=mapper.readValue(r.getString(1),PositionSnapshot.class);String additional="fidelity-additional-custody:v1:"+snapshot.snapshotId();if(snapshot.observation()==null&&!repository.admitted(c,account,additional)){new PortfolioFidelityAdditionalCustody(repository).admit(c,snapshot);repository.markAdmitted(c,account,additional);}if(repository.admitted(c,account,snapshot.snapshotId()))continue;
        admit(c,snapshot,owner.get());repository.markAdmitted(c,account,snapshot.snapshotId());
       }}
      }

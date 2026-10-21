@@ -49,7 +49,7 @@ public final class FidelityPositions {
             if (accountName != null && !accountName.equals(name)) throw new IllegalArgumentException("account name conflict");
             accountName = name;
             String kind = cell(header, row, "Investment type"), contract = cell(header, row, "Symbol");
-            BigDecimal quantity = number(cell(header, row, "Quantity"));
+            String sourceQuantity=cell(header,row,"Quantity");if(sourceQuantity.contains("$"))throw new IllegalArgumentException("quantity must be reported units, not currency");BigDecimal quantity = number(sourceQuantity);
             if (quantity == null || kind.isEmpty() || kind.equals("Cash")) { excluded++; continue; }
             if (contract.isBlank()) throw new IllegalArgumentException("missing holding contract");
             String custody = cell(header, row, "Type");
@@ -97,12 +97,14 @@ public final class FidelityPositions {
     private static String cell(List<String> headers, List<String> row, String key) {
         return row.get(headers.indexOf(key)).trim();
     }
-    static BigDecimal number(String s) {
+    public static BigDecimal number(String s) {
         if (s.isBlank() || s.equals("--")) return null;
-        return new BigDecimal(s.replace("$", "").replace(",", "").replace("+", ""));
+        // A sign/currency prefix is lexical; removing arbitrary characters must never turn 1+2 into12.
+        if(!s.matches("(?:[+-]?\\$?|\\$[+-]?)(?:[0-9]+(?:\\.[0-9]*)?|[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|\\.[0-9]+)"))throw new IllegalArgumentException("unsupported source numeric format");
+        return new BigDecimal(s.replace("$", "").replace(",", ""));
     }
     /** RFC4180 quoting, embedded newline/comma support; malformed input never partially admits. */
-    static List<List<String>> csv(String text) {
+    public static List<List<String>> csv(String text) {
         var result = new ArrayList<List<String>>(); var row = new ArrayList<String>();
         var value = new StringBuilder(); boolean quoted = false, closed = false;
         for (int i = 0; i < text.length(); i++) {

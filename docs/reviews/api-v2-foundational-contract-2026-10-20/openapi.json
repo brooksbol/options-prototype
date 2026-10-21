@@ -17177,11 +17177,20 @@
             "type": "string",
             "enum": [
               "LONG",
-              "SHORT"
+              "SHORT",
+              "UNKNOWN"
             ]
           },
           "quantity": {
-            "$ref": "#/components/schemas/NonnegativeDecimal"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NonnegativeDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reported held units when established. Null preserves an independently readable source observation whose quantity was not reported; never substitute market value or zero."
           },
           "unit": {
             "type": "string",
@@ -17321,6 +17330,42 @@
               "required": [
                 "sourceUnit"
               ]
+            }
+          },
+          {
+            "if": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "quantity": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "quantity"
+                  ]
+                },
+                {
+                  "properties": {
+                    "side": {
+                      "const": "UNKNOWN"
+                    }
+                  },
+                  "required": [
+                    "side"
+                  ]
+                }
+              ]
+            },
+            "then": {
+              "properties": {
+                "snapshotCoverage": {
+                  "const": "PARTIAL"
+                },
+                "warnings": {
+                  "minItems": 1
+                }
+              }
             }
           }
         ]

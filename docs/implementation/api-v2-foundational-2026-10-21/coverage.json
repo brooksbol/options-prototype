@@ -824,7 +824,8 @@
     "BrokerHolding": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/BrokerHolding",
-      "shapeSha256": "0540dfbc3bec5be0d55472db3479875d12e293d69932541a9eb936c4b252b523"
+      "shapeSha256": "cc482f058eef9ed82b7504f51b08d611f96b381854c4939d270e57d5ad300f85",
+      "sourceEvidenceExtension": "Nullable reported quantity / UNKNOWN direction preserve actual Fidelity rows lacking units; PARTIAL and warnings required. No allocation of unquantified inventory."
     },
     "BrokerHoldingCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",

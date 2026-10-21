@@ -50,4 +50,12 @@ class EntryCorrections(unittest.TestCase):
    for _ in range(2):
     subprocess.run([sys.executable,str(target/'finalize-review-fixtures.py')],check=True)
     for f in watched:self.assertEqual(before[f],(target/f).read_bytes(),f)
+ def test_unreported_custody_quantity_needs_explicit_incompleteness(self):
+  holding=copy.deepcopy(next(x['value'] for x in v.R.values() if x['schema']=='BrokerHolding'));holding.update(quantity=None,side='UNKNOWN',snapshotCoverage='PARTIAL');holding['warnings']=[{'code':'TERMS_UNAVAILABLE','affected':['/quantity'],'establishedFacts':['Reported value is independently retained.'],'incompleteConclusions':['Unit quantity is not reported.'],'evidence':[],'remediation':[]}];v.check('BrokerHolding',holding)
+  for defect in ['claims_complete','no_warning','negative_quantity']:
+   bad=copy.deepcopy(holding)
+   if defect=='claims_complete':bad['snapshotCoverage']='COMPLETE_REPORTED'
+   elif defect=='no_warning':bad['warnings']=[]
+   else:bad['quantity']='-1'
+   with self.assertRaises(v.jsonschema.ValidationError):v.check('BrokerHolding',bad)
 if __name__=='__main__':unittest.main(verbosity=2)

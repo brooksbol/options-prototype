@@ -95,6 +95,13 @@ for name,fields,unit in [
   restriction={'properties':{'unit':{'const':unit}}}
   if 'allOf' not in old:o['components']['schemas'][name]['properties'][field]={'allOf':[old,restriction]}
   elif restriction not in old['allOf']:old['allOf'].append(restriction)
+# An independently readable custody observation can lack reported quantity or direction.
+# This does not permit an unknown owned allocation: SourceInventory/constituent quantity remains numeric.
+holding=o['components']['schemas']['BrokerHolding']
+holding['properties']['quantity']={'anyOf':[{'$ref':'#/components/schemas/NonnegativeDecimal'},{'type':'null'}],'description':'Reported held units when established. Null preserves an independently readable source observation whose quantity was not reported; never substitute market value or zero.'}
+holding['properties']['side']['enum']=['LONG','SHORT','UNKNOWN']
+unquantified={'if':{'anyOf':[{'properties':{'quantity':{'type':'null'}},'required':['quantity']},{'properties':{'side':{'const':'UNKNOWN'}},'required':['side']}]},'then':{'properties':{'snapshotCoverage':{'const':'PARTIAL'},'warnings':{'minItems':1}}}}
+if unquantified not in holding['allOf']:holding['allOf'].append(unquantified)
 # Complete the already-declared Construction collection include projection with the same typed, authorized expansion shape.
 o['components']['schemas']['Construction']['properties']['included']={'$ref':'#/components/schemas/Position/properties/included'}
 for path,v in [('openapi.json',o),('examples/resources.json',b)]: (P/path).write_text(json.dumps(v,indent=2)+'\n')
