@@ -100,3 +100,68 @@ Triangulate three independent layers to isolate defects: direct v2 HTTP correctn
 **Not authorized:** MCP server, agent/chat client implementation, API/OAS changes, provider credential acquisition, brokerage connections, trading, real user data transfer to a model, memory collection, grant mutation, hosting/deployment, ratification of tool/schema vocabulary, modification of accepted Product surfaces, or operating-model changes.
 
 **Persistence scope:** documentary intake and bounded why-state only, requested by Principal October 21, 2026. Record includes assistant-derived candidate approaches visibly separated from Principal-stated goals. It is not a transcript export and does not misrepresent synthetic examples as live brokerage evidence.
+
+
+## 10. October 21 continuation — research, discipline, layered capital and long-term strategy
+
+**Standing:** Additional Principal-directed discovery in the same conversation, preserved at existing PL-MCP-01 as adjacent strategic context. These statements do not ratify a new Product Principle, Operating Regime resource, capital-management strategy or implementation mandate. They arose *after* the original intake; see the dated PL-MCP-01 continuation in the canonical parking lot.
+
+### 10.1 The question-first trajectory
+
+The Principal described an existing line of thinking: **“questions first” → user journey → ww CLI experience → domain concepts → API design.** The conversational/MCP client was recognized as an emerging natural consumer of this direction, not its cause. Assistant interpretation: agent-consumable capabilities provide a new falsifier of how reusable and semantically complete the v2 domain API really is. The established question-driven milestone and PL-CLI-01 composability hypothesis support this relationship; agent-client priority or primary-interface status is not decided.
+
+### 10.2 Research and operations have different kinds of openness
+
+The Principal identified a relatively unstructured Wheelwright **research arm**, occasionally involving Muse, exploratory hypotheses, backtesting plans and unconventional questions. This differs from the increasingly explicit operational domain. Research may legitimately explore distant hypotheses; operational policy must not silently inherit them.
+
+Candidate separation, not an approved two-engine architecture: research produces questions, hypotheses, experiment protocols, provenance and independently checked results; governance/adoption is a distinct consequential transition; operations consumes only established domain meaning and duly adopted policy. The conversational agent might navigate between inquiry and governed operation without confusing experimental findings with operational recommendation authority. “Hypothesis”, “Experiment” and “Finding” are possible research vocabulary, not ratified entities/resources.
+
+### 10.3 Operator focus / paradox of choice
+
+The Principal located a psychological Product motivation in **the paradox of choice**: a trader continually faces stimuli and apparent opportunities that can break discipline. Wheelwright should help an operator stay focused, not manufacture trading activity. The Principal contrasted this with an impression that many conventional trading platforms optimize for encouraging trading rather than discipline; this is a Principal observation and differentiating hypothesis, **not a verified universal claim about competitors or their incentives**.
+
+Assistant candidate phrasing: “Protect Operator Focus” and “discipline by design.” Neither was explicitly ratified as a Product Principle; the canonical Principles register presently has no ratified Product Principles. The current roadmap already contains WAIT as a genuine alternative, precommitted lifecycle policy, attention-first use, trustworthy concise explanation and explicit consequences. New insight: focus/attention is a possible common human-factors rationale for these existing directions. A meaningful future fitness probe might measure unnecessary, policy-inconsistent interventions and attentional burden against missed materially important decisions. Focus cannot mean withholding essential evidence or displacing operator agency.
+
+A critical distinction: **research curiosity can be expansive without automatically interrupting operational discipline**. A novel premium or promising backtest is not by itself a reason to redirect capital.
+
+### 10.4 Conversational discovery of operator profile versus governed policy
+
+The Principal proposed an agent getting to know an operator through repeated conversations, with operating regimes **emerging as deterministic backend-governed models**, rather than remaining agent memories or informal labels. Illustrative regimes: recurring cash-flow Income Wheel; appreciation-oriented Growth Wheel; and long shares with protective LEAPS (“maturity with a floor”), where puts are a premium *debit* rather than income. These serve different jobs and are not interchangeable.
+
+Candidate conceptual progression: conversation surfaces preferences and intent → candidate objective/constraint/scope proposals → explicit operator adoption through an authoritative mechanism → versioned backend governance → later reconsideration. This is *not* an established WW acceptance or mutation workflow. A conversational remark about a preference must not silently change a governing policy, commit capital, or imply Account-wide regime assignment. The October 6 operator-journey discovery already distinguishes operator profile (“how the operator prefers to perform the job”) from Operating Regime (“the job”). The backend remains authority for explicitly governed scopes, while agent recollections remain non-authoritative.
+
+### 10.5 One Account, layered time horizons and design attributes
+
+The Principal reiterated that **one brokerage Account may contain multiple capital layers with different timeframes and design attributes**. This builds on the Principal-ratified scope fact: Account identity is not Operating Regime, and one Account may hold separately governed quantities under different regimes (standing example: 250 SPY shares, split 150 Buy & Hold / 100 Growth Wheel). Cash-side scopes also count. Do not infer from the established example that arbitrary overlapping “layers”, their hierarchical identity or their time-horizon relations are implemented/ratified.
+
+Exploratory layer examples: weekly/monthly income, months-to-years growth, multi-year protected ownership (with independent protection expiry), immediate liquidity. Potentially different time horizons can coexist for ownership, protection, obligations and reconsideration. Canonical Position/Inventory Block/governed-scope identity remains unresolved under ASSIM-0002, so do not force these layers into arbitrary current v2 resource identities.
+
+### 10.6 Position management versus portfolio management versus capital governance
+
+The Principal observed that many trading interfaces are better at Position/trade handling than the broader task of **portfolio management**, though the discussion did not establish a comprehensive competitor survey. A possible longer-horizon distinction emerged:
+- Position: what action is warranted for this holding?
+- Portfolio: how do allocations, liquidity, concentration, correlations and time horizons interact?
+- Capital governance: which purposes, commitments, constraints and priorities govern their collective use?
+
+A locally attractive trade might conflict with a liquidity or protected-growth commitment. This is a *potential* explanation of how focus, multi-regime capital and question-driven clients fit together, not approval of portfolio-wide optimization, a new allocation policy, or a revised Product mission.
+
+The Principal explicitly clarified: **“this is a long term strategic view.”** Therefore retain the current options-income scope and established roadmap. Use this as architectural compatibility/differentiation context, **not** a near-term roadmap addition, commitment, accepted Portfolio ontology or replacement vision.
+
+### 10.7 Horizon discipline and pipeline disposition
+
+Illustrative horizon split, not ratified sequencing:
+- Present: sound v2 identity/evidence/domain contracts and question-driven API reuse.
+- Experimental: bounded MCP conversation and **verifiable** isolation of per-user inference context with synthetic identities/fixtures.
+- Long term: operator-profile discovery, explicit regime adoption, capital layering and portfolio-level governance across horizons.
+
+**Reconciliation:** The MCP/privacy learning concern remains PL-MCP-01. Cross-link established PL-CLI-01 question-driven platform, PL-API-02/03, PL-CONV-01, maintained Account/Regime and Position/Governed Quantity owners; cite the current roadmap's Access, WAIT, precommitted policy, Trustability, comparative consequences and explanation direction. These later strategic observations are *related context*, not automatically new feature scope and not a new canonical PL identity without a separate durability/duplication assessment. No change to roadmap, architecture-roadmap, Principles, API/OAS, backend policy, client or deployment is authorized by this continuation. **PL-MCP-01 remains INTAKE, not RECONCILED.**
+
+### 10.8 Remaining falsifiable questions
+
+1. Does question-first API v2 composition answer useful unseen questions without adding agent-side financial semantics?
+2. Can the agent preserve ontology/profile/regime/capital-scope distinctions while learning about the operator over time?
+3. What authoritative event turns conversationally discovered preferences into adopted policy, with versioned scope, consent and an audit trail?
+4. How can research findings be deliberately promoted (or rejected) without turning exploration into operational distraction?
+5. What observations establish that focus-preserving surfaces reduce needless decisions *without* suppressing consequential evidence?
+6. Does the long-term capital-governance vision expose actual architecture pressure today, or can established v2 domain-first boundaries accommodate it without speculative new resources?
+7. How can future operator-profile memory remain user-private and outside financial authority, including the model-input isolation fitness concern already central to PL-MCP-01?
