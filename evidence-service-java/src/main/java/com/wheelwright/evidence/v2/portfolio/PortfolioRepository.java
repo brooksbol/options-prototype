@@ -82,7 +82,7 @@ public final class PortfolioRepository {
             String artifact=n.at("/artifact/href").asText();if(!artifact.isBlank()){
                 if(!artifact.matches("/v2/artifacts/[0-9a-fA-F-]{36}"))throw new IllegalArgumentException("canonical Artifact evidence required");
                 try(var query=c.prepareStatement("SELECT account FROM brokerage_artifact WHERE artifact_id=?")){query.setString(1,artifact.substring("/v2/artifacts/".length()));try(var row=query.executeQuery()){if(!row.next()||!row.getString(1).equals(d.account()))throw new IllegalArgumentException("source Artifact must resolve in Account scope");}}
-                try(var query=c.prepareStatement("SELECT 1 FROM brokerage_import WHERE account=? AND artifact_id=? AND file_type='API_ORDERS' LIMIT 1")){query.setString(1,d.account());query.setString(2,artifact.substring("/v2/artifacts/".length()));try(var row=query.executeQuery()){if(row.next()&&!n.path("requiredCapability").asText().equals("account.orders.read:"+d.account()))throw new IllegalArgumentException("Order source capability required");}}
+                try(var query=c.prepareStatement("SELECT DISTINCT file_type FROM brokerage_import WHERE account=? AND artifact_id=? AND file_type IN ('API_ORDERS','API_MARKET_DATA')")){query.setString(1,d.account());query.setString(2,artifact.substring("/v2/artifacts/".length()));try(var row=query.executeQuery()){while(row.next()){String capability=row.getString(1).equals("API_ORDERS")?"account.orders.read:":"account.market.read:";if(!n.path("requiredCapability").asText().equals(capability+d.account()))throw new IllegalArgumentException("Source-specific capability required");}}}
             }
         }
         if(n.isObject()&&n.has("href")){

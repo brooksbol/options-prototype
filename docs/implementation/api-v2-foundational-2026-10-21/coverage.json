@@ -151,9 +151,11 @@
       "owner": "portfolio/PortfolioController",
       "tests": [
         "PortfolioContractIntegrationTest",
-        "PortfolioHttpTest"
+        "PortfolioMarketReadThroughTest",
+        "PortfolioTastyMarketSourcesTest",
+        "PortfolioMarketAcquisitionTest"
       ],
-      "remaining": "Retained custody/direct-quote/Order-page normalization implemented. Complete source acquisition, association admission, supported history and accepted source-derived runtime parity are unfinished."
+      "remaining": "Account-authorized typed tastytrade quote read-through, exact original retention and per-subject normalization implemented and loopback tested. Session/contract-reference integration, whole-package source parity and whole-application completeness verification remain unfinished."
     },
     {
       "path": "/v2/market-observations/{observationId}",
@@ -168,9 +170,11 @@
       "owner": "portfolio/PortfolioController",
       "tests": [
         "PortfolioContractIntegrationTest",
-        "PortfolioHttpTest"
+        "PortfolioMarketReadThroughTest",
+        "PortfolioTastyMarketSourcesTest",
+        "PortfolioMarketAcquisitionTest"
       ],
-      "remaining": "Retained custody/direct-quote/Order-page normalization implemented. Complete source acquisition, association admission, supported history and accepted source-derived runtime parity are unfinished."
+      "remaining": "Account-authorized typed tastytrade quote read-through, exact original retention and per-subject normalization implemented and loopback tested. Session/contract-reference integration, whole-package source parity and whole-application completeness verification remain unfinished."
     },
     {
       "path": "/v2/constructions/models",
@@ -902,7 +906,7 @@
       "status": "PARTIAL",
       "implementation": "PortfolioSources, PortfolioSnapshots",
       "tests": "PortfolioContractIntegrationTest, PortfolioHttpTest, PortfolioFidelityFactsTest",
-      "remaining": "Same-day unique-quantity Fidelity capital facts implemented; source quote/contract/session adapters and broader provenance integration remain incomplete."
+      "remaining": "Fidelity capital and typed tastytrade quote normalization/read-through are implemented; session/contract reference qualification and broader source observation enrichment remain incomplete."
     },
     "R11_R12_R13_R14": {
       "status": "PARTIAL",

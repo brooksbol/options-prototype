@@ -19,6 +19,11 @@ public final class PortfolioReadService {
  @org.springframework.beans.factory.annotation.Autowired(required=false)
  public void orderAcquisition(PortfolioOrderAcquisition acquisition){this.orderAcquisition=acquisition;}
  public void synchronizeOrders(Set<String> scope)throws Exception{if(orderAcquisition!=null)orderAcquisition.read(scope);}
+ private PortfolioMarketAcquisition marketAcquisition;
+ @org.springframework.beans.factory.annotation.Autowired(required=false)
+ public void marketAcquisition(PortfolioMarketAcquisition acquisition){this.marketAcquisition=acquisition;}
+ public ArrayNode synchronizeMarket(Set<String> scope)throws Exception{return marketAcquisition==null?array():marketAcquisition.read(scope);}
+
  public ArrayNode sourceWarnings(Set<String> scope)throws Exception{
   var result=array();try(var connection=repo.connection()){for(String account:scope)try(var query=connection.prepareStatement("SELECT status FROM brokerage_import WHERE account=? AND file_type='API_ORDERS' ORDER BY imported_at DESC,import_id DESC LIMIT 1")){query.setString(1,account);try(var row=query.executeQuery()){if(row.next()&&!row.getString(1).equals("ACCEPTED"))result.add(warning("SOURCE_CONFLICT","/items","Prior admitted Order evidence remains inspectable.","The most recent retained Order scan was not completely admitted; current source completeness is unknown."));}}}return result;
  }
