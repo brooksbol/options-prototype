@@ -165,3 +165,64 @@ Illustrative horizon split, not ratified sequencing:
 5. What observations establish that focus-preserving surfaces reduce needless decisions *without* suppressing consequential evidence?
 6. Does the long-term capital-governance vision expose actual architecture pressure today, or can established v2 domain-first boundaries accommodate it without speculative new resources?
 7. How can future operator-profile memory remain user-private and outside financial authority, including the model-input isolation fitness concern already central to PL-MCP-01?
+
+
+## 11. October 21 continuation — runtime, project sequencing, CLI versus REST, and web surface
+
+**Standing:** Principal questions and assistant-proposed planning options, not selected architecture, Product approval, executable implementation plan or runtime verification. This addition follows section 10's long-horizon discovery and preserves the newest discussion without opening a second intake.
+
+### 11.1 Agent competence and knowledge
+
+The Principal asked whether agents are “dumb” or have to be trained. Working explanation: a pretrained model provides natural-language reasoning and tool-selection ability; an agent runtime supplies a bounded execution loop; Wheelwright provides canonical, timely, access-controlled financial knowledge through tools. Separate model fine-tuning is **not a prerequisite** for the bounded experiment and risks introducing stale duplicate domain semantics. Tool descriptions, runtime constraints and retrieval do not confer authoritative financial judgment. The Principle of backend authority still governs.
+
+### 11.2 Runtime and hosting candidates
+
+The Principal asked whether Codex can be used with an existing OpenAI account and whether Render can host the future agent. Candidate division discussed:
+- **Codex** as a convenient development/initial MCP inspection host, not a selected multi-user production runtime.
+- A **purpose-built host/agent runtime** (OpenAI Agents SDK was suggested, not selected) to control the inference input, User and session binding, complete tool inventory, traces, claim validation and eventual conversation interface. Hosted API inference could have separate usage/billing and provider-handling terms from a ChatGPT subscription.
+- **Render** as a potential cloud host for an app/service running an agent runtime and optional private MCP service, with Wheelwright backend kept authoritative. Render hosting itself does not supply Wheelwright-specific user-context isolation or controlled answer validation. Secrets, storage and third-party LLM retention require design.
+- No actual host, SDK, model, transport, provider plan, Render service topology, secrets path or deployment selected.
+
+The experiment's central cross-user fitness test remains **complete pre-inference context validation**, not merely security at the backend or agent promises. Third-party provider retention/training isolation cannot be proved from local behavioral tests alone.
+
+### 11.3 Hypothetical project phases, not commitments
+
+An assistant-generated hypothetical plan proposed: (0) Product/architecture reconciliation and accepted operator specimens; (1) synthetic cross-user/context isolation harness; (2) narrow read-only MCP adapter over operative v2; (3) one-agent conversational runtime and simple terminal UI; (4) semantic/output verification; (5) cloud multi-user testing; (6) pilot and operator acceptance. Its suggested week estimates were conjectural and are **not committed schedule, budget or sequencing**. A smaller first proof may combine a synthetic User A/B (+ intentionally shared-account User C) scenario with authenticated Account discovery, retained Positions, and auditable model-input isolation. No API mutation, brokerage credentials, trading, or real financial input needed.
+
+### 11.4 Start before decision/recommendation maturity?
+
+The Principal observed the holdings/Account/Position side becoming increasingly useful while v2 decision/recommendation semantics lag. Assistant hypothesis: do **not** wait for comprehensive recommendations to begin learning MCP; instead constrain the prototype to already established read capabilities and treat unanswered decision questions as bounded capability-gap evidence. An agent is an **observer rather than a trading advisor** at this stage. Decision semantics continue as independent backend Product work. This is advice only, not a Principal selection of start date or sequencing.
+
+### 11.5 Continue `ww` CLI, create v2 Web, or skip stages?
+
+The Principal asked whether the CLI was still a worthwhile intermediate step and how v2 Web and conversational clients fit together. The established v2 architectural mandate is one backend domain contract with independent consumers; **CLI is not a mandatory implementation predecessor to MCP or Web**, and no client owns financial business logic.
+
+Candidate differentiated purposes:
+- `ww` CLI: exact scriptable inspection, operational ergonomics, reproducibility and inexpensive API specimens.
+- MCP conversational client: natural-language question composition, qualified explanations and previously unseen queries.
+- v2 web UI: rich visual comparison, simultaneous inspection, navigation and spatial understanding.
+
+Assistant sequencing suggestion: continue worthwhile CLI/domain vertical slices, run a small parallel synthetic-data MCP experiment, mature backend decision semantics independent of any interface, and approach web v2 through a bounded visually compelling journey rather than wholesale v1 replication. No selection, staffing allocation, requirement to build all three clients, or decision to retire CLI/Web followed.
+
+### 11.6 Principal's newest topology question: MCP through CLI or directly through REST?
+
+The Principal explicitly asked whether MCP should invoke `ww` CLI or the v2 REST API. Two candidate paths were compared:
+- **MCP → v2 REST API → backend**: favored in assistant assessment because v2 OAS is authoritative and machine-readable, API preserves structured provenance/errors/authentication, and a cloud multi-user service need not spawn CLI processes or parse presentation-specific output.
+- **MCP → ww CLI → v2 REST API → backend**: feasible local learning composition and a useful Codex tool-use experiment, but introduces subprocess/credential/output-contract complexity in hosted multi-user settings.
+
+A third option, **a shared typed/generated HTTP client library used by both CLI and MCP**, could reduce adapter duplication if real need is demonstrated, but it is not independently justified yet and must not become client-side financial authority.
+
+**No binding decision was made.** Assistant recommendation is MCP→REST as primary production-oriented path, with `ww` an independent reference client and equivalence oracle. The experiment should compare identical authorized synthetic fixtures through REST, CLI and MCP for canonical Account identity, qualified Positions, timing/provenance, authorization/denials and preservation of UNKNOWN. Distinct human presentation is allowed; authoritative conclusions must match. Test protocol/controller complexity before cementing adapter topology.
+
+### 11.7 Evaluation and open decisions
+
+Planning hypotheses should be tested by smallest executable specimens, not assertions that an agent or three UI types are needed. Relevant falsifiers:
+1. Can the MCP adapter preserve exact v2 subject, source, status and authorization semantics without CLI parsing or new domain logic?
+2. Can a Codex-assisted local demo and a purpose-built host yield equivalent *domain* results while showing the observability/control difference of hosted inference?
+3. Does the host provide complete final model-request interception for privacy fitness verification?
+4. Can two users' synthetic contexts be proven separate through parallel, resumed and retrieved conversations, including derivatives and caching?
+5. Which operator questions need visual comparison rather than prose, and which use CLI composition best?
+6. Does a decision question reveal missing backend domain semantics instead of incentivizing ungoverned agent-side recommendation?
+7. What cloud/provider guarantees and costs make real private financial data acceptable?
+
+**Status remains PL-MCP-01 INTAKE.** Reconciliation Completion Record not yet prepared, no MCP runtime/SDK/host or CLI-versus-REST choice ratified, and no experiment/implementation/deployment authority asserted by this documentation update.
