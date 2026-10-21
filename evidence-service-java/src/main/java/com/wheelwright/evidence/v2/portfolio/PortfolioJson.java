@@ -9,7 +9,7 @@ import java.util.*;
 /** Domain representation primitives. Decimal money never passes through binary floating point. */
 public final class PortfolioJson {
     private PortfolioJson(){}
-    public static final ObjectMapper JSON=new ObjectMapper();
+    public static final ObjectMapper JSON=com.fasterxml.jackson.databind.json.JsonMapper.builder().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,DeserializationFeature.FAIL_ON_TRAILING_TOKENS).enable(com.fasterxml.jackson.core.StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
     public static ObjectNode obj(){return JSON.createObjectNode();}
     public static ArrayNode array(){return JSON.createArrayNode();}
     public static ObjectNode link(String href){return obj().put("href",href);}

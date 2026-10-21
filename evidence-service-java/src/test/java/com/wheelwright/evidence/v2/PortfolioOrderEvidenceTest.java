@@ -23,4 +23,19 @@ class PortfolioOrderEvidenceTest {
    try(var c=repository.connection()){assertThatThrownBy(()->new PortfolioOrderSources(repository).admit(c,accounts.get(accounts.bind("other","TASTYTRADE","OTHER123")).orElseThrow(),artifact,true)).isInstanceOf(IllegalArgumentException.class);}
   }
  }
+ @Test void unsupportedInstrumentCannotAcquireEquityIdentityOrInventedMultiplier()throws Exception{
+  var json=new ObjectMapper();try(var db=new SqliteEvidenceStore(temp.resolve("unsupported.sqlite3").toString())){
+   var accounts=new AccountDirectory(db.getConnection().getMetaData().getURL());String account=accounts.bind("source","TASTYTRADE","TEST1234");var repository=new PortfolioRepository(db,json);
+   for(String instrumentType:List.of("Future","Future Option","Cryptocurrency","")){
+    var source=json.readTree(Files.readString(Path.of("../scripts/fixtures/tt-live-economic-observed.json")));var items=source.path("orders").deepCopy();((ObjectNode)items.get(items.size()-1).path("legs").get(0)).put("instrument-type",instrumentType);
+    var page=json.createObjectNode();page.set("data",json.createObjectNode().set("items",items));byte[] bytes=json.writeValueAsBytes(page);String artifact=UUID.randomUUID().toString();
+    try(var c=repository.connection()){
+     try(var q=c.prepareStatement("INSERT INTO brokerage_artifact VALUES (?,?,?,?,?,?,?)")){q.setString(1,account);q.setString(2,artifact);q.setString(3,BrokerageArtifacts.sha(bytes));q.setString(4,"application/json");q.setInt(5,bytes.length);q.setBytes(6,bytes);q.setString(7,"2026-10-14T19:21:00Z");q.executeUpdate();}
+     assertThatThrownBy(()->new PortfolioOrderSources(repository).admit(c,accounts.get(account).orElseThrow(),artifact,false)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("unsupported Order instrument");
+    }
+    assertThat(repository.list(PortfolioRepository.Kind.ORDER,Set.of(account))).isEmpty();assertThat(repository.list(PortfolioRepository.Kind.INSTRUMENT,Set.of(account))).isEmpty();
+   }
+  }
+ }
+
 }

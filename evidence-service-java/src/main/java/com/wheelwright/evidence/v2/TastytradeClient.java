@@ -99,6 +99,27 @@ public class TastytradeClient {
         catch(Exception e){throw new IllegalStateException("Order acquisition unavailable");}
     }
 
+    /** Supported market reads only. Reuses the accepted tt typed-symbol request shape;
+     * no Account authority, transaction mutation, streaming session or arbitrary URL capability. */
+    public byte[] marketData(List<String> equities,List<String> equityOptions)throws Exception {
+        if(equities==null||equityOptions==null||equities.size()+equityOptions.size()==0||equities.size()+equityOptions.size()>100)throw new IllegalStateException("market acquisition unavailable");
+        var query=new ArrayList<String>();var seen=new HashSet<String>();
+        for(String symbol:equities){if(symbol==null||!symbol.matches("[A-Z][A-Z0-9.]{0,9}")||!seen.add("equity:"+symbol))throw new IllegalStateException("market acquisition unavailable");query.add("equity[]="+encode(symbol));}
+        for(String symbol:equityOptions){if(symbol==null||!symbol.matches("[A-Z0-9.]{1,6} {0,5}[0-9]{6}[CP][0-9]{8}")||!seen.add("option:"+symbol))throw new IllegalStateException("market acquisition unavailable");query.add("equity-option[]="+encode(symbol));}
+        if(!configured())throw new IllegalStateException("market acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();
+        try{
+            String token=accessToken(expires);
+            var request=HttpRequest.newBuilder(base.resolve("/market-data/by-type?"+String.join("&",query))).timeout(deadline).header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+            var bytes=reply.body();var secrets=List.of(clientId,clientSecret,refreshToken,token);String content=new String(bytes,StandardCharsets.UTF_8);for(String secret:secrets)if(content.contains(secret))throw new IllegalStateException();
+            if(!safeDocument(TastytradeHoldings.document(bytes),secrets))throw new IllegalStateException();
+            return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("market acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("market acquisition unavailable");}
+    }
+
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
 
     /** Fresh OAuth access token via refresh-token exchange. No durable cache; the

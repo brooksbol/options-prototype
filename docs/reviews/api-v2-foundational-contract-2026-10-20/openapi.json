@@ -6741,7 +6741,8 @@
                       "enum": [
                         "INCOMPLETE",
                         "UNSUPPORTED",
-                        "CONFLICT"
+                        "CONFLICT",
+                        "REDACTED"
                       ]
                     }
                   }
@@ -8016,10 +8017,32 @@
         "type": "object",
         "properties": {
           "remainingDays": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "DAY"
+                  }
+                }
+              }
+            ]
           },
           "originalDays": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "DAY"
+                  }
+                }
+              }
+            ]
           },
           "openedAt": {
             "anyOf": [
@@ -8424,13 +8447,46 @@
             "format": "date-time"
           },
           "marketValue": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "grossUnrealizedPl": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "spot": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "PRICE"
+                  }
+                }
+              }
+            ]
           },
           "oldestMaterialObservationAt": {
             "anyOf": [
@@ -8465,30 +8521,107 @@
             "$ref": "#/components/schemas/PayoffEvaluation"
           },
           "historicalMarketValue": {
-            "$ref": "#/components/schemas/Metric",
-            "description": "Optional qualified historical comparison when explicitly relevant; no universal asOf/replay endpoint or historic-data availability guarantee is introduced."
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric",
+                "description": "Optional qualified historical comparison when explicitly relevant; no universal asOf/replay endpoint or historic-data availability guarantee is introduced."
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "brokerReportedOpenPl": {
-            "$ref": "#/components/schemas/Metric",
-            "description": "Reported source P/L retained in its own financial dialect. Do not promote into grossUnrealizedPl without establishing compatible basis/fee/currency conventions."
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric",
+                "description": "Reported source P/L retained in its own financial dialect. Do not promote into grossUnrealizedPl without establishing compatible basis/fee/currency conventions."
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "openingCashFlow": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "estimatedClosingCashFlow": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "fees": {
             "$ref": "#/components/schemas/FeeMetric"
           },
           "netUnrealizedPl": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "realizedGrossPl": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "realizedNetPl": {
-            "$ref": "#/components/schemas/Metric"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Metric"
+              },
+              {
+                "properties": {
+                  "unit": {
+                    "const": "MONEY"
+                  }
+                }
+              }
+            ]
           },
           "economicComparison": {
             "$ref": "#/components/schemas/EconomicComparison"
@@ -8549,6 +8682,13 @@
             "items": {
               "$ref": "#/components/schemas/EvidenceRef"
             }
+          },
+          "establishedAtAccess": {
+            "enum": [
+              "VISIBLE",
+              "REDACTED"
+            ],
+            "description": "Field-level source permission for the establishment clock. Redaction preserves the independently authorized lifecycle assertion, not the private event timestamp."
           }
         },
         "required": [
@@ -8585,10 +8725,48 @@
               }
             },
             "then": {
+              "if": {
+                "properties": {
+                  "establishedAtAccess": {
+                    "const": "REDACTED"
+                  }
+                },
+                "required": [
+                  "establishedAtAccess"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "establishedAt": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "establishedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "establishedAtAccess": {
+                  "const": "REDACTED"
+                }
+              },
+              "required": [
+                "establishedAtAccess"
+              ]
+            },
+            "then": {
               "properties": {
                 "establishedAt": {
-                  "type": "string",
-                  "format": "date-time"
+                  "type": "null"
                 }
               }
             }
@@ -17627,17 +17805,7 @@
             ]
           },
           "unit": {
-            "type": "string",
-            "enum": [
-              "MONEY",
-              "PRICE",
-              "SHARE",
-              "CONTRACT",
-              "PACKAGE",
-              "DAY",
-              "RATIO",
-              "SHARE_EQUIVALENT_DELTA"
-            ]
+            "const": "MONEY"
           },
           "currency": {
             "anyOf": [
@@ -17860,17 +18028,7 @@
             ]
           },
           "unit": {
-            "type": "string",
-            "enum": [
-              "MONEY",
-              "PRICE",
-              "SHARE",
-              "CONTRACT",
-              "PACKAGE",
-              "DAY",
-              "RATIO",
-              "SHARE_EQUIVALENT_DELTA"
-            ]
+            "const": "PRICE"
           },
           "currency": {
             "anyOf": [

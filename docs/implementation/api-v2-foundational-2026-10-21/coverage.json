@@ -465,407 +465,407 @@
     "Decimal": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Decimal",
-      "shapeSha256": "8393376c07aed39a8716512d387b28cb53d817eaba23e089cde908aed9f424ac"
+      "shapeSha256": "7c346783db7111ed9d615d8aab61364c81c50da74ffbb8f192f18443d71f030d"
     },
     "PositiveDecimal": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/PositiveDecimal",
-      "shapeSha256": "2ed588a1e95484d8be966339513d713b565890c64130880680d4dbf70bcea65c"
+      "shapeSha256": "68674450915ad6d57748605cd68a653d31ec5a7e26dd3ef3d319376eb7fa437e"
     },
     "ExactNumber": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ExactNumber",
-      "shapeSha256": "dd8702337436fbd0ede24a5cda9c17750f4cc9111e44a6e669740b9a1e9ce5b7"
+      "shapeSha256": "b8f2898730a5cae5ded501c9844459e32a0190e5f481cd34ca636d4c40d46f12"
     },
     "Link": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Link",
-      "shapeSha256": "b0a9a63481fd5ceb1624afd4d0309230bfc02b07ca800c009e5380e2577fea8c"
+      "shapeSha256": "c93aec4e2eac1a9ebfe1b99638bec925d66bb156772af552c6d00b175d966db8"
     },
     "Currency": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Currency",
-      "shapeSha256": "6ecbf74150bafec17fde12389173ffd7e01b93c158f5c9effc009835c11a72bc"
+      "shapeSha256": "94f92e1cdde5d39fee10139126ad6677c17a98a085c3f2c5d9bed41a09e47480"
     },
     "Status": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Status",
-      "shapeSha256": "34793f7278039e59e3d8d8a3da2ae836f7caaec38b740574a655d3e9e3c847fd"
+      "shapeSha256": "d1ce12af338d5c9d54b18cb637d55249129bbb91fec8f154e0b5aeaff831a2ec"
     },
     "SourceRef": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/SourceRef",
-      "shapeSha256": "fa49d09df7de70a8b30561a96bc6ec9b860bf14680026c53fa09f7e17712ada3"
+      "shapeSha256": "e1311e9e80714680ad7bd7484b27b0b543c8e56fd7c53c1f07459d32bae355d7"
     },
     "Remediation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Remediation",
-      "shapeSha256": "1c72e94ad024b1478d6daaf957389e2a9af32d72a63d7c55de9f778870deae6f"
+      "shapeSha256": "a89197fe99539a8df2b3f7fe9dcfb9e773379799a7e745d1b6ea3003ae36aef4"
     },
     "Warning": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Warning",
-      "shapeSha256": "12004cfea7f3c4af355d472743c8c0017cf212506c12b9889eeee0edd850c1a4"
+      "shapeSha256": "6ece9631979515f8a54d33630d67cd64d4608a1c09728144111c5bff89f360e1"
     },
     "Metric": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Metric",
-      "shapeSha256": "82fff60cc2856808a5cb0c79247d538d197cccb299ccf014934164f09d755e70"
+      "shapeSha256": "ff7b825d25bcd45511ec58bbda20f4603db9cb4c08f4173b23ad4dc8d7fb3c17"
     },
     "BrokerAlias": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/BrokerAlias",
-      "shapeSha256": "efe5fb78b7e656f30f833c995a2f34511fd4ae0eda72fe9a9e04f394f4f201f2"
+      "shapeSha256": "79fc77b637bce77b4535db35e0f89cd8daafc2b31eebd611a0ae72e868f1b9c2"
     },
     "DeliverableComponent": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/DeliverableComponent",
-      "shapeSha256": "1bd4733a19963a4fb6be37f3333f480b700938ca56ded3591427b0bb1ff04f86"
+      "shapeSha256": "062b91a823611c1e9929a4e2b680491defb604b7aaea7a37acc106cc925846e8"
     },
     "OptionTerms": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/OptionTerms",
-      "shapeSha256": "1f39673c5ea9a1e3865c4561623c50051510f199ea82cc38b721c1f273301558"
+      "shapeSha256": "1545e8f32d5d93c7bb3fae3079921500a784d2e5781386e3f6caf8d5fab34212"
     },
     "Instrument": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Instrument",
-      "shapeSha256": "31d1d39add70a4d60740fa9be000271e355b13e42c653cea5e3b512591d049b7"
+      "shapeSha256": "f0f8fde1c4e8079f5c3be09696be756ee4173cf3a000b1386b0a8e230f1c210d"
     },
     "SourceInventory": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/SourceInventory",
-      "shapeSha256": "ab0de6e4dd3f6692c43116f3cb4c63ed248a1d8cb01585d4f4fb71438b25808e"
+      "shapeSha256": "2b6d22cf1fb198b3be07dfa34741e882a7ddb9bc798209d082bdc676c1cbb2af"
     },
     "Allocation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Allocation",
-      "shapeSha256": "c28364699032dd4d300c5d2a6335ee30934ba0a4719a8fa1e2eb119a7f268d5f"
+      "shapeSha256": "06425db69b293abac5c10ea7c5be4126731406c792d529d24eb280351fa925f8"
     },
     "CashLeaf": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/CashLeaf",
-      "shapeSha256": "c2ffe7d53b0b0edf19447c7e2f266b1d708442bef2b218f98c41866b9ee839f9"
+      "shapeSha256": "fcb47b8d3341c38b1068ef1c599e23c170f96d5cf5d7bf710e1b4dc6329d0d34"
     },
     "SharesLeaf": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/SharesLeaf",
-      "shapeSha256": "4f6ce6cf924fe64df55241995ec0a5e1392bfda866a68fa024381db0972bcca5"
+      "shapeSha256": "ec5e50faa67c68fdf456aaebdd2bc97b889c92d71309731ff473dcfcdc610c38"
     },
     "OptionLeaf": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/OptionLeaf",
-      "shapeSha256": "16d7c6b35bf53420bdc088b9852c5092730021963762d19d5e937db13f7ce9e0"
+      "shapeSha256": "6bba1db2184cbf89aad26f468688abcec8eaa22b6160ca8691ecc2bd1895e82d"
     },
     "CompositionGroup": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/CompositionGroup",
-      "shapeSha256": "0ee08fc7d60ab90ab657c15cd0532982afc80454ca7b1252b4ecbbf8ea6d4668"
+      "shapeSha256": "f53095988cd109c64736ea83eb2cb0c4bfaca46bf3cff65a19b31f7f49dce8e4"
     },
     "Composition": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Composition",
-      "shapeSha256": "8b4f9fbf975706e655b044ed26ef32616cc54486472c496b4933ae3cbef8f758"
+      "shapeSha256": "5d866096a10459cfef1fc91bd80500f2156c6cd9b97cf36d5da354b4625b3c47"
     },
     "FinancialRelationship": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/FinancialRelationship",
-      "shapeSha256": "1df86b5ad458125d8d5b5400605025553c4038b6536e26aeb4f6e28309ae47d7"
+      "shapeSha256": "469f41d353dafac3529cc91b69f23e347240ecbee82ddb42dc8dcda16bd4efd8"
     },
     "Recognition": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Recognition",
-      "shapeSha256": "c75e8d438ce6b39c262e472b524c9177ddca9b0169921840587315a72f801471"
+      "shapeSha256": "83bb276d471dbe694e08646648ef9d6ebeab19dbae5e40b5a001429ca5a11e7c"
     },
     "Construction": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Construction",
-      "shapeSha256": "10766924495e41510ab921f949ac5187ec53d948901ccb996ce6b01ebc14284a"
+      "shapeSha256": "7f9505a5467fcb9ebfd31851fd7265ce316b0e755b5d9d4d4a384257492f5258"
     },
     "ModelRole": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ModelRole",
-      "shapeSha256": "a1d23698ba33ab9f55910b309e8093e59704cda0c0a6cca7885cebf634b761ca"
+      "shapeSha256": "72ac354975e92dc4cc483282c812185096f7f4669ca804946e80375cab1d04ca"
     },
     "ModelConstraint": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ModelConstraint",
-      "shapeSha256": "cb0f16dec1acf9a8f5777e7f4b70dee609b8f214c58615348f2421bcbc4b98d1"
+      "shapeSha256": "31e9ea9e374e54527fd82eceda07514988d46e43928d417ac4c5eeccedd07819"
     },
     "ModelVersion": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ModelVersion",
-      "shapeSha256": "a3974b0c2dc86b7ff8aae9302527968e6a22c193c3527abdbd19132fe705aff8"
+      "shapeSha256": "70b5df8deb785c93f8f87929bd544097043a5886934d84f8e24196779c1a7eb3"
     },
     "ModelFamily": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ModelFamily",
-      "shapeSha256": "513c86647ea2f1478f5eff6382f1b9300e042f5cc80db36b33a5e14327d7483e"
+      "shapeSha256": "ef4368b832d2b2a181a20e9754453d84e9c71c6f21fcb6cbb149b85c571c242e"
     },
     "AffineSegment": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/AffineSegment",
-      "shapeSha256": "eb8adf2a19a998aa8a94dd3fde5c02760af8696cb89d40e325181746ebd5d9ef"
+      "shapeSha256": "535582b3afc9eeac0beca40f9055a11472834f68d3dd3b94cbc7c4f55b22bdc9"
     },
     "BoundaryValue": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/BoundaryValue",
-      "shapeSha256": "b95ce8c7e447bc04a3d358728b32e57aabff3addd8561de22ca17ea3e985b4a0"
+      "shapeSha256": "76119331764005e17203c50f469a00e63211b3967baf8b2d5f4d293d8dfbabe3"
     },
     "Geometry": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Geometry",
-      "shapeSha256": "0af6d487e0078a9e7551d121f25d4731df1b4b75889218a6935786c6adb6388a"
+      "shapeSha256": "b7add6b9fd04bb0f55bc43771c18646ecff5efd3b67a9e713ac5d44d733183cf"
     },
     "PayoffEvaluation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/PayoffEvaluation",
-      "shapeSha256": "dbf04329585b4809a7a06c659633a025f5594e5ba87399ac398af64154e72246"
+      "shapeSha256": "4a33a86e9484e851c738067cff409f3b87077d44a578735d9ed82b29026689bd"
     },
     "Timeline": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Timeline",
-      "shapeSha256": "65a302ceaf8aff5991477552aa4d62f8d75f17f8df1c89fe41447344116338fe"
+      "shapeSha256": "bd8b0a0b205e60af99dbd0772cb951557c0462ddd514e8e4e87c00dcebe39b9f"
     },
     "RangeEvaluation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/RangeEvaluation",
-      "shapeSha256": "4e1ec054ab508f2f7013f977b40aa45630577314e206c1961cab26fe85b7c828"
+      "shapeSha256": "a5640df5044deaa000c84b692f200a942ed4ea10c286abe15c20d96876d12911"
     },
     "ManualCheckpoint": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ManualCheckpoint",
-      "shapeSha256": "095d7b5789c44d522e3998df8cdf76d361126be3ed00a19d9457f7490190df54"
+      "shapeSha256": "1a47089f2edece04fbca6c0301a6fb9167a2eef549a2a9e364929d781ceddfe4"
     },
     "ManagementEvaluation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ManagementEvaluation",
-      "shapeSha256": "898e444ec15944f470c2da403fc75cdc5afe3a005bd3cd48b642ac52fbc139b9"
+      "shapeSha256": "3417b8903029a65c927ff3ddd5dd3a33c0de3fd294e7bdd53918c0f1042eccac"
     },
     "Evaluation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Evaluation",
-      "shapeSha256": "16afb0fb5aca0a6dfeea31b171171595a73b4771b43fa81354e5b08e8c73a2e9"
+      "shapeSha256": "e0e4fa2b20117d74ef7f5a461112b8781b1e4c4d2d265d6ab171a9cf32675b24"
     },
     "LifecycleEvidence": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/LifecycleEvidence",
-      "shapeSha256": "bca705560fe3c35053bd8a80eaba98525b3876bffaf7eda2c4d03dd0406c19ae"
+      "shapeSha256": "f0419f454f685ff261ddda2a87082deb0cb28ca3409afdb80a9939c82118b33f"
     },
     "Position": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Position",
-      "shapeSha256": "c818489c51ab254e36d748df4ec07ec03e892c7a661e3aec6d1ceb6f6fb6ddd1"
+      "shapeSha256": "9b4fe37dd74f673cc97a6be5671b9b3ca87508ff7fbb2abf48045275f489de40"
     },
     "Fill": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Fill",
-      "shapeSha256": "418fa65de242d72a513761ef09e4b6465102231af3057bfac036f857664eb643"
+      "shapeSha256": "848944148ad01e0894661d3a5e57bd2dfd773fb427870d0f46bc9165af8d6de3"
     },
     "OrderLeg": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/OrderLeg",
-      "shapeSha256": "95d8c4e641720f88ab17ed2cb6216fd8250a096dd01a9172ae51c1f2f061d8b0"
+      "shapeSha256": "7eaffe09fd4f10cb3aeb581ee016e98898b49e9246e8bcbe29f8ed145e693a3b"
     },
     "OrderAssociation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/OrderAssociation",
-      "shapeSha256": "b7e027144077a93812ac018180c7c81696f4583fc447ae805171545feb2e7c5f"
+      "shapeSha256": "ee3fa4010ecd55755783eea4d75b749dcf6a4b7941ff2cc614b7d8ffaecf15f3"
     },
     "Order": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Order",
-      "shapeSha256": "9b20e90da98d1c9dbcc200be87ec1f9e5f85d68f7d87042f075019c220da587d"
+      "shapeSha256": "23dd953b533287d54afecea79e99d8a699199c742d1ba0d506274663eaf244dc"
     },
     "MarketObservation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/MarketObservation",
-      "shapeSha256": "789afc63679e2f8e0e866aa303c41ac06b738afbda0f667efb136dd510cdfbe4"
+      "shapeSha256": "84a66ef768be8d53e6c3ef569b91932950ba5e06f81a2e9ee4b01a97a3bf7d38"
     },
     "AllocationBalance": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/AllocationBalance",
-      "shapeSha256": "885fb08733a97766aeecea0f404a32b1fb2395a916ebd9048ec93209872590bf"
+      "shapeSha256": "9ee5087f174ff5f0b70d9e071ac97c9a05fd9ef6b6eb5e1d77f6b4a12b718d4d"
     },
     "InventoryReconciliation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/InventoryReconciliation",
-      "shapeSha256": "07e7acaca8246ad4305b98d4d7b9676c85a9c9c73089dcf5f1f0362d350a4b4b"
+      "shapeSha256": "830662a64a9be3a28931fe65d1ceb273a02ec6250a7e8fceb5b8212737ac7f76"
     },
     "AuditRecord": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/AuditRecord",
-      "shapeSha256": "0119e7b6753aa83b013082b7d354a42b57b1d0dc5f8b8ab1e82a73e05862e071"
+      "shapeSha256": "75ee000c806adaf3f31709c5d6aadde1993eadc55d0a8c12235293e37170d52d"
     },
     "Problem": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/Problem",
-      "shapeSha256": "61b00c2891b6e69907ecc6cafd4d478a644a912a23778be89c406c4cc73aa00a"
+      "shapeSha256": "09b7046d9b8e0c55a90907108261e399c08cb75453d2fa94f973c94412db44b3"
     },
     "ResourceURI": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ResourceURI",
-      "shapeSha256": "a325326f04af2d67a51d2e9cbb11d077610b065382d1aa09d34b9f8af983c7c5"
+      "shapeSha256": "db338c30bfea63d375cca3e2c690e1d7dda0d39c891518f07ff599a61a59c073"
     },
     "PositionSummary": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/PositionSummary",
-      "shapeSha256": "447c586ed939b11655a8ecdc06c461c046c5ea1b9cc1c1d238240c5af3d356dc"
+      "shapeSha256": "9c5897959890b40b9af4497300728458a2cb54a718b13dddfa345c5b5544c5cd"
     },
     "PositionCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/PositionCollection",
-      "shapeSha256": "e485010a768f16976d7caecb6aecb778c378b1b577bd8b9eb0e0aed651242106"
+      "shapeSha256": "8d2e813160bc3034e639771c1ee339056deff9fb3b3a22af9e897ac79c0774ab"
     },
     "ConstructionCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ConstructionCollection",
-      "shapeSha256": "879cae104388115547c62bf400d0bc329c869add44a2cabc6249b0e5355ee8c7"
+      "shapeSha256": "89eb3c2054f1f91e6a7b9223834d2de5ebf1823548073e058ebf7014c6e6121b"
     },
     "ModelFamilyCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ModelFamilyCollection",
-      "shapeSha256": "383b0be52c5088cce230b359bc6ac2147cdb9080fdd26b077d8fba3f159054ad"
+      "shapeSha256": "1e53ba153036d07e64774751da0fcc52bf226a48bbe2c7f5d6f43d11808fe6cb"
     },
     "OrderCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/OrderCollection",
-      "shapeSha256": "8a70d939dac43106fb852cb272e6e1a2b0606d155191714305a4aa307d252a61"
+      "shapeSha256": "d8fbf316ff3363555953602ab32f307054cddf1693933bd73fb51ef5bb3c7f77"
     },
     "InstrumentCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/InstrumentCollection",
-      "shapeSha256": "4e0a534734377b00750b75b61b95d5fe417aa344e0044f918ca14a30e4cc2f89"
+      "shapeSha256": "c0af0b9ffec7cd99d9b05c1dcc0f69fb61f6d273a0ce81a24061c5743d1bd7ea"
     },
     "MarketObservationCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/MarketObservationCollection",
-      "shapeSha256": "1e14de868f0e024dce936a8d6a5124eb2d7d232990de545aea4be525bdcb57b1"
+      "shapeSha256": "f9e3964f06d5a07ff6c85d9c4f5163aa86d6c51327258e4f6a9214bf75282eea"
     },
     "AuditRecordCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/AuditRecordCollection",
-      "shapeSha256": "75acedcafd4546b5219f5139daf9b997c9c339f74c9aba1d899601e72094e04c"
+      "shapeSha256": "c125e5eb46139492506bffd07146969ccb0e9b7091add2e25c2013008a77d3e5"
     },
     "NonnegativeDecimal": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/NonnegativeDecimal",
-      "shapeSha256": "cfc0b861bc3a255bf730c894aeb6dfb4c9a645faf5f10021de3ef9728b42dd14"
+      "shapeSha256": "9b823cc65959036a6ebdccc604cbc401b40ddd7e895d85c58ab3744db8279ffb"
     },
     "OtherLeaf": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/OtherLeaf",
-      "shapeSha256": "047837cdb7032d846426c665f86ff1ee8cee83205e1f0815987adf8af53b3975"
+      "shapeSha256": "f8e8f82e7a41108f5fd9a97eebf0e0be34bdb796c4ae1acefeb8ec16a470f0b7"
     },
     "WholeContracts": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/WholeContracts",
-      "shapeSha256": "9fe51416ed5d0c6376af25e970c316ae403c63f792ca956f3e30ebb4814bfa27"
+      "shapeSha256": "b606e559418dca4e45e1beb1ea827b5ae9ff5ecaf2c4c786386b05e07be3d57b"
     },
     "ReferenceEvidence": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ReferenceEvidence",
-      "shapeSha256": "87b75a78d6bdfeedb386d97fef41731e50a685f3b8f7e605df473f1aeac8026a"
+      "shapeSha256": "61b68ba202c685dd4ecb7d3a00b9e6b90e90be9b773ee0d57fa933f6b90a2ad3"
     },
     "RedactedEvidence": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/RedactedEvidence",
-      "shapeSha256": "87ba263143d6224cce99cea7d970a62911159c157b533307b2cc3a8b90d15c66"
+      "shapeSha256": "b69a2e5ab8eaa6fe12b40ae6b64e5f42bb4599f10fd2771c2d7d1b8bce51fe6d"
     },
     "EvidenceRef": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/EvidenceRef",
-      "shapeSha256": "7dc031ca6d714575e18e5eb21971a5af98b8d4d44d5db3f9629fb9dc7b692828"
+      "shapeSha256": "806173148de7b3a10ce8590a991bf194b74688a4fee448592458348e12016fab"
     },
     "ReferenceOptionTerms": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ReferenceOptionTerms",
-      "shapeSha256": "418b9199534ba449727e129cdf7f60873b66b58e15d3ae179f0ac08904fafbb2"
+      "shapeSha256": "bf582832a61bcf46b507c5c732ea622db3ee0dedc8e26cc76118ae6e683bfbc7"
     },
     "AssociationAuthority": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/AssociationAuthority",
-      "shapeSha256": "cf8e235064ccb9bebe2bf746b095f81ecf059ad3209d1b64c760be5c549afc3a"
+      "shapeSha256": "866f063f976a9e9ea449cd1a218a8c202392d6889c782eaabf174eda0149a106"
     },
     "NonnegativeExactNumber": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/NonnegativeExactNumber",
-      "shapeSha256": "da2c2bfa5aad56adb0f94e66ab15d522a7142f530f1372b14a5bdf919e378160"
+      "shapeSha256": "d8ee157c88d9255c30e217437155b76cbb13792301c580769a40fe18ed3680e4"
     },
     "GlobalAllocation": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/GlobalAllocation",
-      "shapeSha256": "ff2d9db0564f6c0ed160d9ad92b40f96e7f9c561ea7c4fe9476a3f4d2f91c3bf"
+      "shapeSha256": "5e2743213942d5e451b2e93656ab1568715889f355a0e7a193ad1f451f7e8896"
     },
     "LegEconomics": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/LegEconomics",
-      "shapeSha256": "0d5ea8bbfdc5e52dd52d1a2a5a6415beeb442be4b1b60460cf8c0d8cf11380d2"
+      "shapeSha256": "c280e84da3b85cca2df787812d3abff936c202a04ebee7dc2a4bcf918149ea3d"
     },
     "EconomicPeriod": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/EconomicPeriod",
-      "shapeSha256": "ef6f4a90283e8c6bcff7d04427cd2d551770aee088f983633019dea23544db0f"
+      "shapeSha256": "a78ccf0dac97ca9526f582303897dd46a386a1b6e7902abdbdca14c544d5fb45"
     },
     "CumulativeEconomics": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/CumulativeEconomics",
-      "shapeSha256": "9657ed654bf802cb3fb0f08285e9aabafef4b0b6b48bd90ffe9b5476fc979976"
+      "shapeSha256": "1b5b04c0b17d7522f2e6303119619c3dfb52e5b7fa5ba3ff393f0f25a29e96b6"
     },
     "EconomicComparison": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/EconomicComparison",
-      "shapeSha256": "f1f6962248a33228939c017b0723e6023ef0f1bc70f4d1e2c487502751b53ffd"
+      "shapeSha256": "0f383a612a6d9b0439ffa30a372af8612dc5bff7a9e388711b9b10c3cbc263f0"
     },
     "BrokerHolding": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/BrokerHolding",
-      "shapeSha256": "03fc02a31d24b5bb0fb2de98da1630d417bc481e0dc6dc6ab0d355a7f9f973db"
+      "shapeSha256": "0540dfbc3bec5be0d55472db3479875d12e293d69932541a9eb936c4b252b523"
     },
     "BrokerHoldingCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/BrokerHoldingCollection",
-      "shapeSha256": "3635eab48d1e53b63665e246e9ad8c447aca6d6a6c8c24a2cdec95340f67b8f8"
+      "shapeSha256": "7e5b7f8faa0581f404255908931df77c5b7bb720b4a8e02ef8e9e6c297832182"
     },
     "CoverageAssessment": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/CoverageAssessment",
-      "shapeSha256": "db02d13c19716b52e7f58e5917d591ed9a5a93304a908e14855df8f003113f8e"
+      "shapeSha256": "aca3c07a3ba53976431fffcd72ad357cf3b004a9a75087e6affe2a866ac1f04a"
     },
     "ReferenceMetric": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ReferenceMetric",
-      "shapeSha256": "d9a9b8b6db1cb7213e347ca822f49a6a7874c73195190fdabe40206de56d06c7"
+      "shapeSha256": "133717be877f048797530ec646fea794011b4ca699f9e2b989a3a085a33f3ec9"
     },
     "FeeMetric": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/FeeMetric",
-      "shapeSha256": "0cbef8744e0e9daf435f2edaac863e4001f61d1f647c9d8c0ed018acba2256d3"
+      "shapeSha256": "44590e16d265e7e85fc4f88a0a451e12da7a0aece09b291c9a1a95aae0d120d2"
     },
     "PriceMetric": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/PriceMetric",
-      "shapeSha256": "4ce792f27d2d412bd2ce2237339274cc0b66ddcc3118eabae5ad228ef64d8c8d"
+      "shapeSha256": "29d858f6316848daee1c3499fe39a78b61c0c73365b26cb352f7ca008a294d98"
     },
     "ModelVersionLink": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/ModelVersionLink",
-      "shapeSha256": "04e27c75c3a872579c87f39e98f80a1cf591e1aaf5d8fa2ed5709f9b3128c412"
+      "shapeSha256": "1dcedc6d3969fc537be8c14e5b9995c2eadfa248ab491006ce3eb29094e4e026"
     },
     "HoldingSnapshotSummary": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/HoldingSnapshotSummary",
-      "shapeSha256": "65ad52d6b529b8b4f1cc7bb4ccb6e307bb68c72f87a93ccfdaaa191547433237"
+      "shapeSha256": "e22c3e6a3bd409797efd0faca2ed0f3011818f5a3a4cbd993df7d68369b6e0ab"
     },
     "HoldingSnapshotCollection": {
       "status": "TYPED_CONTRACT_PRESENT_RUNTIME_COVERAGE_INCOMPLETE",
       "targetRef": "openapi.json#/components/schemas/HoldingSnapshotCollection",
-      "shapeSha256": "d8c6e6ce89a4fed9d134549db866e17cc6fc43e018c7b45b395afefade8a552c"
+      "shapeSha256": "f1f6a3a42456890eb487bdfe606b1fbc5c9f16166aa00da72ca304b189f0214e"
     }
   },
   "invariantsSource": "docs/reviews/api-v2-foundational-contract-2026-10-20/runtime-invariants.md",
   "scopeExceptions": [],
-  "latestRemoteMain": "76bdb903458a4226f73ef5ead591e7d1cdaa0916",
+  "latestRemoteMain": "caa27813a74fadf23e32c517a8da588538ed62fc",
   "deliveryStatus": "IN_PROGRESS_NOT_COMPLETE",
   "invariantCoverage": {
     "R01": {
@@ -888,8 +888,8 @@
     },
     "R06": {
       "status": "PARTIAL",
-      "implementation": "PortfolioOrderEvaluation, PortfolioOrderSources",
-      "tests": "PortfolioOrderEvaluationTest, PortfolioOrderEvidenceTest",
+      "implementation": "PortfolioOrderEvaluation, PortfolioOrderSources, PortfolioFillEvidence",
+      "tests": "PortfolioOrderEvaluationTest, PortfolioOrderEvidenceTest, PortfolioFillEvidenceTest",
       "remaining": "Producers proving source associations; no inference from a typed pointer"
     },
     "R07_R08_R09": {
@@ -901,8 +901,8 @@
     "R10_R18": {
       "status": "PARTIAL",
       "implementation": "PortfolioSources, PortfolioSnapshots",
-      "tests": "PortfolioContractIntegrationTest, PortfolioHttpTest",
-      "remaining": "Available Fidelity capital/quote facts and source observation enrichment"
+      "tests": "PortfolioContractIntegrationTest, PortfolioHttpTest, PortfolioFidelityFactsTest",
+      "remaining": "Same-day unique-quantity Fidelity capital facts implemented; source quote/contract/session adapters and broader provenance integration remain incomplete."
     },
     "R11_R12_R13_R14": {
       "status": "PARTIAL",

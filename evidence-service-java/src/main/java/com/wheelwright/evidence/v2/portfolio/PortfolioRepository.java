@@ -29,9 +29,12 @@ public final class PortfolioRepository {
     }
     private Document row(ResultSet r)throws Exception {return new Document(Kind.valueOf(r.getString("kind")),r.getString("uri"),r.getString("account_id"),(ObjectNode)mapper.readTree(r.getString("payload_json")),r.getString("source_snapshot"),r.getString("source_key"));}
     public List<Document> list(Kind kind,Set<String> accounts)throws Exception {
+        try(var connection=connection()){return list(connection,kind,accounts);}
+    }
+    public List<Document> list(Connection connection,Kind kind,Set<String> accounts)throws Exception {
         var scope=new TreeSet<>(accounts);
         String predicate=scope.isEmpty()?"account_id IS NULL":"(account_id IS NULL OR account_id IN ("+String.join(",",Collections.nCopies(scope.size(),"?"))+") )";
-        try(var c=connection();var q=c.prepareStatement("SELECT * FROM portfolio_resource WHERE kind=? AND "+predicate+" ORDER BY uri")) {
+        try(var q=connection.prepareStatement("SELECT * FROM portfolio_resource WHERE kind=? AND "+predicate+" ORDER BY uri")) {
             q.setString(1,kind.name());int parameter=2;for(String account:scope)q.setString(parameter++,account);var out=new ArrayList<Document>();
             try(var rs=q.executeQuery()){while(rs.next())out.add(row(rs));}
             return List.copyOf(out);
@@ -74,6 +77,14 @@ public final class PortfolioRepository {
         try(var q=c.prepareStatement("INSERT INTO portfolio_admission VALUES (?,?,?)")){q.setString(1,account);q.setString(2,snapshot);q.setString(3,Instant.now().toString());q.executeUpdate();}
     }
     private void validateReferences(Connection c,Document d,JsonNode n)throws Exception {
+        if(n.isObject()&&n.path("kind").asText().equals("ACCOUNT_SOURCE")){
+            if(d.account()==null||!n.at("/account/href").asText().equals("/v2/accounts/"+d.account()))throw new IllegalArgumentException("source evidence Account scope mismatch");
+            String artifact=n.at("/artifact/href").asText();if(!artifact.isBlank()){
+                if(!artifact.matches("/v2/artifacts/[0-9a-fA-F-]{36}"))throw new IllegalArgumentException("canonical Artifact evidence required");
+                try(var query=c.prepareStatement("SELECT account FROM brokerage_artifact WHERE artifact_id=?")){query.setString(1,artifact.substring("/v2/artifacts/".length()));try(var row=query.executeQuery()){if(!row.next()||!row.getString(1).equals(d.account()))throw new IllegalArgumentException("source Artifact must resolve in Account scope");}}
+                try(var query=c.prepareStatement("SELECT 1 FROM brokerage_import WHERE account=? AND artifact_id=? AND file_type='API_ORDERS' LIMIT 1")){query.setString(1,d.account());query.setString(2,artifact.substring("/v2/artifacts/".length()));try(var row=query.executeQuery()){if(row.next()&&!n.path("requiredCapability").asText().equals("account.orders.read:"+d.account()))throw new IllegalArgumentException("Order source capability required");}}
+            }
+        }
         if(n.isObject()&&n.has("href")){
             String href=n.path("href").asText();
             if(d.account()!=null&&href.startsWith("/v2/accounts/")&&!href.equals("/v2/accounts/"+d.account())&&!href.startsWith("/v2/accounts/"+d.account()+"/"))throw new IllegalArgumentException("cross-Account reference");

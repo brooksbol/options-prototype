@@ -9,10 +9,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /** Optional broker quote facts only. Strategy rows never count inventory or create Positions. */
-final class PositionMarketEvidence {
-    record Facts(BigDecimal bid, BigDecimal ask, BigDecimal requirement, BigDecimal reportedQuantity,
+public final class PositionMarketEvidence {
+    public record Facts(BigDecimal bid, BigDecimal ask, BigDecimal requirement, BigDecimal reportedQuantity,
             PositionSnapshot.MarketEvidence provenance) {}
-    static Map<String, Facts> read(Connection c, PositionSnapshot snapshot, ObjectMapper mapper) throws Exception {
+    public static Map<String, Facts> read(Connection c, PositionSnapshot snapshot, ObjectMapper mapper) throws Exception {
         var result = new HashMap<String, Facts>();
         // Latest retained, accepted Option Summary on the SAME export day only. Read in the
         // caller's SQLite read transaction; never combine a different-day summary silently.

@@ -72,6 +72,29 @@ for p in x['positions']:
 x['accountReconciliation']=rec
 # Safe financial redaction in the candidate policy oracle.
 p=P/'verify.py';s=p.read_text();s=s.replace("value=None,status='REDACTED'","value=None,asOf=None,status='REDACTED'");p.write_text(s)
+# An independently readable lifecycle assertion does not expose a restricted source event clock.
+lifecycle=o['components']['schemas']['LifecycleEvidence']
+lifecycle['properties']['establishedAtAccess']={'enum':['VISIBLE','REDACTED'],'description':'Field-level source permission for the establishment clock. Redaction preserves the independently authorized lifecycle assertion, not the private event timestamp.'}
+for rule in lifecycle['allOf']:
+ if rule.get('if',{}).get('properties',{}).get('status')=={'const':'ESTABLISHED'} and 'establishedAt' in rule.get('then',{}).get('properties',{}):
+  rule['then']={'if':{'properties':{'establishedAtAccess':{'const':'REDACTED'}},'required':['establishedAtAccess']},'then':{'properties':{'establishedAt':{'type':'null'}}},'else':{'properties':{'establishedAt':{'type':'string','format':'date-time'}}}}
+clock_gate={'if':{'properties':{'establishedAtAccess':{'const':'REDACTED'}},'required':['establishedAtAccess']},'then':{'properties':{'establishedAt':{'type':'null'}}}}
+if clock_gate not in lifecycle['allOf']:lifecycle['allOf'].append(clock_gate)
+for rule in o['components']['schemas']['Allocation']['allOf']:
+ if rule.get('if',{}).get('properties',{}).get('basisMethod')=={'const':'UNKNOWN'}:
+  statuses=rule['then']['properties']['basis']['properties']['status']['enum']
+  if 'REDACTED' not in statuses:statuses.append('REDACTED')
+# Units are typed at their financial field, not left to a generic metric union.
+for name,unit in [('FeeMetric','MONEY'),('PriceMetric','PRICE')]:
+ o['components']['schemas'][name]['properties']['unit']={'const':unit}
+for name,fields,unit in [
+ ('Evaluation',['marketValue','grossUnrealizedPl','historicalMarketValue','brokerReportedOpenPl','openingCashFlow','estimatedClosingCashFlow','netUnrealizedPl','realizedGrossPl','realizedNetPl'],'MONEY'),
+ ('Evaluation',['spot'],'PRICE'),('Timeline',['remainingDays','originalDays'],'DAY')]:
+ for field in fields:
+  old=o['components']['schemas'][name]['properties'][field]
+  restriction={'properties':{'unit':{'const':unit}}}
+  if 'allOf' not in old:o['components']['schemas'][name]['properties'][field]={'allOf':[old,restriction]}
+  elif restriction not in old['allOf']:old['allOf'].append(restriction)
 # Complete the already-declared Construction collection include projection with the same typed, authorized expansion shape.
 o['components']['schemas']['Construction']['properties']['included']={'$ref':'#/components/schemas/Position/properties/included'}
 for path,v in [('openapi.json',o),('examples/resources.json',b)]: (P/path).write_text(json.dumps(v,indent=2)+'\n')

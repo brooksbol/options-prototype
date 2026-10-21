@@ -21,4 +21,33 @@ class EntryCorrections(unittest.TestCase):
      obj=p
      for segment in pointer.strip('/').split('/'):obj=obj[segment]
      self.assertEqual(obj['status'],'CONFLICT')
+ def test_restricted_establishment_clock_keeps_only_authorized_state(self):
+  x={'status':'ESTABLISHED','establishedAt':None,'establishedAtAccess':'REDACTED','completeness':'SCOPED_ACCEPTED','evidence':[{'kind':'REDACTED','reason':'INSUFFICIENT_PERMISSION'}]};v.check('LifecycleEvidence',x)
+  for defect in ['unmarked_null','unredacted_clock']:
+   bad=copy.deepcopy(x)
+   if defect=='unmarked_null':bad.pop('establishedAtAccess')
+   else:bad['establishedAt']='2026-10-05T12:34:56Z'
+   with self.assertRaises(v.jsonschema.ValidationError):v.check('LifecycleEvidence',bad)
+ def test_unknown_basis_attribution_survives_its_source_redaction(self):
+  c=v.resource('unclassified-composition')
+  def leaves(n):return [x for child in n['children'] for x in leaves(child)] if n['kind']=='GROUP' else [n]
+  a=copy.deepcopy(leaves(c['composition'])[0]['allocation']);a['basisMethod']='UNKNOWN';m=a['basis'];m.update(value=None,asOf=None,status='REDACTED',origin='UNKNOWN',method='ACCESS_RESTRICTED',evidence=[],dependencies=[],assumptions=[],warningCodes=['ACCESS_RESTRICTED']);v.check('Allocation',a)
+ def test_financial_field_units_reject_dimension_substitution(self):
+  p=copy.deepcopy(v.resource('buy-write-position'))
+  for field in ['marketValue','grossUnrealizedPl','openingCashFlow','estimatedClosingCashFlow','netUnrealizedPl']:
+   bad=copy.deepcopy(p['evaluation']);bad[field]['unit']='PRICE'
+   with self.assertRaises(v.jsonschema.ValidationError):v.check('Evaluation',bad)
+  bad=copy.deepcopy(p['evaluation']);bad['spot']['unit']='MONEY'
+  with self.assertRaises(v.jsonschema.ValidationError):v.check('Evaluation',bad)
+  for field in ['remainingDays','originalDays']:
+   bad=copy.deepcopy(p['evaluation']['timeline']);bad[field]['unit']='MONEY'
+   with self.assertRaises(v.jsonschema.ValidationError):v.check('Timeline',bad)
+ def test_review_regeneration_is_idempotent_and_retains_corrected_contract(self):
+  import tempfile,shutil,subprocess
+  with tempfile.TemporaryDirectory(prefix='ww-entry-regeneration-') as temp:
+   target=Path(temp)/'review';shutil.copytree(P,target)
+   watched=['openapi.json','examples/resources.json','verify.py'];before={f:(target/f).read_bytes() for f in watched}
+   for _ in range(2):
+    subprocess.run([sys.executable,str(target/'finalize-review-fixtures.py')],check=True)
+    for f in watched:self.assertEqual(before[f],(target/f).read_bytes(),f)
 if __name__=='__main__':unittest.main(verbosity=2)
