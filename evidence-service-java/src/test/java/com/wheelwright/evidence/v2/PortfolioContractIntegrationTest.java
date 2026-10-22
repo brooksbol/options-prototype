@@ -38,6 +38,8 @@ class PortfolioContractIntegrationTest {
  }
  @Test void allResourceCollectionsArePresentAndGrantBoundariesApply()throws Exception {
   for(String path:List.of("/v2/positions","/v2/constructions","/v2/constructions/models","/v2/orders","/v2/instruments","/v2/market-observations","/v2/holdings"))getJson(path,"owner",200);
+  var families=getJson("/v2/constructions/models?projection=expanded","owner",200);assertThat(families.path("items")).isNotEmpty();for(var family:families.path("items")){var resolved=getJson(family.at("/self/href").asText(),"owner",200);assertThat(resolved).isEqualTo(family);for(var version:resolved.path("versions"))assertThat(getJson(version.path("href").asText(),"owner",200).at("/self/href").asText()).isEqualTo(version.path("href").asText());}
+  var positions=getJson("/v2/positions?projection=expanded","owner",200);String positionUri=positions.path("items").get(0).at("/self/href").asText();var audit=getJson(positionUri+"/audit?projection=expanded","owner",200);assertThat(audit.path("items")).isNotEmpty();String auditUri=audit.path("items").get(0).at("/self/href").asText();assertThat(getJson(auditUri,"owner",200)).isEqualTo(audit.path("items").get(0));getJson(auditUri,"position",404);
   getJson("/v2/holdings?accountId="+account,"position",403);getJson("/v2/positions?accountId="+account,"none",403);getJson("/v2/instruments","none",403);getJson("/v2/accounts/"+account+"/inventory-reconciliation","owner",200);
  }
  @Test void projectionAndCursorRetainQualificationAndRejectChanges()throws Exception {

@@ -14,7 +14,7 @@ public final class PortfolioReferenceEnrichment {
  private final PortfolioRepository repo;
  public PortfolioReferenceEnrichment(PortfolioRepository repo){this.repo=repo;}
  public void apply(Connection c,String account,Instant now)throws Exception{
-  var latest=new PortfolioSnapshots(repo).current(account);if(latest.isEmpty())return;
+  var latest=new PortfolioSnapshots(repo).current(account);if(latest.isEmpty())return;var definitions=new LinkedHashMap<String,JsonNode>();for(var model:repo.list(c,Kind.MODEL_VERSION,Set.of()))definitions.put(model.uri(),model.value());
   for(var position:repo.list(c,Kind.POSITION,Set.of(account))){
    if(position.value().path("state").asText().equals("CLOSED")||!Objects.equals(position.snapshot(),latest.get().snapshotId()))continue;
    var old=repo.get(c,position.value().at("/currentConstruction/href").asText()).orElseThrow();var value=old.value().deepCopy();boolean changed=false;
@@ -34,7 +34,7 @@ public final class PortfolioReferenceEnrichment {
    // Reference facts do not create new membership, broker reservation or Order association claims.
    if(value.at("/recognition/status").asText().equals("VALIDATED")){
     var model=repo.get(c,value.at("/recognition/modelVersion/href").asText());
-    if(model.isEmpty()||!PortfolioRecognition.matches(value,model.get().value(),new PortfolioRecognition.Admission(false,false,false))){var recognition=(ObjectNode)value.path("recognition");var candidates=(ArrayNode)recognition.path("candidateModels");if(recognition.path("modelVersion").isObject())candidates.add(recognition.path("modelVersion").deepCopy());recognition.put("status","UNCLASSIFIED").putNull("modelVersion");recognition.set("reasonCodes",array().add("UNCLASSIFIED_CONSTRUCTION"));((ArrayNode)value.path("warnings")).add(warning("UNCLASSIFIED_CONSTRUCTION","/recognition","Actual constituents and historical exact Model references remain inspectable.","Reference reinterpretation does not independently prove required named-structure associations."));}
+    if(model.isEmpty()||!PortfolioRecognition.matches(value,model.get().value(),new PortfolioRecognition.Admission(false,false,false),definitions)){var recognition=(ObjectNode)value.path("recognition");var candidates=(ArrayNode)recognition.path("candidateModels");if(recognition.path("modelVersion").isObject())candidates.add(recognition.path("modelVersion").deepCopy());recognition.put("status","UNCLASSIFIED").putNull("modelVersion");recognition.set("reasonCodes",array().add("UNCLASSIFIED_CONSTRUCTION"));((ArrayNode)value.path("warnings")).add(warning("UNCLASSIFIED_CONSTRUCTION","/recognition","Actual constituents and historical exact Model references remain inspectable.","Reference reinterpretation does not independently prove required named-structure associations."));}
    }
    repo.put(c,new Document(Kind.CONSTRUCTION,uri,account,value,old.snapshot(),old.sourceKey()));var p=position.value().deepCopy();p.set("currentConstruction",link(uri));var evaluation=PortfolioMath.evaluate(value,Map.of(),now);if(p.at("/evaluation/economicComparison").isObject())evaluation.set("economicComparison",p.at("/evaluation/economicComparison").deepCopy());p.set("evaluation",evaluation);PortfolioSources.qualify(p);repo.put(c,new Document(Kind.POSITION,position.uri(),account,p,position.snapshot(),position.sourceKey()));
   }

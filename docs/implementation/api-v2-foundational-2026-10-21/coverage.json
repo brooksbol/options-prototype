@@ -899,9 +899,9 @@
     },
     "R07_R08_R09": {
       "status": "PARTIAL",
-      "implementation": "PortfolioRecognition, PortfolioMath",
-      "tests": "PortfolioFinancialTest, PortfolioMarkParityTest, PortfolioSessionEvidenceTest, verify-mark-parity.mjs",
-      "remaining": "Whole-package Java/projectLive numerical replay and session freshness parity pass. Nested Model-role applicability, complete source-to-contract field reconciliation and whole-application acceptance remain pending."
+      "implementation": "PortfolioRecognition, PortfolioMath, PortfolioPackageValuation",
+      "tests": "PortfolioFinancialTest, PortfolioMarkParityTest, PortfolioSessionEvidenceTest, verify-mark-parity.mjs; PortfolioNestedRecognitionTest",
+      "remaining": "Nested exact-definition applicability and rational package ratios are now targeted-tested. Complete source-field/behavior reconciliation, source association proof and full regression/independent acceptance remain pending."
     },
     "R10_R18": {
       "status": "PARTIAL",
