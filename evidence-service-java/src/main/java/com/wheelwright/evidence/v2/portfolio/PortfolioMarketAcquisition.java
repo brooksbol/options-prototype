@@ -51,6 +51,7 @@ public final class PortfolioMarketAcquisition {
     String series=subject.get().value().path("symbol").asText(),symbol=underlying.get().value().path("symbol").asText();if(!referenceFreshness.containsKey(symbol))referenceFreshness.put(symbol,referenceFresh(account,symbol));if(subject.get().value().path("option").isObject()&&referenceFreshness.get(symbol))continue;if(options.contains(series))groups.computeIfAbsent(symbol,k->new TreeSet<>()).add(series);
    }
   }
+  var definitionSubjects=new TreeSet<String>();groups.entrySet().stream().limit(10).forEach(group->definitionSubjects.addAll(group.getValue()));
   int budget=10;for(var group:groups.entrySet()){
    if(--budget<0){warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Admitted contract references remain inspectable.","Reference source request budget reached; later reads can obtain remaining held-series terms. No omitted terms are manufactured."));break;}
    String attempt=UUID.randomUUID().toString(),artifact=null;
@@ -58,6 +59,18 @@ public final class PortfolioMarketAcquisition {
     try(var c=repository.connection()){c.setAutoCommit(false);try{new PortfolioOptionReferenceSources(repository).admit(c,account,artifact,group.getKey(),group.getValue());new PortfolioReferenceEnrichment(repository).apply(c,account,clock.instant());finish(c,account,attempt,"ACCEPTED","Requested held-series reference terms normalized; price multipliers and custody remain independent source facts");c.commit();}catch(Exception e){c.rollback();throw e;}}
    }catch(Exception e){if(artifact!=null)try(var c=repository.connection()){finish(c,account,attempt,"REJECTED","Unsupported or unavailable reference terms; prior evidence preserved");}warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Reported custody and prior qualified contract references remain inspectable.","Requested held-series reference acquisition is unavailable or unsupported; exact economics remain limited by known terms."));}
   }
+  if(!definitionSubjects.isEmpty())definitions(account,definitionSubjects,warnings);
+ }
+ private void definitions(String account,Set<String> requested,com.fasterxml.jackson.databind.node.ArrayNode warnings)throws Exception{
+  try{byte[] bytes=client.optionDefinitions(new ArrayList<>(requested));var found=definition(account,bytes,requested,null);if(found.size()!=requested.size())warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Returned contract definitions remain inspectable.","Some requested definitions were absent; no missing exercise or contract terms are invented."));}
+  catch(Exception batchUnavailable){
+   try{var failed=client.optionDefinitionFallback(new ArrayList<>(requested),(symbol,bytes)->definition(account,bytes,Set.of(symbol),symbol));if(!failed.isEmpty())warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Successfully admitted individual definitions and custody remain inspectable.","Some bounded single-contract fallback reads failed; their missing terms remain unknown."));}
+   catch(Exception unavailable){warnings.add(PortfolioJson.warning("TERMS_UNAVAILABLE","/evaluation/payoff","Prior independently established contract terms remain inspectable.","Batch and bounded fallback definition acquisition are unavailable; no unsupported contract fields are manufactured."));}
+  }
+ }
+ private Set<String> definition(String account,byte[] bytes,Set<String> requested,String symbol)throws Exception{
+  String attempt=UUID.randomUUID().toString(),artifact=retain(account,attempt,bytes,symbol==null?"API_OPTION_DEFINITIONS":"API_OPTION_DEFINITION",symbol==null?"tastytrade-option-definitions.json":"tastytrade-option-definition.json");
+  try(var c=repository.connection()){c.setAutoCommit(false);try{var found=new PortfolioOptionDefinitions(repository).admit(c,account,artifact,requested);new PortfolioReferenceEnrichment(repository).apply(c,account,clock.instant());finish(c,account,attempt,"ACCEPTED",found.size()==requested.size()?"All requested definition subjects returned; individual missing fields retain qualifications":"Partial definition subjects returned; not complete reference evidence");c.commit();return found;}catch(Exception e){c.rollback();try(var rejected=repository.connection()){finish(rejected,account,attempt,"REJECTED","Unsupported definition source; prior reference facts preserved");}throw e;}}
  }
  private boolean referenceFresh(String account,String underlying)throws Exception{
   try(var c=repository.connection();var q=c.prepareStatement("SELECT status,imported_at FROM brokerage_import WHERE account=? AND file_type='API_OPTION_CHAIN' AND original_filename=? ORDER BY imported_at DESC,import_id DESC LIMIT 1")){q.setString(1,account);q.setString(2,"tastytrade-option-chain-"+underlying+".json");try(var row=q.executeQuery()){if(!row.next()||!row.getString("status").equals("ACCEPTED"))return false;var age=Duration.between(Instant.parse(row.getString("imported_at")),clock.instant());return !age.isNegative()&&age.compareTo(Duration.ofDays(1))<0;}}

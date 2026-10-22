@@ -20,7 +20,7 @@ public final class PortfolioReferenceEnrichment {
    var old=repo.get(c,position.value().at("/currentConstruction/href").asText()).orElseThrow();var value=old.value().deepCopy();boolean changed=false;
    for(var leaf:leaves(value.path("composition")))if(leaf.path("kind").asText().equals("OPTION")){
     var instrument=repo.get(c,leaf.at("/instrument/href").asText());if(instrument.isEmpty()||!instrument.get().value().path("option").isObject())continue;
-    var reference=instrument.get().value().path("option");var before=(ObjectNode)leaf.path("terms");var after=before.deepCopy();boolean conflict=false;
+    var reference=instrument.get().value().path("option");var before=(ObjectNode)leaf.path("terms");var after=before.deepCopy();boolean conflict=reference.path("qualification").asText().equals("CONFLICT");
     for(String field:List.of("underlying","right","strike","expiration","currency","multiplier","exerciseStyle","settlement","adjustment","deliverable")){
      var next=reference.path(field);var previous=before.path(field);if(!known(next))continue;
      if(known(previous)&&!equal(field,next,previous)){conflict=true;continue;}after.set(field,next.deepCopy());

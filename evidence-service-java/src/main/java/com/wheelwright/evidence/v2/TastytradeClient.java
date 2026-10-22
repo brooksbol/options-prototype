@@ -151,6 +151,43 @@ public class TastytradeClient {
         catch(Exception e){throw new IllegalStateException("reference acquisition unavailable");}
     }
 
+    /** Explicit held contract definitions; bounded accepted tt batch request. */
+    public byte[] optionDefinitions(List<String> symbols)throws Exception {
+        if(symbols==null||symbols.isEmpty()||symbols.size()>100||new HashSet<>(symbols).size()!=symbols.size())throw new IllegalStateException("reference acquisition unavailable");
+        var query=new ArrayList<String>();for(String symbol:symbols){if(symbol==null||!symbol.matches("[A-Z0-9.]{1,6} {0,5}[0-9]{6}[CP][0-9]{8}"))throw new IllegalStateException("reference acquisition unavailable");query.add("symbol[]="+encode(symbol));}
+        if(!configured())throw new IllegalStateException("reference acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();
+        try{
+            String token=accessToken(expires);
+            var request=HttpRequest.newBuilder(base.resolve("/instruments/equity-options?with-expired=true&"+String.join("&",query))).timeout(deadline).header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+            var bytes=reply.body();var secrets=List.of(clientId,clientSecret,refreshToken,token);String content=new String(bytes,StandardCharsets.UTF_8);for(String secret:secrets)if(content.contains(secret))throw new IllegalStateException();
+            if(!safeDocument(TastytradeHoldings.document(bytes),secrets))throw new IllegalStateException();return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("reference acquisition unavailable");}
+        catch(Exception e){throw new IllegalStateException("reference acquisition unavailable");}
+    }
+
+    @FunctionalInterface public interface OptionDefinitionSink {void accept(String symbol,byte[] bytes)throws Exception;}
+    /** Accepted bounded single-contract fallback: four concurrent reads, one OAuth token,
+     * one overall transport deadline. Missing members are reported, never synthesized. */
+    public Set<String> optionDefinitionFallback(List<String> symbols,OptionDefinitionSink sink)throws Exception {
+        if(symbols==null||symbols.isEmpty()||symbols.size()>100||new HashSet<>(symbols).size()!=symbols.size()||!configured())throw new IllegalStateException("reference acquisition unavailable");
+        for(String symbol:symbols)if(symbol==null||!symbol.matches("[A-Z0-9.]{1,6} {0,5}[0-9]{6}[CP][0-9]{8}"))throw new IllegalStateException("reference acquisition unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();String token=accessToken(expires);var failed=new TreeSet<String>();
+        try(var executor=java.util.concurrent.Executors.newFixedThreadPool(4)){
+            var futures=new LinkedHashMap<String,java.util.concurrent.Future<byte[]>>();
+            for(String symbol:symbols)futures.put(symbol,executor.submit(()->{
+                var request=HttpRequest.newBuilder(base.resolve("/instruments/equity-options/"+pathSegment(symbol))).timeout(deadline).header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+                var reply=receive(request,256*1024,expires);if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException("reference acquisition unavailable");
+                var bytes=reply.body();var secrets=List.of(clientId,clientSecret,refreshToken,token);String content=new String(bytes,StandardCharsets.UTF_8);for(String secret:secrets)if(content.contains(secret))throw new IllegalStateException("reference acquisition unavailable");if(!safeDocument(TastytradeHoldings.document(bytes),secrets))throw new IllegalStateException("reference acquisition unavailable");return bytes;
+            }));
+            for(var entry:futures.entrySet())try{sink.accept(entry.getKey(),entry.getValue().get());}catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("reference acquisition unavailable");}catch(Exception unavailable){failed.add(entry.getKey());}
+        }return Set.copyOf(failed);
+    }
+
+    private static String pathSegment(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8).replace("+","%20");}
+
     private static String encode(String value){return URLEncoder.encode(value,StandardCharsets.UTF_8);}
 
     /** Fresh OAuth access token via refresh-token exchange. No durable cache; the
