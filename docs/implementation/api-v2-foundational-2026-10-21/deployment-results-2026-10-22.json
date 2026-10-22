@@ -1,0 +1,66 @@
+{
+  "standing": "OBSERVED_RELEASE_EVIDENCE_NOT_PRODUCT_OR_LIVE_BROKERAGE_ACCEPTANCE",
+  "verifiedAt": "2026-10-22T19:25:35.095565+00:00",
+  "remoteMainBeforeIntegration": "9fd8567b9d7ca73b4b573649c5d25cfb3b482ea2",
+  "remoteMainBeforePublication": "aaa7443d54e53ee9ea72001e6448fc8f0a16441b",
+  "acceptedBackendSource": "b48e3c6fc36f9a7feb6abbf97cbacff5934d477e",
+  "combinedBackendSource": "d97f86f4924dec90c4639075429d90488342251c",
+  "deployedDocumentationSource": "4c659a7d3ce34b74937f7a356ec31dc1314399b1",
+  "workflow": {
+    "id": 39839265856,
+    "url": "https://github.com/brooksbol/options-prototype/actions/runs/39839265856",
+    "conclusion": "success",
+    "jobs": {
+      "build": "success",
+      "deploy": "success"
+    }
+  },
+  "publicationDate": "2026-10-22",
+  "version": "0.6.0-foundational",
+  "publicFiles": {
+    "LICENSES.txt": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
+    "index.html": "ce7ebc85d97a9903b78d26df5e08f88e16930ff56797c79b648b4458290ea0b0"
+  },
+  "uploadedArtifactTwoRegularFilesOnly": true,
+  "liveByteComparison": "EXACT",
+  "liveBrowser": {
+    "operations": 32,
+    "pageErrors": 0,
+    "unexpectedRequests": 0,
+    "desktopAndMobileVisuallyInspected": true,
+    "desktopSettledProbeRequired": true
+  },
+  "localBackend": {
+    "port": 3101,
+    "jarSha256": "1d94fb29d0ce8ef4de4d435746e134e74dc5e38b4fa52d3d697d6a16ed07172e",
+    "sourceAndGrantsPreserved": true,
+    "v1ServicesUnchanged": true,
+    "cliUnchangedNotMigrated": true,
+    "runtimeOasChecks": 5,
+    "schemaViolations": 0,
+    "cloudDeploymentVerified": false
+  },
+  "verification": {
+    "javaTests": 982,
+    "javaSkipped": 2,
+    "failures": 0,
+    "observedPythonTests": 120,
+    "routeOperations": 36,
+    "httpAndSourceRouteRepresentations": 182,
+    "standaloneFinancialRepresentations": 5,
+    "routeStatusCombinations": 45,
+    "schemaViolations": 0,
+    "sourceDocumentedExamples": 253,
+    "publicResponseExamples": 225,
+    "independentDocumentationReview": "ACCEPT3347f1e after earlier REJECT and corrected-contentACCEPT"
+  },
+  "limitations": [
+    "Expanded Position collection evaluates the full scoped collection before pagination; copied-database limit5 took33.425s; no unreviewed optimization.",
+    "No live brokerage acquisition, order submission or new capability grants.",
+    "Synthetic financial/source tests do not establish complete operational brokerage evidence.",
+    "Local installed backend verified, not cloud deployment or reboot supervision.",
+    "Installed CLI remains unmigrated; new Position-contract CLI parity not asserted.",
+    "Redocly emits warnings despite separate schema validation; Node20-pinned action annotations are forced toNode24 by GitHub.",
+    "Token/credit consumption and full retrieval start duration not exposed/captured."
+  ]
+}
