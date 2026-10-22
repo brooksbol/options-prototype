@@ -10,7 +10,7 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
           "source": "curl --request GET 'https://api.example.invalid/v2/positions'"
         }
@@ -115,9 +115,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/positions/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions/b2fb05ea-ba93-430d-9f58-8e002cd14dfd'"
         }
       ],
       "examples": {
@@ -592,9 +592,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/constructions'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions?projection=summary'"
         }
       ],
       "examples": {
@@ -914,9 +914,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/7dba7537-2870-4bc9-a683-c05aca6e7eda'"
         }
       ],
       "examples": {
@@ -1358,9 +1358,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/orders'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/orders?accountId=acct_31dafd6102c548819fc4daccd6659066'"
         }
       ],
       "examples": {
@@ -1463,9 +1463,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/orders/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/orders/0850b26c-cdca-36a6-80f9-33b6743f16d1'"
         }
       ],
       "examples": {
@@ -1796,7 +1796,7 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
           "source": "curl --request GET 'https://api.example.invalid/v2/instruments'"
         }
@@ -1978,9 +1978,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/instruments/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154'"
         }
       ],
       "examples": {
@@ -2096,9 +2096,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/market-observations'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/market-observations?accountId=acct_31dafd6102c548819fc4daccd6659066'"
         }
       ],
       "examples": {
@@ -2201,9 +2201,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/market-observations/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/market-observations/f02abcd0-b7d2-3423-8205-5bda83587f85'"
         }
       ],
       "examples": {
@@ -2418,7 +2418,7 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
           "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models'"
         }
@@ -2620,9 +2620,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models/COVERED_CALL'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models/CASH'"
         }
       ],
       "examples": {
@@ -2731,9 +2731,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models/COVERED_CALL/versions/1'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models/CASH/versions/1'"
         }
       ],
       "examples": {
@@ -2887,9 +2887,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/positions/11111111-1111-4111-8111-111111111111/audit'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893/audit?projection=expanded'"
         }
       ],
       "examples": {
@@ -3038,9 +3038,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/positions/11111111-1111-4111-8111-111111111111/audit/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893/audit/1b6324c1-9024-4c9e-ad37-f3f9381bc662'"
         }
       ],
       "examples": {
@@ -3182,9 +3182,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/inventory-reconciliation'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0/inventory-reconciliation'"
         }
       ],
       "examples": {
@@ -3341,9 +3341,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/holdings'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/holdings?view=observations'"
         }
       ],
       "examples": {
@@ -3489,9 +3489,9 @@
       },
       "x-codeSamples": [
         {
-          "lang": "cURL",
+          "lang": "curl",
           "label": "Synthetic cURL",
-          "source": "curl --request GET 'https://api.example.invalid/v2/holdings/11111111-1111-4111-8111-111111111111'"
+          "source": "curl --request GET 'https://api.example.invalid/v2/holdings/3f22ae06-17b6-316e-8533-6b9d8f64c2b3'"
         }
       ],
       "examples": {

@@ -127,6 +127,12 @@ def public_reference(spec):
                      'Duplicate timestamps retain', 'Coverage remains UNKNOWN.', 'Complete collection with'):
         text = text.replace(' ' + sentence, '\n\n' + sentence)
     op['description'] = text
+    for item in spec['paths'].values():
+        for method,operation in item.items():
+            if method not in {'get','post'}:continue
+            sample=operation['x-codeSamples'][0]['source']
+            if '\n```' in sample:raise ValueError('Unexpected code-fence delimiter in sample')
+            operation['description'] += '\n\n### Synthetic cURL\n\n```text\n'+sample+'\n```'
     return spec
 
 
@@ -171,6 +177,7 @@ def main():
                                              if not line.startswith('- **Select subjects:**'))
     # Avoid offering the authoritative OAS download through the public presentation.
     public.pop('externalDocs', None)
+    public['servers']=[{'url':'https://api.example.invalid','description':'Synthetic nonworking example origin; the runtime host is deployment-specific.'}]
     projection = private / 'public-projection.json'
     projection.write_text(json.dumps(public, indent=2) + '\n')
     pruned = private / 'public-pruned.json'
@@ -178,57 +185,22 @@ def main():
     public = json.loads(pruned.read_text())
     projection.write_text(json.dumps(public, indent=2) + '\n')
     print(run(cli, 'lint', internal, '--config', TOOL / 'redocly.yaml'))
-    # The complete recursive domain exceeds the pinned renderer's SSR heap.
-    # The existing pipeline already uses native Redoc.init (not hydration).
-    # Generate its unchanged COTS shell, then embed the FULL validated projection
-    # for native browser rendering. No schema or operation is omitted.
-    shell=copy.deepcopy(public)
-    shell['paths']={}; shell['components']={}; shell['tags']=[]
-    shell_path=private/'native-shell.json'
-    shell_path.write_text(json.dumps(shell)+'\n')
-    print(run(cli, 'build-docs', shell_path, '--output', site / 'index.html',
-              '--config', TOOL / 'redocly.yaml', '--disableGoogleFont',
-              '--theme.openapi.hideSecuritySection=true', '--theme.openapi.hideDownloadButtons=true',
-              '--theme.openapi.hideTryItPanel=true', '--theme.openapi.disableSearch=false',
-              '--theme.openapi.expandResponses=200,401,403,404,422,500,503',
-              '--theme.openapi.showExtensions=false', '--theme.openapi.generatedSamplesMaxDepth=3'))
-    html = (site / 'index.html').read_text()
-    state_pattern=re.compile(r'const __redoc_state = (\{.*?\});(?=\s*var container)',re.S)
-    matches=list(state_pattern.finditer(html))
-    if len(matches)!=1: raise ValueError('Changed native COTS state layout')
-    native_state=json.loads(matches[0].group(1))
-    native_state['spec']['data']=public
-    serialized=json.dumps(native_state,separators=(',',':')).replace('</','<\\/')
-    html=state_pattern.sub(lambda _: 'const __redoc_state = '+serialized+';',html,count=1)
-
-    asset = TOOL / 'node_modules/redoc/bundles/redoc.standalone.js'
-    sri = 'sha384-' + base64.b64encode(hashlib.sha384(asset.read_bytes()).digest()).decode()
-    url = 'https://cdn.redocly.com/redoc/v2.5.4/bundles/redoc.standalone.js'
-    if html.count(url) != 1 or sri not in html:
-        raise ValueError('COTS renderer version/integrity differs from pinned local asset')
-    # Package the exact integrity-checked COTS script inline. No custom browser
-    # logic: this also permits native search from file:// without CORS or a server.
-    tag = re.compile(r'<script[^>]+src="' + re.escape(url) + r'"[^>]*></script>')
-    renderer = asset.read_text()
-    logo_url = 'https://cdn.redoc.ly/redoc/logo-mini.svg'
-    logo = (TOOL / 'redoc-logo.svg').read_bytes()
-    if re.search(rb'<script|\bon\w+\s*=|(?:href|src)\s*=', logo, re.I) or renderer.count(logo_url) != 1:
-        raise ValueError('Review changed COTS logo asset before packaging')
-    renderer = renderer.replace(logo_url, 'data:image/svg+xml;base64,' + base64.b64encode(logo).decode())
-    html, count = tag.subn(lambda _: '<script>' + renderer.replace('</script', '<\\/script') + '</script>', html)
-    if count != 1:
-        raise ValueError('Expected exactly one pinned renderer script')
-    # The pinned CLI's prerendered markup produces React hydration mismatches for
-    # this schema graph. Reuse Redoc's documented native initializer, with the same
-    # embedded specification/options; no replacement rendering or search code.
-    hydrate = 'Redoc.hydrate(__redoc_state, container);'
-    if html.count(hydrate) != 1:
-        raise ValueError('Unexpected COTS bootstrap; review before changing versions')
-    options = dict(hideSecuritySection=True, hideDownloadButtons=True, hideTryItPanel=True,
-                   disableSearch=False, showExtensions=False, generatedSamplesMaxDepth=3,
-                   expandResponses='200,401,403,404,422,500,503')
-    html = html.replace(hydrate, 'Redoc.init(__redoc_state.spec.data, ' + json.dumps(options) + ', container);')
-    (site / 'index.html').write_text(html)
+    # Redoc 2.5.4 cannot render the accepted recursive Holdings graph within
+    # its heap; use the same vendor's pinned native Redoc 3 init API. Bundling,
+    # lint, exact embedded-contract validation and offline browser gates remain.
+    asset=TOOL/'node_modules/redoc/bundles/redoc.standalone.js'
+    renderer=asset.read_text()
+    logo_url='https://cdn.redoc.ly/redoc/logo-mini-full.svg'
+    logo=(TOOL/'redoc-logo.svg').read_bytes()
+    if renderer.count(logo_url)!=1 or re.search(rb'<script|\bon\w+\s*=|(?:href|src)\s*=',logo,re.I):
+        raise ValueError('Review changed native logo asset before packaging')
+    renderer=renderer.replace(logo_url,'data:image/svg+xml;base64,'+base64.b64encode(logo).decode())
+    sri='sha384-'+base64.b64encode(hashlib.sha384(asset.read_bytes()).digest()).decode()
+    options=dict(disableTelemetry=True,hideDownloadButtons=True,hideSecuritySection=True,
+                 hideTryItPanel=True,generatedSamplesMaxDepth=3,sanitize=True)
+    state=json.dumps({'spec':{'data':public}},separators=(',',':')).replace('</','<\\/')
+    html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wheelwright API v2</title><style>body{margin:0}</style></head><body><div id="redoc"></div><script type="module">'+renderer.replace('</script','<\\/script')+'\nconst __redoc_state = '+state+';\nvar container = document.getElementById("redoc");\ninit(__redoc_state.spec.data,'+json.dumps(options)+',container);</script></body></html>'
+    (site/'index.html').write_text(html)
     licenses = [TOOL / 'node_modules/redoc/LICENSE', TOOL / 'node_modules/@redocly/cli/LICENSE',
                 TOOL / 'node_modules/@redocly/cli/THIRD_PARTY_NOTICES']
     bundle_notice = asset.with_name(asset.name + '.LICENSE.txt')
@@ -246,9 +218,9 @@ def main():
         if not isinstance(date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
             raise ValueError('Publication requires an explicit reproducible ISO date')
         marker = 'not published — local preview'
-        if html.count(marker) != 2:
+        if html.count(marker) != 1:
             raise ValueError('Publication metadata layout differs from accepted renderer')
-        # Only the two native introductory/state copies of this label may change.
+        # Only the native embedded publication-date label of this label may change.
         (site / 'index.html').write_text(html.replace(marker, date))
         public['info']['description'] = public['info']['description'].replace(marker, date)
         projection.write_text(json.dumps(public, indent=2) + '\n')

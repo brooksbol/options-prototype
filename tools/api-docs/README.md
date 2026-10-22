@@ -1,6 +1,16 @@
 # Current foundational Holdings publication — October22,2026
 
-Principal-authorized integration of independently verified b48e3c6 updates the reference to36 authoritative operations and32 public operations, preserving the existing four administrative exclusions. See [deployment record](../../docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md). The pipeline validates accepted wire/security constraints against b48e3c6, annotations/examples, every public operation, exact HTML-embedded OAS, the two-file allowlist and native browser behavior. Full recursive schemas exceeded the pinned renderer's server-side heap; the same COTS CLI generates its native shell and the existing Redoc.init renders the exact full embedded projection in the browser. No schema, operation or execution guard is omitted. Historical phase notes below retain their original standing.
+The Principal authorized integration/publication of independently verified backend b48e3c6:36 authoritative operations and32 public operations, with the same four administrative exclusions. See the [deployment record](../../docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md) for actual deployment and acceptance state.
+
+## Current renderer and verification
+
+Redocly CLI2.64.0 still bundles/lints/prunes the authoritative OAS; pinned Redoc3.0.1 renders the exact full public projection through its native module `init` API. Redoc2.5.4 exhausted its heap on the accepted recursive Holdings schemas in both server and browser rendering. No schema simplification, removed financial fields or replacement frontend resolves that gap. Only the vendor renderer is upgraded; Playwright1.56.1 remains pinned.
+
+The static shell embeds the locked vendor module and exact public projection. The single native logo URL is replaced with the vetted inline logo; telemetry is disabled. Standard Markdown cURL blocks are derived from source `x-codeSamples` so requests remain visible without an execution interface. The documentation-only server origin is the deliberately nonworking `https://api.example.invalid`; the authoritative runtime server remains relative. Public Account-source examples use the existing REDACTED variant; internal schemas/security/source examples remain intact.
+
+Checks cover253 internal typed examples,225 public response examples,36/32 operation coverage, exact accepted wire/security constraints, native navigation/cURL/search/mobile, no live forms/API controls/auth instructions/download offer, zero unexpected network requests, and the two-file allowlist. Browser checks are author evidence; materially changed bytes require separate independent review before release metadata refresh/publication. Repeat builds must be byte-identical. No private runtime records enter documentation examples.
+
+The commands below remain applicable. Historical sections describe their dated renderer/release and are superseded above where counts, versions, packaging and test behavior differ. Current publication substitutes one embedded publication-date marker, not the old three prerendered copies. This is not a claim of deployment or independent acceptance.
 
 # Wheelwright static API reference — preview and GitHub Pages publication
 

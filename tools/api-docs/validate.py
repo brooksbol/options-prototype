@@ -90,6 +90,7 @@ def main():
     internal = json.loads((output / 'private/bundled-internal.json').read_text())
     public = json.loads((output / 'private/public-projection.json').read_text())
     assert internal['info']['version'] == public['info']['version']
+    assert public['servers']==[{'url':'https://api.example.invalid','description':'Synthetic nonworking example origin; the runtime host is deployment-specific.'}]
     assert internal['components']['securitySchemes'] and 'securitySchemes' not in public['components']
     internal_ops = {(method, path) for path, item in internal['paths'].items() for method in item if method in {'get', 'post'}}
     public_ops = {(method, path) for path, item in public['paths'].items() for method in item if method in {'get', 'post'}}
@@ -124,8 +125,16 @@ def main():
     old_public = public_projection(__import__('copy').deepcopy(internal))
     for path, item in public['paths'].items():
         if path.startswith('/v2/artifacts'):
-            assert expanded(item, public, strip_annotations=False) == expanded(old_public['paths'][path], old_public, strip_annotations=False), 'Artifact documentation changed'
+            import copy
+            original_item=old_public['paths'][path];presented=copy.deepcopy(item)
+            for method,operation in presented.items():
+                if method not in {'get','post'}:continue
+                appendix='\n\n### Synthetic cURL\n\n```text\n'+operation['x-codeSamples'][0]['source']+'\n```'
+                assert operation['description']==original_item[method]['description']+appendix
+                operation['description']=original_item[method]['description']
+            assert expanded(presented, public, strip_annotations=False) == expanded(original_item, old_public, strip_annotations=False), 'Artifact documentation changed'
     capital = public['paths']['/v2/portfolio-capital-observations']['get']['description']
+    capital=capital.split('\n\n### Synthetic cURL',1)[0]
     assert capital.split() == old_public['paths']['/v2/portfolio-capital-observations']['get']['description'].split()
     assert '\n\n' in capital
     def resolved(value):
@@ -198,10 +207,10 @@ def main():
     # Changelog scope regression: "Recent contract changes" is exactly the API v2
     # contract history, and history touching only other docs/contracts files (for
     # example the v1 snapshot contract) never appears.
-    # Independent scope: the accepted v2 contract files in release.json, not the
-    # generator's own pathspec (which would make this check self-confirming).
+    # Independent scope: tracked v2 contract files, not the generator's own
+    # changelog pathspec (which would make this check self-confirming).
     release = json.loads((TOOL / 'release.json').read_text())
-    v2_contracts = sorted(name for name in release['acceptedContractInputs'] if name.startswith('docs/contracts/'))
+    v2_contracts = subprocess.check_output(['git','ls-files','docs/contracts/api-v2-*'],cwd=ROOT,text=True).splitlines()
     assert v2_contracts and all(Path(name).name.startswith('api-v2-') for name in v2_contracts)
     def git_lines(*args):
         return subprocess.check_output(['git', *args], cwd=ROOT, text=True).splitlines()
@@ -221,7 +230,10 @@ def main():
     assert not re.findall(r'<script[^>]+src=["\']https?://', html)
     assert not re.findall(r'<link[^>]+href=["\']https?://', html)
     assert 'https://fonts.googleapis.com' not in html
-    assert '<form' not in html.lower() and 'type="password"' not in html.lower()
+    # Check authored HTML rather than inert strings in the pinned vendor module.
+    markup=re.sub(r'<script\b[^>]*>.*?</script>','',html,flags=re.S|re.I)
+    assert '<form' not in markup.lower() and 'type="password"' not in markup.lower()
+    # Native browser checks enforce absent live forms/controls on every operation.
     state=re.search(r'const __redoc_state = (\{.*?\});(?=\s*var container)',html,re.S)
     assert state and json.loads(state.group(1))['spec']['data']==public, 'HTML does not embed the exact full public contract'
     manifest = json.loads((output / 'private/provenance.json').read_text())
