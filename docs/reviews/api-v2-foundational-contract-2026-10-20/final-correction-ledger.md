@@ -1,0 +1,15 @@
+# Final seven-finding correction ledger
+
+Reported residual findings are supplied by the Principal. No unavailable Kiro payloads or full report are claimed recovered. All new probes are reconstructed author falsifiers, ready for separate targeted Kiro verification. Prior candidate and baseline logs remain preserved.
+
+| Finding | Correction | Executable evidence | Disposition |
+|---|---|---|---|
+| Major — Source-derived examples | Fresh CSP/Buy-Write/IC fixture generator and Fraction oracle; tt adapter regenerated from actual projectLive. Spot uses equity quote clock; opening/expiry/DTE from source; no copied missing-basis/stale warnings. Current management remains explicitly unknown because outside those synthetic source fixtures. | `final-targeted-tests.py: test_major_*; final-source-replay.test.mjs all11 checks` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+| Moderate1 — Coverage propagation | 100 shares and2 short calls in one explicit independent source cut. Owned call allocations sum2 without conflict; coverage needs200 and conflicts in both Position and Construction representations. | `test_m1_*` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+| Moderate2 — Association authority | Holdings pattern recognition is QUALIFIED/BROKER_HOLDING_OBSERVATION; economic coverage is aggregate calculation. Established broker encumbrance/reservation requires BROKER_RESERVATION_RECORD type, with actual proof still runtime. | `test_m2_*` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+| Moderate3 — Snapshot discovery | GET /v2/holdings?view=observations returns retained authorized snapshot catalog; links select Account+snapshot without known IDs. Reuses operative retained-observation precedent, no new resource root/old Position identity. | `test_m3_*` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+| Moderate4 — Opening time authorization | Order-derived openedAt, original DTE and opening provenance redacted in summary and expanded Position, including actual tt rows; remaining DTE retained. Authorized originals remain visible. | `test_m4_*` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+| Moderate5 — Schema enforcement | CLOSED requires ESTABLISHED/SCOPED_ACCEPTED closure; all bound Model references require exact version URI. UNKNOWN lifecycle/association evidence retained. Typed-only claims still require runtime proof. | `test_m5_*` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+| Moderate6 — Immediate predecessors | Covered-call retained history now contains original,9 intermediate instances and current with immediate links. Explicit synthetic source supplies them. Unknown immediate association may be null with UNKNOWN status and warning; no shortcut to original. | `test_m6_*` | ADDRESSED IN CANDIDATE; targeted independent verification pending |
+
+The scope is these seven findings only. No Product acceptance, live source completeness, runtime enforcement or implementation readiness is inferred from these author checks.

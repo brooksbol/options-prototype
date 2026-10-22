@@ -1,0 +1,381 @@
+{
+  "synthetic": true,
+  "source": "scripts/tastytrade-exit-render.test.mjs BUG-040: observed quote values; synthetic account, opening, target, clocks and standard contract declarations",
+  "account": "5WX01234",
+  "now": "2026-10-13T19:01:00Z",
+  "holdings": [
+    {
+      "account-number": "5WX01234",
+      "symbol": "UNG  261127P00008500",
+      "underlying-symbol": "UNG",
+      "instrument-type": "Equity Option",
+      "quantity": "1",
+      "quantity-direction": "Long",
+      "multiplier": "100",
+      "average-daily-market-close-price": "0.06",
+      "expires-at": "2026-11-27T21:00:00.000Z"
+    },
+    {
+      "account-number": "5WX01234",
+      "symbol": "UNG  261127P00009000",
+      "underlying-symbol": "UNG",
+      "instrument-type": "Equity Option",
+      "quantity": "1",
+      "quantity-direction": "Short",
+      "multiplier": "100",
+      "average-daily-market-close-price": "0.075",
+      "expires-at": "2026-11-27T21:00:00.000Z"
+    },
+    {
+      "account-number": "5WX01234",
+      "symbol": "UNG  261127C00013000",
+      "underlying-symbol": "UNG",
+      "instrument-type": "Equity Option",
+      "quantity": "1",
+      "quantity-direction": "Short",
+      "multiplier": "100",
+      "average-daily-market-close-price": "0.31",
+      "expires-at": "2026-11-27T21:00:00.000Z"
+    },
+    {
+      "account-number": "5WX01234",
+      "symbol": "UNG  261127C00013500",
+      "underlying-symbol": "UNG",
+      "instrument-type": "Equity Option",
+      "quantity": "1",
+      "quantity-direction": "Long",
+      "multiplier": "100",
+      "average-daily-market-close-price": "0.345",
+      "expires-at": "2026-11-27T21:00:00.000Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "UNG-open",
+      "status": "Filled",
+      "legs": [
+        {
+          "symbol": "UNG  261127P00008500",
+          "quantity": "1",
+          "action": "Buy to Open",
+          "fills": [
+            {
+              "quantity": "1",
+              "fill-price": "0.1",
+              "filled-at": "2026-09-30T16:50:00.000Z"
+            }
+          ]
+        },
+        {
+          "symbol": "UNG  261127P00009000",
+          "quantity": "1",
+          "action": "Sell to Open",
+          "fills": [
+            {
+              "quantity": "1",
+              "fill-price": "0.2",
+              "filled-at": "2026-09-30T16:50:00.000Z"
+            }
+          ]
+        },
+        {
+          "symbol": "UNG  261127C00013000",
+          "quantity": "1",
+          "action": "Sell to Open",
+          "fills": [
+            {
+              "quantity": "1",
+              "fill-price": "0.19",
+              "filled-at": "2026-09-30T16:50:00.000Z"
+            }
+          ]
+        },
+        {
+          "symbol": "UNG  261127C00013500",
+          "quantity": "1",
+          "action": "Buy to Open",
+          "fills": [
+            {
+              "quantity": "1",
+              "fill-price": "0.2",
+              "filled-at": "2026-09-30T16:50:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UNG-target",
+      "status": "Received",
+      "order-type": "Limit",
+      "price": "0.02",
+      "price-effect": "Debit",
+      "legs": [
+        {
+          "symbol": "UNG  261127P00008500",
+          "quantity": "1",
+          "action": "Sell to Close"
+        },
+        {
+          "symbol": "UNG  261127P00009000",
+          "quantity": "1",
+          "action": "Buy to Close"
+        },
+        {
+          "symbol": "UNG  261127C00013000",
+          "quantity": "1",
+          "action": "Buy to Close"
+        },
+        {
+          "symbol": "UNG  261127C00013500",
+          "quantity": "1",
+          "action": "Sell to Close"
+        }
+      ]
+    },
+    {
+      "id": "UNG-stop",
+      "status": "Received",
+      "order-type": "Stop Limit",
+      "price": "0.3",
+      "price-effect": "Debit",
+      "legs": [
+        {
+          "symbol": "UNG  261127P00008500",
+          "quantity": "1",
+          "action": "Sell to Close"
+        },
+        {
+          "symbol": "UNG  261127P00009000",
+          "quantity": "1",
+          "action": "Buy to Close"
+        },
+        {
+          "symbol": "UNG  261127C00013000",
+          "quantity": "1",
+          "action": "Buy to Close"
+        },
+        {
+          "symbol": "UNG  261127C00013500",
+          "quantity": "1",
+          "action": "Sell to Close"
+        }
+      ]
+    }
+  ],
+  "complexOrders": [
+    {
+      "id": "UNG-bracket",
+      "type": "OCO",
+      "orders": [
+        {
+          "id": "UNG-target",
+          "status": "Received",
+          "order-type": "Limit",
+          "price": "0.02",
+          "price-effect": "Debit",
+          "legs": [
+            {
+              "symbol": "UNG  261127P00008500",
+              "quantity": "1",
+              "action": "Sell to Close"
+            },
+            {
+              "symbol": "UNG  261127P00009000",
+              "quantity": "1",
+              "action": "Buy to Close"
+            },
+            {
+              "symbol": "UNG  261127C00013000",
+              "quantity": "1",
+              "action": "Buy to Close"
+            },
+            {
+              "symbol": "UNG  261127C00013500",
+              "quantity": "1",
+              "action": "Sell to Close"
+            }
+          ]
+        },
+        {
+          "id": "UNG-stop",
+          "status": "Received",
+          "order-type": "Stop Limit",
+          "price": "0.3",
+          "price-effect": "Debit",
+          "legs": [
+            {
+              "symbol": "UNG  261127P00008500",
+              "quantity": "1",
+              "action": "Sell to Close"
+            },
+            {
+              "symbol": "UNG  261127P00009000",
+              "quantity": "1",
+              "action": "Buy to Close"
+            },
+            {
+              "symbol": "UNG  261127C00013000",
+              "quantity": "1",
+              "action": "Buy to Close"
+            },
+            {
+              "symbol": "UNG  261127C00013500",
+              "quantity": "1",
+              "action": "Sell to Close"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quotes": [
+    {
+      "symbol": "UNG  261127P00008500",
+      "bid": "0",
+      "ask": "0.12",
+      "delta": "0.2",
+      "mid": "0.06",
+      "updated-at": "2026-10-13T19:00:00Z",
+      "mark": "0.06"
+    },
+    {
+      "symbol": "UNG  261127P00009000",
+      "bid": "0.01",
+      "ask": "0.14",
+      "delta": "0.2",
+      "mid": "0.075",
+      "updated-at": "2026-10-13T19:00:00Z",
+      "mark": "0.075"
+    },
+    {
+      "symbol": "UNG  261127C00013000",
+      "bid": "0.17",
+      "ask": "0.45",
+      "delta": "0.2",
+      "mid": "0.31",
+      "updated-at": "2026-10-13T19:00:00Z",
+      "mark": "0.368142454"
+    },
+    {
+      "symbol": "UNG  261127C00013500",
+      "bid": "0.27",
+      "ask": "0.42",
+      "delta": "0.2",
+      "mid": "0.345",
+      "updated-at": "2026-10-13T19:00:00Z",
+      "mark": "0.345"
+    }
+  ],
+  "contracts": [
+    {
+      "symbol": "UNG  261127P00008500",
+      "right": "PUT",
+      "strike": "8.5",
+      "expiration": "2026-11-27",
+      "currency": "USD",
+      "exerciseStyle": "AMERICAN",
+      "settlement": "PHYSICAL",
+      "adjustment": "STANDARD",
+      "multiplier": "100",
+      "deliverableShares": "100",
+      "source": "SYNTHETIC_STANDARD_TERM_DECLARATION"
+    },
+    {
+      "symbol": "UNG  261127P00009000",
+      "right": "PUT",
+      "strike": "9",
+      "expiration": "2026-11-27",
+      "currency": "USD",
+      "exerciseStyle": "AMERICAN",
+      "settlement": "PHYSICAL",
+      "adjustment": "STANDARD",
+      "multiplier": "100",
+      "deliverableShares": "100",
+      "source": "SYNTHETIC_STANDARD_TERM_DECLARATION"
+    },
+    {
+      "symbol": "UNG  261127C00013000",
+      "right": "CALL",
+      "strike": "13",
+      "expiration": "2026-11-27",
+      "currency": "USD",
+      "exerciseStyle": "AMERICAN",
+      "settlement": "PHYSICAL",
+      "adjustment": "STANDARD",
+      "multiplier": "100",
+      "deliverableShares": "100",
+      "source": "SYNTHETIC_STANDARD_TERM_DECLARATION"
+    },
+    {
+      "symbol": "UNG  261127C00013500",
+      "right": "CALL",
+      "strike": "13.5",
+      "expiration": "2026-11-27",
+      "currency": "USD",
+      "exerciseStyle": "AMERICAN",
+      "settlement": "PHYSICAL",
+      "adjustment": "STANDARD",
+      "multiplier": "100",
+      "deliverableShares": "100",
+      "source": "SYNTHETIC_STANDARD_TERM_DECLARATION"
+    }
+  ],
+  "instruments": [
+    {
+      "symbol": "UNG  261127P00008500",
+      "instrument-type": "Equity Option",
+      "underlying-symbol": "UNG",
+      "option-type": "P",
+      "strike-price": "8.5",
+      "expiration-date": "2026-11-27",
+      "shares-per-contract": 100,
+      "option-chain-type": "Standard",
+      "exercise-style": "American"
+    },
+    {
+      "symbol": "UNG  261127P00009000",
+      "instrument-type": "Equity Option",
+      "underlying-symbol": "UNG",
+      "option-type": "P",
+      "strike-price": "9",
+      "expiration-date": "2026-11-27",
+      "shares-per-contract": 100,
+      "option-chain-type": "Standard",
+      "exercise-style": "American"
+    },
+    {
+      "symbol": "UNG  261127C00013000",
+      "instrument-type": "Equity Option",
+      "underlying-symbol": "UNG",
+      "option-type": "C",
+      "strike-price": "13",
+      "expiration-date": "2026-11-27",
+      "shares-per-contract": 100,
+      "option-chain-type": "Standard",
+      "exercise-style": "American"
+    },
+    {
+      "symbol": "UNG  261127C00013500",
+      "instrument-type": "Equity Option",
+      "underlying-symbol": "UNG",
+      "option-type": "C",
+      "strike-price": "13.5",
+      "expiration-date": "2026-11-27",
+      "shares-per-contract": 100,
+      "option-chain-type": "Standard",
+      "exercise-style": "American"
+    }
+  ],
+  "spotQuotes": [
+    {
+      "symbol": "UNG",
+      "instrument-type": "Equity",
+      "bid": "10.99",
+      "ask": "11.01",
+      "mid": "11",
+      "mark": "99",
+      "updated-at": "2026-10-13T18:59:30Z"
+    }
+  ]
+}

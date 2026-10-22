@@ -66,6 +66,36 @@ public class BrokerageArtifacts {
                 q.setString(1,owner);q.setString(2,hash);
                 try(var rs=q.executeQuery()) {if(rs.next()&&TastytradeHoldings.sourceAccount(bytes,sourceAccount.get().brokerAssociation().accountNumber()))return new SourceScope(true,Set.of(owner));}
             }
+            // Order originals use the same retained Artifact/import owner. Backend-only API_ORDERS
+            // provenance establishes the requested URL even for an empty page; content is rechecked.
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_ORDERS' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next()){
+                    try{var root=TastytradeHoldings.document(bytes);String brokerAccount=sourceAccount.get().brokerAssociation().accountNumber();String context=root.path("context").asText();boolean scoped=root.at("/data/items").isArray()&&(context.isBlank()||context.equals("/accounts/"+brokerAccount+"/orders")||context.equals("/accounts/"+brokerAccount+"/complex-orders"));for(var item:root.at("/data/items")){scoped&=item.path("account-number").asText().equals(brokerAccount);if(item.has("orders")){if(!item.path("orders").isArray())scoped=false;for(var child:item.path("orders"))scoped&=child.path("account-number").asText().equals(brokerAccount);if(item.path("trigger-order").isObject())scoped&=item.at("/trigger-order/account-number").asText().equals(brokerAccount);}}if(scoped)return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}
+                }}
+            }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_BALANCES' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next()&&TastytradeCashBalance.sourceAccount(bytes,sourceAccount.get().brokerAssociation().accountNumber()))return new SourceScope(true,Set.of(owner));}
+            }
+            // Reference-feed originals have no broker Account rows. Require the backend-only
+            // acquisition provenance plus the narrow source shape, not merely a missing Account field.
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_MARKET_DATA' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next())try{
+                    var root=TastytradeHoldings.document(bytes);String context=root.path("context").asText();boolean scoped=root.at("/data/items").isArray()&&(context.isBlank()||context.equals("/market-data/by-type"))&&root.findValue("account-number")==null&&root.findValue("account_number")==null&&root.findValue("accounts")==null;
+                    for(var item:root.at("/data/items"))scoped&=item.isObject()&&!item.path("symbol").asText().isBlank()&&Set.of("Equity","Equity Option").contains(item.path("instrument-type").asText());
+                    if(scoped)return new SourceScope(true,Set.of(owner));
+                }catch(Exception invalid){return SourceScope.unknown();}}
+            }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_MARKET_SESSION' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next())try{com.wheelwright.evidence.v2.portfolio.PortfolioSessionEvidence.validate(bytes);return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}}
+            }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT i.original_filename FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_OPTION_CHAIN'")){
+                q.setString(1,owner);q.setString(2,hash);try(var rows=q.executeQuery()){while(rows.next())try{
+                    var m=java.util.regex.Pattern.compile("tastytrade-option-chain-([A-Z][A-Z0-9.]{0,9})\\.json").matcher(rows.getString(1));if(!m.matches())continue;var root=TastytradeHoldings.document(bytes);com.wheelwright.evidence.v2.portfolio.PortfolioOptionReferenceSources.validate(root,m.group(1));boolean scoped=true;for(var item:root.at("/data/items"))scoped&=item.path("underlying-symbol").asText().equals(m.group(1));if(scoped)return new SourceScope(true,Set.of(owner));
+                }catch(Exception invalid){return SourceScope.unknown();}}
+            }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT i.file_type FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type IN ('API_OPTION_DEFINITIONS','API_OPTION_DEFINITION')")){
+                q.setString(1,owner);q.setString(2,hash);try(var rows=q.executeQuery()){while(rows.next())try{var root=TastytradeHoldings.document(bytes);var definitions=com.wheelwright.evidence.v2.portfolio.PortfolioOptionDefinitions.items(root,rows.getString(1).equals("API_OPTION_DEFINITION"));boolean scoped=true;for(var item:definitions)scoped&=item.path("instrument-type").asText().equals("Equity Option")&&!item.path("symbol").asText().isBlank();if(scoped)return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}}
+            }
             return SourceScope.unknown();
         }
         if (!sourceAccount.map(a -> a.brokerAssociation().broker().equals("FIDELITY")).orElse(false))

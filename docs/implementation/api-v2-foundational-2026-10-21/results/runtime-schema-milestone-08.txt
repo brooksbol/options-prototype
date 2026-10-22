@@ -1,0 +1,3 @@
+Fresh captures from full928-check regression at6d41375, before subsequent collection-filter probes:
+154 route representations plus4 standalone financial representations;33 route/status combinations;0 operative schema violations.
+Includes actual HTTP, source-normalizer and evaluator captures; payload count is not unique endpoint coverage.

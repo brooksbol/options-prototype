@@ -1,0 +1,86 @@
+{
+  "standing": "IMPLEMENTER_DETERMINISTIC_EVIDENCE_NOT_PRODUCT_OR_LIVE_ACCEPTANCE",
+  "acceptedBaseline": "a32c7c79a059cc58d5262cf3e30c520d2e087825",
+  "originalCandidatePreserved": "847315f1b2bf2964db20f417c9936e961eb5f750",
+  "baseRemoteMain": "76bdb903458a4226f73ef5ead591e7d1cdaa0916",
+  "latestVerifiedRemoteMain": "caa27813a74fadf23e32c517a8da588538ed62fc",
+  "backendFull": {
+    "command": "./evidence-service-java/gradlew -p evidence-service-java test --console=plain",
+    "tests": 961,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2,
+    "duration": "5m19s",
+    "log": "results/successor-final-regression.log"
+  },
+  "freshFullPayloads": {
+    "routeRepresentations": 180,
+    "standaloneFinancialRepresentations": 5,
+    "routeStatusCombinations": 45,
+    "operativeSchemaErrors": 0,
+    "report": "results/successor-runtime-schema.log"
+  },
+  "contractChecks": [
+    {
+      "name": "operative conformance",
+      "tests": 7,
+      "result": "PASSED"
+    },
+    {
+      "name": "isolated generation/inventory",
+      "tests": 4,
+      "result": "PASSED"
+    },
+    {
+      "name": "mandatory entry corrections",
+      "tests": 8,
+      "result": "PASSED"
+    },
+    {
+      "name": "candidate schema/financial oracles",
+      "tests": 78,
+      "result": "PASSED"
+    },
+    {
+      "name": "final targeted specification checks",
+      "tests": 17,
+      "result": "PASSED"
+    },
+    {
+      "name": "tt Product/visual reference Node checks",
+      "tests": 180,
+      "result": "PASSED"
+    },
+    {
+      "name": "source reference Node replay",
+      "tests": 19,
+      "result": "PASSED"
+    }
+  ],
+  "crossLanguage": [
+    "Actual Java/projectLive whole-package mark money/geometry/spot/range parity passed.",
+    "Nine actual Java/tt freshness cases passed.",
+    "Actual native-shaped Order decoder -> Java management evaluation -> projectLive financial coordinate/date/source replay passed. Synthetic declarations are explicit; missing triggers/final fees remain unknown."
+  ],
+  "scope": {
+    "acceptedPaths": 31,
+    "acceptedOperations": 33,
+    "operativeOperations": 36,
+    "newFoundationalGETs": 18,
+    "foundationalSchemas": 80,
+    "directPropertiesInventoried": 547,
+    "scopeExceptions": []
+  },
+  "independentReview": "PENDING_KIRO_VERDICT; frozen full960 and Kiro-authored new probes executed through transparent mechanical relay; see independent-review-evidence",
+  "PrincipalAcceptance": "PENDING",
+  "wwLiveStarted": false,
+  "productionDeploymentOrBrokerContact": false,
+  "tokenCreditConsumption": "Not exposed by available tooling; no fabricated estimate.",
+  "principalInterventions": [
+    "Selected qualified Option A for repeated source observations; instructed continued engineering judgment while away."
+  ],
+  "limitsFile": "runtime-obligations.md",
+  "frozenImplementation": "a2ed63062edce5af65c1ea635ddfce97b520c475",
+  "successorBranch": "codex/api-v2-implementation-corrections-2026-10-21",
+  "successorReport": "successor-verification-report.md"
+}

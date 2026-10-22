@@ -1,0 +1,137 @@
+{
+  "provenance": "Principal-reported Kiro themes, unavailable original artifact; newly constructed falsifiers only",
+  "findings": [
+    {
+      "localId": "Major-1",
+      "reportedFinding": "Unsigned opening/closing/basis terms permit debit inversion",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "credit_and_debit_signs_net_and_realized_separate; fill_price_units_prevent_100x_ambiguity",
+      "correction": "Signed Account cash flows, nonnegative basis and fees, explicit fill/limit units",
+      "observedResult": "PASS",
+      "remainingUncertainty": "Broker-specific reported dialect admission remains source work",
+      "disposition": "ADDRESSED_IN_CANDIDATE_NOT_INDEPENDENT_ACCEPTANCE"
+    },
+    {
+      "localId": "Major-2",
+      "reportedFinding": "Account-only conflict can coexist with established Position allocation; coverage can double count",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "global_conflict_qualifies_each_affected_position; aggregate_coverage_no_double_count_or_reservation",
+      "correction": "Holding links, global Position/allocation state, aggregate coverage sets, consistent -50 residual",
+      "observedResult": "PASS",
+      "remainingUncertainty": "Full Account cut and eligible inventory must be established at runtime",
+      "disposition": "ADDRESSED_IN_CANDIDATE_NOT_INDEPENDENT_ACCEPTANCE"
+    },
+    {
+      "localId": "Major-3",
+      "reportedFinding": "Typed provenance mistaken for proof of the relationship",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "holding_observation_cannot_prove_order_association; typed_source_pointer_is_not_relationship_proof",
+      "correction": "Explicit claim basis/scope/predicate; unknown/ambiguous status; separate aggregate coverage and reservation",
+      "observedResult": "PASS",
+      "remainingUncertainty": "Synthetic claims do not certify any broker package guarantees",
+      "disposition": "ADDRESSED_IN_CANDIDATE_NOT_INDEPENDENT_ACCEPTANCE"
+    },
+    {
+      "localId": "Major-4",
+      "reportedFinding": "Occurrence Position replaced readable broker custody",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "broker_holding_independent_of_recognition",
+      "correction": "Independent BrokerHolding observations and GET collection/instance; allocation references same admitted source",
+      "observedResult": "PASS",
+      "remainingUncertainty": "Provisional URI/field engineering; no duplicate source store implemented",
+      "disposition": "ADDRESSED_IN_CANDIDATE_NOT_INDEPENDENT_ACCEPTANCE"
+    },
+    {
+      "localId": "Major-5",
+      "reportedFinding": "Shared Instrument leaks uploads; Position leaks restricted Orders",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "shared_instrument_refuses_private_account_provenance; order_derived_geometry_and_included_orders_do_not_leak",
+      "correction": "Public-only reference evidence; REDACTED evidence/results; target grant policy for links/expansions/history",
+      "observedResult": "PASS",
+      "remainingUncertainty": "Runtime authorization not implemented or certified",
+      "disposition": "ADDRESSED_IN_CANDIDATE_NOT_INDEPENDENT_ACCEPTANCE"
+    },
+    {
+      "localId": "Major-6",
+      "reportedFinding": "Unknown opening cost with established payoff; unavailable supported RANGE; unclassified math withheld; symmetric BWB",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "unclassified_generic_geometry_and_incomplete_cost; symmetric_butterfly_not_broken_wing",
+      "correction": "Repaired incomplete payoff, supported CC half-line, generic unclassified function, coherent allocation and unequal-width constraint",
+      "observedResult": "PASS",
+      "remainingUncertainty": "Only bounded examples verified, not all possible feed states",
+      "disposition": "ADDRESSED_IN_CANDIDATE_NOT_INDEPENDENT_ACCEPTANCE"
+    },
+    {
+      "localId": "Moderate-1",
+      "reportedFinding": "Cash-Secured Put, Buy-Write, Iron Condor absent",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "supported_named_examples_and_exact_economics",
+      "correction": "Typed Construction/Model/holding/Position examples plus signed worked arithmetic",
+      "observedResult": "PASS_OR_TYPED_CAPABILITY",
+      "remainingUncertainty": "Exact report details and runtime/broker generality unavailable",
+      "disposition": "ADDRESSED_TO_TASK_DESCRIPTION"
+    },
+    {
+      "localId": "Moderate-2",
+      "reportedFinding": "Insufficient inspectable constituent economics",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "every_example_resource_and_embedded_response",
+      "correction": "Opening cash flow, reported MV/P&L/capital requirement, fees retain per-leg qualification",
+      "observedResult": "PASS_OR_TYPED_CAPABILITY",
+      "remainingUncertainty": "Exact report details and runtime/broker generality unavailable",
+      "disposition": "ADDRESSED_TO_TASK_DESCRIPTION"
+    },
+    {
+      "localId": "Moderate-3",
+      "reportedFinding": "Broker-reported requirements lost",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "broker_holding_independent_of_recognition",
+      "correction": "BrokerHolding.reportedCapitalRequirement and qualified constituent field; no margin engine",
+      "observedResult": "PASS_OR_TYPED_CAPABILITY",
+      "remainingUncertainty": "Exact report details and runtime/broker generality unavailable",
+      "disposition": "ADDRESSED_TO_TASK_DESCRIPTION"
+    },
+    {
+      "localId": "Moderate-4",
+      "reportedFinding": "Named structures insufficiently constrained",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "symmetric_butterfly_not_broken_wing; reverse_jade_lizard_strike_order",
+      "correction": "Unequal wing widths, ordering, compatibility, coordinated Buy-Write opening constraint",
+      "observedResult": "PASS_OR_TYPED_CAPABILITY",
+      "remainingUncertainty": "Exact report details and runtime/broker generality unavailable",
+      "disposition": "ADDRESSED_TO_TASK_DESCRIPTION"
+    },
+    {
+      "localId": "Moderate-5",
+      "reportedFinding": "Invalid schema inputs accepted; price scaling unclear",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "NewlyConstructedSchemaProbes; fill_price_units_prevent_100x_ambiguity",
+      "correction": "Sixteen new negative probes, positive controls, nonnegative price/fee/basis, explicit price unit and multiplier",
+      "observedResult": "PASS_OR_TYPED_CAPABILITY",
+      "remainingUncertainty": "Exact report details and runtime/broker generality unavailable",
+      "disposition": "ADDRESSED_TO_TASK_DESCRIPTION"
+    },
+    {
+      "localId": "Moderate-6",
+      "reportedFinding": "Too many requests per live row",
+      "originalKiroProbe": "UNAVAILABLE",
+      "falsifierStanding": "NEWLY_CONSTRUCTED",
+      "tests": "projections_preserve_financial_qualifications; order_derived_geometry_and_included_orders_do_not_leak",
+      "correction": "Existing selectable collection projection plus authorized included current Construction, Model versions, holdings and Orders; no screen route",
+      "observedResult": "PASS_OR_TYPED_CAPABILITY",
+      "remainingUncertainty": "Exact report details and runtime/broker generality unavailable",
+      "disposition": "ADDRESSED_TO_TASK_DESCRIPTION"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "baseline": "c8ddbffc28e68dcd4c198ee10a5516603783eb8f",
+  "standing": "AUTHOR_CORRECTION_NOT_INDEPENDENT_ACCEPTANCE",
+  "findings": [
+    {
+      "id": "Major",
+      "finding": "Source-derived examples",
+      "correction": "Fresh CSP/Buy-Write/IC fixture generator and Fraction oracle; tt adapter regenerated from actual projectLive. Spot uses equity quote clock; opening/expiry/DTE from source; no copied missing-basis/stale warnings. Current management remains explicitly unknown because outside those synthetic source fixtures.",
+      "tests": "final-targeted-tests.py: test_major_*; final-source-replay.test.mjs all11 checks",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    },
+    {
+      "id": "Moderate1",
+      "finding": "Coverage propagation",
+      "correction": "100 shares and2 short calls in one explicit independent source cut. Owned call allocations sum2 without conflict; coverage needs200 and conflicts in both Position and Construction representations.",
+      "tests": "test_m1_*",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    },
+    {
+      "id": "Moderate2",
+      "finding": "Association authority",
+      "correction": "Holdings pattern recognition is QUALIFIED/BROKER_HOLDING_OBSERVATION; economic coverage is aggregate calculation. Established broker encumbrance/reservation requires BROKER_RESERVATION_RECORD type, with actual proof still runtime.",
+      "tests": "test_m2_*",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    },
+    {
+      "id": "Moderate3",
+      "finding": "Snapshot discovery",
+      "correction": "GET /v2/holdings?view=observations returns retained authorized snapshot catalog; links select Account+snapshot without known IDs. Reuses operative retained-observation precedent, no new resource root/old Position identity.",
+      "tests": "test_m3_*",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    },
+    {
+      "id": "Moderate4",
+      "finding": "Opening time authorization",
+      "correction": "Order-derived openedAt, original DTE and opening provenance redacted in summary and expanded Position, including actual tt rows; remaining DTE retained. Authorized originals remain visible.",
+      "tests": "test_m4_*",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    },
+    {
+      "id": "Moderate5",
+      "finding": "Schema enforcement",
+      "correction": "CLOSED requires ESTABLISHED/SCOPED_ACCEPTED closure; all bound Model references require exact version URI. UNKNOWN lifecycle/association evidence retained. Typed-only claims still require runtime proof.",
+      "tests": "test_m5_*",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    },
+    {
+      "id": "Moderate6",
+      "finding": "Immediate predecessors",
+      "correction": "Covered-call retained history now contains original,9 intermediate instances and current with immediate links. Explicit synthetic source supplies them. Unknown immediate association may be null with UNKNOWN status and warning; no shortcut to original.",
+      "tests": "test_m6_*",
+      "result": "PASS",
+      "disposition": "TARGETED_KIRO_VERIFICATION_PENDING"
+    }
+  ]
+}

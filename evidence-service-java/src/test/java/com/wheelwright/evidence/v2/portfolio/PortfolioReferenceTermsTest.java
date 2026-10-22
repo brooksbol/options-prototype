@@ -1,0 +1,15 @@
+package com.wheelwright.evidence.v2.portfolio;
+
+import com.fasterxml.jackson.databind.node.*;
+import org.junit.jupiter.api.Test;
+import static com.wheelwright.evidence.v2.portfolio.PortfolioJson.*;
+import static org.assertj.core.api.Assertions.*;
+
+class PortfolioReferenceTermsTest {
+ ObjectNode terms(String origin){var n=obj().put("right","CALL").put("strike","100").put("expiration","2027-01-15").put("currency","USD").putNull("multiplier").put("exerciseStyle","UNKNOWN").put("settlement","PHYSICAL").put("adjustment","STANDARD").put("payoffApplicability","UNKNOWN").put("qualification","INCOMPLETE");var underlying=link("/v2/instruments/00000000-0000-4000-8000-000000000001");n.set("underlying",underlying);var d=obj().put("kind","SHARES").put("quantity","100").putNull("currency");d.set("instrument",underlying.deepCopy());n.set("deliverable",array().add(d));n.set("evidence",array().add(obj().put("kind","REFERENCE_SOURCE").put("provider","SYNTHETIC").put("reference","urn:synthetic:reference:"+origin).putNull("observedAt").put("qualification","SYNTHETIC_REFERENCE")));return n;}
+ @Test void complementarySourceDoesNotEraseKnownStyleOrInventPriceMultiplier(){var previous=terms("definition").put("exerciseStyle","AMERICAN").put("settlement","UNKNOWN");previous.set("deliverable",array());var next=terms("chain");var combined=PortfolioReferenceTerms.combine(previous,next);assertThat(combined.path("exerciseStyle").asText()).isEqualTo("AMERICAN");assertThat(combined.path("multiplier").isNull()).isTrue();assertThat(combined.path("qualification").asText()).isEqualTo("INCOMPLETE");assertThat(combined.path("evidence")).hasSize(2);assertThat(next.path("exerciseStyle").asText()).isEqualTo("UNKNOWN");}
+ @Test void decimalSpellingIsNotAContractConflict(){var previous=PortfolioReferenceTerms.combine(com.fasterxml.jackson.databind.node.NullNode.instance,terms("first").put("multiplier","100.0"));var next=terms("second").put("multiplier","100").put("strike","100.00");((ObjectNode)next.at("/deliverable/0")).put("quantity","100.0");var combined=PortfolioReferenceTerms.combine(previous,next);assertThat(combined.path("qualification").asText()).isEqualTo("QUALIFIED");assertThat(combined.path("payoffApplicability").asText()).isEqualTo("STANDARD_EQUITY_INTRINSIC");}
+ @Test void conflictingKnownRightsAreQualifiedRatherThanResolvedByLastWriter(){var previous=terms("first").put("exerciseStyle","AMERICAN").put("multiplier","100");var next=terms("second").put("exerciseStyle","EUROPEAN").put("multiplier","100");var combined=PortfolioReferenceTerms.combine(previous,next);assertThat(combined.path("qualification").asText()).isEqualTo("CONFLICT");assertThat(combined.path("payoffApplicability").asText()).isEqualTo("UNKNOWN");assertThat(combined.path("evidence")).hasSize(2);assertThat(PortfolioReferenceTerms.warnings(combined).toString()).contains("SOURCE_CONFLICT");}
+ @Test void repeatedFactsDoNotGrowCurrentProvenanceOrCreateAFalseCorrection(){var previous=terms("first");var combined=PortfolioReferenceTerms.combine(previous,terms("repeat"));assertThat(combined).isEqualTo(previous);assertThat(combined.path("evidence")).hasSize(1);}
+
+}

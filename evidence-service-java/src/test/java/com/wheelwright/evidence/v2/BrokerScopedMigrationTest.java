@@ -39,7 +39,7 @@ class BrokerScopedMigrationTest {
     Map<String,List<List<String>>> contents(Connection c) throws Exception {
         var result=new TreeMap<String,List<List<String>>>();
         for(String table:TABLES) {
-            String columns=table.equals("brokerage_account") ? "account_id,alias,display_name,broker_account,identity_namespace" : table.equals("v2_user_account") ? "user_id,account_id,metadata_read,positions_read,artifacts_read,artifacts_write" : "*";
+            String columns=table.equals("brokerage_account") ? "account_id,alias,display_name,broker_account,identity_namespace" : table.equals("v2_user_account") ? "user_id,account_id,metadata_read,positions_read,artifacts_read,artifacts_write" : table.equals("v2_user") ? "user_id,bootstrap_subject,display_name,administrator,quote_read,quote_acquire,quote_force" : "*";
             var rows=new ArrayList<List<String>>();
             try(var q=c.createStatement();var rs=q.executeQuery("SELECT "+columns+" FROM "+table+" ORDER BY 1,2")) {
                 while(rs.next()) {
@@ -58,6 +58,8 @@ class BrokerScopedMigrationTest {
         try(var c=DriverManager.getConnection("jdbc:sqlite:"+path)){before=contents(c);}
         try(var c=DatabaseManager.open(path.toString())) {
             assertThat(contents(c)).isEqualTo(before);
+            try(var q=c.createStatement();var rs=q.executeQuery("SELECT reference_read,market_read FROM v2_user")){assertThat(rs.next()).isTrue();assertThat(rs.getInt(1)).isZero();assertThat(rs.getInt(2)).isZero();}
+            try(var q=c.createStatement();var rs=q.executeQuery("SELECT holdings_read,orders_read,positions_audit_read,market_read FROM v2_user_account")){assertThat(rs.next()).isTrue();for(int column=1;column<=4;column++)assertThat(rs.getInt(column)).isZero();}
             try(var q=c.createStatement();var rs=q.executeQuery("SELECT broker FROM brokerage_account")){assertThat(rs.getString(1)).isEqualTo("FIDELITY");}
             try(var q=c.createStatement();var rs=q.executeQuery("PRAGMA foreign_key_check")){assertThat(rs.next()).isFalse();}
             var directory=new AccountDirectory(c.getMetaData().getURL());

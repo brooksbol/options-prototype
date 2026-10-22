@@ -10,7 +10,7 @@ import java.util.*;
 @Component
 public class UserDirectory {
     public static final String ADMIN="users.admin";
-    public record AccountAccess(String accountId,boolean metadataRead,boolean positionsRead,boolean artifactsRead,boolean artifactsWrite,boolean positionsAcquire,boolean transactionsRead) {}
+    public record AccountAccess(String accountId,boolean metadataRead,boolean positionsRead,boolean artifactsRead,boolean artifactsWrite,boolean positionsAcquire,boolean transactionsRead,boolean holdingsRead,boolean ordersRead,boolean positionsAuditRead,boolean marketRead) {}
     public record User(String id,String displayName,boolean administrator,List<AccountAccess> accountAccess) {}
     private final String url;
     @Autowired
@@ -29,9 +29,9 @@ public class UserDirectory {
         if(subject==null||subject.isBlank()||subject.length()>128||AccountDirectory.validId(subject))throw new IllegalArgumentException("User subject required");
         var access=new TreeMap<String,Set<String>>();
         for(String g:grants) {
-            if(Set.of(ADMIN,"quote.read","quote.acquire","quote.force").contains(g))continue;
+            if(Set.of(ADMIN,"quote.read","quote.acquire","quote.force","reference.read","market.read").contains(g))continue;
             int colon=g.indexOf(':');
-            if(colon<0||!Set.of("account.read","account.positions.read","account.artifacts.read","account.artifacts.write","account.positions.acquire","account.transactions.read").contains(g.substring(0,colon))||!AccountDirectory.validId(g.substring(colon+1)))
+            if(colon<0||!Set.of("account.read","account.positions.read","account.artifacts.read","account.artifacts.write","account.positions.acquire","account.transactions.read","account.holdings.read","account.orders.read","account.positions.audit.read","account.market.read").contains(g.substring(0,colon))||!AccountDirectory.validId(g.substring(colon+1)))
                 throw new IllegalArgumentException("unsupported backend User permission");
             access.computeIfAbsent(g.substring(colon+1),k->new HashSet<>()).add(g.substring(0,colon));
         }
@@ -45,18 +45,18 @@ public class UserDirectory {
                 if(id==null) {
                     if(subject.startsWith("usr_"))throw new IllegalArgumentException("unknown canonical User ID");
                     id="usr_"+UUID.randomUUID().toString().replace("-","");
-                    try(var q=c.prepareStatement("INSERT INTO v2_user VALUES (?,?,?,0,0,0,0)")) {
+                    try(var q=c.prepareStatement("INSERT INTO v2_user (user_id,bootstrap_subject,display_name,administrator,quote_read,quote_acquire,quote_force) VALUES (?,?,?,0,0,0,0)")) {
                         q.setString(1,id);q.setString(2,subject);q.setString(3,subject);q.executeUpdate();
                     }
                 }
-                try(var q=c.prepareStatement("UPDATE v2_user SET administrator=?,quote_read=?,quote_acquire=?,quote_force=? WHERE user_id=?")) {
-                    q.setBoolean(1,grants.contains(ADMIN));q.setBoolean(2,grants.contains("quote.read"));q.setBoolean(3,grants.contains("quote.acquire"));q.setBoolean(4,grants.contains("quote.force"));q.setString(5,id);q.executeUpdate();
+                try(var q=c.prepareStatement("UPDATE v2_user SET administrator=?,quote_read=?,quote_acquire=?,quote_force=?,reference_read=?,market_read=? WHERE user_id=?")) {
+                    q.setBoolean(1,grants.contains(ADMIN));q.setBoolean(2,grants.contains("quote.read"));q.setBoolean(3,grants.contains("quote.acquire"));q.setBoolean(4,grants.contains("quote.force"));q.setBoolean(5,grants.contains("reference.read"));q.setBoolean(6,grants.contains("market.read"));q.setString(7,id);q.executeUpdate();
                 }
                 try(var q=c.prepareStatement("DELETE FROM v2_user_account WHERE user_id=?")){q.setString(1,id);q.executeUpdate();}
-                try(var q=c.prepareStatement("INSERT INTO v2_user_account (user_id,account_id,metadata_read,positions_read,artifacts_read,artifacts_write,positions_acquire,transactions_read) VALUES (?,?,?,?,?,?,?,?)")) {
+                try(var q=c.prepareStatement("INSERT INTO v2_user_account (user_id,account_id,metadata_read,positions_read,artifacts_read,artifacts_write,positions_acquire,transactions_read,holdings_read,orders_read,positions_audit_read,market_read) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
                     for(var a:access.entrySet()) {
                         q.setString(1,id);q.setString(2,a.getKey());q.setBoolean(3,a.getValue().contains("account.read"));q.setBoolean(4,a.getValue().contains("account.positions.read"));
-                        q.setBoolean(5,a.getValue().contains("account.artifacts.read"));q.setBoolean(6,a.getValue().contains("account.artifacts.write"));q.setBoolean(7,a.getValue().contains("account.positions.acquire"));q.setBoolean(8,a.getValue().contains("account.transactions.read"));q.executeUpdate();
+                        q.setBoolean(5,a.getValue().contains("account.artifacts.read"));q.setBoolean(6,a.getValue().contains("account.artifacts.write"));q.setBoolean(7,a.getValue().contains("account.positions.acquire"));q.setBoolean(8,a.getValue().contains("account.transactions.read"));q.setBoolean(9,a.getValue().contains("account.holdings.read"));q.setBoolean(10,a.getValue().contains("account.orders.read"));q.setBoolean(11,a.getValue().contains("account.positions.audit.read"));q.setBoolean(12,a.getValue().contains("account.market.read"));q.executeUpdate();
                     }
                 }
                 c.commit();return id;
@@ -70,7 +70,7 @@ public class UserDirectory {
                 if(!rs.next())return Optional.empty();
                 var access=new ArrayList<AccountAccess>();
                 try(var a=c.prepareStatement("SELECT * FROM v2_user_account WHERE user_id=? ORDER BY account_id")) {
-                    a.setString(1,id);try(var rows=a.executeQuery()){while(rows.next())access.add(new AccountAccess(rows.getString("account_id"),rows.getBoolean("metadata_read"),rows.getBoolean("positions_read"),rows.getBoolean("artifacts_read"),rows.getBoolean("artifacts_write"),rows.getBoolean("positions_acquire"),rows.getBoolean("transactions_read")));}
+                    a.setString(1,id);try(var rows=a.executeQuery()){while(rows.next())access.add(new AccountAccess(rows.getString("account_id"),rows.getBoolean("metadata_read"),rows.getBoolean("positions_read"),rows.getBoolean("artifacts_read"),rows.getBoolean("artifacts_write"),rows.getBoolean("positions_acquire"),rows.getBoolean("transactions_read"),rows.getBoolean("holdings_read"),rows.getBoolean("orders_read"),rows.getBoolean("positions_audit_read"),rows.getBoolean("market_read")));}
                 }
                 return Optional.of(new User(id,rs.getString("display_name"),rs.getBoolean("administrator"),List.copyOf(access)));
             }
@@ -91,6 +91,8 @@ public class UserDirectory {
                 q.setString(1,id);try(var rs=q.executeQuery()) {
                     if(!rs.next())return Optional.empty();
                     if(rs.getBoolean("administrator"))result.add(ADMIN);
+                    if(rs.getBoolean("reference_read"))result.add("reference.read");
+                    if(rs.getBoolean("market_read"))result.add("market.read");
                     if(rs.getBoolean("quote_read"))result.add("quote.read");
                     if(rs.getBoolean("quote_acquire"))result.add("quote.acquire");
                     if(rs.getBoolean("quote_force"))result.add("quote.force");
@@ -104,6 +106,10 @@ public class UserDirectory {
                     if(rs.getBoolean("artifacts_read"))result.add("account.artifacts.read:"+account);
                     if(rs.getBoolean("artifacts_write"))result.add("account.artifacts.write:"+account);
                     if(rs.getBoolean("positions_acquire"))result.add("account.positions.acquire:"+account);
+                    if(rs.getBoolean("holdings_read"))result.add("account.holdings.read:"+account);
+                    if(rs.getBoolean("orders_read"))result.add("account.orders.read:"+account);
+                    if(rs.getBoolean("positions_audit_read"))result.add("account.positions.audit.read:"+account);
+                    if(rs.getBoolean("market_read"))result.add("account.market.read:"+account);
                     if(rs.getBoolean("transactions_read"))result.add("account.transactions.read:"+account);
                 }}
             }

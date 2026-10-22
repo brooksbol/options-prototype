@@ -1,0 +1,2310 @@
+{
+  "acceptedBaseline": "a32c7c79a059cc58d5262cf3e30c520d2e087825",
+  "remoteMain": "9fd8567b9d7ca73b4b573649c5d25cfb3b482ea2",
+  "routes": [
+    {
+      "path": "/v2/positions",
+      "definition": {
+        "$ref": "#/components/schemas/PositionCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/positions/{positionId}",
+      "definition": {
+        "$ref": "#/components/schemas/Position"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/constructions",
+      "definition": {
+        "$ref": "#/components/schemas/ConstructionCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/constructions/{constructionId}",
+      "definition": {
+        "$ref": "#/components/schemas/Construction"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/orders",
+      "definition": {
+        "$ref": "#/components/schemas/OrderCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioAssociationFilterTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioHttpTest",
+        "PortfolioOrderAcquisitionTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/orders/{orderId}",
+      "definition": {
+        "$ref": "#/components/schemas/Order"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioAssociationFilterTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioHttpTest",
+        "PortfolioOrderAcquisitionTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/instruments",
+      "definition": {
+        "$ref": "#/components/schemas/InstrumentCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+    },
+    {
+      "path": "/v2/instruments/{instrumentId}",
+      "definition": {
+        "$ref": "#/components/schemas/Instrument"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+    },
+    {
+      "path": "/v2/market-observations",
+      "definition": {
+        "$ref": "#/components/schemas/MarketObservationCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioMarketAcquisitionTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+    },
+    {
+      "path": "/v2/market-observations/{observationId}",
+      "definition": {
+        "$ref": "#/components/schemas/MarketObservation"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioMarketAcquisitionTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+    },
+    {
+      "path": "/v2/constructions/models",
+      "definition": {
+        "$ref": "#/components/schemas/ModelFamilyCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/constructions/models/{modelId}",
+      "definition": {
+        "$ref": "#/components/schemas/ModelFamily"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/constructions/models/{modelId}/versions/{versionId}",
+      "definition": {
+        "$ref": "#/components/schemas/ModelVersion"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/positions/{positionId}/audit",
+      "definition": {
+        "$ref": "#/components/schemas/AuditRecordCollection"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/positions/{positionId}/audit/{auditId}",
+      "definition": {
+        "$ref": "#/components/schemas/AuditRecord"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/accounts/{accountId}/inventory-reconciliation",
+      "definition": {
+        "$ref": "#/components/schemas/InventoryReconciliation"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
+        "PortfolioUnquantifiedCustodyTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/users",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1users",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "UsersController + UserDirectory + BearerAuthenticator",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "UsersTest"
+      ]
+    },
+    {
+      "path": "/v2/users/{userId}",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1users~1{userId}",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "UsersController + UserDirectory + BearerAuthenticator",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "UsersTest"
+      ]
+    },
+    {
+      "path": "/v2/me",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1me",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "UsersController + UserDirectory + BearerAuthenticator",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "UsersTest"
+      ]
+    },
+    {
+      "path": "/v2/accounts",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "AccountsController + AccountDirectory",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "AccountsTest",
+        "MultiBrokerAccountsTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "path": "/v2/accounts/{accountId}",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "AccountsController + AccountDirectory",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "AccountsTest",
+        "MultiBrokerAccountsTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "path": "/v2/artifacts",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET",
+        "POST"
+      ],
+      "owner": "ArtifactsController + BrokerageArtifacts",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "path": "/v2/artifacts/{artifactId}",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "ArtifactsController + BrokerageArtifacts",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "path": "/v2/artifacts/{artifactId}/content",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1content",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "ArtifactsController + BrokerageArtifacts",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "path": "/v2/artifacts/{artifactId}/imports",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1imports",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "POST"
+      ],
+      "owner": "ArtifactsController + BrokerageArtifacts",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "path": "/v2/accounts/{accountId}/transactions",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "TransactionsController + TransactionHistory",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioFillEvidenceTest",
+        "TransactionHistoryTest"
+      ]
+    },
+    {
+      "path": "/v2/accounts/{accountId}/transactions/{transactionId}",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions~1{transactionId}",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "TransactionsController + TransactionHistory",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioFillEvidenceTest",
+        "TransactionHistoryTest"
+      ]
+    },
+    {
+      "path": "/v2/quotes",
+      "definition": "../../contracts/api-v2-direct-quote-acquisition-proposal.yaml#/paths/~1v2~1quotes",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET",
+        "POST"
+      ],
+      "owner": "V2QuotesController + HeldQuotesController + DirectQuoteService",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "DirectQuoteServiceTest",
+        "HeldQuoteDetailControllerTest",
+        "HeldQuotesControllerTest",
+        "V2QuotesControllerTest"
+      ]
+    },
+    {
+      "path": "/v2/quotes/{symbol}",
+      "definition": "../../contracts/api-v2-direct-quote-acquisition-proposal.yaml#/paths/~1v2~1quotes~1{symbol}",
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "V2QuotesController + HeldQuotesController + DirectQuoteService",
+      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json.",
+      "tests": [
+        "DirectQuoteServiceTest",
+        "HeldQuoteDetailControllerTest",
+        "HeldQuotesControllerTest",
+        "V2QuotesControllerTest"
+      ]
+    },
+    {
+      "path": "/v2/holdings",
+      "definition": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/BrokerHoldingCollection"
+          },
+          {
+            "$ref": "#/components/schemas/HoldingSnapshotCollection"
+          }
+        ]
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
+        "PortfolioUnquantifiedCustodyTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    },
+    {
+      "path": "/v2/holdings/{holdingId}",
+      "definition": {
+        "$ref": "#/components/schemas/BrokerHolding"
+      },
+      "status": "IMPLEMENTED_WITH_EVIDENCE_BOUNDARIES_REVIEW_PENDING",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "verbs": [
+        "GET"
+      ],
+      "owner": "portfolio/PortfolioController",
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
+        "PortfolioUnquantifiedCustodyTest"
+      ],
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
+    }
+  ],
+  "schemas": {
+    "Decimal": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Decimal",
+      "acceptedShapeSha256": "8393376c07aed39a8716512d387b28cb53d817eaba23e089cde908aed9f424ac",
+      "candidateEntryCorrectedShapeSha256": "8393376c07aed39a8716512d387b28cb53d817eaba23e089cde908aed9f424ac",
+      "operativeShapeSha256": "8393376c07aed39a8716512d387b28cb53d817eaba23e089cde908aed9f424ac",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "PositiveDecimal": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/PositiveDecimal",
+      "acceptedShapeSha256": "2ed588a1e95484d8be966339513d713b565890c64130880680d4dbf70bcea65c",
+      "candidateEntryCorrectedShapeSha256": "2ed588a1e95484d8be966339513d713b565890c64130880680d4dbf70bcea65c",
+      "operativeShapeSha256": "2ed588a1e95484d8be966339513d713b565890c64130880680d4dbf70bcea65c",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ExactNumber": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ExactNumber",
+      "acceptedShapeSha256": "dd8702337436fbd0ede24a5cda9c17750f4cc9111e44a6e669740b9a1e9ce5b7",
+      "candidateEntryCorrectedShapeSha256": "dd8702337436fbd0ede24a5cda9c17750f4cc9111e44a6e669740b9a1e9ce5b7",
+      "operativeShapeSha256": "dd8702337436fbd0ede24a5cda9c17750f4cc9111e44a6e669740b9a1e9ce5b7",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Link": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Link",
+      "acceptedShapeSha256": "b0a9a63481fd5ceb1624afd4d0309230bfc02b07ca800c009e5380e2577fea8c",
+      "candidateEntryCorrectedShapeSha256": "b0a9a63481fd5ceb1624afd4d0309230bfc02b07ca800c009e5380e2577fea8c",
+      "operativeShapeSha256": "b0a9a63481fd5ceb1624afd4d0309230bfc02b07ca800c009e5380e2577fea8c",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Currency": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Currency",
+      "acceptedShapeSha256": "6ecbf74150bafec17fde12389173ffd7e01b93c158f5c9effc009835c11a72bc",
+      "candidateEntryCorrectedShapeSha256": "6ecbf74150bafec17fde12389173ffd7e01b93c158f5c9effc009835c11a72bc",
+      "operativeShapeSha256": "6ecbf74150bafec17fde12389173ffd7e01b93c158f5c9effc009835c11a72bc",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Status": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Status",
+      "acceptedShapeSha256": "34793f7278039e59e3d8d8a3da2ae836f7caaec38b740574a655d3e9e3c847fd",
+      "candidateEntryCorrectedShapeSha256": "34793f7278039e59e3d8d8a3da2ae836f7caaec38b740574a655d3e9e3c847fd",
+      "operativeShapeSha256": "34793f7278039e59e3d8d8a3da2ae836f7caaec38b740574a655d3e9e3c847fd",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "SourceRef": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/SourceRef",
+      "acceptedShapeSha256": "fa49d09df7de70a8b30561a96bc6ec9b860bf14680026c53fa09f7e17712ada3",
+      "candidateEntryCorrectedShapeSha256": "fa49d09df7de70a8b30561a96bc6ec9b860bf14680026c53fa09f7e17712ada3",
+      "operativeShapeSha256": "fa49d09df7de70a8b30561a96bc6ec9b860bf14680026c53fa09f7e17712ada3",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Remediation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Remediation",
+      "acceptedShapeSha256": "1c72e94ad024b1478d6daaf957389e2a9af32d72a63d7c55de9f778870deae6f",
+      "candidateEntryCorrectedShapeSha256": "1c72e94ad024b1478d6daaf957389e2a9af32d72a63d7c55de9f778870deae6f",
+      "operativeShapeSha256": "1c72e94ad024b1478d6daaf957389e2a9af32d72a63d7c55de9f778870deae6f",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Warning": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Warning",
+      "acceptedShapeSha256": "57fc96e8dec3f9cbd8813a1aa05c0700450386c0067e6abb073c17ce0b0f0557",
+      "candidateEntryCorrectedShapeSha256": "12004cfea7f3c4af355d472743c8c0017cf212506c12b9889eeee0edd850c1a4",
+      "operativeShapeSha256": "12004cfea7f3c4af355d472743c8c0017cf212506c12b9889eeee0edd850c1a4",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Metric": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Metric",
+      "acceptedShapeSha256": "b1e6d8ee282cbff88d9ef05d7eb1ff066c602aa79e89462c3bd026762305e150",
+      "candidateEntryCorrectedShapeSha256": "82fff60cc2856808a5cb0c79247d538d197cccb299ccf014934164f09d755e70",
+      "operativeShapeSha256": "82fff60cc2856808a5cb0c79247d538d197cccb299ccf014934164f09d755e70",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "BrokerAlias": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/BrokerAlias",
+      "acceptedShapeSha256": "efe5fb78b7e656f30f833c995a2f34511fd4ae0eda72fe9a9e04f394f4f201f2",
+      "candidateEntryCorrectedShapeSha256": "efe5fb78b7e656f30f833c995a2f34511fd4ae0eda72fe9a9e04f394f4f201f2",
+      "operativeShapeSha256": "efe5fb78b7e656f30f833c995a2f34511fd4ae0eda72fe9a9e04f394f4f201f2",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "DeliverableComponent": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/DeliverableComponent",
+      "acceptedShapeSha256": "1bd4733a19963a4fb6be37f3333f480b700938ca56ded3591427b0bb1ff04f86",
+      "candidateEntryCorrectedShapeSha256": "1bd4733a19963a4fb6be37f3333f480b700938ca56ded3591427b0bb1ff04f86",
+      "operativeShapeSha256": "1bd4733a19963a4fb6be37f3333f480b700938ca56ded3591427b0bb1ff04f86",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "OptionTerms": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/OptionTerms",
+      "acceptedShapeSha256": "1f39673c5ea9a1e3865c4561623c50051510f199ea82cc38b721c1f273301558",
+      "candidateEntryCorrectedShapeSha256": "1f39673c5ea9a1e3865c4561623c50051510f199ea82cc38b721c1f273301558",
+      "operativeShapeSha256": "1f39673c5ea9a1e3865c4561623c50051510f199ea82cc38b721c1f273301558",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Instrument": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Instrument",
+      "acceptedShapeSha256": "31d1d39add70a4d60740fa9be000271e355b13e42c653cea5e3b512591d049b7",
+      "candidateEntryCorrectedShapeSha256": "31d1d39add70a4d60740fa9be000271e355b13e42c653cea5e3b512591d049b7",
+      "operativeShapeSha256": "31d1d39add70a4d60740fa9be000271e355b13e42c653cea5e3b512591d049b7",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "SourceInventory": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/SourceInventory",
+      "acceptedShapeSha256": "623ba8654214b3e63586d262d835c2fec895904a3373840feb3f837651c201c4",
+      "candidateEntryCorrectedShapeSha256": "ab0de6e4dd3f6692c43116f3cb4c63ed248a1d8cb01585d4f4fb71438b25808e",
+      "operativeShapeSha256": "ab0de6e4dd3f6692c43116f3cb4c63ed248a1d8cb01585d4f4fb71438b25808e",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioReconciliation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioReconciliationTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Allocation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Allocation",
+      "acceptedShapeSha256": "c28364699032dd4d300c5d2a6335ee30934ba0a4719a8fa1e2eb119a7f268d5f",
+      "candidateEntryCorrectedShapeSha256": "f0b1bcc1cd919ba61a45029c9739f273846d02ecd2f31802ecbc740d16fdc975",
+      "operativeShapeSha256": "f0b1bcc1cd919ba61a45029c9739f273846d02ecd2f31802ecbc740d16fdc975",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioReconciliation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioReconciliationTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "CashLeaf": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/CashLeaf",
+      "acceptedShapeSha256": "c2ffe7d53b0b0edf19447c7e2f266b1d708442bef2b218f98c41866b9ee839f9",
+      "candidateEntryCorrectedShapeSha256": "c2ffe7d53b0b0edf19447c7e2f266b1d708442bef2b218f98c41866b9ee839f9",
+      "operativeShapeSha256": "c2ffe7d53b0b0edf19447c7e2f266b1d708442bef2b218f98c41866b9ee839f9",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "SharesLeaf": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/SharesLeaf",
+      "acceptedShapeSha256": "4f6ce6cf924fe64df55241995ec0a5e1392bfda866a68fa024381db0972bcca5",
+      "candidateEntryCorrectedShapeSha256": "4f6ce6cf924fe64df55241995ec0a5e1392bfda866a68fa024381db0972bcca5",
+      "operativeShapeSha256": "4f6ce6cf924fe64df55241995ec0a5e1392bfda866a68fa024381db0972bcca5",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "OptionLeaf": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/OptionLeaf",
+      "acceptedShapeSha256": "16d7c6b35bf53420bdc088b9852c5092730021963762d19d5e937db13f7ce9e0",
+      "candidateEntryCorrectedShapeSha256": "16d7c6b35bf53420bdc088b9852c5092730021963762d19d5e937db13f7ce9e0",
+      "operativeShapeSha256": "16d7c6b35bf53420bdc088b9852c5092730021963762d19d5e937db13f7ce9e0",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "CompositionGroup": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/CompositionGroup",
+      "acceptedShapeSha256": "0ee08fc7d60ab90ab657c15cd0532982afc80454ca7b1252b4ecbbf8ea6d4668",
+      "candidateEntryCorrectedShapeSha256": "0ee08fc7d60ab90ab657c15cd0532982afc80454ca7b1252b4ecbbf8ea6d4668",
+      "operativeShapeSha256": "0ee08fc7d60ab90ab657c15cd0532982afc80454ca7b1252b4ecbbf8ea6d4668",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Composition": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Composition",
+      "acceptedShapeSha256": "8b4f9fbf975706e655b044ed26ef32616cc54486472c496b4933ae3cbef8f758",
+      "candidateEntryCorrectedShapeSha256": "8b4f9fbf975706e655b044ed26ef32616cc54486472c496b4933ae3cbef8f758",
+      "operativeShapeSha256": "8b4f9fbf975706e655b044ed26ef32616cc54486472c496b4933ae3cbef8f758",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "FinancialRelationship": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/FinancialRelationship",
+      "acceptedShapeSha256": "1df86b5ad458125d8d5b5400605025553c4038b6536e26aeb4f6e28309ae47d7",
+      "candidateEntryCorrectedShapeSha256": "1df86b5ad458125d8d5b5400605025553c4038b6536e26aeb4f6e28309ae47d7",
+      "operativeShapeSha256": "1df86b5ad458125d8d5b5400605025553c4038b6536e26aeb4f6e28309ae47d7",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Recognition": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Recognition",
+      "acceptedShapeSha256": "c75e8d438ce6b39c262e472b524c9177ddca9b0169921840587315a72f801471",
+      "candidateEntryCorrectedShapeSha256": "c75e8d438ce6b39c262e472b524c9177ddca9b0169921840587315a72f801471",
+      "operativeShapeSha256": "c75e8d438ce6b39c262e472b524c9177ddca9b0169921840587315a72f801471",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioRecognition",
+        "PortfolioRepository"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Construction": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Construction",
+      "acceptedShapeSha256": "22c38e8562335f154c2284e82dcef00fee28295948a5a7aaa6b69ae21128a4ce",
+      "candidateEntryCorrectedShapeSha256": "10766924495e41510ab921f949ac5187ec53d948901ccb996ce6b01ebc14284a",
+      "operativeShapeSha256": "10766924495e41510ab921f949ac5187ec53d948901ccb996ce6b01ebc14284a",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioContinuity",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioRepository",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ModelRole": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ModelRole",
+      "acceptedShapeSha256": "a1d23698ba33ab9f55910b309e8093e59704cda0c0a6cca7885cebf634b761ca",
+      "candidateEntryCorrectedShapeSha256": "a1d23698ba33ab9f55910b309e8093e59704cda0c0a6cca7885cebf634b761ca",
+      "operativeShapeSha256": "a1d23698ba33ab9f55910b309e8093e59704cda0c0a6cca7885cebf634b761ca",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioRecognition",
+        "PortfolioRepository"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ModelConstraint": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ModelConstraint",
+      "acceptedShapeSha256": "cb0f16dec1acf9a8f5777e7f4b70dee609b8f214c58615348f2421bcbc4b98d1",
+      "candidateEntryCorrectedShapeSha256": "cb0f16dec1acf9a8f5777e7f4b70dee609b8f214c58615348f2421bcbc4b98d1",
+      "operativeShapeSha256": "cb0f16dec1acf9a8f5777e7f4b70dee609b8f214c58615348f2421bcbc4b98d1",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioRecognition",
+        "PortfolioRepository"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ModelVersion": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ModelVersion",
+      "acceptedShapeSha256": "a3974b0c2dc86b7ff8aae9302527968e6a22c193c3527abdbd19132fe705aff8",
+      "candidateEntryCorrectedShapeSha256": "a3974b0c2dc86b7ff8aae9302527968e6a22c193c3527abdbd19132fe705aff8",
+      "operativeShapeSha256": "a3974b0c2dc86b7ff8aae9302527968e6a22c193c3527abdbd19132fe705aff8",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioRecognition",
+        "PortfolioRepository"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ModelFamily": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ModelFamily",
+      "acceptedShapeSha256": "513c86647ea2f1478f5eff6382f1b9300e042f5cc80db36b33a5e14327d7483e",
+      "candidateEntryCorrectedShapeSha256": "513c86647ea2f1478f5eff6382f1b9300e042f5cc80db36b33a5e14327d7483e",
+      "operativeShapeSha256": "513c86647ea2f1478f5eff6382f1b9300e042f5cc80db36b33a5e14327d7483e",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioRecognition",
+        "PortfolioRepository"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "AffineSegment": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/AffineSegment",
+      "acceptedShapeSha256": "eb8adf2a19a998aa8a94dd3fde5c02760af8696cb89d40e325181746ebd5d9ef",
+      "candidateEntryCorrectedShapeSha256": "eb8adf2a19a998aa8a94dd3fde5c02760af8696cb89d40e325181746ebd5d9ef",
+      "operativeShapeSha256": "eb8adf2a19a998aa8a94dd3fde5c02760af8696cb89d40e325181746ebd5d9ef",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "BoundaryValue": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/BoundaryValue",
+      "acceptedShapeSha256": "b95ce8c7e447bc04a3d358728b32e57aabff3addd8561de22ca17ea3e985b4a0",
+      "candidateEntryCorrectedShapeSha256": "b95ce8c7e447bc04a3d358728b32e57aabff3addd8561de22ca17ea3e985b4a0",
+      "operativeShapeSha256": "b95ce8c7e447bc04a3d358728b32e57aabff3addd8561de22ca17ea3e985b4a0",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Geometry": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Geometry",
+      "acceptedShapeSha256": "0af6d487e0078a9e7551d121f25d4731df1b4b75889218a6935786c6adb6388a",
+      "candidateEntryCorrectedShapeSha256": "0af6d487e0078a9e7551d121f25d4731df1b4b75889218a6935786c6adb6388a",
+      "operativeShapeSha256": "0af6d487e0078a9e7551d121f25d4731df1b4b75889218a6935786c6adb6388a",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "PayoffEvaluation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/PayoffEvaluation",
+      "acceptedShapeSha256": "dbf04329585b4809a7a06c659633a025f5594e5ba87399ac398af64154e72246",
+      "candidateEntryCorrectedShapeSha256": "dbf04329585b4809a7a06c659633a025f5594e5ba87399ac398af64154e72246",
+      "operativeShapeSha256": "dbf04329585b4809a7a06c659633a025f5594e5ba87399ac398af64154e72246",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Timeline": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Timeline",
+      "acceptedShapeSha256": "65a302ceaf8aff5991477552aa4d62f8d75f17f8df1c89fe41447344116338fe",
+      "candidateEntryCorrectedShapeSha256": "a1cdf1fbaf88b63fd69732da4b960f97737a6dfd1ed2ba01878a0825ce8f580b",
+      "operativeShapeSha256": "a1cdf1fbaf88b63fd69732da4b960f97737a6dfd1ed2ba01878a0825ce8f580b",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "RangeEvaluation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/RangeEvaluation",
+      "acceptedShapeSha256": "4e1ec054ab508f2f7013f977b40aa45630577314e206c1961cab26fe85b7c828",
+      "candidateEntryCorrectedShapeSha256": "4e1ec054ab508f2f7013f977b40aa45630577314e206c1961cab26fe85b7c828",
+      "operativeShapeSha256": "4e1ec054ab508f2f7013f977b40aa45630577314e206c1961cab26fe85b7c828",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ManualCheckpoint": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ManualCheckpoint",
+      "acceptedShapeSha256": "095d7b5789c44d522e3998df8cdf76d361126be3ed00a19d9457f7490190df54",
+      "candidateEntryCorrectedShapeSha256": "095d7b5789c44d522e3998df8cdf76d361126be3ed00a19d9457f7490190df54",
+      "operativeShapeSha256": "095d7b5789c44d522e3998df8cdf76d361126be3ed00a19d9457f7490190df54",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioComplexOrderEvidence",
+        "PortfolioFillEvidence",
+        "PortfolioJson",
+        "PortfolioOrderEvaluation",
+        "PortfolioOrderSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFillEvidenceTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ManagementEvaluation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ManagementEvaluation",
+      "acceptedShapeSha256": "898e444ec15944f470c2da403fc75cdc5afe3a005bd3cd48b642ac52fbc139b9",
+      "candidateEntryCorrectedShapeSha256": "898e444ec15944f470c2da403fc75cdc5afe3a005bd3cd48b642ac52fbc139b9",
+      "operativeShapeSha256": "898e444ec15944f470c2da403fc75cdc5afe3a005bd3cd48b642ac52fbc139b9",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioComplexOrderEvidence",
+        "PortfolioFillEvidence",
+        "PortfolioJson",
+        "PortfolioOrderEvaluation",
+        "PortfolioOrderSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFillEvidenceTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Evaluation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Evaluation",
+      "acceptedShapeSha256": "16afb0fb5aca0a6dfeea31b171171595a73b4771b43fa81354e5b08e8c73a2e9",
+      "candidateEntryCorrectedShapeSha256": "84ae6314c88f4bba98a98ae5891ef4fa740f3b7c344f20ee3fef98090e9095f9",
+      "operativeShapeSha256": "84ae6314c88f4bba98a98ae5891ef4fa740f3b7c344f20ee3fef98090e9095f9",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "LifecycleEvidence": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/LifecycleEvidence",
+      "acceptedShapeSha256": "bca705560fe3c35053bd8a80eaba98525b3876bffaf7eda2c4d03dd0406c19ae",
+      "candidateEntryCorrectedShapeSha256": "95e16009994a830282e6895adba4959d36260eacb8306ffbc003d2b0da255657",
+      "operativeShapeSha256": "95e16009994a830282e6895adba4959d36260eacb8306ffbc003d2b0da255657",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioContinuity",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioRepository",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Position": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Position",
+      "acceptedShapeSha256": "c818489c51ab254e36d748df4ec07ec03e892c7a661e3aec6d1ceb6f6fb6ddd1",
+      "candidateEntryCorrectedShapeSha256": "c818489c51ab254e36d748df4ec07ec03e892c7a661e3aec6d1ceb6f6fb6ddd1",
+      "operativeShapeSha256": "41a52a67713cebe109d19e33a8efca1562e5132b3d20f02f567d8ac1ceff9f6f",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioContinuity",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioRepository",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Fill": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Fill",
+      "acceptedShapeSha256": "418fa65de242d72a513761ef09e4b6465102231af3057bfac036f857664eb643",
+      "candidateEntryCorrectedShapeSha256": "418fa65de242d72a513761ef09e4b6465102231af3057bfac036f857664eb643",
+      "operativeShapeSha256": "418fa65de242d72a513761ef09e4b6465102231af3057bfac036f857664eb643",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioComplexOrderEvidence",
+        "PortfolioFillEvidence",
+        "PortfolioJson",
+        "PortfolioOrderEvaluation",
+        "PortfolioOrderSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFillEvidenceTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "OrderLeg": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/OrderLeg",
+      "acceptedShapeSha256": "95d8c4e641720f88ab17ed2cb6216fd8250a096dd01a9172ae51c1f2f061d8b0",
+      "candidateEntryCorrectedShapeSha256": "95d8c4e641720f88ab17ed2cb6216fd8250a096dd01a9172ae51c1f2f061d8b0",
+      "operativeShapeSha256": "95d8c4e641720f88ab17ed2cb6216fd8250a096dd01a9172ae51c1f2f061d8b0",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioComplexOrderEvidence",
+        "PortfolioFillEvidence",
+        "PortfolioJson",
+        "PortfolioOrderEvaluation",
+        "PortfolioOrderSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFillEvidenceTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "OrderAssociation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/OrderAssociation",
+      "acceptedShapeSha256": "b7e027144077a93812ac018180c7c81696f4583fc447ae805171545feb2e7c5f",
+      "candidateEntryCorrectedShapeSha256": "b7e027144077a93812ac018180c7c81696f4583fc447ae805171545feb2e7c5f",
+      "operativeShapeSha256": "b7e027144077a93812ac018180c7c81696f4583fc447ae805171545feb2e7c5f",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioComplexOrderEvidence",
+        "PortfolioFillEvidence",
+        "PortfolioJson",
+        "PortfolioOrderEvaluation",
+        "PortfolioOrderSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFillEvidenceTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Order": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Order",
+      "acceptedShapeSha256": "9b20e90da98d1c9dbcc200be87ec1f9e5f85d68f7d87042f075019c220da587d",
+      "candidateEntryCorrectedShapeSha256": "9b20e90da98d1c9dbcc200be87ec1f9e5f85d68f7d87042f075019c220da587d",
+      "operativeShapeSha256": "5dff0feb6912e129d54f574706832878d09801fcdb30a6b8cb9d718edb36d9c6",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioComplexOrderEvidence",
+        "PortfolioFillEvidence",
+        "PortfolioJson",
+        "PortfolioOrderEvaluation",
+        "PortfolioOrderSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFillEvidenceTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "MarketObservation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/MarketObservation",
+      "acceptedShapeSha256": "789afc63679e2f8e0e866aa303c41ac06b738afbda0f667efb136dd510cdfbe4",
+      "candidateEntryCorrectedShapeSha256": "789afc63679e2f8e0e866aa303c41ac06b738afbda0f667efb136dd510cdfbe4",
+      "operativeShapeSha256": "789afc63679e2f8e0e866aa303c41ac06b738afbda0f667efb136dd510cdfbe4",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMarketSources",
+        "PortfolioOptionDefinitions",
+        "PortfolioSessionEvidence",
+        "PortfolioTastyMarketSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "AllocationBalance": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/AllocationBalance",
+      "acceptedShapeSha256": "885fb08733a97766aeecea0f404a32b1fb2395a916ebd9048ec93209872590bf",
+      "candidateEntryCorrectedShapeSha256": "885fb08733a97766aeecea0f404a32b1fb2395a916ebd9048ec93209872590bf",
+      "operativeShapeSha256": "885fb08733a97766aeecea0f404a32b1fb2395a916ebd9048ec93209872590bf",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioReconciliation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioReconciliationTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "InventoryReconciliation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/InventoryReconciliation",
+      "acceptedShapeSha256": "07e7acaca8246ad4305b98d4d7b9676c85a9c9c73089dcf5f1f0362d350a4b4b",
+      "candidateEntryCorrectedShapeSha256": "07e7acaca8246ad4305b98d4d7b9676c85a9c9c73089dcf5f1f0362d350a4b4b",
+      "operativeShapeSha256": "07e7acaca8246ad4305b98d4d7b9676c85a9c9c73089dcf5f1f0362d350a4b4b",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioReconciliation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioReconciliationTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "AuditRecord": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/AuditRecord",
+      "acceptedShapeSha256": "0119e7b6753aa83b013082b7d354a42b57b1d0dc5f8b8ab1e82a73e05862e071",
+      "candidateEntryCorrectedShapeSha256": "0119e7b6753aa83b013082b7d354a42b57b1d0dc5f8b8ab1e82a73e05862e071",
+      "operativeShapeSha256": "0119e7b6753aa83b013082b7d354a42b57b1d0dc5f8b8ab1e82a73e05862e071",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioContinuity",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioRepository",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "Problem": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Problem",
+      "acceptedShapeSha256": "61b00c2891b6e69907ecc6cafd4d478a644a912a23778be89c406c4cc73aa00a",
+      "candidateEntryCorrectedShapeSha256": "61b00c2891b6e69907ecc6cafd4d478a644a912a23778be89c406c4cc73aa00a",
+      "operativeShapeSha256": "dc3ad722575e40398c4706735f20bc7cb7576380233cf5d212b0ab3fb8235292",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ResourceURI": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ResourceURI",
+      "acceptedShapeSha256": "a325326f04af2d67a51d2e9cbb11d077610b065382d1aa09d34b9f8af983c7c5",
+      "candidateEntryCorrectedShapeSha256": "a325326f04af2d67a51d2e9cbb11d077610b065382d1aa09d34b9f8af983c7c5",
+      "operativeShapeSha256": "a325326f04af2d67a51d2e9cbb11d077610b065382d1aa09d34b9f8af983c7c5",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "PositionSummary": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/PositionSummary",
+      "acceptedShapeSha256": "447c586ed939b11655a8ecdc06c461c046c5ea1b9cc1c1d238240c5af3d356dc",
+      "candidateEntryCorrectedShapeSha256": "447c586ed939b11655a8ecdc06c461c046c5ea1b9cc1c1d238240c5af3d356dc",
+      "operativeShapeSha256": "447c586ed939b11655a8ecdc06c461c046c5ea1b9cc1c1d238240c5af3d356dc",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "PositionCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/PositionCollection",
+      "acceptedShapeSha256": "e485010a768f16976d7caecb6aecb778c378b1b577bd8b9eb0e0aed651242106",
+      "candidateEntryCorrectedShapeSha256": "e485010a768f16976d7caecb6aecb778c378b1b577bd8b9eb0e0aed651242106",
+      "operativeShapeSha256": "e485010a768f16976d7caecb6aecb778c378b1b577bd8b9eb0e0aed651242106",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ConstructionCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ConstructionCollection",
+      "acceptedShapeSha256": "879cae104388115547c62bf400d0bc329c869add44a2cabc6249b0e5355ee8c7",
+      "candidateEntryCorrectedShapeSha256": "879cae104388115547c62bf400d0bc329c869add44a2cabc6249b0e5355ee8c7",
+      "operativeShapeSha256": "879cae104388115547c62bf400d0bc329c869add44a2cabc6249b0e5355ee8c7",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ModelFamilyCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ModelFamilyCollection",
+      "acceptedShapeSha256": "383b0be52c5088cce230b359bc6ac2147cdb9080fdd26b077d8fba3f159054ad",
+      "candidateEntryCorrectedShapeSha256": "383b0be52c5088cce230b359bc6ac2147cdb9080fdd26b077d8fba3f159054ad",
+      "operativeShapeSha256": "383b0be52c5088cce230b359bc6ac2147cdb9080fdd26b077d8fba3f159054ad",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "OrderCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/OrderCollection",
+      "acceptedShapeSha256": "8a70d939dac43106fb852cb272e6e1a2b0606d155191714305a4aa307d252a61",
+      "candidateEntryCorrectedShapeSha256": "8a70d939dac43106fb852cb272e6e1a2b0606d155191714305a4aa307d252a61",
+      "operativeShapeSha256": "8a70d939dac43106fb852cb272e6e1a2b0606d155191714305a4aa307d252a61",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "InstrumentCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/InstrumentCollection",
+      "acceptedShapeSha256": "4e0a534734377b00750b75b61b95d5fe417aa344e0044f918ca14a30e4cc2f89",
+      "candidateEntryCorrectedShapeSha256": "4e0a534734377b00750b75b61b95d5fe417aa344e0044f918ca14a30e4cc2f89",
+      "operativeShapeSha256": "4e0a534734377b00750b75b61b95d5fe417aa344e0044f918ca14a30e4cc2f89",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "MarketObservationCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/MarketObservationCollection",
+      "acceptedShapeSha256": "1e14de868f0e024dce936a8d6a5124eb2d7d232990de545aea4be525bdcb57b1",
+      "candidateEntryCorrectedShapeSha256": "1e14de868f0e024dce936a8d6a5124eb2d7d232990de545aea4be525bdcb57b1",
+      "operativeShapeSha256": "1e14de868f0e024dce936a8d6a5124eb2d7d232990de545aea4be525bdcb57b1",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "AuditRecordCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/AuditRecordCollection",
+      "acceptedShapeSha256": "75acedcafd4546b5219f5139daf9b997c9c339f74c9aba1d899601e72094e04c",
+      "candidateEntryCorrectedShapeSha256": "75acedcafd4546b5219f5139daf9b997c9c339f74c9aba1d899601e72094e04c",
+      "operativeShapeSha256": "75acedcafd4546b5219f5139daf9b997c9c339f74c9aba1d899601e72094e04c",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "NonnegativeDecimal": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/NonnegativeDecimal",
+      "acceptedShapeSha256": "cfc0b861bc3a255bf730c894aeb6dfb4c9a645faf5f10021de3ef9728b42dd14",
+      "candidateEntryCorrectedShapeSha256": "cfc0b861bc3a255bf730c894aeb6dfb4c9a645faf5f10021de3ef9728b42dd14",
+      "operativeShapeSha256": "cfc0b861bc3a255bf730c894aeb6dfb4c9a645faf5f10021de3ef9728b42dd14",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "OtherLeaf": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/OtherLeaf",
+      "acceptedShapeSha256": "047837cdb7032d846426c665f86ff1ee8cee83205e1f0815987adf8af53b3975",
+      "candidateEntryCorrectedShapeSha256": "047837cdb7032d846426c665f86ff1ee8cee83205e1f0815987adf8af53b3975",
+      "operativeShapeSha256": "047837cdb7032d846426c665f86ff1ee8cee83205e1f0815987adf8af53b3975",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "WholeContracts": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/WholeContracts",
+      "acceptedShapeSha256": "9fe51416ed5d0c6376af25e970c316ae403c63f792ca956f3e30ebb4814bfa27",
+      "candidateEntryCorrectedShapeSha256": "9fe51416ed5d0c6376af25e970c316ae403c63f792ca956f3e30ebb4814bfa27",
+      "operativeShapeSha256": "9fe51416ed5d0c6376af25e970c316ae403c63f792ca956f3e30ebb4814bfa27",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ReferenceEvidence": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ReferenceEvidence",
+      "acceptedShapeSha256": "87b75a78d6bdfeedb386d97fef41731e50a685f3b8f7e605df473f1aeac8026a",
+      "candidateEntryCorrectedShapeSha256": "87b75a78d6bdfeedb386d97fef41731e50a685f3b8f7e605df473f1aeac8026a",
+      "operativeShapeSha256": "87b75a78d6bdfeedb386d97fef41731e50a685f3b8f7e605df473f1aeac8026a",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "RedactedEvidence": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/RedactedEvidence",
+      "acceptedShapeSha256": "87ba263143d6224cce99cea7d970a62911159c157b533307b2cc3a8b90d15c66",
+      "candidateEntryCorrectedShapeSha256": "87ba263143d6224cce99cea7d970a62911159c157b533307b2cc3a8b90d15c66",
+      "operativeShapeSha256": "87ba263143d6224cce99cea7d970a62911159c157b533307b2cc3a8b90d15c66",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "EvidenceRef": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/EvidenceRef",
+      "acceptedShapeSha256": "7dc031ca6d714575e18e5eb21971a5af98b8d4d44d5db3f9629fb9dc7b692828",
+      "candidateEntryCorrectedShapeSha256": "7dc031ca6d714575e18e5eb21971a5af98b8d4d44d5db3f9629fb9dc7b692828",
+      "operativeShapeSha256": "7dc031ca6d714575e18e5eb21971a5af98b8d4d44d5db3f9629fb9dc7b692828",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ReferenceOptionTerms": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ReferenceOptionTerms",
+      "acceptedShapeSha256": "418b9199534ba449727e129cdf7f60873b66b58e15d3ae179f0ac08904fafbb2",
+      "candidateEntryCorrectedShapeSha256": "418b9199534ba449727e129cdf7f60873b66b58e15d3ae179f0ac08904fafbb2",
+      "operativeShapeSha256": "418b9199534ba449727e129cdf7f60873b66b58e15d3ae179f0ac08904fafbb2",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMarketSources",
+        "PortfolioOptionDefinitions",
+        "PortfolioSessionEvidence",
+        "PortfolioTastyMarketSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "AssociationAuthority": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/AssociationAuthority",
+      "acceptedShapeSha256": "cf8e235064ccb9bebe2bf746b095f81ecf059ad3209d1b64c760be5c549afc3a",
+      "candidateEntryCorrectedShapeSha256": "cf8e235064ccb9bebe2bf746b095f81ecf059ad3209d1b64c760be5c549afc3a",
+      "operativeShapeSha256": "cf8e235064ccb9bebe2bf746b095f81ecf059ad3209d1b64c760be5c549afc3a",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "NonnegativeExactNumber": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/NonnegativeExactNumber",
+      "acceptedShapeSha256": "da2c2bfa5aad56adb0f94e66ab15d522a7142f530f1372b14a5bdf919e378160",
+      "candidateEntryCorrectedShapeSha256": "da2c2bfa5aad56adb0f94e66ab15d522a7142f530f1372b14a5bdf919e378160",
+      "operativeShapeSha256": "da2c2bfa5aad56adb0f94e66ab15d522a7142f530f1372b14a5bdf919e378160",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "GlobalAllocation": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/GlobalAllocation",
+      "acceptedShapeSha256": "ff2d9db0564f6c0ed160d9ad92b40f96e7f9c561ea7c4fe9476a3f4d2f91c3bf",
+      "candidateEntryCorrectedShapeSha256": "ff2d9db0564f6c0ed160d9ad92b40f96e7f9c561ea7c4fe9476a3f4d2f91c3bf",
+      "operativeShapeSha256": "ff2d9db0564f6c0ed160d9ad92b40f96e7f9c561ea7c4fe9476a3f4d2f91c3bf",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioReconciliation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioReconciliationTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "LegEconomics": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/LegEconomics",
+      "acceptedShapeSha256": "0d5ea8bbfdc5e52dd52d1a2a5a6415beeb442be4b1b60460cf8c0d8cf11380d2",
+      "candidateEntryCorrectedShapeSha256": "0d5ea8bbfdc5e52dd52d1a2a5a6415beeb442be4b1b60460cf8c0d8cf11380d2",
+      "operativeShapeSha256": "0d5ea8bbfdc5e52dd52d1a2a5a6415beeb442be4b1b60460cf8c0d8cf11380d2",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "EconomicPeriod": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/EconomicPeriod",
+      "acceptedShapeSha256": "ef6f4a90283e8c6bcff7d04427cd2d551770aee088f983633019dea23544db0f",
+      "candidateEntryCorrectedShapeSha256": "ef6f4a90283e8c6bcff7d04427cd2d551770aee088f983633019dea23544db0f",
+      "operativeShapeSha256": "ef6f4a90283e8c6bcff7d04427cd2d551770aee088f983633019dea23544db0f",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioEconomicHistory",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "CumulativeEconomics": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/CumulativeEconomics",
+      "acceptedShapeSha256": "9657ed654bf802cb3fb0f08285e9aabafef4b0b6b48bd90ffe9b5476fc979976",
+      "candidateEntryCorrectedShapeSha256": "9657ed654bf802cb3fb0f08285e9aabafef4b0b6b48bd90ffe9b5476fc979976",
+      "operativeShapeSha256": "9657ed654bf802cb3fb0f08285e9aabafef4b0b6b48bd90ffe9b5476fc979976",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioEconomicHistory",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "EconomicComparison": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/EconomicComparison",
+      "acceptedShapeSha256": "f1f6962248a33228939c017b0723e6023ef0f1bc70f4d1e2c487502751b53ffd",
+      "candidateEntryCorrectedShapeSha256": "f1f6962248a33228939c017b0723e6023ef0f1bc70f4d1e2c487502751b53ffd",
+      "operativeShapeSha256": "f1f6962248a33228939c017b0723e6023ef0f1bc70f4d1e2c487502751b53ffd",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioEconomicHistory",
+        "PortfolioJson"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "BrokerHolding": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/BrokerHolding",
+      "sourceEvidenceExtension": "Nullable reported quantity / UNKNOWN direction preserve actual Fidelity rows lacking units; PARTIAL and warnings required. No allocation of unquantified inventory.",
+      "acceptedShapeSha256": "00819a2213836c098c346f225374aafc276d6cbbc28dae2dbbe9c4824e9cce7b",
+      "candidateEntryCorrectedShapeSha256": "cc482f058eef9ed82b7504f51b08d611f96b381854c4939d270e57d5ad300f85",
+      "operativeShapeSha256": "cc482f058eef9ed82b7504f51b08d611f96b381854c4939d270e57d5ad300f85",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioCashCustody",
+        "PortfolioJson",
+        "PortfolioSnapshots",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "BrokerHoldingCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/BrokerHoldingCollection",
+      "acceptedShapeSha256": "3635eab48d1e53b63665e246e9ad8c447aca6d6a6c8c24a2cdec95340f67b8f8",
+      "candidateEntryCorrectedShapeSha256": "3635eab48d1e53b63665e246e9ad8c447aca6d6a6c8c24a2cdec95340f67b8f8",
+      "operativeShapeSha256": "3635eab48d1e53b63665e246e9ad8c447aca6d6a6c8c24a2cdec95340f67b8f8",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioCashCustody",
+        "PortfolioJson",
+        "PortfolioSnapshots",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "CoverageAssessment": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/CoverageAssessment",
+      "acceptedShapeSha256": "ba6e47a26b7b540f3da12857c67cf26ee14b91b5b4ce919d0bea1e6fa4a142b3",
+      "candidateEntryCorrectedShapeSha256": "db02d13c19716b52e7f58e5917d591ed9a5a93304a908e14855df8f003113f8e",
+      "operativeShapeSha256": "db02d13c19716b52e7f58e5917d591ed9a5a93304a908e14855df8f003113f8e",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioReadService",
+        "PortfolioReconciliation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioReconciliationTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ReferenceMetric": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ReferenceMetric",
+      "acceptedShapeSha256": "13e0fbf0b6b6ffe42c051f9557cf735b29e108721875038d435b8862d745e3e0",
+      "candidateEntryCorrectedShapeSha256": "d9a9b8b6db1cb7213e347ca822f49a6a7874c73195190fdabe40206de56d06c7",
+      "operativeShapeSha256": "d9a9b8b6db1cb7213e347ca822f49a6a7874c73195190fdabe40206de56d06c7",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMarketSources",
+        "PortfolioOptionDefinitions",
+        "PortfolioSessionEvidence",
+        "PortfolioTastyMarketSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "FeeMetric": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/FeeMetric",
+      "acceptedShapeSha256": "cfec6f79a071f12fc01f9477239108c93ac519cf75c796f4d05936cccc3e28f0",
+      "candidateEntryCorrectedShapeSha256": "76e907dc082d2814c3546c5df2e07953544e352bb6b7f1d3f0eda7045f3d3290",
+      "operativeShapeSha256": "76e907dc082d2814c3546c5df2e07953544e352bb6b7f1d3f0eda7045f3d3290",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "PriceMetric": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/PriceMetric",
+      "acceptedShapeSha256": "4eacb3e70d9f2b8472d18a95811364d4dbdd3b26e2a58e6595a7ebe7858efff2",
+      "candidateEntryCorrectedShapeSha256": "b88ff9c383b415b87486e3a34abec367277a113218f97e4761a2fcc461a7eb56",
+      "operativeShapeSha256": "b88ff9c383b415b87486e3a34abec367277a113218f97e4761a2fcc461a7eb56",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioMath",
+        "PortfolioPackageValuation"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioMarkParityTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "ModelVersionLink": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/ModelVersionLink",
+      "acceptedShapeSha256": "04e27c75c3a872579c87f39e98f80a1cf591e1aaf5d8fa2ed5709f9b3128c412",
+      "candidateEntryCorrectedShapeSha256": "04e27c75c3a872579c87f39e98f80a1cf591e1aaf5d8fa2ed5709f9b3128c412",
+      "operativeShapeSha256": "04e27c75c3a872579c87f39e98f80a1cf591e1aaf5d8fa2ed5709f9b3128c412",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioJson",
+        "PortfolioRecognition",
+        "PortfolioRepository"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "HoldingSnapshotSummary": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/HoldingSnapshotSummary",
+      "acceptedShapeSha256": "65ad52d6b529b8b4f1cc7bb4ccb6e307bb68c72f87a93ccfdaaa191547433237",
+      "candidateEntryCorrectedShapeSha256": "65ad52d6b529b8b4f1cc7bb4ccb6e307bb68c72f87a93ccfdaaa191547433237",
+      "operativeShapeSha256": "65ad52d6b529b8b4f1cc7bb4ccb6e307bb68c72f87a93ccfdaaa191547433237",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioCashCustody",
+        "PortfolioJson",
+        "PortfolioSnapshots",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    },
+    "HoldingSnapshotCollection": {
+      "status": "OPERATIVE_TYPED_SHAPE_WITH_BOUNDARY_TESTS_REVIEW_PENDING",
+      "targetRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/HoldingSnapshotCollection",
+      "acceptedShapeSha256": "d8c6e6ce89a4fed9d134549db866e17cc6fc43e018c7b45b395afefade8a552c",
+      "candidateEntryCorrectedShapeSha256": "d8c6e6ce89a4fed9d134549db866e17cc6fc43e018c7b45b395afefade8a552c",
+      "operativeShapeSha256": "d8c6e6ce89a4fed9d134549db866e17cc6fc43e018c7b45b395afefade8a552c",
+      "implementation": [
+        "PortfolioAuthorization",
+        "PortfolioCashCustody",
+        "PortfolioJson",
+        "PortfolioSnapshots",
+        "PortfolioSources"
+      ],
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest"
+      ],
+      "verificationBoundary": "Typed response validation and finite invariant/controller/source tests; not universal source truth, every possible instance or live acceptance."
+    }
+  },
+  "invariantsSource": "docs/reviews/api-v2-foundational-contract-2026-10-20/runtime-invariants.md",
+  "scopeExceptions": [],
+  "latestRemoteMain": "caa27813a74fadf23e32c517a8da588538ed62fc",
+  "deliveryStatus": "IMPLEMENTED_DETERMINISTICALLY_VERIFIED_INDEPENDENT_REVIEW_PENDING",
+  "invariantCoverage": {
+    "R01": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioRepository",
+      "tests": "PortfolioContractIntegrationTest",
+      "evidenceBoundary": "Independent GUID, terminal closure and new-GUID subsequent exposure are actual repository/controller tests. Qualified repeated-source reuse follows the Principal decision; no unobserved lifecycle events inferred."
+    },
+    "R02": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioRepository",
+      "tests": "PortfolioContractIntegrationTest",
+      "evidenceBoundary": "Immutable persisted instances/versions, exact version URI+resolution, immediate same-Account/Position predecessor and recursive interpretation tested. Graph chronology arises from immutable instances plus current-predecessor admission, not a lifecycle engine."
+    },
+    "R03_R04_R05": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioReconciliation, PortfolioReadService.propagate",
+      "tests": "PortfolioReconciliationTest",
+      "evidenceBoundary": "Current-cut quantity conservation, affected Position/Construction propagation and aggregate fungible coverage tested. Unknown cut quantities/terms remain qualified; no specific-share reservation or buying-power conclusion."
+    },
+    "R06": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioOrderEvaluation, PortfolioOrderSources, PortfolioFillEvidence",
+      "tests": "PortfolioOrderEvaluationTest, PortfolioOrderEvidenceTest, PortfolioFillEvidenceTest",
+      "evidenceBoundary": "Purpose/type/Account/subjects/completeness checks and adverse association probes tested. Native complex parent/child corroboration proves only that instruction relationship. Raw holdings similarity/optional order-id does not prove opening or current Position membership."
+    },
+    "R07_R08_R09": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioRecognition, PortfolioMath, PortfolioPackageValuation",
+      "tests": "PortfolioFinancialTest, PortfolioMarkParityTest, PortfolioSessionEvidenceTest, verify-mark-parity.mjs; PortfolioNestedRecognitionTest",
+      "evidenceBoundary": "Production recognizer/evaluator with exact recursive ratios, standard-term compatibility, debit/credit/unit tests, unequal BWB tails, generic fallback and actual Java/projectLive replay. Finite supported catalog; no39-model acceptance claim."
+    },
+    "R10_R18": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioSources, PortfolioSnapshots, PortfolioFidelityAdditionalCustody, PortfolioCashCustody, PortfolioMarketSources, PortfolioTastyMarketSources, PortfolioOptionReferenceSources, PortfolioOptionDefinitions, PortfolioReferenceEnrichment",
+      "tests": "PortfolioContractIntegrationTest, PortfolioHttpTest, PortfolioFidelityFactsTest, PortfolioUnquantifiedCustodyTest, PortfolioCashCustodyTest, PortfolioOptionReferenceTest, PortfolioMarketReadThroughTest",
+      "evidenceBoundary": "Independent retained custody/source originals, reported source dialect/capital, missing quantity and positive/negative/unknown settled cash; actual per-source clocks and current-cut Instant selection tested."
+    },
+    "R11_R12_R13_R14": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioAuthorization, PortfolioController",
+      "tests": "PortfolioHttpTest, PortfolioContractIntegrationTest; PortfolioCashCustodyTest",
+      "evidenceBoundary": "Actual HTTP/User grants and direct/summary/expanded/history/source/Audit/constituent negative cases; private Order/market clocks, warnings and analytics redacted. Full application wiring also tested; installed grants remain unverified."
+    },
+    "R15": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioOrderSources, PortfolioOrderEvaluation",
+      "tests": "PortfolioOrderEvidenceTest, PortfolioOrderEvaluationTest",
+      "evidenceBoundary": "Native instructions/fills and exact source transaction correlation tested, including absent historical multiplier/fees. Working instructions do not alter exposure. Group corroboration never creates a fill or Position."
+    },
+    "R16_R17": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioEconomicHistory",
+      "tests": "PortfolioEconomicHistoryTest",
+      "evidenceBoundary": "Three original/current/cumulative specimens and incomplete history, history preservation, protective applicability, dimensions and cost magnitudes tested. Documented interval is not automatically lifetime history; tax basis/realized attribution stay source-qualified."
+    },
+    "R19": {
+      "status": "IMPLEMENTED_BOUNDARY_TESTS_REVIEW_PENDING",
+      "implementation": "PortfolioSources.qualify, PortfolioController",
+      "tests": "PortfolioContractIntegrationTest",
+      "evidenceBoundary": "Real application and controller error/status/header behavior; partial imports/source refresh failure remain distinct from valid-but-incomplete financial reads. No body retained when no valid source body exists."
+    }
+  },
+  "sourceTruthBoundaries": [
+    "No live brokerage or installed production/grant verification. All source tests are retained repository or explicitly synthetic loopback fixtures.",
+    "No native-source guarantee has been asserted for universal Position membership, original occurrence, interruption-free holding, split/recombine or complete lifetime history. Unsupported association/evaluation remains UNKNOWN/INCOMPLETE and inspectable. This implements the accepted evidence boundary, not invented events.",
+    "Broker-reported valuations retain their dialect. Missing/adjusted/mixed-horizon/unknown basis and historical observations never become exact gross/net or tax-basis conclusions.",
+    "Portfolio/Execution roots, universal split/recombine, discretionary basis policy and operator-association tooling remain explicitly open/deferred, not selected by implementation."
+  ],
+  "acceptedOperationCount": 33,
+  "operativeOperationCount": 36,
+  "preservedAdditionalOperations": [
+    {
+      "method": "GET",
+      "path": "/v2/market-evidence-subjects"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/position-acquisitions"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/portfolio-capital-observations"
+    }
+  ],
+  "r1R2Evidence": "r1-r2/verification.md"
+}

@@ -1,0 +1,2005 @@
+{
+  "provenance": "Bounded new probes from reported failure descriptions; not the unavailable original sixteen inputs.",
+  "probes": [
+    {
+      "id": "N01-negative-strike",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "OptionTerms",
+      "validControl": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "invalidInput": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "-1",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "changedPath": [
+        "strike"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N02-adjusted-standard-intrinsic",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "OptionTerms",
+      "validControl": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "invalidInput": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "ADJUSTED",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "changedPath": [
+        "adjustment"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N03-unknown-settlement-standard",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "OptionTerms",
+      "validControl": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "invalidInput": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "UNKNOWN",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "changedPath": [
+        "settlement"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N04-established-missing-currency",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "OptionTerms",
+      "validControl": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": "USD",
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "invalidInput": {
+        "underlying": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "right": "CALL",
+        "strike": "90",
+        "currency": null,
+        "expiration": "2026-11-20",
+        "multiplier": "100",
+        "exerciseStyle": "AMERICAN",
+        "settlement": "PHYSICAL",
+        "adjustment": "STANDARD",
+        "deliverable": [
+          {
+            "kind": "SHARES",
+            "instrument": {
+              "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+            },
+            "quantity": "100",
+            "currency": null
+          }
+        ],
+        "payoffApplicability": "STANDARD_EQUITY_INTRINSIC",
+        "qualification": "ESTABLISHED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "changedPath": [
+        "currency"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N05-instant-without-time",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "SourceRef",
+      "validControl": {
+        "kind": "ACCOUNT_SOURCE",
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+        "artifact": {
+          "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+        },
+        "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+        "locator": {
+          "kind": "JSON_POINTER",
+          "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": "2026-10-20T18:00:00Z",
+        "observationPrecision": "INSTANT",
+        "observationDate": "2026-10-20",
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "timeAuthority": "SOURCE"
+      },
+      "invalidInput": {
+        "kind": "ACCOUNT_SOURCE",
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+        "artifact": {
+          "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+        },
+        "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+        "locator": {
+          "kind": "JSON_POINTER",
+          "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": null,
+        "observationPrecision": "INSTANT",
+        "observationDate": "2026-10-20",
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "timeAuthority": "SOURCE"
+      },
+      "changedPath": [
+        "observedAt"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N06-day-without-date",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "SourceRef",
+      "validControl": {
+        "kind": "ACCOUNT_SOURCE",
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+        "artifact": {
+          "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+        },
+        "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+        "locator": {
+          "kind": "JSON_POINTER",
+          "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": null,
+        "observationPrecision": "DAY",
+        "observationDate": "2026-10-20",
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "timeAuthority": "SOURCE"
+      },
+      "invalidInput": {
+        "kind": "ACCOUNT_SOURCE",
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+        "artifact": {
+          "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+        },
+        "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+        "locator": {
+          "kind": "JSON_POINTER",
+          "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": null,
+        "observationPrecision": "DAY",
+        "observationDate": null,
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "timeAuthority": "SOURCE"
+      },
+      "changedPath": [
+        "observationDate"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N07-source-without-precision",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "SourceRef",
+      "validControl": {
+        "kind": "ACCOUNT_SOURCE",
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+        "artifact": {
+          "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+        },
+        "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+        "locator": {
+          "kind": "JSON_POINTER",
+          "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": null,
+        "observationPrecision": "UNKNOWN",
+        "observationDate": null,
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "timeAuthority": "UNKNOWN"
+      },
+      "invalidInput": {
+        "kind": "ACCOUNT_SOURCE",
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+        "artifact": {
+          "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+        },
+        "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+        "locator": {
+          "kind": "JSON_POINTER",
+          "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": null,
+        "observationPrecision": "UNKNOWN",
+        "observationDate": null,
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "timeAuthority": "SOURCE"
+      },
+      "changedPath": [
+        "timeAuthority"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N08-empty-model",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "ModelVersion",
+      "validControl": {
+        "self": {
+          "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY/versions/1"
+        },
+        "family": {
+          "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY"
+        },
+        "version": "1",
+        "createdAt": "2026-10-20T18:00:00Z",
+        "roles": [
+          {
+            "name": "LOW",
+            "kind": "OPTION",
+            "side": "LONG",
+            "unit": "CONTRACT",
+            "ratio": "1",
+            "optionRight": "CALL",
+            "modelVersion": null
+          },
+          {
+            "name": "MID",
+            "kind": "OPTION",
+            "side": "SHORT",
+            "unit": "CONTRACT",
+            "ratio": "2",
+            "optionRight": "CALL",
+            "modelVersion": null
+          },
+          {
+            "name": "HIGH",
+            "kind": "OPTION",
+            "side": "LONG",
+            "unit": "CONTRACT",
+            "ratio": "1",
+            "optionRight": "CALL",
+            "modelVersion": null
+          }
+        ],
+        "constraints": [
+          {
+            "kind": "SAME_ACCOUNT",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "SAME_CURRENCY",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "EVIDENCED_MEMBERSHIP",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "SAME_UNDERLYING",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "SAME_EXPIRATION",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "COMPATIBLE_DELIVERABLES",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "COMPATIBLE_MULTIPLIERS",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "STRIKE_ORDER",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": "LT",
+            "ratio": null
+          },
+          {
+            "kind": "UNEQUAL_WING_WIDTHS",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          }
+        ],
+        "valuation": {
+          "kind": "SIGNED_CONSTITUENT_SUM",
+          "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+          "primitives": [
+            "CASH_CONSTANT",
+            "SHARES_LINEAR",
+            "OPTION_INTRINSIC"
+          ]
+        },
+        "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+      },
+      "invalidInput": {
+        "self": {
+          "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY/versions/1"
+        },
+        "family": {
+          "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY"
+        },
+        "version": "1",
+        "createdAt": "2026-10-20T18:00:00Z",
+        "roles": [],
+        "constraints": [
+          {
+            "kind": "SAME_ACCOUNT",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "SAME_CURRENCY",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "EVIDENCED_MEMBERSHIP",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "SAME_UNDERLYING",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "SAME_EXPIRATION",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "COMPATIBLE_DELIVERABLES",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "COMPATIBLE_MULTIPLIERS",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          },
+          {
+            "kind": "STRIKE_ORDER",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": "LT",
+            "ratio": null
+          },
+          {
+            "kind": "UNEQUAL_WING_WIDTHS",
+            "roles": [
+              "LOW",
+              "MID",
+              "HIGH"
+            ],
+            "relation": null,
+            "ratio": null
+          }
+        ],
+        "valuation": {
+          "kind": "SIGNED_CONSTITUENT_SUM",
+          "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+          "primitives": [
+            "CASH_CONSTANT",
+            "SHARES_LINEAR",
+            "OPTION_INTRINSIC"
+          ]
+        },
+        "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+      },
+      "changedPath": [
+        "roles"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N09-option-unit",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "ModelRole",
+      "validControl": {
+        "name": "LOW",
+        "kind": "OPTION",
+        "side": "LONG",
+        "unit": "CONTRACT",
+        "ratio": "1",
+        "optionRight": "CALL",
+        "modelVersion": null
+      },
+      "invalidInput": {
+        "name": "LOW",
+        "kind": "OPTION",
+        "side": "LONG",
+        "unit": "SHARE",
+        "ratio": "1",
+        "optionRight": "CALL",
+        "modelVersion": null
+      },
+      "changedPath": [
+        "unit"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N10-option-right",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "ModelRole",
+      "validControl": {
+        "name": "LOW",
+        "kind": "OPTION",
+        "side": "LONG",
+        "unit": "CONTRACT",
+        "ratio": "1",
+        "optionRight": "CALL",
+        "modelVersion": null
+      },
+      "invalidInput": {
+        "name": "LOW",
+        "kind": "OPTION",
+        "side": "LONG",
+        "unit": "CONTRACT",
+        "ratio": "1",
+        "optionRight": null,
+        "modelVersion": null
+      },
+      "changedPath": [
+        "optionRight"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N11-short-cash",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "ModelRole",
+      "validControl": {
+        "name": "CASH",
+        "kind": "CASH",
+        "side": "LONG",
+        "unit": "MONEY",
+        "ratio": "1",
+        "optionRight": null,
+        "modelVersion": null
+      },
+      "invalidInput": {
+        "name": "CASH",
+        "kind": "CASH",
+        "side": "SHORT",
+        "unit": "MONEY",
+        "ratio": "1",
+        "optionRight": null,
+        "modelVersion": null
+      },
+      "changedPath": [
+        "side"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N12-established-relationship-no-evidence",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "FinancialRelationship",
+      "validControl": {
+        "kind": "ECONOMIC_COVERAGE",
+        "fromNodes": [
+          "SHARES"
+        ],
+        "toNodes": [
+          "CALL"
+        ],
+        "relatedPosition": null,
+        "quantity": "100",
+        "unit": "SHARE",
+        "status": "ESTABLISHED",
+        "effectiveAt": "2026-10-20T18:00:00Z",
+        "evidence": [
+          {
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/facts/coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE"
+          }
+        ],
+        "currency": null,
+        "coverageSetId": "aggregate-coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+        "supportHolding": {
+          "href": "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+        },
+        "selection": "AGGREGATE_FUNGIBLE_NO_SPECIFIC_SHARE_SELECTION",
+        "authority": {
+          "claimId": "coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+          "status": "ESTABLISHED",
+          "basis": "AGGREGATE_ECONOMIC_CALCULATION",
+          "account": {
+            "href": "/v2/accounts/acct_11111111111111111111111111111111"
+          },
+          "subjects": [
+            {
+              "href": "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+            },
+            {
+              "href": "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+            }
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/facts/coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "qualification": "Explicit synthetic source contract establishes only the named predicate and scope; no specific shares/tax lots selected."
+        }
+      },
+      "invalidInput": {
+        "kind": "ECONOMIC_COVERAGE",
+        "fromNodes": [
+          "SHARES"
+        ],
+        "toNodes": [
+          "CALL"
+        ],
+        "relatedPosition": null,
+        "quantity": "100",
+        "unit": "SHARE",
+        "status": "ESTABLISHED",
+        "effectiveAt": "2026-10-20T18:00:00Z",
+        "evidence": [],
+        "currency": null,
+        "coverageSetId": "aggregate-coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+        "supportHolding": {
+          "href": "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+        },
+        "selection": "AGGREGATE_FUNGIBLE_NO_SPECIFIC_SHARE_SELECTION",
+        "authority": {
+          "claimId": "coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+          "status": "ESTABLISHED",
+          "basis": "AGGREGATE_ECONOMIC_CALCULATION",
+          "account": {
+            "href": "/v2/accounts/acct_11111111111111111111111111111111"
+          },
+          "subjects": [
+            {
+              "href": "/v2/holdings/dfcf2783-2bb9-5d57-b630-d5750a0ec361"
+            },
+            {
+              "href": "/v2/constructions/87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+            }
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/facts/coverage-87841fd1-ceb7-5603-aae9-e886f4fb6a52"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "qualification": "Explicit synthetic source contract establishes only the named predicate and scope; no specific shares/tax lots selected."
+        }
+      },
+      "changedPath": [
+        "evidence"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N13-established-lifecycle-no-time",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "LifecycleEvidence",
+      "validControl": {
+        "status": "ESTABLISHED",
+        "establishedAt": "2026-10-19T18:00:00Z",
+        "completeness": "SCOPED_ACCEPTED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "invalidInput": {
+        "status": "ESTABLISHED",
+        "establishedAt": null,
+        "completeness": "SCOPED_ACCEPTED",
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ]
+      },
+      "changedPath": [
+        "establishedAt"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N14-established-unavailable-range",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "RangeEvaluation",
+      "validControl": {
+        "status": "ESTABLISHED",
+        "kind": "LOWER_HALF_LINE",
+        "lower": "100",
+        "upper": null,
+        "currency": "USD",
+        "evidence": [
+          {
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "general",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/facts/general"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE"
+          }
+        ],
+        "warningCodes": []
+      },
+      "invalidInput": {
+        "status": "ESTABLISHED",
+        "kind": "UNAVAILABLE",
+        "lower": "100",
+        "upper": null,
+        "currency": "USD",
+        "evidence": [
+          {
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "general",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/facts/general"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T18:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE"
+          }
+        ],
+        "warningCodes": []
+      },
+      "changedPath": [
+        "kind"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N15-current-without-time",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "MarketObservation",
+      "validControl": {
+        "id": "7143591b-7c63-59e8-aab2-a8aa15cc4cee",
+        "self": {
+          "href": "/v2/market-observations/7143591b-7c63-59e8-aab2-a8aa15cc4cee"
+        },
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "instrument": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": "2026-10-20T17:00:00Z",
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "session": "OPEN",
+        "freshness": "CURRENT",
+        "bid": {
+          "value": "100",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "ask": {
+          "value": "102",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "mid": {
+          "value": "101",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "mark": {
+          "value": "101",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T17:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ],
+        "warnings": [
+          {
+            "code": "STALE_MARKET_OBSERVATION",
+            "affected": [
+              "/bid",
+              "/ask",
+              "/mid",
+              "/mark"
+            ],
+            "establishedFacts": [
+              "Observed constituents remain established"
+            ],
+            "incompleteConclusions": [
+              "Dependent financial conclusion is unavailable"
+            ],
+            "evidence": [
+              {
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "synthetic-row",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/data/items/0"
+                },
+                "provider": "SYNTHETIC",
+                "environment": "OFFLINE",
+                "observedAt": "2026-10-20T18:00:00Z",
+                "observationPrecision": "INSTANT",
+                "observationDate": "2026-10-20",
+                "receivedAt": "2026-10-20T18:00:00Z",
+                "timeAuthority": "SOURCE",
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+              }
+            ],
+            "remediation": [
+              {
+                "action": "IMPORT_SOURCE",
+                "description": "Provide applicable evidence under an existing grant; a current quote cannot replace historical evidence.",
+                "capability": null,
+                "requiredGrant": null
+              }
+            ]
+          }
+        ]
+      },
+      "invalidInput": {
+        "id": "7143591b-7c63-59e8-aab2-a8aa15cc4cee",
+        "self": {
+          "href": "/v2/market-observations/7143591b-7c63-59e8-aab2-a8aa15cc4cee"
+        },
+        "account": {
+          "href": "/v2/accounts/acct_11111111111111111111111111111111"
+        },
+        "instrument": {
+          "href": "/v2/instruments/03d6f703-b4f1-5045-84ec-5f738213bc6f"
+        },
+        "provider": "SYNTHETIC",
+        "environment": "OFFLINE",
+        "observedAt": null,
+        "receivedAt": "2026-10-20T18:00:00Z",
+        "session": "OPEN",
+        "freshness": "CURRENT",
+        "bid": {
+          "value": "100",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "ask": {
+          "value": "102",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "mid": {
+          "value": "101",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "mark": {
+          "value": "101",
+          "unit": "PRICE",
+          "currency": "USD",
+          "status": "QUALIFIED",
+          "origin": "BROKER_REPORTED",
+          "method": "SYNTHETIC_BROKER_MID",
+          "asOf": "2026-10-20T17:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T17:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "warningCodes": [
+            "STALE_MARKET_OBSERVATION"
+          ],
+          "dependencies": []
+        },
+        "evidence": [
+          {
+            "artifact": {
+              "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+            },
+            "recordKey": "synthetic-row",
+            "locator": {
+              "kind": "JSON_POINTER",
+              "value": "/data/items/0"
+            },
+            "provider": "SYNTHETIC",
+            "environment": "OFFLINE",
+            "observedAt": "2026-10-20T17:00:00Z",
+            "observationPrecision": "INSTANT",
+            "observationDate": "2026-10-20",
+            "receivedAt": "2026-10-20T18:00:00Z",
+            "timeAuthority": "SOURCE",
+            "kind": "ACCOUNT_SOURCE",
+            "account": {
+              "href": "/v2/accounts/acct_11111111111111111111111111111111"
+            },
+            "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+          }
+        ],
+        "warnings": [
+          {
+            "code": "STALE_MARKET_OBSERVATION",
+            "affected": [
+              "/bid",
+              "/ask",
+              "/mid",
+              "/mark"
+            ],
+            "establishedFacts": [
+              "Observed constituents remain established"
+            ],
+            "incompleteConclusions": [
+              "Dependent financial conclusion is unavailable"
+            ],
+            "evidence": [
+              {
+                "artifact": {
+                  "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+                },
+                "recordKey": "synthetic-row",
+                "locator": {
+                  "kind": "JSON_POINTER",
+                  "value": "/data/items/0"
+                },
+                "provider": "SYNTHETIC",
+                "environment": "OFFLINE",
+                "observedAt": "2026-10-20T18:00:00Z",
+                "observationPrecision": "INSTANT",
+                "observationDate": "2026-10-20",
+                "receivedAt": "2026-10-20T18:00:00Z",
+                "timeAuthority": "SOURCE",
+                "kind": "ACCOUNT_SOURCE",
+                "account": {
+                  "href": "/v2/accounts/acct_11111111111111111111111111111111"
+                },
+                "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+              }
+            ],
+            "remediation": [
+              {
+                "action": "IMPORT_SOURCE",
+                "description": "Provide applicable evidence under an existing grant; a current quote cannot replace historical evidence.",
+                "capability": null,
+                "requiredGrant": null
+              }
+            ]
+          }
+        ]
+      },
+      "changedPath": [
+        "observedAt"
+      ],
+      "expected": "SCHEMA_REJECT"
+    },
+    {
+      "id": "N16-negative-basis-magnitude",
+      "standing": "NEWLY_CONSTRUCTED_NOT_KIRO_REPRODUCTION",
+      "originalKiroProbe": "UNAVAILABLE",
+      "schema": "Allocation",
+      "validControl": {
+        "inventory": {
+          "key": "LOW",
+          "account": {
+            "href": "/v2/accounts/acct_11111111111111111111111111111111"
+          },
+          "instrument": {
+            "href": "/v2/instruments/1f232b01-90a9-534b-92f2-a622e55ba95d"
+          },
+          "side": "LONG",
+          "quantity": "1",
+          "unit": "CONTRACT",
+          "currency": null,
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "holding": {
+            "href": "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+          }
+        },
+        "quantity": "1",
+        "basis": {
+          "value": "1500",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "ESTABLISHED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "SYNTHETIC_ATTRIBUTED_GROSS_OPENING_COST",
+          "asOf": "2026-10-20T18:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": []
+        },
+        "basisMethod": "EVIDENCED_LOT",
+        "availability": "UNKNOWN",
+        "holding": {
+          "href": "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+        },
+        "globalStatus": "RECONCILED",
+        "authority": {
+          "claimId": "allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+          "status": "QUALIFIED",
+          "basis": "AGGREGATE_ECONOMIC_CALCULATION",
+          "account": {
+            "href": "/v2/accounts/acct_11111111111111111111111111111111"
+          },
+          "subjects": [
+            {
+              "href": "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72"
+            },
+            {
+              "href": "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+            }
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/facts/allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "qualification": "Explicit synthetic source contract establishes only the named predicate and scope; no specific shares/tax lots selected."
+        }
+      },
+      "invalidInput": {
+        "inventory": {
+          "key": "LOW",
+          "account": {
+            "href": "/v2/accounts/acct_11111111111111111111111111111111"
+          },
+          "instrument": {
+            "href": "/v2/instruments/1f232b01-90a9-534b-92f2-a622e55ba95d"
+          },
+          "side": "LONG",
+          "quantity": "1",
+          "unit": "CONTRACT",
+          "currency": null,
+          "evidence": [
+            {
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "synthetic-row",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/data/items/0"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE",
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.artifacts.read:acct_11111111111111111111111111111111"
+            }
+          ],
+          "holding": {
+            "href": "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+          }
+        },
+        "quantity": "1",
+        "basis": {
+          "value": "-1",
+          "unit": "MONEY",
+          "currency": "USD",
+          "status": "ESTABLISHED",
+          "origin": "WHEELWRIGHT_DERIVED",
+          "method": "SYNTHETIC_ATTRIBUTED_GROSS_OPENING_COST",
+          "asOf": "2026-10-20T18:00:00Z",
+          "assumptions": [],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "basis-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/facts/basis-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "warningCodes": [],
+          "dependencies": []
+        },
+        "basisMethod": "EVIDENCED_LOT",
+        "availability": "UNKNOWN",
+        "holding": {
+          "href": "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+        },
+        "globalStatus": "RECONCILED",
+        "authority": {
+          "claimId": "allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+          "status": "QUALIFIED",
+          "basis": "AGGREGATE_ECONOMIC_CALCULATION",
+          "account": {
+            "href": "/v2/accounts/acct_11111111111111111111111111111111"
+          },
+          "subjects": [
+            {
+              "href": "/v2/constructions/50e8938b-d738-573b-94e7-137b87239f72"
+            },
+            {
+              "href": "/v2/holdings/9db813a8-4d95-5210-9f07-1c45ad722e1f"
+            }
+          ],
+          "evidence": [
+            {
+              "kind": "ACCOUNT_SOURCE",
+              "account": {
+                "href": "/v2/accounts/acct_11111111111111111111111111111111"
+              },
+              "requiredCapability": "account.positions.read:acct_11111111111111111111111111111111",
+              "artifact": {
+                "href": "/v2/artifacts/cd0596c0-df97-5e9c-bfb2-f0a307120f4b"
+              },
+              "recordKey": "allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW",
+              "locator": {
+                "kind": "JSON_POINTER",
+                "value": "/facts/allocation-50e8938b-d738-573b-94e7-137b87239f72-LOW"
+              },
+              "provider": "SYNTHETIC",
+              "environment": "OFFLINE",
+              "observedAt": "2026-10-20T18:00:00Z",
+              "observationPrecision": "INSTANT",
+              "observationDate": "2026-10-20",
+              "receivedAt": "2026-10-20T18:00:00Z",
+              "timeAuthority": "SOURCE"
+            }
+          ],
+          "qualification": "Explicit synthetic source contract establishes only the named predicate and scope; no specific shares/tax lots selected."
+        }
+      },
+      "changedPath": [
+        "basis",
+        "value"
+      ],
+      "expected": "SCHEMA_REJECT"
+    }
+  ]
+}

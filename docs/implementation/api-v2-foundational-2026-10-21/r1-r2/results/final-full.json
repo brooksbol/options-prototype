@@ -1,0 +1,17 @@
+{
+  "tests": 982,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 2,
+  "duration": "5m36s",
+  "skips": [
+    {
+      "suite": "com.wheelwright.evidence.production.RealFileAssessmentTest",
+      "test": "assess July 2026 from complete original Fidelity export"
+    },
+    {
+      "suite": "com.wheelwright.evidence.v2.TransactionHistoryTest",
+      "test": "privateCsvReferenceExercisesAll21RowsWithoutClaimingLiveApiEquivalence()"
+    }
+  ]
+}

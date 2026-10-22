@@ -1,0 +1,259 @@
+{
+  "baseline": "c8ddbffc28e68dcd4c198ee10a5516603783eb8f",
+  "successor": "CONTAINING_COMMIT_IDENTIFIED_IN_DELIVERY",
+  "scope": "Seven residual findings only",
+  "fileCount": 39,
+  "files": [
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/README.md",
+      "status": "MODIFIED",
+      "baselineLines": 19,
+      "successorLines": 28
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/contract-inventory.json",
+      "status": "MODIFIED",
+      "baselineLines": 294,
+      "successorLines": 301
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/correction-ledger.md",
+      "status": "MODIFIED",
+      "baselineLines": 24,
+      "successorLines": 28
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/derive-tt-examples.mjs",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 26
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/differences.md",
+      "status": "MODIFIED",
+      "baselineLines": 27,
+      "successorLines": 31
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/economic-history.json",
+      "status": "MODIFIED",
+      "baselineLines": 7582,
+      "successorLines": 7617
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/evidence-facts.json",
+      "status": "MODIFIED",
+      "baselineLines": 955,
+      "successorLines": 965
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/final-source-fixtures.json",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 132
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/resources.json",
+      "status": "MODIFIED",
+      "baselineLines": 37495,
+      "successorLines": 49372
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/source-artifact.json",
+      "status": "MODIFIED",
+      "baselineLines": 2474,
+      "successorLines": 10887
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/tt-live-equivalence.json",
+      "status": "MODIFIED",
+      "baselineLines": 859,
+      "successorLines": 1077
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/tt-live-expanded-parity.json",
+      "status": "MODIFIED",
+      "baselineLines": 2524,
+      "successorLines": 2916
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/final-correction-ledger.md",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 15
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/final-source-replay.test.mjs",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 36
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/final-targeted-tests.py",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 100
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/finalize-review-fixtures.py",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 18
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json",
+      "status": "MODIFIED",
+      "baselineLines": 16539,
+      "successorLines": 18142
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/regenerate-final-examples.py",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 53
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/regenerate-tt-examples.mjs",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 14
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/resource-map.md",
+      "status": "MODIFIED",
+      "baselineLines": 67,
+      "successorLines": 71
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/artifact-manifest.json",
+      "status": "MODIFIED",
+      "baselineLines": null,
+      "successorLines": null
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/authoring-history.md",
+      "status": "MODIFIED",
+      "baselineLines": 7,
+      "successorLines": 11
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/baseline-266-node.log",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 196
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/baseline-266-python.log",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 85
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/changed-files.json",
+      "status": "MODIFIED",
+      "baselineLines": null,
+      "successorLines": null
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/comparison-to-c8.json",
+      "status": "ADDED",
+      "baselineLines": null,
+      "successorLines": null
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/contract-validation.log",
+      "status": "MODIFIED",
+      "baselineLines": 85,
+      "successorLines": 85
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/final-correction-ledger.json",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 62
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/final-source-replay.log",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 27
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/final-targeted.log",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 24
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/prior-c8-verification-report.md",
+      "status": "ADDED",
+      "baselineLines": 0,
+      "successorLines": 81
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/product-precedents.log",
+      "status": "MODIFIED",
+      "baselineLines": 188,
+      "successorLines": 188
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/source-identities.json",
+      "status": "MODIFIED",
+      "baselineLines": 57,
+      "successorLines": 64
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/validation-results.json",
+      "status": "MODIFIED",
+      "baselineLines": 81,
+      "successorLines": 63
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/runtime-invariants.md",
+      "status": "MODIFIED",
+      "baselineLines": 25,
+      "successorLines": 35
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.json",
+      "status": "MODIFIED",
+      "baselineLines": 505,
+      "successorLines": 513
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.md",
+      "status": "MODIFIED",
+      "baselineLines": 31,
+      "successorLines": 33
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/verification-report.md",
+      "status": "MODIFIED",
+      "baselineLines": 81,
+      "successorLines": 52
+    },
+    {
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/verify.py",
+      "status": "MODIFIED",
+      "baselineLines": 494,
+      "successorLines": 499
+    }
+  ],
+  "schemaDelta": {
+    "added": [
+      "ModelVersionLink",
+      "HoldingSnapshotSummary",
+      "HoldingSnapshotCollection"
+    ],
+    "changed": [
+      "Position closure constraint",
+      "Timeline authorization qualification",
+      "Construction immediate/unknown predecessor",
+      "FinancialRelationship reservation typing",
+      "CoverageAssessment reservation typing",
+      "bound modelVersion references"
+    ],
+    "newRoutes": 0,
+    "modifiedRoute": "GET /v2/holdings adds view=observations"
+  }
+}

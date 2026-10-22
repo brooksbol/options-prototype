@@ -1,0 +1,28 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_RUNTIME_FALSIFIERS_NOT_ORIGINAL_KIRO_PROBES",
+  "baseline": "6d41375f771b090154f72001a0c6d4723935fa7a",
+  "originalKiroProbePayloadsAvailable": false,
+  "command": "./evidence-service-java/gradlew -p evidence-service-java test --tests '*PortfolioAssociationFilterTest' --console=plain",
+  "beforeLog": "/tmp/ww-association-filter-probe.log",
+  "findings": [
+    {
+      "claim": "Position-targeted filtering preserves the same grant boundary as direct reads.",
+      "observedBefore": "Order-only caller: direct Position404; Orders?positionId query200 with matching Order URI.",
+      "correction": "Resolve and authorize the Position before filtering/acquisition; unknown/unauthorized targets404 for all three projections.",
+      "observedAfter": "Targeted probe passes."
+    },
+    {
+      "claim": "Orders associated with a Construction remain navigable from its Position.",
+      "observedBefore": "Authorized filter returned0 items for a Construction-targeted association.",
+      "correction": "Resolve same-Account Construction parent; preserve association UNKNOWN status. Add scoped Position Orders collection link without claiming opening/current-history completeness.",
+      "observedAfter": "Direct/Construction-targeted association tests pass."
+    }
+  ],
+  "affectedSuite": {
+    "command": "./evidence-service-java/gradlew -p evidence-service-java test --tests '*Portfolio*' --tests '*Tastytrade*' --console=plain",
+    "log": "/tmp/ww-association-filter-broader.log",
+    "duration": "14s",
+    "result": "PASSED"
+  },
+  "limitation": "Synthetic source/association fixtures and actual controller enforcement, not live broker or independent acceptance. Later source-admission diagnostic is not a ratified occurrence policy."
+}

@@ -1,0 +1,301 @@
+{
+  "originalCandidate": "847315f1b2bf2964db20f417c9936e961eb5f750",
+  "authorityMain": "72c602f8740fcbd9c25d67a13b35d81385b6e76b",
+  "routes": [
+    {
+      "path": "/v2/positions",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/PositionCollection"
+    },
+    {
+      "path": "/v2/positions/{positionId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/Position"
+    },
+    {
+      "path": "/v2/constructions",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/ConstructionCollection"
+    },
+    {
+      "path": "/v2/constructions/{constructionId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/Construction"
+    },
+    {
+      "path": "/v2/orders",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/OrderCollection"
+    },
+    {
+      "path": "/v2/orders/{orderId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/Order"
+    },
+    {
+      "path": "/v2/instruments",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/InstrumentCollection"
+    },
+    {
+      "path": "/v2/instruments/{instrumentId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/Instrument"
+    },
+    {
+      "path": "/v2/market-observations",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/MarketObservationCollection"
+    },
+    {
+      "path": "/v2/market-observations/{observationId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/MarketObservation"
+    },
+    {
+      "path": "/v2/constructions/models",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/ModelFamilyCollection"
+    },
+    {
+      "path": "/v2/constructions/models/{modelId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/ModelFamily"
+    },
+    {
+      "path": "/v2/constructions/models/{modelId}/versions/{versionId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/ModelVersion"
+    },
+    {
+      "path": "/v2/positions/{positionId}/audit",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/AuditRecordCollection"
+    },
+    {
+      "path": "/v2/positions/{positionId}/audit/{auditId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/AuditRecord"
+    },
+    {
+      "path": "/v2/accounts/{accountId}/inventory-reconciliation",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/InventoryReconciliation"
+    },
+    {
+      "path": "/v2/users",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1users"
+    },
+    {
+      "path": "/v2/users/{userId}",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1users~1{userId}"
+    },
+    {
+      "path": "/v2/me",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1me"
+    },
+    {
+      "path": "/v2/accounts",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts"
+    },
+    {
+      "path": "/v2/accounts/{accountId}",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}"
+    },
+    {
+      "path": "/v2/artifacts",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts"
+    },
+    {
+      "path": "/v2/artifacts/{artifactId}",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}"
+    },
+    {
+      "path": "/v2/artifacts/{artifactId}/content",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1content"
+    },
+    {
+      "path": "/v2/artifacts/{artifactId}/imports",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1artifacts~1{artifactId}~1imports"
+    },
+    {
+      "path": "/v2/accounts/{accountId}/transactions",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions"
+    },
+    {
+      "path": "/v2/accounts/{accountId}/transactions/{transactionId}",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-account-evidence.json#/paths/~1v2~1accounts~1{accountId}~1transactions~1{transactionId}"
+    },
+    {
+      "path": "/v2/quotes",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-direct-quote-acquisition-proposal.yaml#/paths/~1v2~1quotes"
+    },
+    {
+      "path": "/v2/quotes/{symbol}",
+      "standing": "REUSED_EXISTING",
+      "definition": "../../contracts/api-v2-direct-quote-acquisition-proposal.yaml#/paths/~1v2~1quotes~1{symbol}"
+    },
+    {
+      "path": "/v2/holdings",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/BrokerHoldingCollection"
+    },
+    {
+      "path": "/v2/holdings/{holdingId}",
+      "methods": [
+        "GET"
+      ],
+      "standing": "CANDIDATE",
+      "definition": "#/components/schemas/BrokerHolding"
+    }
+  ],
+  "schemas": [
+    "AffineSegment",
+    "Allocation",
+    "AllocationBalance",
+    "AssociationAuthority",
+    "AuditRecord",
+    "AuditRecordCollection",
+    "BoundaryValue",
+    "BrokerAlias",
+    "BrokerHolding",
+    "BrokerHoldingCollection",
+    "CashLeaf",
+    "Composition",
+    "CompositionGroup",
+    "Construction",
+    "ConstructionCollection",
+    "CoverageAssessment",
+    "CumulativeEconomics",
+    "Currency",
+    "Decimal",
+    "DeliverableComponent",
+    "EconomicComparison",
+    "EconomicPeriod",
+    "Evaluation",
+    "EvidenceRef",
+    "ExactNumber",
+    "FeeMetric",
+    "Fill",
+    "FinancialRelationship",
+    "Geometry",
+    "GlobalAllocation",
+    "HoldingSnapshotCollection",
+    "HoldingSnapshotSummary",
+    "Instrument",
+    "InstrumentCollection",
+    "InventoryReconciliation",
+    "LegEconomics",
+    "LifecycleEvidence",
+    "Link",
+    "ManagementEvaluation",
+    "ManualCheckpoint",
+    "MarketObservation",
+    "MarketObservationCollection",
+    "Metric",
+    "ModelConstraint",
+    "ModelFamily",
+    "ModelFamilyCollection",
+    "ModelRole",
+    "ModelVersion",
+    "ModelVersionLink",
+    "NonnegativeDecimal",
+    "NonnegativeExactNumber",
+    "OptionLeaf",
+    "OptionTerms",
+    "Order",
+    "OrderAssociation",
+    "OrderCollection",
+    "OrderLeg",
+    "OtherLeaf",
+    "PayoffEvaluation",
+    "Position",
+    "PositionCollection",
+    "PositionSummary",
+    "PositiveDecimal",
+    "PriceMetric",
+    "Problem",
+    "RangeEvaluation",
+    "Recognition",
+    "RedactedEvidence",
+    "ReferenceEvidence",
+    "ReferenceMetric",
+    "ReferenceOptionTerms",
+    "Remediation",
+    "ResourceURI",
+    "SharesLeaf",
+    "SourceInventory",
+    "SourceRef",
+    "Status",
+    "Timeline",
+    "Warning",
+    "WholeContracts"
+  ],
+  "finalBaseline": "c8ddbffc28e68dcd4c198ee10a5516603783eb8f",
+  "routeAmendments": {
+    "/v2/holdings": "view=observations discovers HoldingSnapshotCollection; default remains BrokerHoldingCollection"
+  }
+}

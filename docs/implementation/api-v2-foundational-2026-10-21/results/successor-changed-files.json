@@ -1,0 +1,227 @@
+{
+  "base": "a2ed63062edce5af65c1ea635ddfce97b520c475",
+  "identity": "Commit containing this inventory; resolve git rev-parse HEAD",
+  "count": 55,
+  "files": [
+    {
+      "status": "M",
+      "path": "docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/README.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/STATE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/closing-scale-correction.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/10-gradle-test.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/11-junit-summary.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/21-junit-summary.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/22-git-before.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/23-oas-conformance.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/24-operative-contract.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/25-runtime-responses.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/26-entry-corrections.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/27-review-verify.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/28-final-targeted.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/29-node-mark.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/30-node-session.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/31-node-management.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/32-git-after-scripts.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/33-print-test-classpath.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/34-kiro-probe.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/35-git-final.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/KiroProbe.java"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/executor-status.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/kiro-summarize-junit.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-evidence/request-1.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-handoff.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/integrate-operative-contract.py"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/operative-contract-test.py"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/changed-files.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/final-verification-summary.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-candidate.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-changed-files.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-closing-scale-full.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-entry.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-final-regression.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-final.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-kiro-authored-probe.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-oas.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-operative.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-runtime-schema.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-spec-targeted.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-targeted.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/successor-targeted.log"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/runtime-field-coverage.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/runtime-obligations.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/successor-correction-ledger.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/successor-verification-report.md"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioAuthorization.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioFillEvidenceTest.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioHttpTest.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioManagementParityTest.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluationTest.java"
+    }
+  ]
+}

@@ -1,0 +1,661 @@
+{
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/v2/accounts",
+      "operationId": "listAccounts",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}",
+      "operationId": "readAccount",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/inventory-reconciliation",
+      "operationId": "readInventoryReconciliation",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/transactions",
+      "operationId": "readAccountTransactions",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/transactions/{transactionId}",
+      "operationId": "readAccountTransaction",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts",
+      "operationId": "listAccountArtifacts",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts/{artifactId}",
+      "operationId": "readAccountArtifact",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts/{artifactId}/content",
+      "operationId": "retrieveAccountArtifactBytes",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions",
+      "operationId": "listConstructions",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models",
+      "operationId": "listConstructionModels",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models/{modelId}",
+      "operationId": "readConstructionModel",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models/{modelId}/versions/{versionId}",
+      "operationId": "readConstructionModelVersion",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/{constructionId}",
+      "operationId": "readConstruction",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/holdings",
+      "operationId": "listBrokerHoldings",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/holdings/{holdingId}",
+      "operationId": "readBrokerHolding",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/instruments",
+      "operationId": "listInstruments",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/instruments/{instrumentId}",
+      "operationId": "readInstrument",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-evidence-subjects",
+      "operationId": "listRelevantMarketEvidenceSubjects",
+      "owner": "api-v2-market-evidence-subjects.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "422",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-observations",
+      "operationId": "listMarketObservations",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-observations/{observationId}",
+      "operationId": "readMarketObservation",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/me",
+      "operationId": "readCurrentUser",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/orders",
+      "operationId": "listOrders",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/orders/{orderId}",
+      "operationId": "readOrder",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/portfolio-capital-observations",
+      "operationId": "readPortfolioCapitalObservations",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions",
+      "operationId": "listPositions",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}",
+      "operationId": "readPosition",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}/audit",
+      "operationId": "listPositionAudit",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}/audit/{auditId}",
+      "operationId": "readPositionAudit",
+      "owner": "api-v2-foundational-portfolio.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes",
+      "operationId": "listHeldDirectQuotes",
+      "owner": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes/{symbol}",
+      "operationId": "readHeldDirectQuote",
+      "owner": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/users",
+      "operationId": "listUsers",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/users/{userId}",
+      "operationId": "readUser",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/artifacts",
+      "operationId": "retainAndProcessAccountArtifact",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/artifacts/{artifactId}/imports",
+      "operationId": "retryRetainedArtifactProcessing",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/position-acquisitions",
+      "operationId": "acquireAccountPositions",
+      "owner": "api-v2-account-evidence.json",
+      "declaredResponses": [
+        "200",
+        "401",
+        "403",
+        "404",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/quotes",
+      "operationId": "acquireDirectQuotes",
+      "owner": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "declaredResponses": [
+        "200",
+        "400",
+        "401",
+        "403",
+        "415",
+        "422",
+        "500",
+        "503"
+      ],
+      "standing": "MAPPING_AND_SCHEMA_VERIFIED_BEHAVIOR_COVERAGE_SEPARATE"
+    }
+  ],
+  "foundationalSchemas": [
+    "Decimal",
+    "PositiveDecimal",
+    "ExactNumber",
+    "Link",
+    "Currency",
+    "Status",
+    "SourceRef",
+    "Remediation",
+    "Warning",
+    "Metric",
+    "BrokerAlias",
+    "DeliverableComponent",
+    "OptionTerms",
+    "Instrument",
+    "SourceInventory",
+    "Allocation",
+    "CashLeaf",
+    "SharesLeaf",
+    "OptionLeaf",
+    "CompositionGroup",
+    "Composition",
+    "FinancialRelationship",
+    "Recognition",
+    "Construction",
+    "ModelRole",
+    "ModelConstraint",
+    "ModelVersion",
+    "ModelFamily",
+    "AffineSegment",
+    "BoundaryValue",
+    "Geometry",
+    "PayoffEvaluation",
+    "Timeline",
+    "RangeEvaluation",
+    "ManualCheckpoint",
+    "ManagementEvaluation",
+    "Evaluation",
+    "LifecycleEvidence",
+    "Position",
+    "Fill",
+    "OrderLeg",
+    "OrderAssociation",
+    "Order",
+    "MarketObservation",
+    "AllocationBalance",
+    "InventoryReconciliation",
+    "AuditRecord",
+    "Problem",
+    "ResourceURI",
+    "PositionSummary",
+    "PositionCollection",
+    "ConstructionCollection",
+    "ModelFamilyCollection",
+    "OrderCollection",
+    "InstrumentCollection",
+    "MarketObservationCollection",
+    "AuditRecordCollection",
+    "NonnegativeDecimal",
+    "OtherLeaf",
+    "WholeContracts",
+    "ReferenceEvidence",
+    "RedactedEvidence",
+    "EvidenceRef",
+    "ReferenceOptionTerms",
+    "AssociationAuthority",
+    "NonnegativeExactNumber",
+    "GlobalAllocation",
+    "LegEconomics",
+    "EconomicPeriod",
+    "CumulativeEconomics",
+    "EconomicComparison",
+    "BrokerHolding",
+    "BrokerHoldingCollection",
+    "CoverageAssessment",
+    "ReferenceMetric",
+    "FeeMetric",
+    "PriceMetric",
+    "ModelVersionLink",
+    "HoldingSnapshotSummary",
+    "HoldingSnapshotCollection"
+  ],
+  "note": "Inventory only, not complete behavior or Product acceptance."
+}

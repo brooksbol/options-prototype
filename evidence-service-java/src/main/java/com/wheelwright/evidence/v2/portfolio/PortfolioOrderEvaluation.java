@@ -1,0 +1,140 @@
+package com.wheelwright.evidence.v2.portfolio;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.*;
+import java.math.BigDecimal;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import static com.wheelwright.evidence.v2.portfolio.PortfolioJson.*;
+import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
+
+/** Interprets previously admitted associations; it never creates an association from matching legs.
+ * Source producers remain responsible for proving the declared association predicate under ADR-016.
+ * Scope, subjects, directions, quantities and reported fill completeness are independently checked here.
+ */
+public final class PortfolioOrderEvaluation {
+ private PortfolioOrderEvaluation(){}
+ public static void apply(ObjectNode position,ObjectNode construction,List<Document> orders,Instant now){
+  apply(position,construction,orders,now,null);
+ }
+ public static void apply(ObjectNode position,ObjectNode construction,List<Document> orders,Instant now,Set<String> currentArtifacts){
+  var evaluation=(ObjectNode)position.path("evaluation");
+  String account=position.at("/account/href").asText(),positionUri=position.at("/self/href").asText(),constructionUri=construction.at("/self/href").asText();
+  var options=leaves(construction.path("composition")).stream().filter(n->n.path("kind").asText().equals("OPTION")).toList();
+  if(options.isEmpty())return;
+  var associated=new ArrayList<ObjectNode>();
+  for(var document:orders){var order=document.value();if(!order.path("account").equals(position.path("account")))continue;
+   for(var association:order.path("associations"))if(admitted(association,order,account,positionUri,constructionUri,position.path("exposure").isObject())){associated.add(order);break;}
+  }
+  if(!associated.isEmpty())position.set("orders",link("/v2/orders?positionId="+positionUri.substring("/v2/positions/".length())));
+  var opening=associated.stream().filter(o->o.path("status").asText().equals("FILLED")&&matches(o,options,true)).toList();
+  if(opening.size()==1){
+   var order=opening.getFirst();var fills=opening(order,options,now);
+   if(fills!=null){var timeline=(ObjectNode)evaluation.path("timeline");timeline.put("openedAt",fills.lastFill().toString()).put("openingAccess","VISIBLE");timeline.set("openingEvidence",fills.evidence());
+    String expiration=timeline.path("expiration").asText(null);if(expiration!=null){long days=ChronoUnit.DAYS.between(fills.lastFill().atZone(ZoneId.of("America/New_York")).toLocalDate(),LocalDate.parse(expiration));if(days>=0)timeline.set("originalDays",metric(BigDecimal.valueOf(days),"DAY",null,fills.lastFill().toString(),"NY_CALENDAR_FROM_FINAL_VERIFIED_FILL","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE"));else{timeline.putNull("openedAt").put("openingAccess","UNKNOWN");timeline.set("openingEvidence",array());timeline.set("originalDays",unknown("DAY",null,"OPENING_FILLS_UNAVAILABLE"));}}
+    // A call fill does not establish the share acquisition cost of a Covered Call.
+    if(options.size()==leaves(construction.path("composition")).size()&&fills.cash()!=null){String currency=fills.currency();var retained=evaluation.path("openingCashFlow");boolean conflict=established(retained)&&(!retained.path("currency").asText().equals(currency)||number(retained.path("value")).compareTo(fills.cash())!=0);if(conflict){openingConflict(position,construction,retained,fills,now);}else{evaluation.set("openingCashFlow",metric(fills.cash(),"MONEY",currency,fills.lastFill().toString(),"SIGNED_REPORTED_OPENING_FILLS","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE","OPENING_CASH_FLOW"));
+     var closing=evaluation.path("estimatedClosingCashFlow");var evidence=fills.evidence().deepCopy();for(var ev:closing.path("evidence"))evidence.add(ev);
+     if(established(closing)&&closing.path("currency").asText().equals(currency)){var gross=fills.cash().add(number(closing.path("value")));evaluation.set("grossUnrealizedPl",metric(gross,"MONEY",currency,now.toString(),"REPORTED_OPENING_PLUS_CURRENT_LIQUIDATION","QUALIFIED",evidence,"ORDER_EVIDENCE","OPENING_CASH_FLOW","CURRENT_MARKET"));if(fills.fees()!=null)evaluation.set("netUnrealizedPl",metric(gross.subtract(fills.fees()),"MONEY",currency,now.toString(),"GROSS_LESS_REPORTED_OPENING_FEES","QUALIFIED",evidence,"ORDER_EVIDENCE","OPENING_CASH_FLOW","CURRENT_MARKET"));else evaluation.set("netUnrealizedPl",unknown("MONEY",now.toString(),"HISTORY_INCOMPLETE"));}
+     if(fills.fees()!=null)evaluation.set("fees",metric(fills.fees(),"MONEY",currency,now.toString(),"REPORTED_OPENING_FEES","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE"));
+     var financial=construction.deepCopy();for(var leaf:leaves(financial.path("composition"))){var basis=fills.bases().get(leaf.at("/instrument/href").asText());if(basis!=null)((ObjectNode)leaf.path("allocation")).set("basis",metric(basis,"MONEY",currency,fills.lastFill().toString(),"REPORTED_OPENING_FILL_COST_MAGNITUDE","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE"));}var geometry=PortfolioMath.evaluate(financial,Map.of(),now);evaluation.set("payoff",geometry.path("payoff"));evaluation.set("range",geometry.path("range"));}
+    }
+   }
+  }
+  var activeClosing=associated.stream().filter(o->!Set.of("FILLED","CANCELED","EXPIRED","REJECTED").contains(o.path("status").asText())&&touchesClosing(o,options)).toList();
+  var working=activeClosing.stream().filter(o->o.path("status").asText().equals("WORKING")&&currentInstruction(o,currentArtifacts)&&matches(o,options,false)&&unfilled(o)).toList();
+  boolean unsettledScope=activeClosing.stream().anyMatch(o->!currentInstruction(o,currentArtifacts)||!o.path("status").asText().equals("WORKING")||!matches(o,options,false)||!unfilled(o)||Set.of("Cancel Requested","Replace Requested","Contingent").contains(o.path("sourceStatus").asText()));
+  var management=(ObjectNode)evaluation.path("management");management.set("profitTargetGrossPl",unknown("MONEY",now.toString(),"ASSOCIATION_UNRESOLVED"));management.set("reportedStopThresholdGrossPl",unknown("MONEY",now.toString(),"ASSOCIATION_UNRESOLVED"));management.putNull("manualCheckpoint");var links=array();var evidence=array();for(var order:activeClosing){links.add(order.path("self"));for(var ev:order.path("evidence"))evidence.add(ev);}management.set("orders",links);management.set("evidence",evidence);
+  var targets=working.stream().filter(o->o.path("orderType").asText().equals("LIMIT")).toList();var stops=working.stream().filter(o->o.path("orderType").asText().equals("STOP_LIMIT")).toList();
+  boolean ambiguous=unsettledScope||targets.size()>1||stops.size()>1;management.put("associationStatus",ambiguous?"AMBIGUOUS":working.isEmpty()?"UNAVAILABLE":"ESTABLISHED");management.put("protectiveOrderEvidence",stops.size()==1?"PRESENT":"UNKNOWN");management.set("warningCodes",ambiguous?array().add("AMBIGUOUS_ORDER_ASSOCIATION"):working.isEmpty()?array().add("ASSOCIATION_UNRESOLVED"):array());
+  if(ambiguous){for(String field:List.of("profitTargetGrossPl","reportedStopThresholdGrossPl")){var unavailable=unknown("MONEY",now.toString(),"AMBIGUOUS_ORDER_ASSOCIATION");unavailable.set("evidence",evidence.deepCopy());unavailable.set("dependencies",array().add("ORDER_EVIDENCE"));((ArrayNode)unavailable.path("assumptions")).add("Partial, transitioning or conflicting associated closing instructions do not establish a unique current whole-Position management objective. Inspect the read-only Orders; held exposure is unchanged by unfilled instructions.");management.set(field,unavailable);}}
+  boolean wholeScope=options.size()==leaves(construction.path("composition")).size();
+  if(!wholeScope&&!working.isEmpty()){
+   var unsupported=unknown("MONEY",now.toString(),"VALUATION_UNSUPPORTED");unsupported.put("method","ORDER_CLOSING_SCOPE_DIFFERS_FROM_POSITION");((ArrayNode)unsupported.path("assumptions")).add("Option-only closing instruction does not liquidate all bound share/cash constituents. Inspect its qualified limit through the Order resource; it is not a whole-Position gross P/L objective.");management.set("profitTargetGrossPl",unsupported);management.set("reportedStopThresholdGrossPl",unsupported.deepCopy());return;
+  }
+  if(!ambiguous&&targets.size()==1)management.set("profitTargetGrossPl",objective(evaluation,targets.getFirst(),"limitPrice",now,options));
+  if(!ambiguous&&stops.size()==1)management.set("reportedStopThresholdGrossPl",objective(evaluation,stops.getFirst(),"stopTrigger",now,options));
+  // Missing stops remain UNKNOWN: a list of associated Orders is not proof of a complete current broker scan.
+  if(!ambiguous&&targets.size()==1)management.set("manualCheckpoint",checkpoint(evaluation,targets.getFirst(),now,true,options));
+  if(!ambiguous&&targets.isEmpty())historicalCheckpoint(evaluation,management,associated,opening,options,now);
+  // Qualified manual convention only; neither an execution guarantee nor a timed exit.
+
+ }
+ /** Native source records remain historical when absent from the latest admitted scan; no cancellation inferred. */
+ static boolean currentInstruction(JsonNode order,Set<String> artifacts){if(artifacts==null||artifacts.isEmpty())return true;boolean nativeSource=false;for(var e:order.path("evidence"))if(e.path("provider").asText().equals("TASTYTRADE")&&e.path("kind").asText().equals("ACCOUNT_SOURCE")){nativeSource=true;String uri=e.at("/artifact/href").asText();if(artifacts.stream().anyMatch(id->uri.equals("/v2/artifacts/"+id)))return true;}return !nativeSource;}
+ private static JsonNode checkpoint(ObjectNode evaluation,ObjectNode target,Instant now,boolean active,List<ObjectNode> options){
+  if(!corroboratedGroup(target))return NullNode.instance;
+  if(!target.path("timeInForce").asText().equals("GTD")||!target.path("priceEffect").asText().equals("DEBIT")||!established(evaluation.path("openingCashFlow"))||number(evaluation.at("/openingCashFlow/value")).signum()<=0)return NullNode.instance;
+  var objective=objective(evaluation,target,"limitPrice",now,options);if(!established(objective)||number(objective.path("value")).signum()<=0)return NullNode.instance;
+  try{
+   var opened=Instant.parse(evaluation.at("/timeline/openedAt").asText());var expiration=LocalDate.parse(evaluation.at("/timeline/expiration").asText());var date=LocalDate.parse(target.path("gtdDate").asText());var zone=ZoneId.of("America/New_York");
+   if(date.isBefore(opened.atZone(zone).toLocalDate())||date.isAfter(expiration)||!active&&date.isAfter(now.atZone(zone).toLocalDate()))return NullNode.instance;
+   var receipt=receipt(target);if(receipt==null||receipt.isAfter(now))return NullNode.instance;
+   var today=now.atZone(zone).toLocalDate();var checkpoint=obj().put("date",date.toString()).put("remainingDteAtCheckpoint",ChronoUnit.DAYS.between(date,expiration)).put("state",today.isBefore(date)?"UPCOMING":today.equals(date)?"DUE":"PAST_DUE").put("activeOrder",active).put("qualification","QUALIFIED").put("meaning","MANUAL_REVIEW_CONVENTION_NOT_TIMED_EXIT");checkpoint.set("order",target.path("self"));var evidence=objective.path("evidence").deepCopy();if(target.hasNonNull("brokerGroupId"))for(var ref:target.at("/brokerGroupAuthority/evidence"))((ArrayNode)evidence).add(ref.deepCopy());checkpoint.set("evidence",evidence);return checkpoint;
+  }catch(java.time.DateTimeException e){return NullNode.instance;}
+ }
+ private static boolean corroboratedGroup(ObjectNode order){
+  if(!order.hasNonNull("brokerGroupId"))return true;var authority=order.path("brokerGroupAuthority");String account=order.at("/account/href").asText();if(!authority.path("basis").asText().equals("BROKER_PACKAGE_RECORD")||!Set.of("QUALIFIED","ESTABLISHED").contains(authority.path("status").asText())||!authority.at("/account/href").asText().equals(account))return false;
+  boolean subject=false;for(var ref:authority.path("subjects"))subject|=ref.path("href").asText().equals(order.at("/self/href").asText());if(!subject)return false;boolean source=false;for(var ref:authority.path("evidence")){if(!ref.path("kind").asText().equals("ACCOUNT_SOURCE")||!ref.at("/account/href").asText().equals(account)||!ref.path("requiredCapability").asText().equals("account.orders.read:"+account.substring(account.lastIndexOf('/')+1)))return false;source=true;}return source;
+ }
+ private static Instant receipt(ObjectNode order){
+  Instant result=null;for(var ref:order.path("evidence"))if(ref.path("recordKey").asText().endsWith(":BROKER_ORDER_RECEIPT")&&ref.path("timeAuthority").asText().equals("SOURCE")&&ref.at("/locator/value").asText().endsWith("/received-at")){if(result!=null)return null;try{result=Instant.parse(ref.path("observedAt").asText());}catch(DateTimeException invalid){return null;}}return result;
+ }
+ private static void historicalCheckpoint(ObjectNode evaluation,ObjectNode management,List<ObjectNode> associated,List<ObjectNode> opening,List<ObjectNode> options,Instant now){
+  if(evaluation.at("/timeline/openedAt").isNull())return;Instant opened;try{opened=Instant.parse(evaluation.at("/timeline/openedAt").asText());}catch(DateTimeException invalid){return;}
+  var candidates=new ArrayList<JsonNode>();for(var target:associated){if(!target.path("status").asText().equals("EXPIRED")||!target.path("orderType").asText().equals("LIMIT")||!matches(target,options,false))continue;var received=receipt(target);if(received==null||received.isAfter(now))continue;boolean sameOpening=opening.size()==1&&target.hasNonNull("brokerGroupId")&&opening.getFirst().path("brokerGroupId").equals(target.path("brokerGroupId"))&&corroboratedGroup(target);if(!sameOpening&&received.isBefore(opened))continue;
+   boolean superseded=false;for(var other:associated)if(other!=target&&other.path("orderType").asText().equals("LIMIT")&&matches(other,options,false)){var replacement=receipt(other);if(replacement!=null&&replacement.isAfter(received))superseded=true;}if(superseded)continue;var value=checkpoint(evaluation,target,now,false,options);if(value.isObject())candidates.add(value);
+  }if(candidates.size()==1)management.set("manualCheckpoint",candidates.getFirst());else if(candidates.size()>1){management.put("associationStatus","AMBIGUOUS");management.set("warningCodes",array().add("AMBIGUOUS_ORDER_ASSOCIATION"));}
+ }
+ private static void openingConflict(ObjectNode position,ObjectNode construction,JsonNode retained,Opening fills,Instant now){
+  var evaluation=(ObjectNode)position.path("evaluation");var evidence=fills.evidence().deepCopy();for(var ref:retained.path("evidence"))evidence.add(ref);
+  for(String field:List.of("openingCashFlow","grossUnrealizedPl","netUnrealizedPl")){var metric=unknown("MONEY",now.toString(),"SOURCE_CONFLICT");metric.put("status","CONFLICT").put("method","CONFLICTING_ATTRIBUTED_BASIS_AND_OPENING_FILL_CASH");metric.set("evidence",evidence);metric.set("dependencies",array().add("ORDER_EVIDENCE").add("OPENING_CASH_FLOW"));evaluation.set(field,metric);}
+  var terminal=PortfolioMath.terminalPayoff(construction,now);if(terminal.path("geometry").isObject()){terminal.set("warningCodes",array().add("SOURCE_CONFLICT"));((ArrayNode)terminal.path("assumptions")).add("Opening cash evidence conflicts. Only terminal liquidation geometry is established; no gross P/L offset or economic break-even is claimed.");}evaluation.set("payoff",terminal);
+  var warning=warning("SOURCE_CONFLICT","/evaluation/openingCashFlow","Reported fills, their source times, contractual rights and custody remain inspectable.","Attributed opening basis and matched fill cash disagree; no source wins merely because it was read later.");warning.set("affected",array().add("/evaluation/openingCashFlow").add("/evaluation/grossUnrealizedPl").add("/evaluation/netUnrealizedPl").add("/evaluation/payoff"));if(!position.path("warnings").isArray())position.set("warnings",array());((ArrayNode)position.path("warnings")).add(warning);
+ }
+ private static boolean admitted(JsonNode a,JsonNode order,String account,String position,String construction,boolean observedScope){
+  if(a.path("purpose").asText().equals("CURRENT_OBSERVED_CLOSING_SCOPE"))for(var leg:order.path("legs"))if(!Set.of("BUY_TO_CLOSE","SELL_TO_CLOSE").contains(leg.path("action").asText()))return false;
+  String target=a.at("/target/href").asText();if(!Set.of(position,construction).contains(target)||!a.path("status").asText().equals("ESTABLISHED"))return false;
+  if(!a.path("targetKind").asText().equals(target.equals(position)?"POSITION":"CONSTRUCTION"))return false;
+  var authority=a.path("authority");if(!authority.path("status").asText().equals("ESTABLISHED")||!Set.of("BROKER_EXPLICIT_ORDER_LINK","RECONCILED_DOCUMENTED_ACTIVITY").contains(authority.path("basis").asText())||!authority.at("/account/href").asText().equals(account)||authority.path("evidence").isEmpty()||a.path("evidence").isEmpty())return false;
+  var subjects=new HashSet<String>();authority.path("subjects").forEach(s->subjects.add(s.path("href").asText()));if(!subjects.contains(target)||!subjects.contains(order.at("/self/href").asText()))return false;if(observedScope&&a.path("targetKind").asText().equals("POSITION")&&!subjects.contains(construction))for(var leg:order.path("legs"))if(Set.of("BUY_TO_OPEN","SELL_TO_OPEN").contains(leg.path("action").asText()))return false;
+  boolean scoped=false;String suffix=account.substring(account.lastIndexOf('/')+1);for(var e:a.path("evidence"))if(e.path("kind").asText().equals("ACCOUNT_SOURCE")){String capability=e.path("requiredCapability").asText();if(!e.at("/account/href").asText().equals(account)||!capability.equals("account.orders.read:"+suffix)&&!(a.path("purpose").asText().equals("CURRENT_OBSERVED_CLOSING_SCOPE")&&capability.equals("account.holdings.read:"+suffix)))return false;scoped|=capability.equals("account.orders.read:"+suffix);}return scoped;
+ }
+ private static boolean matches(JsonNode order,List<ObjectNode> options,boolean opening){
+  if(order.path("legs").size()!=options.size())return false;var used=new HashSet<String>();for(var option:options){String uri=option.at("/instrument/href").asText();if(!used.add(uri))return false;JsonNode matched=null;for(var leg:order.path("legs"))if(leg.at("/instrument/href").asText().equals(uri)){if(matched!=null)return false;matched=leg;}if(matched==null)return false;var quantity=number(matched.path("requestedQuantity"));if(quantity==null||quantity.compareTo(number(option.path("quantity")))!=0)return false;String expected=option.path("side").asText().equals("LONG")?(opening?"BUY_TO_OPEN":"SELL_TO_CLOSE"):(opening?"SELL_TO_OPEN":"BUY_TO_CLOSE");if(!matched.path("action").asText().equals(expected))return false;}return true;
+ }
+ private static boolean touchesClosing(JsonNode order,List<ObjectNode> options){
+  var held=new HashSet<String>();options.forEach(n->held.add(n.at("/instrument/href").asText()));for(var leg:order.path("legs"))if(held.contains(leg.at("/instrument/href").asText())&&!Set.of("BUY_TO_OPEN","SELL_TO_OPEN").contains(leg.path("action").asText()))return true;return false;
+ }
+ private static boolean unfilled(JsonNode order){for(var leg:order.path("legs"))if(!established(leg.path("filledQuantity"))||number(leg.at("/filledQuantity/value")).signum()!=0||!leg.path("fills").isEmpty())return false;return true;}
+ private record Opening(Instant lastFill,BigDecimal cash,BigDecimal fees,String currency,ArrayNode evidence,Map<String,BigDecimal> bases){}
+ private static Opening opening(JsonNode order,List<ObjectNode> options,Instant now){
+  Instant latest=null;BigDecimal total=BigDecimal.ZERO,fees=BigDecimal.ZERO;String currency=null;boolean cashKnown=true,feesKnown=true;var evidence=array();var bases=new HashMap<String,BigDecimal>();
+  for(var leg:order.path("legs")){if(!leg.path("fillsCoverage").asText().equals("COMPLETE_REPORTED")||leg.path("fills").isEmpty())return null;var count=BigDecimal.ZERO;var cost=BigDecimal.ZERO;boolean legKnown=true;String uri=leg.at("/instrument/href").asText();var terms=options.stream().filter(o->o.at("/instrument/href").asText().equals(uri)).findFirst().orElseThrow().path("terms");
+   for(var fill:leg.path("fills")){var quantity=number(fill.path("quantity"));var price=number(fill.path("price"));if(quantity==null||quantity.signum()<=0||price==null||price.signum()<0||!fill.path("executedAt").isTextual()||fill.path("evidence").isEmpty())return null;var time=Instant.parse(fill.path("executedAt").asText());if(time.isAfter(now))return null;if(latest==null||time.isAfter(latest))latest=time;count=count.add(quantity);for(var ev:fill.path("evidence"))evidence.add(ev);
+    String unit=fill.path("priceUnit").asText();var multiplier=number(fill.path("multiplier"));if(unit.equals("PER_CONTRACT"))multiplier=BigDecimal.ONE;else if(!unit.equals("PER_UNDERLYING_UNIT"))multiplier=null;var reportedTerm=number(terms.path("multiplier"));var cash=fill.path("cashFlow");boolean reportedCash=established(cash)&&cash.path("origin").asText().equals("BROKER_REPORTED")&&cash.path("currency").equals(fill.path("currency"))&&!cash.path("evidence").isEmpty();
+    if(reportedCash){var signed=number(cash.path("value"));boolean buy=leg.path("action").asText().startsWith("BUY");if(signed.signum()!=0&&(buy?signed.signum()>0:signed.signum()<0))legKnown=false;else{cost=cost.add(signed.abs());for(var ev:cash.path("evidence"))evidence.add(ev);}}
+    else if(cash.path("status").asText().equals("CONFLICT")||multiplier==null||multiplier.signum()<=0||unit.equals("PER_UNDERLYING_UNIT")&&reportedTerm!=null&&multiplier.compareTo(reportedTerm)!=0)legKnown=false;else cost=cost.add(quantity.multiply(price).multiply(multiplier));
+    String denomination=fill.path("currency").asText();if(currency==null)currency=denomination;else if(!currency.equals(denomination)){cashKnown=false;feesKnown=false;}if(!denomination.equals(terms.path("currency").asText()))cashKnown=false;
+    var fee=fill.path("fees");if(established(fee)&&fee.path("currency").asText().equals(denomination)&&number(fee.path("value")).signum()>=0){fees=fees.add(number(fee.path("value")));for(var ev:fee.path("evidence"))evidence.add(ev);}else feesKnown=false;
+   }
+   if(count.compareTo(number(leg.path("requestedQuantity")))!=0)return null;if(legKnown){bases.put(uri,cost);total=total.add(cost.multiply(leg.path("action").asText().startsWith("BUY")?BigDecimal.ONE.negate():BigDecimal.ONE));}else cashKnown=false;
+  }
+  return latest==null?null:new Opening(latest,cashKnown?total:null,feesKnown?fees:null,currency,evidence,bases);
+ }
+ private static ObjectNode objective(ObjectNode evaluation,JsonNode order,String field,Instant now,List<ObjectNode> options){
+  var opening=evaluation.path("openingCashFlow");var price=order.path(field);if(!established(opening)||!established(price)||!price.path("currency").equals(opening.path("currency")))return unknown("MONEY",now.toString(),"OPENING_FILLS_UNAVAILABLE");
+  if(!opening.path("unit").asText().equals("MONEY")||!price.path("unit").asText().equals("PRICE"))return unknown("MONEY",now.toString(),"SOURCE_CONFLICT").put("status","CONFLICT");
+  var convention=order.path("priceConvention");var multiplier=number(convention.path("multiplier"));var quantity=number(convention.path("packageQuantity"));boolean currentScale=false;var currentEvidence=array();
+  if(multiplier==null&&convention.path("unit").asText().equals("PER_UNDERLYING_UNIT")&&order.path("status").asText().equals("WORKING")&&!options.isEmpty()){
+   BigDecimal common=null;boolean compatible=true;for(var option:options){var terms=option.path("terms");var value=number(terms.path("multiplier"));if(value==null||value.signum()<=0||!Set.of("ESTABLISHED","QUALIFIED").contains(terms.path("qualification").asText())||!option.path("currency").equals(price.path("currency"))||!terms.path("currency").equals(price.path("currency"))||terms.path("evidence").isEmpty()||common!=null&&common.compareTo(value)!=0){compatible=false;break;}common=value;for(var ref:terms.path("evidence"))currentEvidence.add(ref.deepCopy());}if(compatible){multiplier=common;currentScale=true;}
+  }
+  BigDecimal magnitude=number(price.path("value"));if(magnitude==null||magnitude.signum()<0||multiplier!=null&&multiplier.signum()<=0||quantity!=null&&quantity.signum()<=0)return unknown("MONEY",now.toString(),"SOURCE_CONFLICT").put("status","CONFLICT");switch(convention.path("unit").asText()){
+   case "PER_UNDERLYING_UNIT"->{if(multiplier==null||quantity==null)return unknown("MONEY",now.toString(),"TERMS_UNAVAILABLE");magnitude=magnitude.multiply(multiplier).multiply(quantity);}
+   case "PER_CONTRACT"->{if(quantity==null)return unknown("MONEY",now.toString(),"TERMS_UNAVAILABLE");magnitude=magnitude.multiply(quantity);}
+   case "PACKAGE_TOTAL"->{}default->{return unknown("MONEY",now.toString(),"TERMS_UNAVAILABLE");}
+  }
+  String effect=order.path("priceEffect").asText();if(!Set.of("CREDIT","DEBIT").contains(effect))return unknown("MONEY",now.toString(),"TERMS_UNAVAILABLE");var evidence=array();for(var ev:opening.path("evidence"))evidence.add(ev);for(var ev:order.path("evidence"))evidence.add(ev);var result=metric(number(opening.path("value")).add(magnitude.multiply(effect.equals("DEBIT")?BigDecimal.ONE.negate():BigDecimal.ONE)),"MONEY",opening.path("currency").asText(),now.toString(),field.equals("stopTrigger")?"REPORTED_TRIGGER_GROSS_THRESHOLD_NOT_EXECUTION_RESULT":"OPENING_PLUS_SIGNED_CLOSING_LIMIT","QUALIFIED",evidence,"ORDER_EVIDENCE","OPENING_CASH_FLOW");if(currentScale){((ArrayNode)result.path("evidence")).addAll(currentEvidence);((ArrayNode)result.path("dependencies")).add("HELD_INVENTORY");((ArrayNode)result.path("assumptions")).add("Closing instruction dollar scale uses compatible evidenced current held-contract multipliers. This does not supply a historical fill multiplier or change the retained brokerage instruction.");}((ArrayNode)result.path("assumptions")).add("Gross outcome at the reported instruction threshold. No positive return, trader intent, full-history completeness or execution at this price is guaranteed; a stop trigger is distinct from its execution limit.");return result;
+ }
+}

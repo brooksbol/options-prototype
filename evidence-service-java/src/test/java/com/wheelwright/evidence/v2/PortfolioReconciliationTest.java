@@ -1,0 +1,58 @@
+package com.wheelwright.evidence.v2;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.*;
+import com.wheelwright.evidence.db.SqliteEvidenceStore;
+import com.wheelwright.evidence.v2.portfolio.*;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.test.web.servlet.*;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.*;
+import static com.wheelwright.evidence.v2.portfolio.PortfolioJson.*;
+import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
+/** Actual retained CSV custody plus explicitly synthetic contract/coverage assertions. No tax-lot association. */
+class PortfolioReconciliationTest {
+ @TempDir Path directory;SqliteEvidenceStore db;PortfolioRepository repo;PortfolioReadService service;MockMvc mvc;String account;ObjectMapper mapper=new ObjectMapper();Document support,call,first,second;
+ @BeforeEach void setup()throws Exception{
+  db=new SqliteEvidenceStore(directory.resolve("source.sqlite3").toString());var accounts=new AccountDirectory(db.getConnection().getMetaData().getURL());account=accounts.bind("test","A1");var old=new PositionReadService(db,mapper);var artifacts=new BrokerageArtifacts(db.getConnection().getMetaData().getURL(),mapper,old);
+  String rows="A1,Test PTS,ETFs,SPY,SPY shares,100,50000,20,Cash\nA1,Test PTS,Options,-SPY261016C550,SPY calls,-2,-200,--,Cash\n";
+  artifacts.ingest(account,"quantity-source.csv","POSITIONS",PositionsTest.csv(rows,"Oct-05-2026").getBytes(java.nio.charset.StandardCharsets.UTF_8),UUID.randomUUID().toString());repo=new PortfolioRepository(db,mapper);service=new PortfolioReadService(repo,new PortfolioSources(repo,mapper,accounts));service.synchronize(Set.of(account));
+  support=repo.list(Kind.HOLDING,Set.of(account)).stream().filter(h->h.value().path("unit").asText().equals("SHARE")).findFirst().orElseThrow();call=repo.list(Kind.HOLDING,Set.of(account)).stream().filter(h->h.value().path("unit").asText().equals("CONTRACT")).findFirst().orElseThrow();var original=repo.list(Kind.CONSTRUCTION,Set.of(account)).stream().filter(c->leaves(c.value().path("composition")).getFirst().path("kind").asText().equals("OPTION")).findFirst().orElseThrow();first=repo.get(original.value().at("/position/href").asText()).orElseThrow();
+  try(var tx=repo.connection()){
+   var c=assertion(original,first.uri(),true);repo.put(tx,c);var p=first.value().deepCopy();p.set("currentConstruction",link(c.uri()));first=new Document(Kind.POSITION,first.uri(),account,p,first.snapshot(),first.sourceKey());repo.put(tx,first);
+   String id=UUID.randomUUID().toString(),uri="/v2/positions/"+id;var other=assertion(original,uri,false);repo.put(tx,other);var p2=first.value().deepCopy();p2.put("id",id);p2.set("self",link(uri));p2.set("currentConstruction",link(other.uri()));p2.set("audit",link(uri+"/audit"));second=new Document(Kind.POSITION,uri,account,p2,first.snapshot(),first.sourceKey());repo.put(tx,second);
+  }
+  mvc=MockMvcBuilders.standaloneSetup(new PortfolioController(service,TestAuthentication.auth("owner=owner:account.positions.read:"+account+"|account.holdings.read:"+account+"|account.artifacts.read:"+account),accounts)).build();
+ }
+ Document assertion(Document original,String position,boolean predecessor){
+  var c=original.value().deepCopy();String id=UUID.randomUUID().toString(),uri="/v2/constructions/"+id;c.put("id",id).put("changeKind",predecessor?"EVIDENCE_REINTERPRETATION":"INITIAL").put("predecessorStatus",predecessor?"KNOWN":"NONE");c.set("self",link(uri));c.set("position",link(position));if(predecessor)c.set("predecessor",original.value().path("self"));else c.putNull("predecessor");var leaf=leaves(c.path("composition")).getFirst();leaf.put("quantity","1");((ObjectNode)leaf.path("allocation")).put("quantity","1");var terms=(ObjectNode)leaf.path("terms");terms.put("multiplier","100").put("adjustment","STANDARD").put("settlement","PHYSICAL").put("payoffApplicability","STANDARD_EQUITY_INTRINSIC").put("qualification","QUALIFIED");terms.set("underlying",support.value().path("instrument"));var deliverable=obj().put("quantity","100").put("kind","SHARES").putNull("currency");deliverable.set("instrument",support.value().path("instrument"));terms.set("deliverable",array().add(deliverable));
+  var evidence=leaf.at("/allocation/inventory/evidence");var relation=obj().put("kind","ECONOMIC_COVERAGE").put("quantity","100").put("unit","SHARE").put("status","QUALIFIED").putNull("relatedPosition").putNull("effectiveAt").putNull("currency").put("coverageSetId",id).put("selection","AGGREGATE_FUNGIBLE_NO_SPECIFIC_SHARE_SELECTION");relation.set("fromNodes",array());relation.set("toNodes",array().add(leaf.path("nodeId").asText()));relation.set("evidence",evidence);relation.set("supportHolding",support.value().path("self"));relation.set("authority",PortfolioSources.authority(account,"synthetic-coverage:"+id,"AGGREGATE_ECONOMIC_CALCULATION","QUALIFIED",evidence,List.of(position,support.uri()),"Explicit synthetic compatible terms for aggregate owned coverage falsification; not broker reservation."));c.set("relationships",array().add(relation));return new Document(Kind.CONSTRUCTION,uri,account,c,original.snapshot(),original.sourceKey());
+ }
+ @AfterEach void close()throws Exception{db.close();}
+ JsonNode read(String path)throws Exception{var r=mvc.perform(get(path).header("Authorization","Bearer owner")).andReturn().getResponse();assertThat(r.getStatus()).as(r.getContentAsString()).isEqualTo(200);var body=mapper.readTree(r.getContentAsString());var dir=Path.of("build/portfolio-responses");java.nio.file.Files.createDirectories(dir);var capture=obj().put("path",path).put("caller","synthetic-coverage-owner");capture.set("body",body);java.nio.file.Files.writeString(dir.resolve(UUID.randomUUID()+".json"),capture.toString());return body;}
+ @Test void accountCountsOwnedSharesOnceAndPropagatesBothCompetingClaims()throws Exception{
+  var r=read("/v2/accounts/"+account+"/inventory-reconciliation");assertThat(r.path("coverageAssessments")).hasSize(1);var a=r.path("coverageAssessments").get(0);assertThat(a.path("status").asText()).isEqualTo("INSUFFICIENT");assertThat(a.path("eligibleQuantity").asText()).isEqualTo("100");assertThat(a.path("requiredQuantity").asText()).isEqualTo("200");assertThat(a.path("reservationStatus").asText()).isEqualTo("NOT_ESTABLISHED");assertThat(a.path("obligations")).hasSize(2);
+  for(var balance:r.path("balances")){assertThat(balance.path("status").asText()).isEqualTo("RECONCILED");assertThat(balance.path("residual").asText()).isEqualTo("0");assertThat(balance.path("availability").asText()).isEqualTo("UNKNOWN");}
+  for(var p:List.of(first,second)){var value=read(p.uri());assertThat(value.at("/allocation/status").asText()).isEqualTo("CONFLICT");assertThat(value.at("/evaluation/grossUnrealizedPl/status").asText()).isEqualTo("CONFLICT");assertThat(value.at("/evaluation/payoff/geometry").isNull()).isTrue();assertThat(value.path("warnings").toString()).contains("COVERAGE_INSUFFICIENT","/evaluation/payoff","/evaluation/grossUnrealizedPl");}
+  for(var p:List.of(first,second)){String uri=p.value().at("/currentConstruction/href").asText();var retained=repo.get(uri).orElseThrow().value().deepCopy();var representation=read(uri);assertThat(representation.at("/relationships/0/status").asText()).isEqualTo("CONFLICT");var position=read(p.uri());for(var id:position.at("/allocation/affectedHoldingIds")){java.util.UUID.fromString(id.asText());assertThat(repo.get("/v2/holdings/"+id.asText())).isPresent();}assertThat(leaves(representation.path("composition")).getFirst().at("/allocation/globalStatus").asText()).isEqualTo("RECONCILED");assertThat(representation.path("warnings").toString()).contains("COVERAGE_INSUFFICIENT");assertThat(repo.get(uri).orElseThrow().value()).isEqualTo(retained);}
+  var expanded=read("/v2/positions?projection=expanded&include=currentConstruction");for(var p:expanded.path("items"))if(Set.of(first.uri(),second.uri()).contains(p.at("/self/href").asText()))assertThat(p.at("/included/construction/relationships/0/status").asText()).isEqualTo("CONFLICT");
+  for(String projection:List.of("summary","expanded")){var collection=read("/v2/positions?projection="+projection);for(var p:collection.path("items"))if(Set.of(first.uri(),second.uri()).contains(p.at("/self/href").asText()))assertThat(p.at("/evaluation/grossUnrealizedPl/status").asText()).isEqualTo("CONFLICT");}
+ }
+ @Test void ownedOverallocationReachesCurrentConstituentsWithoutChangingRetainedCustody()throws Exception{
+  var previous=repo.get(first.value().at("/currentConstruction/href").asText()).orElseThrow();var c=previous.value().deepCopy();String uri="/v2/constructions/"+UUID.randomUUID();c.put("id",uri.substring(uri.lastIndexOf('/')+1));c.set("self",link(uri));c.set("predecessor",previous.value().path("self"));var leaf=leaves(c.path("composition")).getFirst();leaf.put("quantity","2");((ObjectNode)leaf.path("allocation")).put("quantity","2");
+  try(var tx=repo.connection()){repo.put(tx,new Document(Kind.CONSTRUCTION,uri,account,c,first.snapshot(),first.sourceKey()));var position=first.value().deepCopy();position.set("currentConstruction",link(uri));repo.put(tx,new Document(Kind.POSITION,first.uri(),account,position,first.snapshot(),first.sourceKey()));}
+  for(String construction:List.of(uri,second.value().at("/currentConstruction/href").asText())){var value=read(construction);assertThat(leaves(value.path("composition")).getFirst().at("/allocation/globalStatus").asText()).isEqualTo("CONFLICT");assertThat(value.path("warnings").toString()).contains("INVENTORY_OVERALLOCATED");}
+  for(var p:List.of(first,second))assertThat(read(p.uri()).at("/evaluation/marketValue/status").asText()).isEqualTo("CONFLICT");
+  assertThat(read(call.uri()).path("quantity").asText()).isEqualTo("2");assertThat(repo.get(previous.uri()).orElseThrow().value()).isEqualTo(previous.value());
+ }
+ @Test void missingDeliverableCompatibilityMakesCoverageUnknownRatherThanInventingQuantity()throws Exception{
+  var prior=repo.get(first.value().at("/currentConstruction/href").asText()).orElseThrow();var c=prior.value().deepCopy();String id=UUID.randomUUID().toString(),uri="/v2/constructions/"+id;c.put("id",id);c.set("self",link(uri));c.set("predecessor",prior.value().path("self"));((ObjectNode)leaves(c.path("composition")).getFirst().at("/terms/deliverable/0")).put("quantity","50");try(var tx=repo.connection()){repo.put(tx,new Document(Kind.CONSTRUCTION,uri,account,c,first.snapshot(),first.sourceKey()));var p=first.value().deepCopy();p.set("currentConstruction",link(uri));repo.put(tx,new Document(Kind.POSITION,first.uri(),account,p,first.snapshot(),first.sourceKey()));}
+  var r=service.reconciliation(account,Instant.now());var assessment=r.path("coverageAssessments").get(0);assertThat(assessment.path("status").asText()).isEqualTo("UNKNOWN");assertThat(assessment.path("eligibleQuantity").isNull()).isTrue();assertThat(assessment.path("requiredQuantity").isNull()).isTrue();assertThat(read(first.uri()).at("/allocation/status").asText()).isEqualTo("UNKNOWN");
+ }
+}

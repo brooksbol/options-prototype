@@ -1,0 +1,3 @@
+Fresh captures from full920-check run /tmp/ww-full-cash-custody.log, before subsequent targeted execution:
+115 actual response payloads; 0 schema violations
+Full run itself had one unrelated-to-payload disclosure fixture failure; see backend-milestone-07-initial.json. This is not full API acceptance.

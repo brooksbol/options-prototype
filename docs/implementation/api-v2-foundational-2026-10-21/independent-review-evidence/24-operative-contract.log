@@ -1,0 +1,12 @@
+/Users/bollich/kiro/options-candidates/pl-cli-01-capital-history/private/verify-env/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+test_account_access_advertises_implemented_independent_capabilities (__main__.OperativeIntegration) ... ok
+test_complete_declared_route_inventory_and_no_new_mutations (__main__.OperativeIntegration) ... ok
+test_generation_isolated_and_byte_idempotent (__main__.OperativeIntegration) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.796s
+
+OK
+
+MECHANICAL_EXECUTOR_EXIT_CODE=0

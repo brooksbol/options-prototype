@@ -1,0 +1,11 @@
+# Successor correction ledger
+
+Base: frozen `a2ed63062edce5af65c1ea635ddfce97b520c475`; isolated branch `codex/api-v2-implementation-corrections-2026-10-21`. The detached independent-review checkout and all earlier candidate commits remain preserved.
+
+| Observation | Provenance | Bounded correction | Verification scope |
+|---|---|---|---|
+| Missing current closing multiplier left an otherwise supported dollar objective unavailable | NEWLY CONSTRUCTED Codex source-parity probe; earlier replay supplied the closing multiplier synthetically | Compatible evidenced current held terms may scale a WORKING closing instruction; historical fills/expired intent are not backfilled | Targeted positive/negative Java assertions and actual Java→projectLive replay; full combined961 tests PASS,0 failures/errors,2 optional skips |
+| Reconciliation exposed total custody quantities and Holding URIs without holdings permission | Kiro-authored NEWLY CONSTRUCTED E3; mechanical Codex execution of unchanged request1 against frozen a2 | Require both Account Position-read and holdings-read; declare both in operative OAS | Actual loopback HTTP positive/negative regression added; targeted38 and full961 PASS; unchanged Kiro-authored probe also exhibits corrected denial/redaction in Codex successor rerun |
+| Transaction-derived fill cash/fees remained visible to Order-only reader | Kiro-authored NEWLY CONSTRUCTED T1; mechanical Codex execution against frozen a2 | Apply actual transaction evidence capability to metrics, private history/lifecycle/warnings as applicable; redact value/asOf/currency; preserve independent Order fields | Real normalized transaction→fill enrichment projection regression added; targeted38 and full961 PASS; unchanged Kiro-authored probe also exhibits corrected denial/redaction in Codex successor rerun |
+
+The original sixteen historical Kiro probes remain unavailable. None of these new probes is labelled a reproduction. Kiro's final ranked review/acceptance verdict has not been returned. This ledger records observed outputs and Codex corrections, not a fabricated independent recommendation or Principal acceptance. Account membership, Position identity, terminal closure, immutable Models/Constructions, qualified continuity and all open/deferred domain decisions are unchanged.

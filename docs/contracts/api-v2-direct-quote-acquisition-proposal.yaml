@@ -1,11 +1,13 @@
 openapi: 3.1.1
 info:
-  title: Wheelwright v2 canonical evidence — quotes and accounts
-  version: 0.5.0-contract
+  title: Wheelwright v2 financial domain and source evidence
+  version: 0.6.0-foundational
   description: >-
     Authoritative specification: accepted synchronous POST acquisition plus the
     Principal-selected GET held-discovery and canonical path-token instance-read
-    capabilities, plus canonical User/Account discovery, self identity, artifact resources and Position collections.
+    capabilities, plus the Principal-accepted foundational financial domain, token User/Account discovery,
+    independent custody observations, immutable Construction history, read-only Orders, qualified evaluations
+    and retained source Artifacts. Full API runtime acceptance remains a separate gate.
     The historical filename is retained. Implementation authority
     comes from the separately accepted Product contract and bounded handoff.
 externalDocs:
@@ -19,7 +21,7 @@ tags:
 - name: Users
   description: User identity and capability metadata.
 - name: Positions
-  description: Retained Position inspection and holdings acquisition.
+  description: Independently identified economic Positions; broker custody is separately readable.
 - name: Portfolio capital
   description: Qualified capital composites from retained sources.
 - name: Artifacts
@@ -31,6 +33,40 @@ tags:
 - name: Quotes
   description: Explicit acquisition and provider-free held-evidence reads.
 paths:
+  /v2/holdings/{holdingId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1holdings~1{holdingId}'
+  /v2/holdings:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1holdings'
+  /v2/accounts/{accountId}/inventory-reconciliation:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1accounts~1{accountId}~1inventory-reconciliation'
+  /v2/positions/{positionId}/audit/{auditId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1positions~1{positionId}~1audit~1{auditId}'
+  /v2/positions/{positionId}/audit:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1positions~1{positionId}~1audit'
+  /v2/constructions/models/{modelId}/versions/{versionId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1constructions~1models~1{modelId}~1versions~1{versionId}'
+  /v2/constructions/models/{modelId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1constructions~1models~1{modelId}'
+  /v2/constructions/models:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1constructions~1models'
+  /v2/market-observations/{observationId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1market-observations~1{observationId}'
+  /v2/market-observations:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1market-observations'
+  /v2/instruments/{instrumentId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1instruments~1{instrumentId}'
+  /v2/instruments:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1instruments'
+  /v2/orders/{orderId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1orders~1{orderId}'
+  /v2/orders:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1orders'
+  /v2/constructions/{constructionId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1constructions~1{constructionId}'
+  /v2/constructions:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1constructions'
+  /v2/positions/{positionId}:
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1positions~1{positionId}'
   /v2/market-evidence-subjects:
     $ref: 'api-v2-market-evidence-subjects.json#/paths/~1v2~1market-evidence-subjects'
   /v2/accounts/{accountId}/transactions:
@@ -48,7 +84,7 @@ paths:
   /v2/portfolio-capital-observations:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1portfolio-capital-observations'
   /v2/positions:
-    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1positions'
+    $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1positions'
   /v2/artifacts:
     $ref: 'api-v2-account-evidence.json#/paths/~1v2~1artifacts'
   /v2/artifacts/{artifactId}:

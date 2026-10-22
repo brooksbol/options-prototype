@@ -12,141 +12,7 @@
   ],
   "paths": {
     "/v2/positions": {
-      "parameters": [
-        {
-          "name": "X-Request-Id",
-          "in": "header",
-          "schema": {
-            "type": "string",
-            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
-          },
-          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
-          "example": "11111111-1111-4111-8111-111111111111"
-        }
-      ],
-      "get": {
-        "operationId": "readAccountPositions",
-        "summary": "Read retained Position snapshots",
-        "description": "Pure committed backend snapshot read. Latest export date then admission time. No provider contact, lifecycle inference, body, pagination or acquisition. Position identity denotes observed contract/custody inventory or explicit snapshot association, not lifecycle continuity. Constituents appear exactly once. Missing fields remain null. Bid/ask and per-option broker margin requirements may use an accepted same-day Option Summary; each carries separate artifact/row provenance. Strategy rows never count inventory. Option Greeks, allocation, close policy and working orders remain unknown. Date-only evidence does not establish current executable prices or adjusted deliverables. Original bytes resolve through artifactId. Optional accountId narrows that scope and cannot expand authority. Account relationships are in representations, not URI ancestry. Aliases are never accepted as IDs. Tastytrade API holdings carry additive observation provenance and have no inferred opening economics, grouping, Program or orders. No retained CSV market enrichment is applied to tastytrade observations. Three request forms only: absent view/snapshotId preserves latest selection; view=observations returns PositionObservationCollection; accountId plus snapshotId returns one exact selected PositionRead in PositionCollection. Each parameter occurs at most once. Missing selected snapshot, including an ID belonging to another Account, is 404 without global lookup. Catalog order is accountId ASC, evidenceDate DESC, recordedAt DESC, snapshotId DESC using binary text ordering, not established brokerage chronology. Catalog is complete within one committed read view; capacity failure is 503, never a truncated success. Inspection-time projection is not historical knowledge replay; later same-day Fidelity enrichment remains separately attributed.\n\n<!-- internal-only:start -->\nCollections include only backend-authorized Account scope. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership. Unknown, blank, repeated or incompatible parameters and GET bodies are 422 after authentication and explicit Account authorization. Catalog known authorized Account with no observations is 200 empty.\n<!-- internal-only:end -->",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "x-required-grants": [
-          "account.positions.read:{accountId}"
-        ],
-        "responses": {
-          "200": {
-            "description": "Authorized committed backend resource collection or metadata.",
-            "headers": {
-              "X-Request-Id": {
-                "required": true,
-                "schema": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              },
-              "Cache-Control": {
-                "required": true,
-                "schema": {
-                  "const": "private, no-store"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/PositionCollection"
-                    },
-                    {
-                      "$ref": "#/components/schemas/PositionObservationCollection"
-                    }
-                  ]
-                },
-                "examples": {
-                  "synthetic": {
-                    "summary": "Invented data only",
-                    "value": {
-                      "requestId": "11111111-1111-4111-8111-111111111111",
-                      "snapshots": []
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Problem401"
-          },
-          "403": {
-            "$ref": "#/components/responses/Problem403"
-          },
-          "404": {
-            "$ref": "#/components/responses/Problem404"
-          },
-          "422": {
-            "$ref": "#/components/responses/Problem422"
-          },
-          "500": {
-            "$ref": "#/components/responses/Problem500"
-          },
-          "503": {
-            "$ref": "#/components/responses/Problem503"
-          }
-        },
-        "parameters": [
-          {
-            "name": "accountId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "pattern": "^acct_[a-f0-9]{32}$"
-            },
-            "description": "Immutable backend Account ID; aliases are rejected. GET narrows authorized scope; POST selects the owning Account.",
-            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-          },
-          {
-            "name": "view",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "observations"
-              ]
-            },
-            "description": "Complete authorized retained observation catalog. Optional accountId narrows scope. Cannot combine with snapshotId."
-          },
-          {
-            "name": "snapshotId",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "minLength": 1
-            },
-            "description": "Nonblank exact opaque identity within required accountId. Cannot combine with view. No global lookup."
-          }
-        ],
-        "tags": [
-          "Positions"
-        ],
-        "externalDocs": {
-          "description": "Product and domain contract",
-          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/cli/ww-account-evidence.md"
-        },
-        "x-codeSamples": [
-          {
-            "lang": "curl",
-            "label": "Synthetic cURL",
-            "source": "curl --request GET 'https://api.example.invalid/v2/positions' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
-          }
-        ]
-      }
+      "$ref": "api-v2-foundational-portfolio.json#/paths/~1v2~1positions"
     },
     "/v2/artifacts": {
       "parameters": [
@@ -1314,7 +1180,7 @@
       "post": {
         "operationId": "acquireAccountPositions",
         "summary": "Acquire a holdings observation",
-        "description": "Explicit backend holdings acquisition for one canonical Account. No request body, orders, history or quote acquisition. Exactly one canonical accountId selector, no request body or other query. Unconfigured provider or unsupported brokerage is 503. No orders/history/quotes/scheduler. Interpretation is all-or-nothing; accepted snapshot and attempt outcome commit together. Failed refresh preserves previous evidence and its clock. Pagination requiring more than one page is retained/rejected rather than misreported as complete. Every response has X-Request-Id and private,no-store.\n\n<!-- internal-only:start -->\nExplicit backend-only OAuth and holdings acquisition. Authentication then exact Account acquisition authority before source/storage access. Account reads, artifact writes, quote acquisition and ID possession do not grant acquisition. Successful JSON bodies pass credential-safety checks before immutable exact-byte retention. OAuth responses, headers and upstream errors are not retained or disclosed.\n<!-- internal-only:end -->",
+        "description": "Explicit backend holdings acquisition for one canonical Account. No request body, orders, history or quote acquisition. Exactly one canonical accountId selector, no request body or other query. Unconfigured provider or unsupported brokerage is 503. No orders/history/quotes/scheduler. Securities interpretation is all-or-nothing; accepted snapshot and attempt outcome commit together. Failed refresh preserves previous evidence and its clock. Pagination requiring more than one page is retained/rejected rather than misreported as complete. Every response has X-Request-Id and private,no-store. A separately timed settled-cash companion response is retained in the existing Artifact/import owner when available. Securities ACCEPTED does not imply cash completeness: the result and holdings snapshot qualifications identify the cash outcome. Cash source failure preserves securities evidence; cash, securities and receipt clocks do not establish an atomic brokerage cut, buying power or reservation.\n\n<!-- internal-only:start -->\nExplicit backend-only OAuth and holdings acquisition. Authentication then exact Account acquisition authority before source/storage access. Account reads, artifact writes, quote acquisition and ID possession do not grant acquisition. Successful JSON bodies pass credential-safety checks before immutable exact-byte retention. OAuth responses, headers and upstream errors are not retained or disclosed.\n<!-- internal-only:end -->",
         "security": [
           {
             "bearerAuth": []
@@ -2200,7 +2066,14 @@
               "ACTIVITY",
               "OPTION_SUMMARY",
               "API_POSITIONS",
-              "API_TRANSACTIONS"
+              "API_TRANSACTIONS",
+              "API_BALANCES",
+              "API_ORDERS",
+              "API_MARKET_DATA",
+              "API_MARKET_SESSION",
+              "API_OPTION_CHAIN",
+              "API_OPTION_DEFINITIONS",
+              "API_OPTION_DEFINITION"
             ]
           },
           "importedAt": {
@@ -2598,6 +2471,22 @@
           "transactionsRead": {
             "type": "boolean",
             "description": "Explicit Account history facade grant; includes only policy-bounded read-through."
+          },
+          "holdingsRead": {
+            "type": "boolean",
+            "description": "Independent broker-custody observation read; no Position or Order grant implied."
+          },
+          "ordersRead": {
+            "type": "boolean",
+            "description": "Read-only brokerage instructions and authorized Order-derived facts."
+          },
+          "positionsAuditRead": {
+            "type": "boolean",
+            "description": "Retained Wheelwright Position audit; no missing brokerage history implied."
+          },
+          "marketRead": {
+            "type": "boolean",
+            "description": "Private Account market/source evidence; global market.read is also required for observations."
           }
         },
         "required": [
@@ -2607,7 +2496,11 @@
           "artifactsRead",
           "artifactsWrite",
           "positionsAcquire",
-          "transactionsRead"
+          "transactionsRead",
+          "holdingsRead",
+          "ordersRead",
+          "positionsAuditRead",
+          "marketRead"
         ],
         "description": "One explicitly established backend User\u2013Account relationship; multiple Users may access one Account and one User may access multiple Accounts."
       },

@@ -1,0 +1,15 @@
+{
+  "standing": "OBSERVED_SOURCE_ADMISSION_BEHAVIOR_NOT_PRODUCT_ACCEPTANCE",
+  "initialPositionResources": 4,
+  "afterIdenticalSourceCapture": 8,
+  "retainedSnapshots": 2,
+  "newOpeningEvidence": false,
+  "question": "A new GUID on every source cut is not independently established economic occurrence identity. Series-only continuity would likewise need a scoped association rule; do not settle ASSIM-0002 through a test expectation.",
+  "authority": [
+    "docs/07c-adrs.md:521-569",
+    "docs/knowledge/domain/positions-and-governed-quantity.md:28",
+    "docs/discovery/api-v2-candidate-resource-contract-2026-10-20.md:15,30",
+    "docs/assimilation-obligations.md ASSIM-0002"
+  ],
+  "decisionStatus": "PRINCIPAL_QUESTION_PENDING; no source admission policy selected by author"
+}

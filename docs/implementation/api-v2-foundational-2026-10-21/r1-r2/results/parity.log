@@ -1,0 +1,3 @@
+Actual Java whole-package mark money, gross P/L, DTE, clock, freshness, SPOT, RANGE and numerical payoff tails agree with projectLive; synthetic scope/terms, no live validation
+9 Java freshness cases agree with accepted tt policy; no live broker behavior asserted
+Actual normalized-Order Java opening/DTE, qualified EXIT PROGRESS dollar coordinates, RANGE, SPOT, QUOTE clocks/freshness agree with projectLive; synthetic membership/historical multiplier explicitly declared, absent trigger/fees remain unknown

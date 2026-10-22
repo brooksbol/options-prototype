@@ -1,0 +1,1 @@
+103 actual response payloads; 0 schema violations

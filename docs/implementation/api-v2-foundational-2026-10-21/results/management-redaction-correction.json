@@ -1,0 +1,38 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_RUNTIME_FALSIFIERS_NOT_ORIGINAL_KIRO_PROBES",
+  "baseline": "366a219",
+  "originalKiroProbePayloadsAvailable": false,
+  "checks": [
+    {
+      "area": "Management scope",
+      "cases": "Partial quantity/legs, partial fills, transitioning or contingent instructions; terminal stale targets; PRICE versus MONEY and unsigned instruction amounts.",
+      "result": "Targeted and Portfolio*/Tastytrade* suite passed14s.",
+      "correction": "Keep instructions inspectable; withhold whole-Position target/stop/checkpoint when management scope is ambiguous. Never infer execution or change held exposure."
+    },
+    {
+      "area": "Related Orders",
+      "source": "Tastytrade Orders reference: complex-order-id identifies parent complex order when a component.",
+      "cases": "Source fixture child/parent agreement; actual Account-scoped peer navigation; brokerGroupId filter pagination without Position permission.",
+      "result": "Targeted source/filter tests passed4s.",
+      "correction": "Link retained known peers only within Account, broker and environment. Cap embedded peers at200 with qualification/filter remediation. No OCO/current-completeness or Position association inferred."
+    },
+    {
+      "area": "Order redaction",
+      "before": "Three new probes failed: management warning code disclosed private ambiguity; redacted opening metric retained source currency; terminal geometry explanation disclosed private opening-cost conflict.",
+      "result": "Corrected probes passed5s; broader Portfolio*/Tastytrade* suite passed15s.",
+      "correction": "Redact dependent warning content, currency and private opening context; preserve independently supported terminal contractual geometry. Structured warnings with private source evidence become generic access qualifications."
+    },
+    {
+      "area": "Receipt chronology",
+      "before": "Newly constructed two-observation runtime test selected receipt .9Z over later .900001Z using lexical sorting. Initial test compilation error (Optional<Principal>) was corrected before the failing runtime probe.",
+      "result": "Runtime failure reproduced3s; corrected test passed4s.",
+      "correction": "Compare parsed Instants, preserving source event clocks and private market scope."
+    }
+  ],
+  "limits": [
+    "No live brokerage or production data/grant mutation.",
+    "Synthetic scope/management/security cases do not establish broker association truth or Product acceptance.",
+    "Full928 regression predates these changes; next full run is in progress.",
+    "Qualified source-continuity implementation follows the explicit Principal Option A decision; it is not yet implemented in this ledger."
+  ]
+}

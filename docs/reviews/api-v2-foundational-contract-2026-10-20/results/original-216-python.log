@@ -1,0 +1,40 @@
+/Users/bollich/kiro/options-candidates/pl-cli-01-capital-history/private/verify-env/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+test_account_wide_overallocation_fails_not_only_tree_local (__main__.CandidateTests) ... ok
+test_adjusted_deliverable_and_mixed_expiration_no_false_geometry (__main__.CandidateTests) ... ok
+test_all_graph_links_resolve_and_scopes_are_explicit (__main__.CandidateTests) ... ok
+test_broken_wing_exact_affine_values_and_unequal_tails (__main__.CandidateTests) ... ok
+test_cash_and_nonoption_dte_not_applicable_not_missing (__main__.CandidateTests) ... ok
+test_cash_partition_and_residual_not_available (__main__.CandidateTests) ... ok
+test_closed_position_has_evidenced_empty_current_composition (__main__.CandidateTests) ... ok
+test_coverage_matrix_paths_and_candidate_fields (__main__.CandidateTests) ... ok
+test_covered_call_exact_geometry (__main__.CandidateTests) ... ok
+test_every_example_resource_and_embedded_response (__main__.CandidateTests) ... ok
+test_exact_rational_coordinates_and_no_binary_numbers (__main__.CandidateTests) ... ok
+test_fractional_contracts_and_unqualified_discretionary_basis_fail (__main__.CandidateTests) ... ok
+test_guid_identity_repeated_series_closed_reopened (__main__.CandidateTests) ... ok
+test_immutable_construction_and_model_version (__main__.CandidateTests) ... ok
+test_missing_historical_quote_preserved (__main__.CandidateTests) ... ok
+test_missing_opening_credit_is_null_not_order_limit (__main__.CandidateTests) ... ok
+test_missing_partial_terms_preserve_known_expiry_without_payoff (__main__.CandidateTests) ... ok
+test_mixed_currency_not_summed_or_named (__main__.CandidateTests) ... ok
+test_multiplier_deliverable_rejection (__main__.CandidateTests) ... ok
+test_new_routes_are_get_only_and_no_optional_roots (__main__.CandidateTests) ... ok
+test_openapi_and_all_local_schema_definitions (__main__.CandidateTests) ... ok
+test_predecessor_scope_and_cycle (__main__.CandidateTests) ... ok
+test_projections_preserve_financial_qualifications (__main__.CandidateTests) ... ok
+test_recursive_subconstruction_and_duplicate_ownership (__main__.CandidateTests) ... ok
+test_replay_evaluations_and_conflict_examples_are_typed (__main__.CandidateTests) ... ok
+test_reported_pl_is_not_promoted_to_gross (__main__.CandidateTests) ... ok
+test_reverse_jade_lizard_strike_order (__main__.CandidateTests) ... ok
+test_schema_refuses_false_precision_and_unknown_types (__main__.CandidateTests) ... ok
+test_source_manifest_and_json_pointer_witnesses (__main__.CandidateTests) ... ok
+test_terminal_closure_no_resurrection (__main__.CandidateTests) ... ok
+test_unauthorized_cross_account_historical_and_source_links (__main__.CandidateTests) ... ok
+test_unclassified_retains_evaluable_constituents (__main__.CandidateTests) ... ok
+test_working_order_without_fill_never_changes_composition (__main__.CandidateTests) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.932s
+
+OK

@@ -1,8 +1,12 @@
 # Wheelwright API v2 — repository contract entry point
 
-The authoritative machine-readable entry point is [the common OpenAPI 3.1.1 specification](../contracts/api-v2-direct-quote-acquisition-proposal.yaml). Its historical filename is retained. It references [Account/evidence schemas](../contracts/api-v2-account-evidence.json) and [market subject selection](../contracts/api-v2-market-evidence-subjects.json). Resolve the local references; do not infer coverage from a filename, CLI command or generated HTML.
+The authoritative machine-readable entry point is [the common OpenAPI 3.1.1 specification](../contracts/api-v2-direct-quote-acquisition-proposal.yaml). Its historical filename is retained. It references [Account/evidence schemas](../contracts/api-v2-account-evidence.json), [market subject selection](../contracts/api-v2-market-evidence-subjects.json), and the [foundational financial-domain module](../contracts/api-v2-foundational-portfolio.json). Resolve the local references; do not infer coverage from a filename, CLI command or generated HTML.
 
 Humans and agents consume the same contract. Static Redocly HTML is a derived human presentation. Agents read repository OAS and linked Product/domain contracts directly; no HTML scraping, extra agent format, registry or MCP server is required.
+
+The foundational module follows the [Principal-accepted domain baseline and mandatory corrections](../discovery/api-v2-specification-acceptance-checkpoint-2026-10-21.md), under the [full implementation handoff](../discovery/api-v2-full-implementation-handoff-2026-10-21.md). It replaces the alpha interpretation of Position identity with independent GUID resources and separately readable retained brokerage holdings. Construction instances and exact Model versions are immutable; read-only Orders, qualified evaluations, provenance and Account reconciliation remain client-independent. Portfolio membership, an Execution root and universal split/recombine policy remain deferred.
+
+The isolated [implementation coverage and verification package](../implementation/api-v2-foundational-2026-10-21/README.md) distinguishes implemented behavior from remaining proof obligations. Operative source-contract inclusion does not declare complete API delivery, independent review, Product acceptance or publication. Existing publication identity metadata remains gated separately.
 
 ## Semantics and authority
 

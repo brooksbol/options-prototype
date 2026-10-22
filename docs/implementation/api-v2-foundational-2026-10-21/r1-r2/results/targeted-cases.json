@@ -1,0 +1,7 @@
+{
+  "tests": 22,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "scope": "R1 source, R2 current exposure and qualified continuity targeted run before final Account/closed-view consistency guards"
+}

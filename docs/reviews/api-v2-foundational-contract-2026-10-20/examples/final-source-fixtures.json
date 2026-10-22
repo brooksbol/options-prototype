@@ -1,0 +1,132 @@
+{
+  "standing": "SYNTHETIC_OFFLINE_SOURCE_NOT_BROKER_FACTS",
+  "currency": "USD",
+  "asOf": "2026-10-21T18:00:00Z",
+  "openingAt": "2026-10-12T15:00:00Z",
+  "expiration": "2026-12-18",
+  "quoteAt": "2026-10-21T17:59:30Z",
+  "spot": "100",
+  "spotAt": "2026-10-21T17:59:40Z",
+  "freshnessMaxAgeSeconds": 120,
+  "sourceScope": "COMPLETE_FOR_THIS_SYNTHETIC_SCENARIO_ONLY",
+  "brokerReservation": null,
+  "scenarios": {
+    "cash-secured-put": {
+      "snapshotId": "specimen-cash-secured-put",
+      "coordinatedOpening": false,
+      "openingRecord": "documented-account-activity-cash-secured-put",
+      "holdings": [
+        {
+          "nodeId": "SP",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "right": "PUT",
+          "strike": "95",
+          "quantity": "1",
+          "basisMagnitude": "200",
+          "midPrice": "1",
+          "fee": "2",
+          "multiplier": "100"
+        },
+        {
+          "nodeId": "CASH",
+          "kind": "CASH",
+          "side": "LONG",
+          "right": null,
+          "strike": null,
+          "quantity": "9500",
+          "basisMagnitude": "9500",
+          "midPrice": "1",
+          "fee": "0",
+          "multiplier": "1"
+        }
+      ]
+    },
+    "buy-write": {
+      "snapshotId": "specimen-buy-write",
+      "coordinatedOpening": true,
+      "openingRecord": "documented-account-activity-buy-write",
+      "holdings": [
+        {
+          "nodeId": "SHARES",
+          "kind": "LONG_SHARES",
+          "side": "LONG",
+          "right": null,
+          "strike": null,
+          "quantity": "100",
+          "basisMagnitude": "10000",
+          "midPrice": "100",
+          "fee": "0",
+          "multiplier": "1"
+        },
+        {
+          "nodeId": "SC",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "right": "CALL",
+          "strike": "105",
+          "quantity": "1",
+          "basisMagnitude": "200",
+          "midPrice": "1",
+          "fee": "2",
+          "multiplier": "100"
+        }
+      ]
+    },
+    "iron-condor": {
+      "snapshotId": "specimen-iron-condor",
+      "coordinatedOpening": false,
+      "openingRecord": "documented-account-activity-iron-condor",
+      "holdings": [
+        {
+          "nodeId": "LP",
+          "kind": "OPTION",
+          "side": "LONG",
+          "right": "PUT",
+          "strike": "90",
+          "quantity": "1",
+          "basisMagnitude": "100",
+          "midPrice": ".5",
+          "fee": "1",
+          "multiplier": "100"
+        },
+        {
+          "nodeId": "SP",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "right": "PUT",
+          "strike": "95",
+          "quantity": "1",
+          "basisMagnitude": "200",
+          "midPrice": "1",
+          "fee": "1",
+          "multiplier": "100"
+        },
+        {
+          "nodeId": "SC",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "right": "CALL",
+          "strike": "105",
+          "quantity": "1",
+          "basisMagnitude": "200",
+          "midPrice": "1",
+          "fee": "1",
+          "multiplier": "100"
+        },
+        {
+          "nodeId": "LC",
+          "kind": "OPTION",
+          "side": "LONG",
+          "right": "CALL",
+          "strike": "110",
+          "quantity": "1",
+          "basisMagnitude": "100",
+          "midPrice": ".5",
+          "fee": "1",
+          "multiplier": "100"
+        }
+      ]
+    }
+  }
+}

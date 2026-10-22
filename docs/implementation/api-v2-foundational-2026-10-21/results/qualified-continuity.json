@@ -1,0 +1,25 @@
+{
+  "standing": "PRINCIPAL_APPROVED_QUALIFIED_RECONCILIATION_NEW_RUNTIME_TESTS",
+  "decision": "qualified-continuity-decision.md",
+  "baseline": "cd33f73",
+  "originalKiroProbePayloadsAvailable": false,
+  "before": "Four new probes failed in5s on the prior admission rule (duplicate, ambiguous, changed quantity, closure/reopening counts).",
+  "after": "Initial four pass4s. Six-case affected suite passed16s after correcting a test fixture: missing multiplier is not a contradictory known multiplier; strike777 versus reported strike is an actual known-term conflict. Two additional overlap/history tests pass3s.",
+  "cases": [
+    "Repeated identical observations retain existing GUIDs, immutable immediate-predecessor navigation and UNRESOLVED status; no opening date/original DTE.",
+    "Multiple compatible candidates preserve all identities and holdings without an additional guessed Position.",
+    "Incompatible quantity preserves holdings without an invented new occurrence or split.",
+    "Known conflicting contractual strike withholds association.",
+    "An existing OPEN scope is not downgraded/reused as UNRESOLVED.",
+    "Overlapping package inventory scopes do not invent split/recombine associations.",
+    "Retained original/current/cumulative evidence is not erased or promoted to complete history.",
+    "Explicit synthetic scoped closure is terminal; later held exposure has a new GUID with repeated broker series and unknown opening."
+  ],
+  "limits": [
+    "Closure source is explicitly synthetic and separately retained; no actual broker closure guarantee asserted.",
+    "Unknown contractual facts are not contradictions; independently known contradictions refuse matching.",
+    "GUID reuse is qualified observation continuity only; intervening unobserved close/reopen remains unknowable.",
+    "Current source holdings remain independently readable; no tax-lot/operator-association/lifecycle infrastructure added.",
+    "Full regression is in progress; no complete API or Product acceptance claim."
+  ]
+}

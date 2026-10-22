@@ -1,0 +1,47 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_RUNTIME_AND_SOURCE_FIXTURE_VERIFICATION_NOT_ORIGINAL_KIRO_PROBES",
+  "baseline": "b1f56a2",
+  "changes": [
+    "Bounded GET-only native complex-orders pages reuse OAuth, Account authorization, exact Artifact/import retention and existing API_ORDERS type. No new root resource or synchronization service.",
+    "Optional Order.brokerGroupAuthority reuses AssociationAuthority. Producer compares actual retained parent/child instructions, Account, parent ID, status, dimensions and terms; it never establishes Position membership.",
+    "Supported active corroborated GTD and expired historical GTD convention with date/receipt and superseding-instruction checks; no notification, timed closing, stop guarantee or trade submission.",
+    "Independent broad and complex source outcomes cannot mask each other. Failed source contact without a retainable body returns scoped financial warnings without manufacturing evidence.",
+    "Full production Spring graph shares real temporary persistence/User/Account/import owners over loopback; all provider URLs/credentials are isolated or disabled.",
+    "Actual normalized-Order evaluator versus independent projectLive replay covers opening/DTE, target/current/zero dollar coordinates, range/spot and quote clocks.",
+    "Fee evaluation timestamp uses evaluatedAt; retained fill event clocks remain separate.",
+    "Current holdings selection compares actual receipt Instants, not ISO fractional spelling."
+  ],
+  "observedTests": [
+    {
+      "command": "test --tests *PortfolioComplexOrderEvidenceTest",
+      "result": "2 pass2s after numeric native-quantity decoder correction; cross-Account/contradictory page and no invented exposure checked."
+    },
+    {
+      "command": "test --tests *PortfolioApplicationWiringTest",
+      "result": "Pass4s. Initial403 was correct multi-Account original protection: happy-path fixture subsequently excludes unrelated B2 row; production authorization was not weakened."
+    },
+    {
+      "command": "test --tests *PortfolioOrderEvaluationTest",
+      "result": "Two new checkpoint positives initially failed against missing implementation; corrected15-test subset passes2s, including scope/predicate and expired/superseded negative cases."
+    },
+    {
+      "command": "test --tests *PortfolioManagementParityTest; node verify-management-parity.mjs",
+      "result": "Pass; minimal generated specimen explicitly declares native-shaped historical multiplier, package size and zero-fill working instructions. Those fields are NOT claimed as observed BUG-040 broker facts."
+    },
+    {
+      "command": "test --tests *PortfolioOrderAcquisitionTest --tests *PortfolioManagementParityTest --tests *PortfolioOrderEvaluationTest",
+      "result": "Pass4s, including HTTP503 without original bytes, successful qualified collection read and Position-only non-contact/privacy."
+    },
+    {
+      "command": "test --tests *Portfolio* --tests *Tastytrade*",
+      "result": "Latest completed affected run18s passed before final current-custody clock correction. New final affected run in progress."
+    }
+  ],
+  "limits": [
+    "No live source contact or actual installed-runtime/grant acceptance.",
+    "Synthetic package membership and historical multipliers remain explicit assumptions; raw native Orders/holdings do not prove Position association.",
+    "The source specimen has a stop limit but no reported trigger; trigger evaluation stays unavailable. Final fees remain unknown.",
+    "Historical group corroboration does not prove complete/current atomic OCO behavior or guaranteed execution.",
+    "Latest full947 run predates this continuation; another full regression is required."
+  ]
+}

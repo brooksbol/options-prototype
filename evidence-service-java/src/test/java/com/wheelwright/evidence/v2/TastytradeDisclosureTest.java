@@ -56,6 +56,7 @@ class TastytradeDisclosureTest {
             var users=new UserDirectory(store,accounts);
             var auth=new BearerAuthenticator(users,"owner=owner:account.artifacts.read:"+id+",all=all:account.artifacts.read:"+id+"|account.artifacts.read:"+foreign);
             var positions=new PositionReadService(store,json);var client=mock(TastytradeClient.class);
+            when(client.settledCashBalance("TTTEST01")).thenThrow(new IllegalStateException("companion cash source intentionally unavailable in disclosure fixture"));
             var service=new PositionAcquisition(store,accounts,positions,client);
             var artifacts=new BrokerageArtifacts(store,json,positions,accounts);
             var mvc=MockMvcBuilders.standaloneSetup(new ArtifactsController(artifacts,auth,json)).build();
