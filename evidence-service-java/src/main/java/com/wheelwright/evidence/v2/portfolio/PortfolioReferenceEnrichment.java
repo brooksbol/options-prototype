@@ -30,7 +30,7 @@ public final class PortfolioReferenceEnrichment {
     if(!withoutEvidence(after).equals(withoutEvidence(before))){for(var ref:reference.path("evidence"))((ArrayNode)after.path("evidence")).add(ref.deepCopy());leaf.set("terms",after);changed=true;if(conflict)((ArrayNode)value.path("warnings")).add(warning("INCOMPATIBLE_CONTRACT_TERMS","/composition","Original custody terms and independently reported reference terms remain inspectable.","Conflicting contract terms cannot acquire a validated named structure or exact payoff by source precedence."));}
    }
    if(!changed)continue;
-   String guid=UUID.randomUUID().toString(),uri="/v2/constructions/"+guid;value.put("id",guid).put("createdAt",now.toString()).put("changeKind","EVIDENCE_REINTERPRETATION");value.set("self",link(uri));value.set("predecessor",link(old.uri()));
+   String guid=UUID.randomUUID().toString(),uri="/v2/constructions/"+guid;value.put("id",guid).put("createdAt",now.toString()).put("changeKind","EVIDENCE_REINTERPRETATION").put("predecessorStatus","KNOWN");value.set("self",link(uri));value.set("predecessor",link(old.uri()));
    // Reference facts do not create new membership, broker reservation or Order association claims.
    if(value.at("/recognition/status").asText().equals("VALIDATED")){
     var model=repo.get(c,value.at("/recognition/modelVersion/href").asText());

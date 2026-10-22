@@ -14,7 +14,7 @@ for f in sorted((root/'evidence-service-java/build/portfolio-responses').glob('*
  if not candidates:
   if r.get('schema'):
    try:contracts.validator({'$ref':'#/components/schemas/'+r['schema']},FOUNDATION).validate(body)
-   except Exception as error:failures.append((path,r['schema'],str(error)[:500]))
+   except Exception as error:failures.append((path,r['schema'],str(getattr(error,'message',error))[:500]+' at '+str(list(getattr(error,'absolute_path',[])))))
    standalone+=1
   else:failures.append((path,'No operative route or declared standalone schema matches emitted representation'))
   continue
@@ -22,7 +22,7 @@ for f in sorted((root/'evidence-service-java/build/portfolio-responses').glob('*
  try:
   contracts.validate_response(method,template,status,body,r.get('headers'))
   if r.get('schema'):contracts.validator({'$ref':'#/components/schemas/'+r['schema']},FOUNDATION).validate(body)
- except Exception as error:failures.append((path,template,str(error)[:500]))
+ except Exception as error:failures.append((path,template,str(getattr(error,'message',error))[:500]+' at '+str(list(getattr(error,'absolute_path',[])))))
  count+=1
 for error in failures:print(*error,sep=' | ')
 print(f'{count} route representations plus {standalone} standalone financial representations; {len(selected)} route/status combinations; {len(failures)} operative schema violations')

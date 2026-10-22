@@ -1,0 +1,486 @@
+{
+  "standing": "IMPLEMENTATION_RECONCILIATION_NOT_PRODUCT_ACCEPTANCE",
+  "acceptedPlan": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.json",
+  "baseline": "0619f61 plus targeted predecessor/model-admission corrections",
+  "rows": [
+    {
+      "field": "Account/broker",
+      "source": "/customers/me/accounts; holdings data.items[].account-number",
+      "response": "Position.account; Order.account; SourceInventory.account",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/AccountDirectory.java:11",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/UserDirectory.java:11"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade.mjs:197-216",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionsController.java:30-62",
+        "docs/77-api-v2-architectural-guardrails.md:84-96"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Held constituent contracts and quantities",
+      "source": "/accounts/{brokerAccount}/positions: symbol, instrument-type, quantity, quantity-direction, multiplier, expires-at, underlying-symbol",
+      "response": "BrokerHolding (independent custody); Construction.composition.*.allocation.holding; SourceInventory projection",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java:17",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioCashCustody.java:13",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java:13"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade.mjs:395-407",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:104-139",
+        "scripts/tastytrade-live-domain.mjs:62-98"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Recognition/name",
+      "source": "Held options plus instrument responses and qualified Order/association evidence",
+      "response": "Construction.recognition; ModelVersion",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRecognition.java:10"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Validated naming requires source-predicate membership in addition to structural terms; ambiguous/unclassified constituents remain inspectable.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:62-98",
+        "scripts/tastytrade-live-domain.mjs:534-568",
+        "docs/82-v2-ontology-resource-semantic-coverage-reconciliation-2026-10-07.md:170-178"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "TRADE SHAPE",
+      "source": "Instrument strike-price, option-type, shares-per-contract, expiration-date, option-chain-type plus signed holdings",
+      "response": "Position.evaluation.payoff.geometry",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Exact common-expiration standard-deliverable geometry; missing cost can preserve terminal rights but never gross-profit geometry. Mixed-horizon/adjusted cases remain unsupported.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade.mjs:418-437",
+        "scripts/tastytrade-live-domain.mjs:534-568",
+        "scripts/tastytrade-payoff-render.mjs:7-80",
+        "docs/design/position-payoff-visual-contract/README.md:13-24"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "RANGE",
+      "source": "Verified short strikes / vertical half-line, not market breakeven",
+      "response": "Position.evaluation.range",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:439-440",
+        "docs/cli/tt-live-panel.md:14-21"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Opening fills",
+      "source": "/accounts/{brokerAccount}/orders data.items[].legs[].fills[]: quantity, fill-price, filled-at",
+      "response": "Order.legs[].fills; Position.stateEvidence; timeline.openedAt",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderSources.java:15",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioFillEvidence.java:17",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Reported fills do not establish Position association or historical multiplier by themselves. Exact transaction/fill correlation can retain separately reported gross/net and fees.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:30-59",
+        "scripts/tastytrade-live-domain.mjs:342-354",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeTransactions.java:63-76",
+        "scripts/tastytrade.test.mjs:53-81"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Opening signed cash flow (credit/debit)",
+      "source": "Verified opening fills; short proceeds minus long cost",
+      "response": "Position.evaluation.openingCashFlow (MONEY, total package dollars)",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:40-59",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:134",
+        "scripts/tastytrade.test.mjs:53-69"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Remaining DTE",
+      "source": "Verified expiry; backend evaluation clock",
+      "response": "Evaluation.timeline.remainingDays",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:20-25",
+        "scripts/tastytrade-live-domain.mjs:381-383",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionReadService.java:151-155"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Original DTE/opening duration",
+      "source": "Final verified opening fill to verified expiration",
+      "response": "Evaluation.timeline.originalDays/openedAt",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Final verified fill and scoped association required; holdings update/receipt is not opening time.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:40-59",
+        "scripts/tastytrade-live-domain.mjs:425-428",
+        "docs/cli/tt-live-panel.md:23-25"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Manual management checkpoint",
+      "source": "Matching profit Limit closing Order with time-in-force=GTD, gtc-date, received-at, complex-order-id; applicable expired history",
+      "response": "Evaluation.management.manualCheckpoint",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "PARTIAL_COMPLEX_SOURCE_CORROBORATION",
+      "qualification": "Active non-complex GTD convention supported; complex-child corroboration and historical expired-GTD fallback remain implementation gaps, not Product deferrals.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:180-225",
+        "scripts/tastytrade-manual-exit.test.mjs:40-99",
+        "docs/cli/tt-live-panel.md:23-29"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Working closing Orders",
+      "source": "Orders + complex-orders child status, legs/actions, size, complex-order-id, price, stop-trigger",
+      "response": "Order; OrderAssociation; ManagementEvaluation",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderAcquisition.java:16",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderSources.java:15",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:100-170",
+        "scripts/tastytrade.mjs:403-404",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionReadService.java:129-140"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Profit-taking target",
+      "source": "Reconciled Limit debit close Order price below verified credit",
+      "response": "Order.limitPrice; Evaluation.management.profitTargetGrossPl",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:123-145",
+        "scripts/tastytrade-economic-story.mjs:8-25",
+        "scripts/tastytrade-credit-spreads.test.mjs:49-88"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Stop trigger versus limit",
+      "source": "Stop Limit: stop-trigger distinct from price (execution limit), source status",
+      "response": "Order.stopTrigger/limitPrice; management.reportedStopThresholdGrossPl",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Reported stop trigger differs from limit. No execution guarantee, timed closing or automatic notification inferred.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:158-167",
+        "scripts/tastytrade-economic-story.mjs:8-25",
+        "docs/cli/tt-live-panel.md:27-29"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Option quotes",
+      "source": "/market-data/by-type?equity-option[]=symbol: bid, ask, mid, mark, updated-at",
+      "response": "MarketObservation; Metric.evidence",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioTastyMarketSources.java:17",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java:14"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade.mjs:206-216",
+        "scripts/tastytrade.mjs:405-407",
+        "scripts/tastytrade-live-domain.mjs:228-262",
+        "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml:1044-1055",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionMarketEvidence.java:15-49"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Whole-package close value",
+      "source": "All option midpoints, or complete qualified broker marks for entire package",
+      "response": "Evaluation.estimatedClosingCashFlow; Metric.method/evidence",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioPackageValuation.java:10"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:228-262",
+        "scripts/tastytrade-credit-spreads.test.mjs:118-141"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Gross unrealized P/L",
+      "source": "Verified credit and close value; Fidelity Total gain/loss dollar separately reported",
+      "response": "Evaluation.grossUnrealizedPl; separately Evaluation.brokerReportedOpenPl (no unverified gross/fees equivalence)",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:381-394",
+        "scripts/tastytrade-live-domain.mjs:445-447",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java:63-74",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:134"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Underlying SPOT",
+      "source": "/market-data/by-type?equity[]=root: mid,bid,ask,updated-at,instrument-type",
+      "response": "Evaluation.spot; MarketObservation.instrument/mid",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade.mjs:408-416",
+        "scripts/tastytrade-live-domain.mjs:477-489",
+        "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml:1056-1135"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "QUOTE freshness",
+      "source": "Source updated-at on every applicable option and spot plus session evidence",
+      "response": "Evaluation.oldestMaterialObservationAt/freshness; per-Metric evidence",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSessionEvidence.java:10",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:469-489",
+        "scripts/tastytrade-freshness.mjs:8-35",
+        "docs/07c-adrs.md:493-500"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "EXIT PROGRESS zero/current/overflow",
+      "source": "Verified package opening and closing economics",
+      "response": "Evaluation.management.zeroGrossPl; grossUnrealizedPl; profitTargetGrossPl",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:12"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Zero/current/target gross-dollar coordinates retain their qualifications; current-to-target rendering is client presentation. Normalized-source parity expansion remains due.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:433-448",
+        "scripts/tastytrade-economic-story.mjs:8-25",
+        "docs/cli/tt-live-panel.md:18-21"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Confirmed absent protective stop",
+      "source": "Complete supported reconciled current closing-order scan, not a null stop field",
+      "response": "ManagementEvaluation.protectiveOrderEvidence; Order.observationCoverage",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Absence is UNKNOWN without accepted complete/current scan evidence; a missing reported stop is not confirmed absence.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-live-domain.mjs:100-170",
+        "scripts/tastytrade-live-domain.mjs:430-434",
+        "docs/cli/tt-live-panel.md:50-58"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Fidelity valuations and history",
+      "source": "Positions Quantity/Current value/Total gain/loss dollar; Option Summary Bid/Ask; Activity Run Date/Amount ($)/Price ($)/fees",
+      "response": "Metric.origin/method; Evaluation.brokerReportedOpenPl; SourceRef; reused Account transactions; BrokerHolding.reportedMarketValue/reportedOpenPl/reportedCapitalRequirement (last only if actually reported and admitted)",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java:17",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioFidelityAdditionalCustody.java:16"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Fidelity exported values retain source dialect/day precision. Unknown source history/cost does not become derived gross/net or broker tax basis.",
+      "originalRepositoryEvidence": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java:29-83",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionMarketEvidence.java:15-49",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityTransactions.java:8-23",
+        "docs/70-bounded-option-obligation-continuity-checkpoint-2026-09-28.md:11-17"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Experimental movement arrows",
+      "source": "Dated prev-close, prev-close-date, summary-date, prev-close-price-type and continuity",
+      "response": "No required field",
+      "runtimeOwners": [],
+      "classification": [
+        "SOURCE_UNAVAILABLE_OR_UNVERIFIED"
+      ],
+      "implementationState": "EXPLICITLY_NOT_REQUIRED",
+      "qualification": "OUT_OF_SCOPE: provisional arrows are not accepted Product obligations.",
+      "originalRepositoryEvidence": [
+        "scripts/tastytrade-economic-story.mjs:26-67",
+        "docs/cli/tt-live-panel.md:31-35"
+      ],
+      "liveBrokerVerified": false
+    },
+    {
+      "field": "Cross-Position quantity/basis/collateral",
+      "source": "Aggregate held inventory + evidenced allocations and source basis attribution",
+      "response": "BrokerHolding; Position.allocation; InventoryReconciliation.coverageAssessments; FinancialRelationship",
+      "runtimeOwners": [
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReconciliation.java:12",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java:15"
+      ],
+      "classification": [
+        "ALREADY_SUPPORTED",
+        "BACKEND_DERIVATION_NEEDED"
+      ],
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Account-wide ownership conservation and aggregate fungible support are distinct; no specific-share assignment, buying-power or broker reservation inference.",
+      "originalRepositoryEvidence": [
+        "docs/discovery/api-v2-adversarial-review-dispositions-and-specification-handoff-2026-10-20.md:15-20",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java:85-98"
+      ],
+      "liveBrokerVerified": false
+    }
+  ],
+  "limits": [
+    "Source availability means repository/native contract/loopback evidence, never live Account availability.",
+    "No DOMAIN_MODEL_GAP identified; complex/manual corroboration is a bounded missing adapter/policy implementation.",
+    "This matrix is not complete route/property or runtime acceptance evidence."
+  ]
+}

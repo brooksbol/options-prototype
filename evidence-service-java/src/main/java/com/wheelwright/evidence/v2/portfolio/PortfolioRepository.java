@@ -85,6 +85,10 @@ public final class PortfolioRepository {
                 try(var query=c.prepareStatement("SELECT DISTINCT file_type FROM brokerage_import WHERE account=? AND artifact_id=? AND file_type IN ('API_BALANCES','API_ORDERS','API_MARKET_DATA','API_MARKET_SESSION','API_OPTION_CHAIN','API_OPTION_DEFINITIONS','API_OPTION_DEFINITION')")){query.setString(1,d.account());query.setString(2,artifact.substring("/v2/artifacts/".length()));try(var row=query.executeQuery()){while(row.next()){String capability=row.getString(1).equals("API_ORDERS")?"account.orders.read:":row.getString(1).equals("API_BALANCES")?"account.holdings.read:":"account.market.read:";if(!n.path("requiredCapability").asText().equals(capability+d.account()))throw new IllegalArgumentException("Source-specific capability required");}}}
             }
         }
+        if(n.isObject()&&n.hasNonNull("modelVersion")){
+            String version=n.at("/modelVersion/href").asText();if(!version.matches("/v2/constructions/models/[^/?#]+/versions/(?!latest$)[^/?#]+"))throw new IllegalArgumentException("exact immutable Model version required");
+            var target=get(c,version);if(target.isEmpty()||target.get().kind()!=Kind.MODEL_VERSION)throw new IllegalArgumentException("exact Model version must resolve");
+        }
         if(n.isObject()&&n.has("href")){
             String href=n.path("href").asText();
             if(d.account()!=null&&href.startsWith("/v2/accounts/")&&!href.equals("/v2/accounts/"+d.account())&&!href.startsWith("/v2/accounts/"+d.account()+"/"))throw new IllegalArgumentException("cross-Account reference");
@@ -107,6 +111,9 @@ public final class PortfolioRepository {
             if(!Set.of("OPEN","CLOSED","UNRESOLVED").contains(d.value().path("state").asText()))throw new IllegalArgumentException("invalid Position state");
             if(d.value().path("state").asText().equals("CLOSED")&&(!d.value().at("/stateEvidence/status").asText().equals("ESTABLISHED")||!d.value().at("/stateEvidence/completeness").asText().equals("SCOPED_ACCEPTED")))throw new IllegalArgumentException("closure evidence required");
             if(d.value().path("state").asText().equals("CLOSED")){var at=d.value().at("/stateEvidence/establishedAt");if(!at.isTextual()||Instant.parse(at.asText()).isAfter(Instant.now())||d.value().at("/stateEvidence/evidence").isEmpty())throw new IllegalArgumentException("scoped closure time and evidence required");}
+        }
+        if(d.kind()==Kind.CONSTRUCTION&&d.value().has("predecessorStatus")){
+            String status=d.value().path("predecessorStatus").asText();boolean linked=d.value().path("predecessor").isObject();if(!Set.of("KNOWN","NONE","UNKNOWN").contains(status)||status.equals("KNOWN")!=linked)throw new IllegalArgumentException("predecessor status must match immediate reference");
         }
         if(d.kind()==Kind.MODEL_VERSION&&!d.uri().matches("/v2/constructions/models/[^/?#]+/versions/(?!latest$)[^/?#]+"))throw new IllegalArgumentException("exact Model version required");
         if(d.kind()==Kind.INSTRUMENT&&containsPrivateEvidence(d.value()))throw new IllegalArgumentException("shared reference contains private provenance");
