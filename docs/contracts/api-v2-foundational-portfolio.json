@@ -13467,6 +13467,10 @@
             ],
             "additionalProperties": false,
             "description": ""
+          },
+          "brokerGroupAuthority": {
+            "$ref": "#/components/schemas/AssociationAuthority",
+            "description": "Optional source-predicate corroboration of the reported complex parent/child record against the independently retained brokerage instruction. QUALIFIED does not establish Position membership, current atomic group completeness or guaranteed execution behavior. Missing means unknown."
           }
         },
         "required": [

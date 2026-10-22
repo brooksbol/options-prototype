@@ -34,7 +34,7 @@ public final class PortfolioOrderEvaluation {
     if(options.size()==leaves(construction.path("composition")).size()&&fills.cash()!=null){String currency=fills.currency();var retained=evaluation.path("openingCashFlow");boolean conflict=established(retained)&&(!retained.path("currency").asText().equals(currency)||number(retained.path("value")).compareTo(fills.cash())!=0);if(conflict){openingConflict(position,construction,retained,fills,now);}else{evaluation.set("openingCashFlow",metric(fills.cash(),"MONEY",currency,fills.lastFill().toString(),"SIGNED_REPORTED_OPENING_FILLS","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE","OPENING_CASH_FLOW"));
      var closing=evaluation.path("estimatedClosingCashFlow");var evidence=fills.evidence().deepCopy();for(var ev:closing.path("evidence"))evidence.add(ev);
      if(established(closing)&&closing.path("currency").asText().equals(currency)){var gross=fills.cash().add(number(closing.path("value")));evaluation.set("grossUnrealizedPl",metric(gross,"MONEY",currency,now.toString(),"REPORTED_OPENING_PLUS_CURRENT_LIQUIDATION","QUALIFIED",evidence,"ORDER_EVIDENCE","OPENING_CASH_FLOW","CURRENT_MARKET"));if(fills.fees()!=null)evaluation.set("netUnrealizedPl",metric(gross.subtract(fills.fees()),"MONEY",currency,now.toString(),"GROSS_LESS_REPORTED_OPENING_FEES","QUALIFIED",evidence,"ORDER_EVIDENCE","OPENING_CASH_FLOW","CURRENT_MARKET"));else evaluation.set("netUnrealizedPl",unknown("MONEY",now.toString(),"HISTORY_INCOMPLETE"));}
-     if(fills.fees()!=null)evaluation.set("fees",metric(fills.fees(),"MONEY",currency,fills.lastFill().toString(),"REPORTED_OPENING_FEES","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE"));
+     if(fills.fees()!=null)evaluation.set("fees",metric(fills.fees(),"MONEY",currency,now.toString(),"REPORTED_OPENING_FEES","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE"));
      var financial=construction.deepCopy();for(var leaf:leaves(financial.path("composition"))){var basis=fills.bases().get(leaf.at("/instrument/href").asText());if(basis!=null)((ObjectNode)leaf.path("allocation")).set("basis",metric(basis,"MONEY",currency,fills.lastFill().toString(),"REPORTED_OPENING_FILL_COST_MAGNITUDE","QUALIFIED",fills.evidence(),"ORDER_EVIDENCE"));}var geometry=PortfolioMath.evaluate(financial,Map.of(),now);evaluation.set("payoff",geometry.path("payoff"));evaluation.set("range",geometry.path("range"));}
     }
    }
@@ -53,22 +53,34 @@ public final class PortfolioOrderEvaluation {
   if(!ambiguous&&targets.size()==1)management.set("profitTargetGrossPl",objective(evaluation,targets.getFirst(),"limitPrice",now));
   if(!ambiguous&&stops.size()==1)management.set("reportedStopThresholdGrossPl",objective(evaluation,stops.getFirst(),"stopTrigger",now));
   // Missing stops remain UNKNOWN: a list of associated Orders is not proof of a complete current broker scan.
-  if(!ambiguous&&targets.size()==1)management.set("manualCheckpoint",activeCheckpoint(evaluation,targets.getFirst(),now));
-  // Historical expired-GTD fallback additionally requires replacement and complex-group evidence.
-  // An associated working target proves only the qualified manual convention, never a timed exit.
+  if(!ambiguous&&targets.size()==1)management.set("manualCheckpoint",checkpoint(evaluation,targets.getFirst(),now,true));
+  if(!ambiguous&&targets.isEmpty())historicalCheckpoint(evaluation,management,associated,opening,options,now);
+  // Qualified manual convention only; neither an execution guarantee nor a timed exit.
 
  }
- private static JsonNode activeCheckpoint(ObjectNode evaluation,ObjectNode target,Instant now){
-  if(target.hasNonNull("brokerGroupId"))return NullNode.instance; // Complex-child consistency must be established from its own retained group evidence.
+ private static JsonNode checkpoint(ObjectNode evaluation,ObjectNode target,Instant now,boolean active){
+  if(!corroboratedGroup(target))return NullNode.instance;
   if(!target.path("timeInForce").asText().equals("GTD")||!target.path("priceEffect").asText().equals("DEBIT")||!established(evaluation.path("openingCashFlow"))||number(evaluation.at("/openingCashFlow/value")).signum()<=0)return NullNode.instance;
   var objective=objective(evaluation,target,"limitPrice",now);if(!established(objective)||number(objective.path("value")).signum()<=0)return NullNode.instance;
   try{
    var opened=Instant.parse(evaluation.at("/timeline/openedAt").asText());var expiration=LocalDate.parse(evaluation.at("/timeline/expiration").asText());var date=LocalDate.parse(target.path("gtdDate").asText());var zone=ZoneId.of("America/New_York");
-   if(date.isBefore(opened.atZone(zone).toLocalDate())||date.isAfter(expiration))return NullNode.instance;
-   JsonNode receipt=null;for(var ref:target.path("evidence"))if(ref.path("recordKey").asText().endsWith(":BROKER_ORDER_RECEIPT")&&ref.path("timeAuthority").asText().equals("SOURCE")&&ref.at("/locator/value").asText().endsWith("/received-at")){if(receipt!=null)return NullNode.instance;receipt=ref;}
-   if(receipt==null||Instant.parse(receipt.path("observedAt").asText()).isAfter(now))return NullNode.instance;
-   var today=now.atZone(zone).toLocalDate();var checkpoint=obj().put("date",date.toString()).put("remainingDteAtCheckpoint",ChronoUnit.DAYS.between(date,expiration)).put("state",today.isBefore(date)?"UPCOMING":today.equals(date)?"DUE":"PAST_DUE").put("activeOrder",true).put("qualification","QUALIFIED").put("meaning","MANUAL_REVIEW_CONVENTION_NOT_TIMED_EXIT");checkpoint.set("order",target.path("self"));checkpoint.set("evidence",objective.path("evidence"));return checkpoint;
+   if(date.isBefore(opened.atZone(zone).toLocalDate())||date.isAfter(expiration)||!active&&date.isAfter(now.atZone(zone).toLocalDate()))return NullNode.instance;
+   var receipt=receipt(target);if(receipt==null||receipt.isAfter(now))return NullNode.instance;
+   var today=now.atZone(zone).toLocalDate();var checkpoint=obj().put("date",date.toString()).put("remainingDteAtCheckpoint",ChronoUnit.DAYS.between(date,expiration)).put("state",today.isBefore(date)?"UPCOMING":today.equals(date)?"DUE":"PAST_DUE").put("activeOrder",active).put("qualification","QUALIFIED").put("meaning","MANUAL_REVIEW_CONVENTION_NOT_TIMED_EXIT");checkpoint.set("order",target.path("self"));var evidence=objective.path("evidence").deepCopy();if(target.hasNonNull("brokerGroupId"))for(var ref:target.at("/brokerGroupAuthority/evidence"))((ArrayNode)evidence).add(ref.deepCopy());checkpoint.set("evidence",evidence);return checkpoint;
   }catch(java.time.DateTimeException e){return NullNode.instance;}
+ }
+ private static boolean corroboratedGroup(ObjectNode order){
+  if(!order.hasNonNull("brokerGroupId"))return true;var authority=order.path("brokerGroupAuthority");String account=order.at("/account/href").asText();if(!authority.path("basis").asText().equals("BROKER_PACKAGE_RECORD")||!Set.of("QUALIFIED","ESTABLISHED").contains(authority.path("status").asText())||!authority.at("/account/href").asText().equals(account))return false;
+  boolean subject=false;for(var ref:authority.path("subjects"))subject|=ref.path("href").asText().equals(order.at("/self/href").asText());if(!subject)return false;boolean source=false;for(var ref:authority.path("evidence")){if(!ref.path("kind").asText().equals("ACCOUNT_SOURCE")||!ref.at("/account/href").asText().equals(account)||!ref.path("requiredCapability").asText().equals("account.orders.read:"+account.substring(account.lastIndexOf('/')+1)))return false;source=true;}return source;
+ }
+ private static Instant receipt(ObjectNode order){
+  Instant result=null;for(var ref:order.path("evidence"))if(ref.path("recordKey").asText().endsWith(":BROKER_ORDER_RECEIPT")&&ref.path("timeAuthority").asText().equals("SOURCE")&&ref.at("/locator/value").asText().endsWith("/received-at")){if(result!=null)return null;try{result=Instant.parse(ref.path("observedAt").asText());}catch(DateTimeException invalid){return null;}}return result;
+ }
+ private static void historicalCheckpoint(ObjectNode evaluation,ObjectNode management,List<ObjectNode> associated,List<ObjectNode> opening,List<ObjectNode> options,Instant now){
+  if(evaluation.at("/timeline/openedAt").isNull())return;Instant opened;try{opened=Instant.parse(evaluation.at("/timeline/openedAt").asText());}catch(DateTimeException invalid){return;}
+  var candidates=new ArrayList<JsonNode>();for(var target:associated){if(!target.path("status").asText().equals("EXPIRED")||!target.path("orderType").asText().equals("LIMIT")||!matches(target,options,false))continue;var received=receipt(target);if(received==null||received.isAfter(now))continue;boolean sameOpening=opening.size()==1&&target.hasNonNull("brokerGroupId")&&opening.getFirst().path("brokerGroupId").equals(target.path("brokerGroupId"))&&corroboratedGroup(target);if(!sameOpening&&received.isBefore(opened))continue;
+   boolean superseded=false;for(var other:associated)if(other!=target&&other.path("orderType").asText().equals("LIMIT")&&matches(other,options,false)){var replacement=receipt(other);if(replacement!=null&&replacement.isAfter(received))superseded=true;}if(superseded)continue;var value=checkpoint(evaluation,target,now,false);if(value.isObject())candidates.add(value);
+  }if(candidates.size()==1)management.set("manualCheckpoint",candidates.getFirst());else if(candidates.size()>1){management.put("associationStatus","AMBIGUOUS");management.set("warningCodes",array().add("AMBIGUOUS_ORDER_ASSOCIATION"));}
  }
  private static void openingConflict(ObjectNode position,ObjectNode construction,JsonNode retained,Opening fills,Instant now){
   var evaluation=(ObjectNode)position.path("evaluation");var evidence=fills.evidence().deepCopy();for(var ref:retained.path("evidence"))evidence.add(ref);
