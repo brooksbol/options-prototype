@@ -218,10 +218,13 @@ def main():
         if not isinstance(date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
             raise ValueError('Publication requires an explicit reproducible ISO date')
         marker = 'not published — local preview'
-        if html.count(marker) != 1:
+        # The native module embeds JSON, whose default serialization escapes
+        # the em dash. Match that exact encoded string, not rendered prose.
+        encoded_marker = json.dumps(marker)[1:-1]
+        if html.count(encoded_marker) != 1:
             raise ValueError('Publication metadata layout differs from accepted renderer')
-        # Only the native embedded publication-date label of this label may change.
-        (site / 'index.html').write_text(html.replace(marker, date))
+        # Only the embedded publication-date label may change.
+        (site / 'index.html').write_text(html.replace(encoded_marker, date))
         public['info']['description'] = public['info']['description'].replace(marker, date)
         projection.write_text(json.dumps(public, indent=2) + '\n')
     inputs = list((ROOT / 'docs/contracts').glob('api-v2-*')) + [ROOT / 'scripts/v2_oas.py']
