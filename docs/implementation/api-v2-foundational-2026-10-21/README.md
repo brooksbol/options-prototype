@@ -1,3 +1,7 @@
+# Current integration/release — October22,2026
+
+The Principal reports independent Kiro ACCEPT ofb48e3c6 and explicitly authorizes full integration, backend deployment and Pages publication. [Deployment record](deployment-2026-10-22.md) separates combined-source tests, actual local backend installation, independent Codex documentation acceptance and Pages status. [Documentation review](documentation-release-review-2026-10-22.md) preserves initial REJECT and corrected ACCEPT. Earlier phase summaries below retain their historical standing; they do not revoke this later bounded authorization. No ww live/client migration, new live brokerage acquisition or Product decisions in deferred areas are included.
+
 # Current R1/R2 successor — independent verification required
 
 Read [R1/R2 verification](r1-r2/verification.md), [source/association evidence](r1-r2/evidence-map.md), [current versus historical exposure](r1-r2/reconciliation.md), [correction ledger](r1-r2/correction-ledger.md) and [review handoff](r1-r2/independent-review.md). Active branch: `codex/api-v2-r1-r2-correction-2026-10-22`; frozen baseline: `b27971d80a0cd3e4a8db371763acbffb3e1acd30`. Complete accepted API remains in scope; full backend acceptance is withheld pending independent Kiro verification and Principal acceptance. Earlier summaries below describe their original revisions, not this successor.
