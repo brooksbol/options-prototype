@@ -1,5 +1,10 @@
 # Wheelwright
 
+## 📖 [**API DOCUMENTATION — OPEN THE WHEELWRIGHT API REFERENCE**](https://brooksbol.github.io/options-prototype/)
+
+**Browse the API:** https://brooksbol.github.io/options-prototype/
+
+
 **Evidence-driven decision support for options-income trading.** Wheelwright explores how to turn brokerage observations, market evidence, explicit policy and operator judgment into inspectable, repeatable decisions. It is **not an automated trading bot**: brokerage order construction and execution remain under the operator's control.
 
 The repository also serves as a working experiment in specification-driven engineering: working software produces evidence, evidence changes our understanding, and accepted decisions shape the next iteration.
