@@ -6,33 +6,19 @@
   "latestVerifiedRemoteMain": "caa27813a74fadf23e32c517a8da588538ed62fc",
   "backendFull": {
     "command": "./evidence-service-java/gradlew -p evidence-service-java test --console=plain",
-    "log": "/tmp/ww-full-final-financial-invariants.log",
-    "tests": 959,
+    "tests": 961,
     "failures": 0,
     "errors": 0,
     "skipped": 2,
-    "duration": "5m17s",
-    "skipBoundary": "Optional private real-file assessment/history checks were not exercised; no realFilePath supplied."
-  },
-  "additionalRuntime": {
-    "command": "./evidence-service-java/gradlew -p evidence-service-java test --tests '*PortfolioAssociationFilterTest.directOrderAndSharedInstrumentHttpReadsResolveCanonicalSourceLinks' --console=plain",
-    "result": "PASSED",
-    "duration": "3s",
-    "boundary": "Added after full959; test-only change, application source unchanged. Closes actual captured HTTP positivity for all18 foundational GETs; do not call this a full960 run."
+    "duration": "5m19s",
+    "log": "results/successor-final-regression.log"
   },
   "freshFullPayloads": {
-    "routeRepresentations": 178,
-    "standaloneFinancialRepresentations": 5,
-    "routeStatusCombinations": 45,
-    "operativeSchemaErrors": 0,
-    "report": "results/runtime-schema-milestone-12.txt"
-  },
-  "afterAdditionalHttp": {
     "routeRepresentations": 180,
     "standaloneFinancialRepresentations": 5,
     "routeStatusCombinations": 45,
     "operativeSchemaErrors": 0,
-    "freshFullRun": false
+    "report": "results/successor-runtime-schema.log"
   },
   "contractChecks": [
     {
@@ -42,7 +28,7 @@
     },
     {
       "name": "isolated generation/inventory",
-      "tests": 3,
+      "tests": 4,
       "result": "PASSED"
     },
     {
@@ -85,7 +71,7 @@
     "directPropertiesInventoried": 547,
     "scopeExceptions": []
   },
-  "independentReview": "PENDING_KIRO",
+  "independentReview": "PENDING_KIRO_VERDICT; frozen full960 and Kiro-authored new probes executed through transparent mechanical relay; see independent-review-evidence",
   "PrincipalAcceptance": "PENDING",
   "wwLiveStarted": false,
   "productionDeploymentOrBrokerContact": false,
@@ -93,5 +79,8 @@
   "principalInterventions": [
     "Selected qualified Option A for repeated source observations; instructed continued engineering judgment while away."
   ],
-  "limitsFile": "runtime-obligations.md"
+  "limitsFile": "runtime-obligations.md",
+  "frozenImplementation": "a2ed63062edce5af65c1ea635ddfce97b520c475",
+  "successorBranch": "codex/api-v2-implementation-corrections-2026-10-21",
+  "successorReport": "successor-verification-report.md"
 }

@@ -25,6 +25,7 @@ public final class PortfolioController {
   if(!auth.configured())return problem(503,"CAPABILITY_UNAVAILABLE",id,"Authentication unavailable");var identity=auth.authenticate(request.getHeader("Authorization"));if(identity.isEmpty())return problem(401,"UNAUTHENTICATED",id,"Missing or invalid Bearer credential");var caller=identity.get();
   String path=request.getRequestURI();Kind kind=kind(path);String account=request.getParameter("accountId");boolean recon=path.endsWith("/inventory-reconciliation");if(recon)account=path.split("/")[3];
   if(account!=null&&!caller.hasGrant(kind==Kind.MARKET_OBSERVATION?"account.market.read:"+account:PortfolioAuthorization.grant(kind,account)))return problem(403,"FORBIDDEN",id,"Account capability required");
+  if(recon&&!caller.hasGrant("account.holdings.read:"+account))return problem(403,"FORBIDDEN",id,"Account holdings capability required for custody reconciliation");
   boolean collection=isCollection(path);Set<String> parameters=collection?params(kind,path):Set.of();
   if(body!=null&&body.length>0||badCorrelation)return problem(422,"INVALID_REQUEST",id,"Invalid correlation header or GET body");
   for(String name:request.getParameterMap().keySet())if(!parameters.contains(name)||request.getParameterValues(name).length!=1)return problem(422,"INVALID_REQUEST",id,"Unknown or repeated query parameter");

@@ -1,0 +1,5 @@
+suites=161 {'tests': 960, 'failures': 0, 'errors': 0, 'skipped': 2} sumSuiteTime=317.1s newestXmlMtimeEpoch=1792644730
+FAILED_OR_ERROR: none
+SKIPPED: ['com.wheelwright.evidence.production.RealFileAssessmentTest#assess July 2026 from complete original Fidelity export', 'com.wheelwright.evidence.v2.TransactionHistoryTest#privateCsvReferenceExercisesAll21RowsWithoutClaimingLiveApiEquivalence()']
+
+MECHANICAL_EXECUTOR_EXIT_CODE=0

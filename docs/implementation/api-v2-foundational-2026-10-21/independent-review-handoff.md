@@ -1,3 +1,5 @@
+Successor continuation: the branch containing this file corrects the three demonstrated issues in successor-correction-ledger.md. The original frozen reviewer checkout remains untouched at a2ed630. Finish independent review of the full API, including these corrections; the Codex rerun of Kiro-authored probes is not a successor reviewer verdict. Request1 raw logs and the UI transport limitation are preserved in independent-review-evidence/. Full successor regression961 and fresh schema/source-parity checks pass; inspect actual evidence, not this claim.
+
 # Independent Kiro implementation review
 
 Review the exact isolated submission commit, not this report's claims. Start with repository-root AGENTS.md, docs/AGENTS.md, docs/README.md and the Kiro cold-start procedure. Disclose preloaded steering and recover maintained owners, ADR-016, ASSIM-0002, task/experiment state and accepted Product precedent independently.

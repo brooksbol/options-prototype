@@ -1,7 +1,7 @@
 {
   "standing": "IMPLEMENTATION_RECONCILIATION_NOT_PRODUCT_ACCEPTANCE",
   "acceptedPlan": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.json",
-  "baseline": "77884ff plus final original/current financial guards",
+  "baseline": "a2ed630 plus the bounded closing-scale and authorization successor corrections; resolve containing commit",
   "rows": [
     {
       "field": "Account/broker",

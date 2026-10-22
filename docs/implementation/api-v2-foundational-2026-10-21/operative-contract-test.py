@@ -28,6 +28,9 @@ class OperativeIntegration(unittest.TestCase):
    for method in item:
     if method in ['get','post']:self.assertIn((method.upper(),path),ops)
   self.assertNotIn('/v2/portfolios',foundational);self.assertNotIn('/v2/executions',foundational)
+ def test_account_reconciliation_requires_both_custody_and_position_scope(self):
+  operation=Contracts().documents[FOUNDATION]['paths']['/v2/accounts/{accountId}/inventory-reconciliation']['get']
+  self.assertEqual(operation['x-required-grants'],['account.positions.read:{accountId}','account.holdings.read:{accountId}'])
  def test_account_access_advertises_implemented_independent_capabilities(self):
   access=Contracts().documents[ACCOUNT]['components']['schemas']['UserAccountAccess']
   for field in ['holdingsRead','ordersRead','positionsAuditRead','marketRead']:

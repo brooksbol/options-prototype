@@ -1,0 +1,15 @@
+{
+  "tests": 961,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 2,
+  "suites": 161,
+  "duration": "5m19s",
+  "command": "./evidence-service-java/gradlew -p evidence-service-java test --console=plain",
+  "sourceIdentity": "Successor commit containing this file; resolve git rev-parse HEAD",
+  "independentReview": "PENDING; runtime results do not imply reviewer or Principal acceptance",
+  "skippedCases": [
+    "com.wheelwright.evidence.production.RealFileAssessmentTest#assess July 2026 from complete original Fidelity export",
+    "com.wheelwright.evidence.v2.TransactionHistoryTest#privateCsvReferenceExercisesAll21RowsWithoutClaimingLiveApiEquivalence()"
+  ]
+}

@@ -33,6 +33,9 @@ for path,item in module['paths'].items():
   op['tags']=['Holdings' if path.startswith('/v2/holdings') else 'Construction Models' if '/models' in path else 'Constructions' if path.startswith('/v2/constructions') else 'Orders' if path.startswith('/v2/orders') else 'Instruments' if path.startswith('/v2/instruments') else 'Market observations' if path.startswith('/v2/market-observations') else 'Positions']
   # Reuse internal description convention; security remains machine-readable too.
   op['description']='Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n<!-- internal-only:start -->\n'+op['description']+'\n<!-- internal-only:end -->'
+  if path=='/v2/accounts/{accountId}/inventory-reconciliation':
+   op['x-required-grants']=['account.positions.read:{accountId}','account.holdings.read:{accountId}']
+   op['description']+=' This Account-wide custody/Position reconciliation requires both Position-read and holdings-read; it exposes independently protected retained inventory quantities and residuals.'
   if path=='/v2/orders':op['parameters'].append({'name':'brokerGroupId','in':'query','required':False,'schema':{'type':'string','minLength':1,'maxLength':1024},'description':'Exact reported parent complex-order ID; combine with accountId for broker-qualified scope. Selection of retained peers does not establish current completeness or OCO/OTOCO behavior.'})
   for parameter in op.get('parameters',[]):
    if parameter.get('name')=='positionId':parameter['description']='Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them.'

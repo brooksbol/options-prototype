@@ -7222,14 +7222,15 @@
       "get": {
         "operationId": "readInventoryReconciliation",
         "summary": "readInventoryReconciliation",
-        "description": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n<!-- internal-only:start -->\nQualified Account-wide allocation subview; covers all current Position allocations at one declared source cut or reports incomplete coverage. Authenticate token User before validation. Enforce exact applicable Account capability on direct reads, all links, constituents, source records, historical/Audit records and every expanded projection; user ownership never bypasses Account grants. Collection filters narrow scope only. Unknown/duplicate query fields or GET bodies return 422. Collection cursor is opaque, bound to caller grants/filter/sort/projection; grant revocation is rechecked on continuation. Stable order ends in canonical ID; cursors do not promise atomic cross-broker time. Default page size 50, maximum 200. Financial status is independent of HTTP success. All private responses use private,no-store.\n<!-- internal-only:end -->",
+        "description": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n<!-- internal-only:start -->\nQualified Account-wide allocation subview; covers all current Position allocations at one declared source cut or reports incomplete coverage. Authenticate token User before validation. Enforce exact applicable Account capability on direct reads, all links, constituents, source records, historical/Audit records and every expanded projection; user ownership never bypasses Account grants. Collection filters narrow scope only. Unknown/duplicate query fields or GET bodies return 422. Collection cursor is opaque, bound to caller grants/filter/sort/projection; grant revocation is rechecked on continuation. Stable order ends in canonical ID; cursors do not promise atomic cross-broker time. Default page size 50, maximum 200. Financial status is independent of HTTP success. All private responses use private,no-store.\n<!-- internal-only:end --> This Account-wide custody/Position reconciliation requires both Position-read and holdings-read; it exposes independently protected retained inventory quantities and residuals.",
         "security": [
           {
             "bearerAuth": []
           }
         ],
         "x-required-grants": [
-          "account.positions.read:{accountId}"
+          "account.positions.read:{accountId}",
+          "account.holdings.read:{accountId}"
         ],
         "parameters": [
           {

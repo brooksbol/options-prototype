@@ -29,6 +29,20 @@ class PortfolioFillEvidenceTest {
     new PortfolioFillEvidence(repo).refresh(c,accounts.get(account).orElseThrow());
    }
    var first=repo.get(order.uri()).orElseThrow().value();var cash=first.at("/legs/0/fills/0/cashFlow");assertThat(cash.path("value").asText()).isEqualTo("-49");assertThat(cash.path("origin").asText()).isEqualTo("BROKER_REPORTED");assertThat(first.at("/legs/0/fills/0/fees/value").asText()).isEqualTo("1.02");assertThat(first.at("/legs/0/fills/0/multiplier").isNull()).isTrue();assertThat(first.path("associations")).isEmpty();assertThat(repo.list(Kind.POSITION,Set.of(account))).isEmpty();
+   // Newly constructed authorization falsifier: transaction-derived dollars require the transaction grant,
+   // even when the independently reported Order fill remains readable.
+   var current=repo.get(order.uri()).orElseThrow();
+   for(boolean transactions:List.of(false,true)){
+    var grants=new HashSet<String>();grants.add("account.orders.read:"+account);if(transactions)grants.add("account.transactions.read:"+account);
+    var projected=PortfolioAuthorization.project(current,new BearerAuthenticator.Principal("reader",grants));
+    assertThat(projected.at("/legs/0/fills/0/price")).isEqualTo(first.at("/legs/0/fills/0/price"));
+    assertThat(projected.at("/legs/0/fills/0/executedAt")).isEqualTo(first.at("/legs/0/fills/0/executedAt"));
+    for(String metric:List.of("cashFlow","fees")){
+     var value=projected.at("/legs/0/fills/0/"+metric);
+     if(transactions)assertThat(value.path("value")).isEqualTo(first.at("/legs/0/fills/0/"+metric+"/value"));
+     else{assertThat(value.path("status").asText()).isEqualTo("REDACTED");assertThat(value.path("value").isNull()).isTrue();assertThat(value.path("asOf").isNull()).isTrue();assertThat(value.path("currency").isNull()).isTrue();}
+    }
+   }
    try(var c=repo.connection()){new PortfolioFillEvidence(repo).refresh(c,accounts.get(account).orElseThrow());}assertThat(repo.get(order.uri()).orElseThrow().value()).isEqualTo(first);
    // The existing owner appends a new original/observation and advances its mutable pointer.
    transaction.put("value","50").put("net-value","51.02");append(repo,account,transaction,transactionId,observation);try(var c=repo.connection()){new PortfolioFillEvidence(repo).refresh(c,accounts.get(account).orElseThrow());}assertThat(repo.get(order.uri()).orElseThrow().value().at("/legs/0/fills/0/cashFlow/value").asText()).isEqualTo("-50");

@@ -1,0 +1,28 @@
+{
+  "requester": "Kiro independent reviewer",
+  "reviewedSha": "a2ed63062edce5af65c1ea635ddfce97b520c475",
+  "cwd": "/Users/bollich/kiro/options-candidates/api-v2-implementation-review-2026-10-21",
+  "mode": "Run sequentially, unchanged, in this review checkout only. Do not overlap Gradle. Save each command's raw stdout+stderr and exit code to evidence-service-java/build/independent-transport/<id>.log. Continue after a non-zero exit and record it.",
+  "env": { "PY": "/Users/bollich/kiro/options-candidates/pl-cli-01-capital-history/private/verify-env/bin/python" },
+  "commands": [
+    { "id": "21-junit-summary", "run": "$PY evidence-service-java/build/independent-transport/kiro-summarize-junit.py", "why": "Totals of the already-completed 10-gradle-test run, before any later Gradle invocation touches build/." },
+    { "id": "22-git-before", "run": "git rev-parse HEAD && git status --short --untracked-files=all | grep -v '^?? evidence-service-java/build/' ; true" },
+    { "id": "23-oas-conformance", "run": "$PY scripts/v2-oas-conformance-test.py" },
+    { "id": "24-operative-contract", "run": "$PY docs/implementation/api-v2-foundational-2026-10-21/operative-contract-test.py" },
+    { "id": "25-runtime-responses", "run": "$PY docs/implementation/api-v2-foundational-2026-10-21/validate-runtime-responses.py" },
+    { "id": "26-entry-corrections", "run": "$PY docs/implementation/api-v2-foundational-2026-10-21/entry-corrections-test.py" },
+    { "id": "27-review-verify", "run": "$PY docs/reviews/api-v2-foundational-contract-2026-10-20/verify.py" },
+    { "id": "28-final-targeted", "run": "$PY docs/reviews/api-v2-foundational-contract-2026-10-20/final-targeted-tests.py" },
+    { "id": "29-node-mark", "run": "node docs/implementation/api-v2-foundational-2026-10-21/verify-mark-parity.mjs" },
+    { "id": "30-node-session", "run": "node docs/implementation/api-v2-foundational-2026-10-21/verify-session-parity.mjs" },
+    { "id": "31-node-management", "run": "node docs/implementation/api-v2-foundational-2026-10-21/verify-management-parity.mjs" },
+    { "id": "32-git-after-scripts", "run": "git status --short --untracked-files=all | grep -v '^?? evidence-service-java/build/' ; true" },
+    { "id": "33-print-test-classpath", "run": "./evidence-service-java/gradlew -p evidence-service-java -I evidence-service-java/build/independent-transport/kiro-cp.init.gradle kiroPrintTestRuntimeClasspath -DkiroCpOut=build/independent-transport/kiro-test-runtime-cp.txt --console=plain --offline", "why": "Read-only init-script task writing the existing test runtime classpath to a scratch file; runs no tests and changes no source." },
+    { "id": "34-kiro-probe", "run": "cd evidence-service-java && \"$(/usr/libexec/java_home -v 21)/bin/java\" -cp \"$(cat build/independent-transport/kiro-test-runtime-cp.txt)\" build/independent-transport/KiroProbe.java", "why": "Kiro-constructed falsifiers: production-graph Fidelity upload into temp SQLite on loopback (read-through disabled), plus static projection probes. No network beyond 127.0.0.1." },
+    { "id": "35-git-final", "run": "git rev-parse HEAD && git status --short --untracked-files=all | grep -v '^?? evidence-service-java/build/' ; true" }
+  ],
+  "fallbacks": {
+    "33-print-test-classpath": "If --offline fails only because of dependency resolution, rerun once without --offline and record both.",
+    "34-kiro-probe": "If /usr/libexec/java_home -v 21 is unavailable, use the JDK Gradle used for 10-gradle-test (report its path)."
+  }
+}

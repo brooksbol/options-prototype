@@ -1,3 +1,7 @@
+# Current successor — deterministic checks pass; independent review pending
+
+Read [successor verification](successor-verification-report.md), [correction ledger](successor-correction-ledger.md) and [independent raw evidence](independent-review-evidence/README.md) first. Active branch: `codex/api-v2-implementation-corrections-2026-10-21`; frozen comparison and review target: `a2ed63062edce5af65c1ea635ddfce97b520c475`. Full combined regression:961 tests,0 failures/errors,2 optional private-file skips,5m19s;180 fresh route representations plus5 financial representations,0 operative schema violations. OAS36 mappings and source-derived Java/projectLive comparisons pass. The following earlier submission summary is retained as chronological context; use the successor report/results for current verification.
+
 # Foundational API v2 — independent review pending
 
 The isolated implementation targets the complete Principal-accepted [handoff](../../discovery/api-v2-full-implementation-handoff-2026-10-21.md), not a ww live slice. Accepted baseline `a32c7c79a059cc58d5262cf3e30c520d2e087825`; branch `codex/api-v2-full-implementation-2026-10-21`; base remote main `76bdb903458a4226f73ef5ead591e7d1cdaa0916`, latest verified remote main `caa27813a74fadf23e32c517a8da588538ed62fc`. Original847, correctionc8 and accepteda32 candidates remain preserved.
