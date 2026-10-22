@@ -1811,3 +1811,12 @@ The Principal reports independent Kiro ACCEPT ofb48e3c6 (982 Java tests/125 repo
 **Authority placement:** Wheelwright-wide engineering guidance is maintained in [the Product-first mandate](mandates/product-first-continuous-engineering-2026-10-13.md#principal-clarification--smallest-thin-slice-october-22-2026) and routed from `docs/AGENTS.md`. This parking-lot entry is **one application**, not the rule's owner. A minimal hello world demonstrates basic wiring, not user isolation, financial semantics or deployment fitness.
 
 **4AM continuation:** [October 22 independent-actor stopping-point snapshot](discovery/4am-pl-mcp-01-stopping-point-2026-10-22.md) preserves Kiro's pinned report summary, pending Muse/Codex reports, API v2 concurrent-revision caveats, actor independence, open `ASSIM-0002`, and resumption conditions. **Standing unchanged:** INTAKE / DISCOVERY, no Reconciliation Completion Record, no implementation authorization.
+
+
+### PL-MCP-01 — October 22 Muse external research receipt and independent assessment
+
+**New evidence received:** Principal supplied Muse's independent public-source report *Prospective Cross-User Isolation in MCP-Compatible Agent Runtimes* (2026-10-22). [Research digest and analysis](research/muse-mcp-agent-runtime-cross-user-isolation-2026-10-22.md) preserves major findings, external citations, evidentiary standing, attached-source fingerprint, source-fidelity limitation, and a critical 2026 protocol correction. The complete 62,220-byte original remains a supplied conversation attachment; **the repository currently holds a researched digest, not verbatim full-report archival**.
+
+**Reconciliation:** Muse identifies context construction, User-bound state/retrieval, derived artifacts and provider trust as distinct security boundaries. Its findings are compatible with Kiro's HTTP-boundary versus pre-inference-gap diagnosis but do not constitute an approved architecture. **Important external verification:** MCP `2026-07-28` is officially released; Muse's unverified-version caveat and 2025 session-specific material must not be treated as current normative protocol design. No framework selection or implementation authorized.
+
+**4AM state:** Muse research **received**; Kiro's 4AM investigation and bounded delta check received; Codex's independent PL-MCP-01 architectural reconciliation not yet received into this thread; API v2 conformance review remains parallel and material only if it falsifies a depended-on foundation. PL-MCP-01 remains **INTAKE / DISCOVERY**, reconciliation pending.
