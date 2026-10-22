@@ -77,6 +77,10 @@ Gate Experiment 001 is staged until its durable state establishes otherwise; do 
 
 A request such as “Bootstrap yourself for Wheelwright from GitHub” starts at root `AGENTS.md`, continues here and through `docs/README.md` for authority, and then follows the appropriate actor bootstrap.
 
+### Muse external-research confidentiality boundary — October 22, 2026
+
+The Principal's explicit rule is **“muse must never be given internal information, e.g., Wheelwright, etc.”** For any Muse assignment, read [External research confidentiality — Muse](bootstrap/project-memory-protocol.md#external-research-confidentiality--muse-principal-instruction-october-22-2026). Muse receives only anonymized, generic external research questions; do not disclose the repository, Wheelwright identity, project architecture or internal context. Muse's externally sourced findings are reconciled internally after research. This is a Principal research disclosure instruction, not a Product Principle or research authorization.
+
 ## Shared actor protocols
 
 | Document | Purpose |

@@ -1787,3 +1787,10 @@ remain intact. Next authorized action after persistence: NONE; resume on Princip
 ### PL-CLI-01 / PL-API-03 — Full foundational API implementation delegated — October21,2026
 
 The Principal explicitly assigned Codex the implementation role for the complete accepted foundational API v2, not a ww-live-only slice. Governing handoff: `discovery/api-v2-full-implementation-handoff-2026-10-21.md`; baseline acceptance with three mandatory entry corrections: `discovery/api-v2-specification-acceptance-checkpoint-2026-10-21.md`. Preserve local a32c7c79; close example/time, redaction/asOf and Account/Position coverage defects first. All accepted in-scope routes/schemas/invariants remain the delivery obligation, including retained evidence/holdings, histories, Orders, Models/Constructions, evaluations, authorization, projections and errors. Independent Kiro verification and Principal API acceptance precede any ww live implementation. State/proof and reserved operations: `implementation/api-v2-foundational-2026-10-21/STATE.md`. No scope exception, runtime deployment or operational mutation is implied.
+
+
+### PL-MCP-01 — Muse research disclosure correction (October 22, 2026)
+
+**Principal exact instruction:** “muse must never be given internal information, e.g., Wheelwright, etc.”
+
+**Disposition:** This is a project-wide confidentiality rule for Muse external-research handoffs, maintained in [the Project-Memory Protocol](bootstrap/project-memory-protocol.md#external-research-confidentiality--muse-principal-instruction-october-22-2026) and routed through `docs/AGENTS.md`; this PL-MCP-01 entry is the research-triggering example, not competing authority. Earlier suggestions to provide Muse with the PL-MCP-01 identifier, Wheelwright repository URL, internal goals or governing architecture are **incorrect for any Muse prompt** and must not be reused. Muse may only receive an independent generic public-research question with no Wheelwright or other internal information. External results may be imported into private reconciliation afterward. No Muse research invocation or implementation authority is granted by this capture. PL-MCP-01 remains INTAKE.
