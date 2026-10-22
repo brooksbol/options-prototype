@@ -1,19 +1,22 @@
 {
   "previewDate": "2026-10-22",
-  "publicationDate": "2026-10-15",
-  "acceptedSource": "a6ab6a01b2f3cfec22e7aa0197e4ca355ae945a4",
-  "acceptedPreviewSha256": "6d26b9bc44b80f45a26336d387643959ef45fd1624ea4e977693fa05f2c56821",
-  "acceptedLicensesSha256": "56872a8c6112765251a061ad17fd179d42dae5c9eae53b28eab4ed187ea4f377",
+  "publicationDate": "2026-10-22",
+  "acceptedSource": "8dcee81203c91e10bdec94a6ed24e307a8729b54",
+  "acceptedPreviewSha256": "a98fe6605b79eae2e65c625a947087deb5d8a9da2a5f98f4122ed9da1a4fa6cb",
+  "acceptedLicensesSha256": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
   "acceptedContractInputs": {
-    "docs/contracts/api-v2-account-evidence.json": "6efdd289277776727f77d3e614679e8f6b1e64f6efca86663989f836cdde9dc8",
+    "docs/contracts/api-v2-account-evidence.json": "a58329fd257fe515007651c7d196bb5cb86954ccfb97472328f852f4be3b3df5",
     "docs/contracts/api-v2-direct-quote-acquisition-proposal.md": "00139acd118c46e886152814e6334ff8c7946080b3ab5a7efeb949dda9788ebb",
-    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml": "0bb1c4fa48ddbd31b15859f6201a8d4f2aa4081534837b8cd928dc8c8112b634",
+    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml": "b8da14c1ab92f3bd9e56913fb717e6c473bab5bf79e3b8b13825c657ec6f095d",
+    "docs/contracts/api-v2-foundational-portfolio.json": "b69407fafb1af3f8d7d4042b0180c80953ea434c14b22b0d2279ffe269e1ffe3",
     "docs/contracts/api-v2-held-quotes-read.md": "47b43d5d6bda50fb956e6ae981b9041ab624aa7183646f71e5ff4089c44ece75",
     "docs/contracts/api-v2-market-evidence-subjects.json": "07dfbcb802c14c1bd6de84885eb95b4f65d400dc4cbff1f1b7488193c90cabf5",
     "docs/contracts/api-v2-subject-show-held-quote.md": "c99dd498b1148f40f1a9891629bc99de5d47ea84bc1dad856546cb9b39b993e2",
-    "docs/api-v2/README.md": "637dd010742d454b124611caffa299a88f9c16d73d32a345146128bee0789c8c",
+    "docs/api-v2/README.md": "a80b8a107312c1fb6c678ed960ff59b1912799121439d12b1c95a5261e206c21",
     "docs/cli/ww-account-evidence.md": "32179d19a8c868d68378edf6ed1e376e819e4ba63ce6d6d812fb8757f6efbf25"
   },
   "principalCleanupSource": "docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md",
-  "principalIntegrationSource": "docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md"
+  "principalIntegrationSource": "docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md",
+  "independentReviewSource": "docs/implementation/api-v2-foundational-2026-10-21/documentation-release-review-2026-10-22.md",
+  "reviewedContentSource": "ac3ca73b8b8ec6f3f1091bcfb40cb731ee63bbce"
 }
