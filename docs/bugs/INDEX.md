@@ -48,6 +48,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-040 | Inconsistent package midpoint aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-040-tt-live-inconsistent-package-aborts-scan.md) | Principal report and authorized correction 2026-10-13; installed verification |
 | BUG-041 | Credit vertical holding aborts the entire tt live scan | CLI / tt live | Not established | Resolved | [record](BUG-041-tt-live-credit-vertical-aborts-scan.md) | Principal report and authorized correction 2026-10-14; installed verification |
 | BUG-042 | Portfolio Capital non-Fidelity 422 omits required validation details | Backend / v2 Portfolio Capital HTTP contract | S2 | Resolved | [record](BUG-042-portfolio-capital-422-missing-validation-details.md) | IRR-01 corrected; independent re-review ACCEPT of 6126afd, 2026-10-15 |
+| BUG-043 | Covered-position Capital under-stated: per-share value derived from a single Option Summary row's market value against authoritative aggregate ownership (observed DRAM: $46 BW ×2 showed $3,669.20 vs ~$9,173) | Portfolio / monitored-position capital derivation | Not established | Resolved | [record](BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md) | Principal observation 2026-10-22; remediated and browser-validated |
 
 ## Open-bug audit checkpoint (2026-09-22)
 

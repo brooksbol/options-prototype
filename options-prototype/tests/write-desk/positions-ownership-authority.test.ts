@@ -18,6 +18,7 @@ import { describe, it, expect } from "vitest";
 import { buildFidelitySnapshot, type FidelitySnapshotInput } from "../../src/write-desk/fidelity-snapshot";
 import { deriveUnencumberedInventory } from "../../src/portfolio/unencumbered-inventory";
 import { deriveOwnershipFromPositions } from "../../src/portfolio/positions-ownership";
+import { deriveMonitoredPositions } from "../../src/portfolio/position-monitoring";
 import type { OptionSummaryRow } from "../../src/csv/fidelity/optionSummaryParser";
 import type { HoldingRow } from "../../src/csv/fidelity/positionsParser";
 import type { ParsedBalances } from "../../src/csv/fidelity/balancesParser";
@@ -156,6 +157,51 @@ describe("BUG-026 / ADR-020 — Positions authoritative ownership", () => {
     expect(uraWarning).toBeDefined();
     expect(uraWarning!.observedSharesOwned).toBe(100);
     expect(uraWarning!.rawCallRequiredShares).toBe(200);
+  });
+
+  it("economics totals are scoped to authoritative owned, so per-share capital is correct (DRAM Oct 22 specimen)", () => {
+    // Real Oct 22 shape: three additive Covered Call share rows (200, 200, 100) at the same
+    // $45.865 mark / $54.61 blended avg, Positions reports 500. Pre-fix, marketValue stayed
+    // at the 200-share row's $9,173 while sharesOwned became 500 → $18.35/sh and the $46 BW
+    // (2 contracts) showed $3,669.20 capital instead of ~$9,173.
+    const dramShare = (qty: number): OptionSummaryRow => ({
+      ...shareRow("DRAM", qty),
+      marketValue: 45.865 * qty,
+      costBasis: 54.614 * qty,
+      averageCost: 54.61,
+    });
+    const rows: OptionSummaryRow[] = [
+      dramShare(200), callRow("DRAM", 50, "2026-10-23", -2),
+      dramShare(200), { ...callRow("DRAM", 46, "2026-10-23", -2), symbol: "-DRAM46C" },
+      dramShare(100), callRow("DRAM", 49.5, "2026-10-23", -1),
+    ];
+    const positions = deriveOwnershipFromPositions([equityHolding("DRAM", 500)]);
+    const snap = buildFidelitySnapshot(input(rows, positions));
+
+    const dram = snap.inventory.find((p) => p.symbol === "DRAM")!;
+    expect(dram.sharesOwned).toBe(500);
+    expect(dram.economics!.marketValue).toBeCloseTo(45.865 * 500, 2);
+    expect(dram.economics!.costBasis).toBeCloseTo(54.614 * 500, 2);
+    expect(dram.economics!.averageCostPerShare).toBe(54.61); // per-share: unchanged
+
+    const monitored = deriveMonitoredPositions(snap, null, new Date("2026-10-22T15:00:00Z"));
+    const capitalByStrike = new Map(monitored.map((p) => [p.strike, p.encumberedCapital]));
+    expect(capitalByStrike.get(46)).toBeCloseTo(9173, 2);
+    expect(capitalByStrike.get(50)).toBeCloseTo(9173, 2);
+    expect(capitalByStrike.get(49.5)).toBeCloseTo(4586.5, 2);
+  });
+
+  it("repeated strategy view: economics are NOT inflated when Positions matches the row quantity", () => {
+    const rows: OptionSummaryRow[] = [
+      shareRow("REPT", 100),
+      callRow("REPT", 50, "2026-10-17", -1),
+      shareRow("REPT", 100),
+    ];
+    const positions = deriveOwnershipFromPositions([equityHolding("REPT", 100)]);
+    const snap = buildFidelitySnapshot(input(rows, positions));
+    const rept = snap.inventory.find((p) => p.symbol === "REPT")!;
+    expect(rept.economics!.marketValue).toBe(4097);
+    expect(rept.economics!.costBasis).toBe(4336.5);
   });
 
   it("Positions equity rows are summed (additive), never MAX — opposite of Option Summary", () => {

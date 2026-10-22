@@ -251,6 +251,19 @@ function deriveInventory(
   const inventory: InventoryPosition[] = [];
   for (const [symbol, data] of symbolMap) {
     const sharesFree = Math.max(0, data.owned - data.encumbered);
+
+    // Scope economics totals to `owned`. The selected Option Summary row's marketValue and
+    // costBasis are totals for THAT ROW's quantity (observedOs), while `owned` may be the
+    // larger authoritative Positions aggregate (ADR-020). Leaving them unscaled makes
+    // marketValue / sharesOwned understate the per-share value (DRAM Oct 22: one 200-share
+    // row $9,173 ÷ 500 owned → $18.35/sh). Fidelity reports the same mark and the same
+    // symbol-level blended average cost on every share row of a symbol, so per-row
+    // per-share × owned is exact. Ratio is 1 when ownership came from the row itself.
+    if (data.observedOs > 0 && data.owned !== data.observedOs) {
+      const scale = data.owned / data.observedOs;
+      if (data.marketValue != null) data.marketValue *= scale;
+      if (data.costBasis != null) data.costBasis *= scale;
+    }
     inventory.push({
       symbol,
       sharesOwned: data.owned,
