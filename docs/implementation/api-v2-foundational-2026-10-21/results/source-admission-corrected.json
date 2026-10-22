@@ -1,0 +1,8 @@
+{
+  "standing" : "PRINCIPAL_APPROVED_QUALIFIED_CONTINUITY_RUNTIME_CHECK",
+  "initialPositionResources" : 4,
+  "afterIdenticalSourceCapture" : 4,
+  "retainedSnapshots" : 2,
+  "newOpeningEvidence" : false,
+  "qualification" : "Identical observations reuse only a uniquely compatible UNRESOLVED scope. No uninterrupted occurrence or opening facts are established; CLOSED and ambiguous scopes are excluded."
+}
