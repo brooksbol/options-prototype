@@ -1,0 +1,1626 @@
+{
+  "baseline": "77884ff",
+  "source": "working tree with final original/current protective and dimensional guards",
+  "command": "./evidence-service-java/gradlew -p evidence-service-java test --console=plain",
+  "log": "/tmp/ww-full-final-financial-invariants.log",
+  "duration": "5m17s",
+  "summary": {
+    "tests": 959,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "suites": [
+    {
+      "name": "opening delay window (Phase 2, 09:30\u201309:45 ET) is provider-aware",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.059Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "publication behavior",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:50.696Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "2.015"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeDeadlineTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:48.421Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "5.244"
+    },
+    {
+      "name": "com.wheelwright.evidence.DispositionFailClosedTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:50.797Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.066"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.V2QuotesControllerTest",
+      "tests": "30",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.296Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.255"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioComplexOrderEvidenceTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:43.648Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.22"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ResponseCacheTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.791Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteCorrelationTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:38.824Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.BrokerageArtifactsTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:38.185Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.514"
+    },
+    {
+      "name": "weekends",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.064Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.0"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioFidelityFactsTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:46.203Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.121"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioTastyMarketSourcesTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:47.951Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.108"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.MultiBrokerAccountsTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:41.302Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.093"
+    },
+    {
+      "name": "operator-forced one-shot acquisition (PL-OPS-08)",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:37.556Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "13.11"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HeldQuoteDetailControllerTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:39.835Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.553"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.IndexMarketParsingTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.063Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$HeldExpirationOverlay",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.508Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.026"
+    },
+    {
+      "name": "chain serialization \u2014 nullable greeks",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:12:41.857Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.087"
+    },
+    {
+      "name": "com.wheelwright.evidence.DegradedRecoveryWhileBlockedTest",
+      "tests": "19",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:14:20.719Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "150.076"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioMarkParityTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.752Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.004"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioContractIntegrationTest",
+      "tests": "17",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:44.377Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "1.826"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioEconomicHistoryTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.551Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.035"
+    },
+    {
+      "name": "com.wheelwright.evidence.ProviderHysteresisAndCadenceTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:58.056Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "4.578"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioManagementParityTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.724Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.028"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.AccountsTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.971Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.171"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ChainNormalization",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.829Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.007"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ConfigurationValidation",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.804Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.continuity.ContinuityEngineTest",
+      "tests": "17",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:34.840Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.005"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.RequestPacerTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.383Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.407"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ObservationRecorderTest",
+      "tests": "14",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.066Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioFinancialTest",
+      "tests": "16",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.587Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.136"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioAssociationFilterTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:42.133Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.985"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$SetChainForExpiration",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.301Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$PacingBehavior",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.808Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "Ready preservation on expirations refresh",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.581Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.036"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioMarketReadThroughTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:46.634Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.288"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.RealFileAssessmentTest",
+      "tests": "1",
+      "skipped": "1",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.046Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.0"
+    },
+    {
+      "name": "Malformed artifacts are rejected loudly",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.952Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.BrokerScopedMigrationTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:38.143Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.041"
+    },
+    {
+      "name": "com.wheelwright.evidence.DegradedModeIntegrationTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:58.654Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "22.062"
+    },
+    {
+      "name": "Real persisted artifact",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.955Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.016"
+    },
+    {
+      "name": "com.wheelwright.evidence.StatusEnvironmentTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.291Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "publication coalescing",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:14.614Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "10.059"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HeldQuoteCodecTransportTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:39.170Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.662"
+    },
+    {
+      "name": "failover-aware: the SAME classifier reflects a live authority switch",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.051Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$Generation",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.652Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.022"
+    },
+    {
+      "name": "com.wheelwright.evidence.RecoveryProbeTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:02.985Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.065"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HistoricalPositionsTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:40.676Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.504"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioUnquantifiedCustodyTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:48.059Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.034"
+    },
+    {
+      "name": "com.wheelwright.evidence.ProviderAfterHoursMeasurementControllerTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:53.008Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioMarketAcquisitionTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:46.628Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.006"
+    },
+    {
+      "name": "off-hours",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.061Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "classified population (eligible vs due)",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:56.785Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.035"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.MarketEvidenceSubjectsTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:41.180Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.106"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ExpirationNormalization",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.836Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "held-expiration validation is strict and ATOMIC (malformed \u2192 400, no state mutation)",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.810Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.071"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PathSymbolCodecTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:41.558Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.181"
+    },
+    {
+      "name": "operator-forced TARGETED acquisition (console refresh?symbol=...)",
+      "tests": "12",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:12:41.944Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "55.611"
+    },
+    {
+      "name": "Pre/post/non-trading unchanged",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.054Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteSubjectVerificationTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:39.165Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.005"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteServiceTest",
+      "tests": "30",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:38.839Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.323"
+    },
+    {
+      "name": "com.wheelwright.evidence.AcquisitionFencingTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:12:39.056Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "2.797"
+    },
+    {
+      "name": "com.wheelwright.evidence.NudgeControllerTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.747Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioOptionReferenceTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:46.922Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.353"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TransactionHistoryTest",
+      "tests": "9",
+      "skipped": "1",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:53.904Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.319"
+    },
+    {
+      "name": "BUG-014: durable sealed-session completeness fact",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.463Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.044"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.ProductionAssessorTest",
+      "tests": "35",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.012Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.028"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ProviderMeasurementRecorderTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.355Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.028"
+    },
+    {
+      "name": "com.wheelwright.evidence.QuotesControllerTest",
+      "tests": "20",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:02.635Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.35"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioHttpTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:46.363Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.265"
+    },
+    {
+      "name": "Production (real-time) \u2014 the defect scenario",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.058Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "multi-DTE surface freshness (PL-COHERE-01 Finding #1 recovery)",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:56.820Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.082"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$EligibleExpirations",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.316Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "session gate integration",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:52.712Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "4.071"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$SchemaInitialization",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.721Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.013"
+    },
+    {
+      "name": "com.wheelwright.evidence.StatusControllerTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.276Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.015"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.HeldQuoteDetailStoreTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.218Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.039"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioNestedRecognitionTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.756Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.044"
+    },
+    {
+      "name": "BUG-013 sealed-evidence validity across the ET midnight into a trading day",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.052Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.HeldExpirationAcquisitionTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:51.232Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "1.514"
+    },
+    {
+      "name": "Observation demand vs recommendation universe separation",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.535Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.046"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$RestartDurability",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.619Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.033"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.GovernedDecisionStoreTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.073Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.046"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.ProviderProvenanceTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.367Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.028"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.OriginalSourceAuthorizationTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:41.395Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.163"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioReferenceTermsTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.917Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$FailedRefreshPreservation",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.681Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$GreekNullability",
+      "tests": "14",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.817Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.012"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$SessionDateParity",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.617Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteSessionIdentityTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:39.163Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PositionsTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:48.093Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.144"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$CacheBehavior",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.810Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.Bug021RoundTripFixtureTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.934Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.04"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.StrictHeldQuoteDecoderTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:48.238Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HeldQuotesControllerTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:40.391Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.283"
+    },
+    {
+      "name": "com.wheelwright.evidence.GovernedContextControllerTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:51.191Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.041"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioCapitalHistoryTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:43.118Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.237"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.FidelityActivityParserTest",
+      "tests": "15",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.006Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.006"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$GetAllChains",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.287Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$EvidenceWriteRead",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.695Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.025"
+    },
+    {
+      "name": "com.wheelwright.evidence.ProviderFailureClassificationTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:53.009Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "5.047"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeDisclosureTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:53.666Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.219"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioCashCustodyTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:43.356Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.292"
+    },
+    {
+      "name": "malformed request validation (400, never 500/ClassCastException)",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.881Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.016"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeAcquisitionTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:48.240Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.181"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.ContinuityStoreTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.020Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.053"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ObserverRealPacerIntegrationTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.069Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "1.224"
+    },
+    {
+      "name": "com.wheelwright.evidence.OpportunityHistoryBoundaryTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.935Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.049"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioOrderEvaluationTest",
+      "tests": "16",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.800Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.117"
+    },
+    {
+      "name": "com.wheelwright.evidence.universe.DispositionApplierTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.863Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.088"
+    },
+    {
+      "name": "holidays",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.063Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "Sandbox (delayed) \u2014 legitimate delayed-open preserved",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.057Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.SnapshotControllerTest",
+      "tests": "22",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.065Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.211"
+    },
+    {
+      "name": "Mixed authority \u2014 no laundering (subject judged by its OWN environment)",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.056Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.OpportunityHistoryProvenanceTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.984Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.024"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.BuyToCloseProductionTest",
+      "tests": "27",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.975Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.011"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$WorkQueue",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.674Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.007"
+    },
+    {
+      "name": "prioritized work queue \u2014 classification",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:56.902Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.05"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.EconomicDecomposerTest",
+      "tests": "16",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.986Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.02"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioOrderEvidenceTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:47.501Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.116"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.ClassifyFromChainTest",
+      "tests": "15",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:34.845Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.174"
+    },
+    {
+      "name": "com.wheelwright.evidence.EvidenceServiceApplicationTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:50.864Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.326"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$RealQuoteNormalization",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.795Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.008"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$GetEvidenceWithChains",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.273Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SpotHistoryTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.396Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.067"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.UniverseImportTest",
+      "tests": "11",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.734Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.125"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.HeldDirectQuoteStoreTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.120Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.097"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioOrderAcquisitionTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:47.276Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.224"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierSourceEventTimeTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.839Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.024"
+    },
+    {
+      "name": "service-floor debt boundaries",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:34.737Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.065"
+    },
+    {
+      "name": "early-close days",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.062Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "regular session",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.064Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.UsersTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.223Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.072"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioApplicationWiringTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:41.740Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.393"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TradierTimestampAcquisitionTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:53.892Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.012"
+    },
+    {
+      "name": "heldExpirations declaration lifecycle (present vs omitted)",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.913Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.021"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.WeeklyRefreshCadenceTest",
+      "tests": "11",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.860Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.074"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ErrorHandling",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.813Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.004"
+    },
+    {
+      "name": "classified population parity",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:34.802Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.038"
+    },
+    {
+      "name": "com.wheelwright.evidence.WeeklyAttemptClockTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:12.490Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.073"
+    },
+    {
+      "name": "status null semantics",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:12.563Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "2.05"
+    },
+    {
+      "name": "restart with durable evidence",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:24.674Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "10.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.OpportunityHistoryTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.317Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.05"
+    },
+    {
+      "name": "com.wheelwright.evidence.ContinuityControllerTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:56.961Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "1.692"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioFillEvidenceTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:46.324Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.038"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioReconciliationTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:47.617Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.334"
+    },
+    {
+      "name": "anti-starvation",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:13:50.667Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.028"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.TreasuryBasisResolverTest",
+      "tests": "10",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.057Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.005"
+    },
+    {
+      "name": "empty-portfolio clear path",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:16:52.897Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.016"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioSessionEvidenceTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:54.918Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.TransactionClassifierTest",
+      "tests": "20",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.046Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.011"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.MarketMetricsTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:41.286Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.016"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.IntradayBarsParsingTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.064Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.TerminalDispositionTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:03.292Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "9.197"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteContactBoundaryTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:38.701Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.122"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioContinuityTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:43.869Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.507"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeReferenceFallbackTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:53.885Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.007"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ProviderAuthorityManagerTest",
+      "tests": "12",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:37.294Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.061"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$PrimaryExpirationSelection",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.617Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.0"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.ProductionAttributionTest",
+      "tests": "18",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:36.041Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.004"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$ChainAcquisitionProvenanceUnavailable",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-22T04:17:35.257Z",
+      "hostname": "Brooks-MacBook-Air.local",
+      "time": "0.016"
+    }
+  ],
+  "meaning": "Full deterministic regression, not live brokerage, independent review or Product acceptance."
+}

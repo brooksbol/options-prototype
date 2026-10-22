@@ -1,0 +1,768 @@
+{
+  "base": "76bdb903458a4226f73ef5ead591e7d1cdaa0916",
+  "identity": "Commit containing this inventory; resolve git rev-parse HEAD",
+  "files": [
+    {
+      "status": "M",
+      "path": "docs/api-v2/README.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml"
+    },
+    {
+      "status": "A",
+      "path": "docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/STATE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/contract-properties.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/coverage.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/differences-from-alpha.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/entry-corrections-test.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/fixtures/ung-mark-source.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/generate-mark-source.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/implementation-verification-report.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/independent-review-handoff.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/integrate-operative-contract.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/operative-contract-test.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/qualified-continuity-decision.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-01.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-02.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-03.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-04.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-05.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-06.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-07-initial.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-08.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-09.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-10.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-11.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-milestone-12.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/backend-regression-01.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/changed-files.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/collection-filter-correction.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/complex-order-management.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/final-verification-summary.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/management-redaction-correction.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/milestone-files.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/operative-contract-milestone.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/operative-route-map.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/qualified-continuity.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/route-success-coverage.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-continuity-corrected.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-01.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-02.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-03.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-04.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-05.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-06.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-07-initial.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-08.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-09.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-10.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-11.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-milestone-12.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-predecessor-admission.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/runtime-schema-with-direct-http.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/source-admission-boundary.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/results/source-admission-corrected.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/runtime-field-coverage.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/runtime-obligations.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/source-to-runtime.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/validate-runtime-responses.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/verification.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/verify-management-parity.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/verify-mark-parity.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/implementation/api-v2-foundational-2026-10-21/verify-session-parity.mjs"
+    },
+    {
+      "status": "M",
+      "path": "docs/parking-lot-10.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/apply-entry-corrections.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/authority-and-evidence.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/contract-inventory.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/correction-ledger.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/decisions.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/derive-tt-examples.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/differences.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/evidence/approved-economics-checkpoint.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/economic-history.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/evidence-facts.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/final-source-fixtures.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/newly-constructed-probes.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/resources.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/source-artifact.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/tt-live-equivalence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/examples/tt-live-expanded-parity.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/final-correction-ledger.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/final-source-replay.test.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/final-targeted-tests.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/finalize-review-fixtures.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/financial-rules.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/regenerate-final-examples.py"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/regenerate-tt-examples.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/resource-map.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/artifact-manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/authoring-history.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/baseline-266-node.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/baseline-266-python.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/changed-files.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/comparison-to-c8.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/contract-validation.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/correction-ledger.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/final-correction-ledger.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/final-source-replay.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/final-targeted.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/original-216-node.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/original-216-python.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/prior-c8-verification-report.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/product-precedents.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/source-identities.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/tt-live-equivalence.log"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/results/validation-results.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/runtime-invariants.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/tt-live-replay.test.mjs"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/verification-report.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/reviews/api-v2-foundational-contract-2026-10-20/verify.py"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/db/DatabaseManager.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/BrokerageArtifacts.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/FidelityPositions.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionAcquisition.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionMarketEvidence.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/PositionSnapshot.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeCashBalance.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeClient.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/UserDirectory.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioAuthorization.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioCashCustody.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioComplexOrderEvidence.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioEconomicHistory.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioFidelityAdditionalCustody.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioFillEvidence.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioJson.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketSources.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOptionDefinitions.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOptionReferenceSources.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderAcquisition.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderSources.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioPackageValuation.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRecognition.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReconciliation.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReferenceEnrichment.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReferenceTerms.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRepository.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSessionEvidence.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSnapshots.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioTastyMarketSources.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/resources/db/migrations/021_foundational_portfolio.sql"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/main/resources/portfolio/construction-models.json"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/provider/ObserverRealPacerIntegrationTest.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/AccountsTest.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/BrokerScopedMigrationTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioApplicationWiringTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioAssociationFilterTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioCashCustodyTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioComplexOrderEvidenceTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioContinuityTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioContractIntegrationTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioFidelityFactsTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioFillEvidenceTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioHttpTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioMarketAcquisitionTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioMarketReadThroughTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioOptionReferenceTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioOrderAcquisitionTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioOrderEvidenceTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioReconciliationTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioTastyMarketSourcesTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioUnquantifiedCustodyTest.java"
+    },
+    {
+      "status": "R098",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PositionsController.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/TastytradeAcquisitionTest.java"
+    },
+    {
+      "status": "M",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/TastytradeDisclosureTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/TastytradeReferenceFallbackTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioEconomicHistoryTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioFinancialTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioManagementParityTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarkParityTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioNestedRecognitionTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluationTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioReferenceTermsTest.java"
+    },
+    {
+      "status": "A",
+      "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioSessionEvidenceTest.java"
+    },
+    {
+      "status": "M",
+      "path": "options-prototype/src/roadmap/roadmap-projection.json"
+    },
+    {
+      "status": "M",
+      "path": "scripts/v2-oas-conformance-test.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/v2_oas.py"
+    }
+  ],
+  "fileCount": 190,
+  "scope": "Isolated backend, migration, test/fixture, operative contract and implementation/review artifacts. No WW CLI implementation, operational config, production data, push or merge."
+}

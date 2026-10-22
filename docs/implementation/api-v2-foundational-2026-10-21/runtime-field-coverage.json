@@ -1,7 +1,7 @@
 {
   "standing": "IMPLEMENTATION_RECONCILIATION_NOT_PRODUCT_ACCEPTANCE",
   "acceptedPlan": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.json",
-  "baseline": "0619f61 plus targeted predecessor/model-admission corrections",
+  "baseline": "77884ff plus final original/current financial guards",
   "rows": [
     {
       "field": "Account/broker",
@@ -195,14 +195,15 @@
       "source": "Matching profit Limit closing Order with time-in-force=GTD, gtc-date, received-at, complex-order-id; applicable expired history",
       "response": "Evaluation.management.manualCheckpoint",
       "runtimeOwners": [
-        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16"
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioOrderEvaluation.java:16",
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioComplexOrderEvidence.java:14"
       ],
       "classification": [
         "ALREADY_SUPPORTED",
         "BACKEND_DERIVATION_NEEDED"
       ],
-      "implementationState": "PARTIAL_COMPLEX_SOURCE_CORROBORATION",
-      "qualification": "Active non-complex GTD convention supported; complex-child corroboration and historical expired-GTD fallback remain implementation gaps, not Product deferrals.",
+      "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
+      "qualification": "Verified active GTD and expired historical manual convention, including actual complex-child corroboration, receipt/date scope and superseding-instruction refusal. Missing corroboration remains unknown; no notification or timed closing.",
       "originalRepositoryEvidence": [
         "scripts/tastytrade-live-domain.mjs:180-225",
         "scripts/tastytrade-manual-exit.test.mjs:40-99",
@@ -391,7 +392,7 @@
         "BACKEND_DERIVATION_NEEDED"
       ],
       "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
-      "qualification": "Zero/current/target gross-dollar coordinates retain their qualifications; current-to-target rendering is client presentation. Normalized-source parity expansion remains due.",
+      "qualification": "Actual native-shaped source decoder -> evaluator -> independent projectLive replay verifies zero/current/target gross-dollar coordinates. The generated specimen explicitly declares historical multiplier, package size, zero-fill working terms and membership; source absence remains qualified.",
       "originalRepositoryEvidence": [
         "scripts/tastytrade-live-domain.mjs:433-448",
         "scripts/tastytrade-economic-story.mjs:8-25",
@@ -446,9 +447,7 @@
       "source": "Dated prev-close, prev-close-date, summary-date, prev-close-price-type and continuity",
       "response": "No required field",
       "runtimeOwners": [],
-      "classification": [
-        "SOURCE_UNAVAILABLE_OR_UNVERIFIED"
-      ],
+      "classification": [],
       "implementationState": "EXPLICITLY_NOT_REQUIRED",
       "qualification": "OUT_OF_SCOPE: provisional arrows are not accepted Product obligations.",
       "originalRepositoryEvidence": [
@@ -480,7 +479,7 @@
   ],
   "limits": [
     "Source availability means repository/native contract/loopback evidence, never live Account availability.",
-    "No DOMAIN_MODEL_GAP identified; complex/manual corroboration is a bounded missing adapter/policy implementation.",
+    "No DOMAIN_MODEL_GAP identified; complex/manual corroboration is implemented and fixture-tested, subject to its actual source-predicate boundary.",
     "This matrix is not complete route/property or runtime acceptance evidence."
   ]
 }
