@@ -16,7 +16,7 @@ Account and User IDs are opaque backend identities; Account aliases are display/
 
 - **Acquire or revalidate:** `POST /v2/quotes` evaluates reuse or performs bounded acquisition. HTTP 200 contains independent per-subject outcomes; a retained prior observation does not fulfill a failed acquisition. FORCE may cause another upstream attempt and correlation does not deduplicate it.
 - **Read held quotes:** both quote GET operations return retained committed evidence without provider contact or freshness/reuse evaluation. They do not turn old evidence into current evidence. Discovery is complete per committed item, without a collection-wide atomic instant.
-- **Read Positions:** GET reads retained snapshots. Inventory identity is not lifecycle continuity, strategy membership or opening economics. Missing values remain unknown. Date-only exports do not establish executable prices.
+- **Read Positions:** GET reads independently identified economic Positions, their current Construction and evidence-qualified evaluation. Each Position has its own Wheelwright GUID; CLOSED is terminal and a subsequent opening requires a new GUID. A repeated holdings observation does not prove uninterrupted economic continuity, an opening date or opening economics. Broker custody observations remain separately inspectable through Holdings and retained snapshots. Missing values remain unknown; date-only exports do not establish executable prices. Split/recombine policy remains unresolved.
 - **Read history:** Account transaction GET may use policy-bounded backend read-through. A complete delivered collection, a complete source traversal, a coherent upstream snapshot and lifetime coverage are different claims. Lifetime coverage remains UNKNOWN; provider snapshot consistency is UNVERIFIED.
 - **Retain sources:** CSV upload commits original bytes before processing. Processing REJECTED may accompany HTTP 200; inspect status and preserve earlier admitted evidence. Retry uses retained CSV bytes and does not replay brokerage acquisition.
 - **Select subjects:** the backend combines holdings underlyings with configured monitoring subjects. Coverage qualifications remain explicit. Selection itself acquires nothing.
@@ -35,7 +35,8 @@ Errors use `application/problem+json`. The HTTP status agrees with the body stat
 | Term | Meaning |
 | --- | --- |
 | Account | Stable Wheelwright identity associated with broker-scoped external evidence. |
-| Position | Observed contract/custody inventory or an explicit snapshot association; not an inferred lifecycle. |
+| Position | Independently identified Wheelwright economic resource with its own GUID, current Construction, qualified lifecycle state and financial evaluation; distinct from broker custody. |
+| Holding | Account-scoped broker custody observation retained with source snapshot identity and provenance, independently of Construction recognition. |
 | Artifact | Immutable original source bytes with a hash and retained processing-attempt metadata. |
 | Observation | An accepted piece of evidence with its own stable identity, source and clocks. |
 | Held evidence | Evidence already retained by Wheelwright, regardless of age or current reuse eligibility. |
