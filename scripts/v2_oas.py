@@ -165,13 +165,16 @@ def implemented_v2_operations():
 
 
 def assert_preserved_quote_contract(contracts):
-    """Allow only Step 1 error and correlation corrections to the quote contract."""
+    """Preserve quote meaning; allow only the explicit Step1 and F6 routing/grant deltas."""
     old = yaml.safe_load(subprocess.check_output(
         ['git', 'show', '8914658:' + str(Path('docs/contracts') / COMMON)], cwd=ROOT, text=True))
     current = contracts.documents[COMMON]
     for method in ('get', 'post'):
         before, after = (copy.deepcopy(doc['paths']['/v2/quotes'][method]) for doc in (old, current))
+        assert after['responses'].pop('405') == {'$ref':'#/components/responses/MethodNotAllowed'}
         if method == 'post':
+            assert after.pop('x-required-grants') == ['quote.acquire']
+            assert after.pop('x-required-grants-when-force') == ['quote.force']
             for op in (before, after):
                 op['responses'] = {'200': op['responses']['200']}
             # The controller already accepts blank/padded correlation UUIDs.
@@ -179,7 +182,9 @@ def assert_preserved_quote_contract(contracts):
             for key in ('schema', 'description'):
                 after['parameters'][0][key] = before['parameters'][0][key]
         assert without_documentation(before) == without_documentation(after), 'Quote request/success/read contract changed'
-    assert without_documentation(old['paths']['/v2/quotes/{symbol}']) == without_documentation(current['paths']['/v2/quotes/{symbol}'])
+    held=copy.deepcopy(current['paths']['/v2/quotes/{symbol}'])
+    assert held['get']['responses'].pop('405') == {'$ref':'#/components/responses/MethodNotAllowed'}
+    assert without_documentation(old['paths']['/v2/quotes/{symbol}']) == without_documentation(held)
     for name, schema in old['components']['schemas'].items():
         if name != 'Problem':
             assert without_documentation(schema) == without_documentation(current['components']['schemas'][name]), name

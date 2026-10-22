@@ -1,0 +1,1451 @@
+{
+  "standing" : "SYNTHETIC_SOURCE_DERIVED_HTTP_NOT_LIVE_BROKERAGE_EVIDENCE",
+  "source" : "scripts/fixtures/tt-live-economic-observed.json plus PortfolioSourcePackageTest declared standard reference supplement; no opening occurrence/history declaration",
+  "path" : "/v2/constructions/26d6564b-99d7-45e6-b995-f1604c3121ea",
+  "method" : "GET",
+  "status" : 200,
+  "body" : {
+    "id" : "26d6564b-99d7-45e6-b995-f1604c3121ea",
+    "createdAt" : "2026-10-22T20:57:07.960816Z",
+    "changeKind" : "INITIAL",
+    "predecessorStatus" : "NONE",
+    "predecessor" : null,
+    "self" : {
+      "href" : "/v2/constructions/26d6564b-99d7-45e6-b995-f1604c3121ea"
+    },
+    "account" : {
+      "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+    },
+    "position" : {
+      "href" : "/v2/positions/3482d1f9-99a4-448a-8aa7-6cbb6620042e"
+    },
+    "composition" : {
+      "kind" : "GROUP",
+      "nodeId" : "ROOT",
+      "modelVersion" : null,
+      "children" : [ {
+        "nodeId" : "holding-eebbe99087d7fb9af38077580ba3d3c7d4c2785af03ae4f65aaa99ad4507bb17",
+        "kind" : "OPTION",
+        "side" : "LONG",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "currency" : "USD",
+        "instrument" : {
+          "href" : "/v2/instruments/b703f655-410f-39b6-8bec-88b4fe970cf2"
+        },
+        "terms" : {
+          "underlying" : {
+            "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+          },
+          "right" : "CALL",
+          "strike" : "13.5",
+          "currency" : "USD",
+          "expiration" : "2026-11-27",
+          "multiplier" : "100",
+          "exerciseStyle" : "UNKNOWN",
+          "settlement" : "PHYSICAL",
+          "adjustment" : "STANDARD",
+          "payoffApplicability" : "STANDARD_EQUITY_INTRINSIC",
+          "qualification" : "QUALIFIED",
+          "deliverable" : [ {
+            "quantity" : "100",
+            "instrument" : {
+              "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+            },
+            "currency" : null,
+            "kind" : "SHARES"
+          } ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+            "artifact" : {
+              "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+            },
+            "recordKey" : "/data/items/2",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/2"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          }, {
+            "kind" : "REFERENCE_SOURCE",
+            "provider" : "TASTYTRADE",
+            "reference" : "urn:wheelwright:tastytrade:option-chain:sha256:1afb4e08ad44ba2bcb05c96fce666bc8033b149a3b9f811060626b652bc99753:item:0",
+            "observedAt" : null,
+            "qualification" : "VERIFIED_REFERENCE"
+          } ]
+        },
+        "allocation" : {
+          "quantity" : "1",
+          "basisMethod" : "UNKNOWN",
+          "availability" : "UNKNOWN",
+          "globalStatus" : "RECONCILED",
+          "inventory" : {
+            "key" : "holding-eebbe99087d7fb9af38077580ba3d3c7d4c2785af03ae4f65aaa99ad4507bb17",
+            "side" : "LONG",
+            "quantity" : "1",
+            "unit" : "CONTRACT",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "instrument" : {
+              "href" : "/v2/instruments/b703f655-410f-39b6-8bec-88b4fe970cf2"
+            },
+            "currency" : null,
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/2",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/2"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ],
+            "holding" : {
+              "href" : "/v2/holdings/c4b4dda9-0a6f-3d2b-b046-f5009cb52081"
+            }
+          },
+          "holding" : {
+            "href" : "/v2/holdings/c4b4dda9-0a6f-3d2b-b046-f5009cb52081"
+          },
+          "basis" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BASIS_ATTRIBUTION_UNKNOWN" ],
+            "dependencies" : [ ]
+          },
+          "authority" : {
+            "claimId" : "allocation:c4b4dda9-0a6f-3d2b-b046-f5009cb52081",
+            "basis" : "BROKER_HOLDING_OBSERVATION",
+            "status" : "QUALIFIED",
+            "qualification" : "Observed custody quantity; economic occurrence continuity and discretionary basis are not established.",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "subjects" : [ {
+              "href" : "/v2/holdings/c4b4dda9-0a6f-3d2b-b046-f5009cb52081"
+            } ],
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/2",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/2"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ]
+          }
+        },
+        "economics" : {
+          "openingCashFlow" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "OPENING_FILLS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "reportedMarketValue" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedOpenPl" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedCapitalRequirement" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "TERMS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "fees" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+            "dependencies" : [ ]
+          }
+        }
+      }, {
+        "nodeId" : "holding-56224d0b741e483af9cccb7e61368885553f51d5cf613ca1fa2d2644f38b27a7",
+        "kind" : "OPTION",
+        "side" : "SHORT",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "currency" : "USD",
+        "instrument" : {
+          "href" : "/v2/instruments/ff61d71c-2093-33a6-986c-285706c027b8"
+        },
+        "terms" : {
+          "underlying" : {
+            "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+          },
+          "right" : "CALL",
+          "strike" : "13",
+          "currency" : "USD",
+          "expiration" : "2026-11-27",
+          "multiplier" : "100",
+          "exerciseStyle" : "UNKNOWN",
+          "settlement" : "PHYSICAL",
+          "adjustment" : "STANDARD",
+          "payoffApplicability" : "STANDARD_EQUITY_INTRINSIC",
+          "qualification" : "QUALIFIED",
+          "deliverable" : [ {
+            "quantity" : "100",
+            "instrument" : {
+              "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+            },
+            "currency" : null,
+            "kind" : "SHARES"
+          } ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+            "artifact" : {
+              "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+            },
+            "recordKey" : "/data/items/3",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/3"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          }, {
+            "kind" : "REFERENCE_SOURCE",
+            "provider" : "TASTYTRADE",
+            "reference" : "urn:wheelwright:tastytrade:option-chain:sha256:1afb4e08ad44ba2bcb05c96fce666bc8033b149a3b9f811060626b652bc99753:item:0",
+            "observedAt" : null,
+            "qualification" : "VERIFIED_REFERENCE"
+          } ]
+        },
+        "allocation" : {
+          "quantity" : "1",
+          "basisMethod" : "UNKNOWN",
+          "availability" : "UNKNOWN",
+          "globalStatus" : "RECONCILED",
+          "inventory" : {
+            "key" : "holding-56224d0b741e483af9cccb7e61368885553f51d5cf613ca1fa2d2644f38b27a7",
+            "side" : "SHORT",
+            "quantity" : "1",
+            "unit" : "CONTRACT",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "instrument" : {
+              "href" : "/v2/instruments/ff61d71c-2093-33a6-986c-285706c027b8"
+            },
+            "currency" : null,
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/3",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/3"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ],
+            "holding" : {
+              "href" : "/v2/holdings/561d5a17-48dd-3177-8509-214812f50a8d"
+            }
+          },
+          "holding" : {
+            "href" : "/v2/holdings/561d5a17-48dd-3177-8509-214812f50a8d"
+          },
+          "basis" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BASIS_ATTRIBUTION_UNKNOWN" ],
+            "dependencies" : [ ]
+          },
+          "authority" : {
+            "claimId" : "allocation:561d5a17-48dd-3177-8509-214812f50a8d",
+            "basis" : "BROKER_HOLDING_OBSERVATION",
+            "status" : "QUALIFIED",
+            "qualification" : "Observed custody quantity; economic occurrence continuity and discretionary basis are not established.",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "subjects" : [ {
+              "href" : "/v2/holdings/561d5a17-48dd-3177-8509-214812f50a8d"
+            } ],
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/3",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/3"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ]
+          }
+        },
+        "economics" : {
+          "openingCashFlow" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "OPENING_FILLS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "reportedMarketValue" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedOpenPl" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedCapitalRequirement" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "TERMS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "fees" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+            "dependencies" : [ ]
+          }
+        }
+      }, {
+        "nodeId" : "holding-4940a5ce0e71adf28664d05c4af9bb40e838d726bd71f1879428007c76cd6133",
+        "kind" : "OPTION",
+        "side" : "SHORT",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "currency" : "USD",
+        "instrument" : {
+          "href" : "/v2/instruments/387dc4de-2d3e-397d-9505-7aae936c2291"
+        },
+        "terms" : {
+          "underlying" : {
+            "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+          },
+          "right" : "PUT",
+          "strike" : "9",
+          "currency" : "USD",
+          "expiration" : "2026-11-27",
+          "multiplier" : "100",
+          "exerciseStyle" : "UNKNOWN",
+          "settlement" : "PHYSICAL",
+          "adjustment" : "STANDARD",
+          "payoffApplicability" : "STANDARD_EQUITY_INTRINSIC",
+          "qualification" : "QUALIFIED",
+          "deliverable" : [ {
+            "quantity" : "100",
+            "instrument" : {
+              "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+            },
+            "currency" : null,
+            "kind" : "SHARES"
+          } ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+            "artifact" : {
+              "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+            },
+            "recordKey" : "/data/items/1",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/1"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          }, {
+            "kind" : "REFERENCE_SOURCE",
+            "provider" : "TASTYTRADE",
+            "reference" : "urn:wheelwright:tastytrade:option-chain:sha256:1afb4e08ad44ba2bcb05c96fce666bc8033b149a3b9f811060626b652bc99753:item:0",
+            "observedAt" : null,
+            "qualification" : "VERIFIED_REFERENCE"
+          } ]
+        },
+        "allocation" : {
+          "quantity" : "1",
+          "basisMethod" : "UNKNOWN",
+          "availability" : "UNKNOWN",
+          "globalStatus" : "RECONCILED",
+          "inventory" : {
+            "key" : "holding-4940a5ce0e71adf28664d05c4af9bb40e838d726bd71f1879428007c76cd6133",
+            "side" : "SHORT",
+            "quantity" : "1",
+            "unit" : "CONTRACT",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "instrument" : {
+              "href" : "/v2/instruments/387dc4de-2d3e-397d-9505-7aae936c2291"
+            },
+            "currency" : null,
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/1",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/1"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ],
+            "holding" : {
+              "href" : "/v2/holdings/448cb733-2bc1-38ba-b97f-41dd7d3d28e1"
+            }
+          },
+          "holding" : {
+            "href" : "/v2/holdings/448cb733-2bc1-38ba-b97f-41dd7d3d28e1"
+          },
+          "basis" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BASIS_ATTRIBUTION_UNKNOWN" ],
+            "dependencies" : [ ]
+          },
+          "authority" : {
+            "claimId" : "allocation:448cb733-2bc1-38ba-b97f-41dd7d3d28e1",
+            "basis" : "BROKER_HOLDING_OBSERVATION",
+            "status" : "QUALIFIED",
+            "qualification" : "Observed custody quantity; economic occurrence continuity and discretionary basis are not established.",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "subjects" : [ {
+              "href" : "/v2/holdings/448cb733-2bc1-38ba-b97f-41dd7d3d28e1"
+            } ],
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/1",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/1"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ]
+          }
+        },
+        "economics" : {
+          "openingCashFlow" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "OPENING_FILLS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "reportedMarketValue" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedOpenPl" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedCapitalRequirement" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "TERMS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "fees" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+            "dependencies" : [ ]
+          }
+        }
+      }, {
+        "nodeId" : "holding-079f9030d8bc641ba12be05df1033fa5ad4ce1bbf11819d96eab1798b8bfa916",
+        "kind" : "OPTION",
+        "side" : "LONG",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "currency" : "USD",
+        "instrument" : {
+          "href" : "/v2/instruments/02693a11-5479-3d9e-ac36-daa84b4a315f"
+        },
+        "terms" : {
+          "underlying" : {
+            "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+          },
+          "right" : "PUT",
+          "strike" : "8.5",
+          "currency" : "USD",
+          "expiration" : "2026-11-27",
+          "multiplier" : "100",
+          "exerciseStyle" : "UNKNOWN",
+          "settlement" : "PHYSICAL",
+          "adjustment" : "STANDARD",
+          "payoffApplicability" : "STANDARD_EQUITY_INTRINSIC",
+          "qualification" : "QUALIFIED",
+          "deliverable" : [ {
+            "quantity" : "100",
+            "instrument" : {
+              "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+            },
+            "currency" : null,
+            "kind" : "SHARES"
+          } ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+            "artifact" : {
+              "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+            },
+            "recordKey" : "/data/items/0",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/0"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          }, {
+            "kind" : "REFERENCE_SOURCE",
+            "provider" : "TASTYTRADE",
+            "reference" : "urn:wheelwright:tastytrade:option-chain:sha256:1afb4e08ad44ba2bcb05c96fce666bc8033b149a3b9f811060626b652bc99753:item:0",
+            "observedAt" : null,
+            "qualification" : "VERIFIED_REFERENCE"
+          } ]
+        },
+        "allocation" : {
+          "quantity" : "1",
+          "basisMethod" : "UNKNOWN",
+          "availability" : "UNKNOWN",
+          "globalStatus" : "RECONCILED",
+          "inventory" : {
+            "key" : "holding-079f9030d8bc641ba12be05df1033fa5ad4ce1bbf11819d96eab1798b8bfa916",
+            "side" : "LONG",
+            "quantity" : "1",
+            "unit" : "CONTRACT",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "instrument" : {
+              "href" : "/v2/instruments/02693a11-5479-3d9e-ac36-daa84b4a315f"
+            },
+            "currency" : null,
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/0",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/0"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ],
+            "holding" : {
+              "href" : "/v2/holdings/0ddf710f-ae4e-35ab-bb6e-36859111c58b"
+            }
+          },
+          "holding" : {
+            "href" : "/v2/holdings/0ddf710f-ae4e-35ab-bb6e-36859111c58b"
+          },
+          "basis" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BASIS_ATTRIBUTION_UNKNOWN" ],
+            "dependencies" : [ ]
+          },
+          "authority" : {
+            "claimId" : "allocation:0ddf710f-ae4e-35ab-bb6e-36859111c58b",
+            "basis" : "BROKER_HOLDING_OBSERVATION",
+            "status" : "QUALIFIED",
+            "qualification" : "Observed custody quantity; economic occurrence continuity and discretionary basis are not established.",
+            "account" : {
+              "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+            },
+            "subjects" : [ {
+              "href" : "/v2/holdings/0ddf710f-ae4e-35ab-bb6e-36859111c58b"
+            } ],
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+              },
+              "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+              "artifact" : {
+                "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+              },
+              "recordKey" : "/data/items/0",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/0"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ]
+          }
+        },
+        "economics" : {
+          "openingCashFlow" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "OPENING_FILLS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "reportedMarketValue" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedOpenPl" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedCapitalRequirement" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "TERMS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "fees" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:07.816333Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+            "dependencies" : [ ]
+          }
+        }
+      } ]
+    },
+    "recognition" : {
+      "status" : "VALIDATED",
+      "modelVersion" : {
+        "href" : "/v2/constructions/models/IRON_CONDOR/versions/1"
+      },
+      "candidateModels" : [ ],
+      "reasonCodes" : [ ],
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+        },
+        "recordKey" : "/data/items/2",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/2"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+        },
+        "recordKey" : "/data/items/3",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/3"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+        },
+        "recordKey" : "/data/items/1",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/1"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+        },
+        "recordKey" : "/data/items/0",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/0"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+        },
+        "recordKey" : "/data/items/0",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/0"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:07.900427Z",
+        "timeAuthority" : "UNKNOWN"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+        },
+        "recordKey" : "synthetic-15:BROKER_ORDER_RECEIPT",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/0/received-at"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : "2026-10-13T14:08:09.986+00:00",
+        "observationPrecision" : "INSTANT",
+        "observationDate" : "2026-10-13",
+        "receivedAt" : "2026-10-22T20:57:07.900427Z",
+        "timeAuthority" : "SOURCE"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+        },
+        "recordKey" : "/data/items/1",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/1"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:07.900427Z",
+        "timeAuthority" : "UNKNOWN"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+        "artifact" : {
+          "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+        },
+        "recordKey" : "synthetic-17:BROKER_ORDER_RECEIPT",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/1/received-at"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : "2026-10-13T14:08:09.976+00:00",
+        "observationPrecision" : "INSTANT",
+        "observationDate" : "2026-10-13",
+        "receivedAt" : "2026-10-22T20:57:07.900427Z",
+        "timeAuthority" : "SOURCE"
+      } ],
+      "authority" : {
+        "claimId" : "b68d3e840143097fc3785e58ce57e0c58f1e2568a40104ffe84380076bf5077d",
+        "basis" : "BROKER_PACKAGE_RECORD",
+        "status" : "QUALIFIED",
+        "qualification" : "Current financial constituent scope corroborated by explicit broker closing-instruction leg composition and exact observed inventory, uniquely across competing scopes. No opening occurrence, uninterrupted continuity, Program membership, reservation or execution established.",
+        "account" : {
+          "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+        },
+        "subjects" : [ {
+          "href" : "/v2/constructions/26d6564b-99d7-45e6-b995-f1604c3121ea"
+        } ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+          },
+          "recordKey" : "/data/items/3",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/3"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+          },
+          "recordKey" : "/data/items/1",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/1"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+          },
+          "recordKey" : "/data/items/0",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/0"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+          },
+          "recordKey" : "/data/items/0",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/0"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:07.900427Z",
+          "timeAuthority" : "UNKNOWN"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+          },
+          "recordKey" : "synthetic-15:BROKER_ORDER_RECEIPT",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/0/received-at"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : "2026-10-13T14:08:09.986+00:00",
+          "observationPrecision" : "INSTANT",
+          "observationDate" : "2026-10-13",
+          "receivedAt" : "2026-10-22T20:57:07.900427Z",
+          "timeAuthority" : "SOURCE"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+          },
+          "recordKey" : "/data/items/1",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/1"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:07.900427Z",
+          "timeAuthority" : "UNKNOWN"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+          },
+          "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+          "artifact" : {
+            "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+          },
+          "recordKey" : "synthetic-17:BROKER_ORDER_RECEIPT",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/1/received-at"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : "2026-10-13T14:08:09.976+00:00",
+          "observationPrecision" : "INSTANT",
+          "observationDate" : "2026-10-13",
+          "receivedAt" : "2026-10-22T20:57:07.900427Z",
+          "timeAuthority" : "SOURCE"
+        } ]
+      }
+    },
+    "relationships" : [ ],
+    "evidence" : [ {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+      },
+      "recordKey" : "/data/items/2",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/2"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+      "timeAuthority" : "BACKEND_RECEIPT"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+      },
+      "recordKey" : "/data/items/3",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/3"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+      "timeAuthority" : "BACKEND_RECEIPT"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+      },
+      "recordKey" : "/data/items/1",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/1"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+      "timeAuthority" : "BACKEND_RECEIPT"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.holdings.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/0240e25c-5b8b-352c-affc-51efc0af3dd2"
+      },
+      "recordKey" : "/data/items/0",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/0"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:07.795019000Z",
+      "timeAuthority" : "BACKEND_RECEIPT"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+      },
+      "recordKey" : "/data/items/0",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/0"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:07.900427Z",
+      "timeAuthority" : "UNKNOWN"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+      },
+      "recordKey" : "synthetic-15:BROKER_ORDER_RECEIPT",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/0/received-at"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : "2026-10-13T14:08:09.986+00:00",
+      "observationPrecision" : "INSTANT",
+      "observationDate" : "2026-10-13",
+      "receivedAt" : "2026-10-22T20:57:07.900427Z",
+      "timeAuthority" : "SOURCE"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+      },
+      "recordKey" : "/data/items/1",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/1"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:07.900427Z",
+      "timeAuthority" : "UNKNOWN"
+    }, {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_1c9b5738f89c46ac91975cd67dff55bc"
+      },
+      "requiredCapability" : "account.orders.read:acct_1c9b5738f89c46ac91975cd67dff55bc",
+      "artifact" : {
+        "href" : "/v2/artifacts/b93f6db0-7561-4be1-b6dd-d72c49876827"
+      },
+      "recordKey" : "synthetic-17:BROKER_ORDER_RECEIPT",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/1/received-at"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : "2026-10-13T14:08:09.976+00:00",
+      "observationPrecision" : "INSTANT",
+      "observationDate" : "2026-10-13",
+      "receivedAt" : "2026-10-22T20:57:07.900427Z",
+      "timeAuthority" : "SOURCE"
+    } ],
+    "warnings" : [ ]
+  },
+  "headers" : {
+    "Content-Type" : "application/json",
+    "Cache-Control" : "private, no-store",
+    "X-Request-Id" : "55702b9d-8d6f-4f90-aeb7-ce1ade7b0e8d"
+  }
+}

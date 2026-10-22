@@ -17,7 +17,7 @@ public final class PortfolioMarketSources {
  private final PortfolioRepository repository;
  public PortfolioMarketSources(PortfolioRepository repository){this.repository=repository;}
  public void refresh(Connection c)throws Exception {
-  try(var query=c.prepareStatement("SELECT * FROM direct_quote ORDER BY symbol");var row=query.executeQuery()){
+  try(var query=c.prepareStatement("SELECT q.* FROM direct_quote q WHERE NOT EXISTS (SELECT 1 FROM portfolio_resource p WHERE p.kind='MARKET_OBSERVATION' AND p.account_id IS NULL AND p.source_key=q.observation_id) ORDER BY q.symbol");var row=query.executeQuery()){
    while(row.next()){
     String symbol=row.getString("symbol"),provider=row.getString("provider"),environment=row.getString("environment"),sourceId=row.getString("observation_id");
     String instrumentId=UUID.nameUUIDFromBytes(("instrument:"+provider+":"+symbol).getBytes(StandardCharsets.UTF_8)).toString(),instrumentUri="/v2/instruments/"+instrumentId;

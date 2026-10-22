@@ -14,6 +14,7 @@ public enum ProblemCode {
     INVALID_REQUEST(422, "Invalid request"),
     CAPABILITY_UNAVAILABLE(503, "Capability unavailable"),
     NOT_FOUND(404, "Not found"),
+    METHOD_NOT_ALLOWED(405, "Method not allowed"),
     INTERNAL_ERROR(500, "Internal error");
 
     private final int status;

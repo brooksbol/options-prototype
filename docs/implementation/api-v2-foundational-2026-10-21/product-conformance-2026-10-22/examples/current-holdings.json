@@ -1,0 +1,154 @@
+{
+  "standing" : "SYNTHETIC_SOURCE_DERIVED_HTTP_NOT_LIVE_BROKERAGE_EVIDENCE",
+  "source" : "Synthetic Fidelity positions CSV:SPY100 shares,current value10000,reported P/L250 onOct05; SPY75,current value7500,reported P/L125 onOct06. No opening transaction, basis or current quote supplied.",
+  "path" : "/v2/holdings?accountId=acct_f8a98a9940094d5194484a68558440f6",
+  "method" : "GET",
+  "status" : 200,
+  "body" : {
+    "projection" : "summary",
+    "items" : [ {
+      "id" : "8ef7fced-5fba-3671-bc2e-4d2ed789f501",
+      "snapshotId" : "8aca2525287ba3e587955bf404e2bcff5b388b567c573c11f43ec694a83b463a",
+      "snapshotCoverage" : "COMPLETE_REPORTED",
+      "side" : "LONG",
+      "quantity" : "75",
+      "unit" : "SHARE",
+      "kind" : "SECURITY",
+      "self" : {
+        "href" : "/v2/holdings/8ef7fced-5fba-3671-bc2e-4d2ed789f501"
+      },
+      "account" : {
+        "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+      },
+      "instrument" : {
+        "href" : "/v2/instruments/ac554173-92d2-33c4-bc92-cca96b239041"
+      },
+      "sourceInstrument" : {
+        "broker" : "FIDELITY",
+        "environment" : "PRODUCTION",
+        "identifier" : "SPY"
+      },
+      "observedAt" : null,
+      "observationDate" : "2026-10-06",
+      "receivedAt" : "2026-10-22T20:57:07.251663Z",
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+        },
+        "requiredCapability" : "account.holdings.read:acct_f8a98a9940094d5194484a68558440f6",
+        "artifact" : {
+          "href" : "/v2/artifacts/ce8a3f6d-1d30-446e-b878-fc473257ece1"
+        },
+        "recordKey" : "2",
+        "locator" : {
+          "kind" : "CSV_ROW",
+          "value" : "2"
+        },
+        "provider" : "FIDELITY",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "DAY",
+        "observationDate" : "2026-10-06",
+        "receivedAt" : "2026-10-22T20:57:07.251663Z",
+        "timeAuthority" : "SOURCE"
+      } ],
+      "warnings" : [ {
+        "code" : "ASSOCIATION_UNRESOLVED",
+        "affected" : [ "/snapshotId" ],
+        "establishedFacts" : [ "This retained custody observation is independently inspectable." ],
+        "incompleteConclusions" : [ "Repeated observations are not economic events. Position occurrence continuity and any ambiguous or incompatible prior association remain unresolved." ],
+        "evidence" : [ ],
+        "remediation" : [ ]
+      } ],
+      "reportedMarketValue" : {
+        "value" : "7500",
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "QUALIFIED",
+        "origin" : "BROKER_REPORTED",
+        "method" : "BROKER_REPORTED_MARKET_VALUE",
+        "asOf" : null,
+        "assumptions" : [ ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+          },
+          "requiredCapability" : "account.holdings.read:acct_f8a98a9940094d5194484a68558440f6",
+          "artifact" : {
+            "href" : "/v2/artifacts/ce8a3f6d-1d30-446e-b878-fc473257ece1"
+          },
+          "recordKey" : "2",
+          "locator" : {
+            "kind" : "CSV_ROW",
+            "value" : "2"
+          },
+          "provider" : "FIDELITY",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "DAY",
+          "observationDate" : "2026-10-06",
+          "receivedAt" : "2026-10-22T20:57:07.251663Z",
+          "timeAuthority" : "SOURCE"
+        } ],
+        "warningCodes" : [ ],
+        "dependencies" : [ ]
+      },
+      "reportedOpenPl" : {
+        "value" : "125",
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "QUALIFIED",
+        "origin" : "BROKER_REPORTED",
+        "method" : "BROKER_REPORTED_PL_UNVERIFIED_DIALECT",
+        "asOf" : null,
+        "assumptions" : [ ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+          },
+          "requiredCapability" : "account.holdings.read:acct_f8a98a9940094d5194484a68558440f6",
+          "artifact" : {
+            "href" : "/v2/artifacts/ce8a3f6d-1d30-446e-b878-fc473257ece1"
+          },
+          "recordKey" : "2",
+          "locator" : {
+            "kind" : "CSV_ROW",
+            "value" : "2"
+          },
+          "provider" : "FIDELITY",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "DAY",
+          "observationDate" : "2026-10-06",
+          "receivedAt" : "2026-10-22T20:57:07.251663Z",
+          "timeAuthority" : "SOURCE"
+        } ],
+        "warningCodes" : [ ],
+        "dependencies" : [ ]
+      },
+      "reportedCapitalRequirement" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "INCOMPLETE",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:07.258100Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "TERMS_UNAVAILABLE" ],
+        "dependencies" : [ ]
+      }
+    } ],
+    "warnings" : [ ],
+    "next" : null
+  },
+  "headers" : {
+    "Content-Type" : "application/json",
+    "Cache-Control" : "private, no-store",
+    "X-Request-Id" : "e9e59456-a2d7-443d-9fad-b51d1c7bb838"
+  }
+}

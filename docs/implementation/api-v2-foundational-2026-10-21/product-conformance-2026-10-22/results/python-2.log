@@ -1,0 +1,13 @@
+/Users/bollich/kiro/options-candidates/api-v2-integration-deployment-2026-10-22/tools/api-docs/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+test_closed_exposure_rule (__main__.Contract) ... ok
+test_emitted_source_specimen (__main__.Contract) ... ok
+test_exposure_positive_and_unknown (__main__.Contract) ... ok
+test_no_invented_continuity_or_status (__main__.Contract) ... ok
+test_operation_and_property_inventory (__main__.Contract) ... ok
+test_supersession_requires_navigation (__main__.Contract) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.404s
+
+OK

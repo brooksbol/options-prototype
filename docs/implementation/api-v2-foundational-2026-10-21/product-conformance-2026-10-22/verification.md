@@ -1,0 +1,146 @@
+# Bounded Holdings Product-conformance correction — author verification
+
+## Standing, identity and scope
+
+Principal explicitly selected Option A for F1/F2/F4–F6. This is an isolated implementation/documentation candidate, not independent Kiro verification, Product acceptance, integration or deployment. F3 remains reserved. Defect lifecycle owners: BUG-044 (F1), BUG-045 (F2), BUG-046 (F4/F5), BUG-047 (F6), all Open pending independent verification. This package is their reproduction/engineering evidence, not a competing defect register.
+
+- Correction branch: `codex/api-v2-product-conformance-correction-2026-10-22`.
+- Worktree: `/Users/bollich/kiro/options-candidates/api-v2-product-conformance-correction-2026-10-22`.
+- Remote-main/base: `8bd75f5700a2cee39b7a9edb5e685c2d5a365312`; initially observed `a669d02ffbee52fe739117bd0f5c8821871bd6c7` advanced by unrelated H001 index before isolation. Final synchronization is recorded in results.
+- Independently preserved accepted backend: `b48e3c6fc36f9a7feb6abbf97cbacff5934d477e`; the correction base is the combined-source remote main above.
+- Deployed combined-source JAR source: `d97f86f4924dec90c4639075429d90488342251c`; verified protected port3101 PID14143; JAR SHA256 `1d94fb29d0ce8ef4de4d435746e134e74dc5e38b4fa52d3d697d6a16ed07172e`. No requests to financial endpoints or live acquisition in this pass.
+- Pages publication source: `4c659a7d3ce34b74937f7a356ec31dc1314399b1`, workflow39839265856, successful build/deploy. Actual live index SHA256 `ce7ebc85d97a9903b78d26df5e08f88e16930ff56797c79b648b4458290ea0b0`; license `d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8`. Source/main/publication are distinct identities. Current candidate is unpublished.
+
+Original specification847315f and accepted a32c7c7 plus all frozen local review worktrees remain unchanged. Main/root in-flight Muse/MCP documents, BUG-043/v1, runtime processes/databases/configuration and release metadata are untouched. Two old prunable worktree entries were observed, not removed. No push, merge, deployment, broker call or client migration occurred.
+
+## Independence, discovery and governing lines
+
+Preloaded material consisted of Principal task/authorization, reported Kiro findings and prior deployment/candidate summaries. These routed discovery and defined authorization; no prior model conclusion or reported count was treated as an independent probe. Kiro's full conformance report/original payloads were not found in repository. Every probe here is **NEWLY CONSTRUCTED**, not a reproduction of Kiro's unavailable original inputs. Reported33s/120s are samples supplied by the Principal, not this pass's measurements.
+
+Normal navigation: root `AGENTS.md:5–40` → `docs/AGENTS.md:9–68` → `docs/bootstrap/codex-cold-start.md` and project-memory protocol → `docs/README.md:33–52` A–F → complete parking-lot/journal continuation indexes → task/acceptance/deployment records → maintained owners/assimilation → guardrails/OAS → actual controllers, source admissions, fixtures and tests. Gate001 was STAGED/experiment_started:false and inactive for mutation; it is not an active blanket prohibition or permission. Separate H001 Muse execution authorization is not inherited. This Principal task expressly authorizes the isolated correction and candidate commit. No other actors were delegated implementation/review or contacted.
+
+| Authority / accepted working evidence | Exact source and relevant lines |
+|---|---|
+| Documentation A–F precedence; maintained owner scope | `docs/README.md:33–52`; root/docsAGENTS routing above |
+| Account is custody context, not governing regime | `docs/knowledge/domain/accounts-and-operating-regimes.md:3–22,26–46` |
+| Position owner contains scoped candidate/historical statements, not new permission to override accepted foundation | `docs/knowledge/domain/positions-and-governed-quantity.md:22–30,36–57`; `docs/assimilation-obligations.md:89–104` ASSIM-0002 remains PENDING |
+| Association cannot gain authority from matching identifiers; no lifecycle policy implied | `docs/07c-adrs.md:521–568` ADR016, particularly544–558; ADR022 `:900–921` bounded opening cohort, not universal holdings lifecycle |
+| Public/runtime/OAS fidelity and provenance | `docs/77-api-v2-architectural-guardrails.md:19–59,110–149` |
+| Uniform errors/correlation | Doc77 `:118–138`; operative common OAS `components/schemas/HeldQuoteReadProblem` and ProblemDetails/ProblemCode implementation |
+| Bounded collections and projection versus acquisition | Doc77 `:188–207,262–280`; accepted foundation list parameters limit/sort/projection/cursor |
+| Default holdings cut requirement, before correction | base8bd75f5 `docs/contracts/api-v2-foundational-portfolio.json` `/paths/~1v2~1holdings/get/parameters` name=snapshotId: “default latest admitted snapshot per authorized Account”; candidate parameter at23501–23509 (line numbers move with examples) |
+| Accepted immutable identity, evidence, redaction and conservation | `docs/discovery/api-v2-specification-acceptance-checkpoint-2026-10-21.md:3–29`; subsequent full-implementation handoff and `docs/implementation/api-v2-foundational-2026-10-21/r1-r2/verification.md:4–44`; accepted b48 working source tests |
+| Product proof before architecture/invention | `docs/mandates/product-first-continuous-engineering-2026-10-13.md`, applicable fitness controls; recover→reuse→compose applied to existing snapshot owner, repository, admission markers and Redoc |
+| Publication procedure and actual deployed evidence | `docs/bootstrap/api-v2-documentation-update-procedure.md:1–80` and later verification/publication controls; existing deployment record. Required independent verification/publication hold retained |
+
+The broad historical maintained Position identity question is not silently closed; accepted foundational GUID/terminal rules remain scoped to this implemented domain. No maintained owner or ASSIM entry was rewritten. Routine implementation evidence belongs here and in defect records, not a new principle, ADR or duplicate journal narrative.
+
+## Finding ledger: reproduction and correction
+
+| Finding | Reproducing input and baseline observation | Required outcome / client consequence | Corrected path and observed targeted result |
+|---|---|---|---|
+| F1 / BUG-044 | Synthetic Fidelity positions exports Oct05/Oct06 for same Account/contract; GET holdings omitted snapshotId. Baseline test returned multiple snapshot IDs. | Latest applicable admitted cut per Account, never sum custody across time; explicit historical query remains valid. | PortfolioController membership → ReadService.latestHoldings → PortfolioSnapshots.current → Repository.page. Tests independently cover one/multiple Accounts/cuts, same series, historical URI, partial quantity, failed import, failed native refresh, empty latest securities, authorization and stable ascending/descending pages. Changed current cut invalidates continuation422; historical cursor remains scoped. |
+| F2 / BUG-045 | Small Position limit1 over four retained source rows; baseline expanded every Position before slicing. New1000-source cold profile exposed repeated continuity lookups; an intermediate SQL join plan was also quadratic. | Page selection and authorization precede expansion; exact Account invariant survives. Clients must not pay 1000 detailed evaluations to obtain five. | Repository.page LIMIT+1; only actual returned rows expanded; lookahead URI only. Request-local Account reconciliation/Orders/observation reuse. Scoped page acquisition, admitted-source fingerprint reuse, indexed transaction-local continuity lookup and scoped indexed reconciliation join. Detailed complexity below. |
+| F4 / BUG-046 | Downloaded actual published native projection:17 Holdings operations shared generic description. | Public reference must explain actual independent resources, relationships and evidence qualifications. |18 distinct authored operation descriptions in existing annotations/generator; internal permission prose retained privately. `results/public-description-comparison.json` preserves published/candidate text. All32 public operations navigated. |
+| F5 / BUG-046 | Actual published readPosition media had an old singular OPEN example AND named UNRESOLVED example. Existing happy-path named-example validator did not inspect obsolete singular payload. Complex source-backed cases absent. | Honest evidence qualification; no invented opening/lifecycle, basis, member, transaction or reservation. | Named examples replace singular examples. Actual source decoder→admission→service→HTTP captures for Fidelity simple/incomplete/history, native-shaped Iron Condor/current closing scope/quotes, aggregate100shares vs200required. Java assertions independently calculate signed midpoint sum, spot source clock, source expiration/calendar DTE, terminal intrinsic boundary values and unknown opening P/L. Schemas validate frozen and newly emitted captures. |
+| F6 / BUG-047 | Real loopback Spring GET unknown route returned404 application/json, POST Position collection405 application/json. Missing conditional/private-market grants and quote grants confirmed by OAS/runtime inspection. | Canonical Problem+JSON status/code/title/type/requestId, private/no-store, correct401/404/405/422 and legacy isolation. Real grant declarations without weaker authorization. | V2RoutingErrors handles only framework route/method failures under /v2. Test checks correlation, missing/invalid auth401, invalid correlation422, Allow, private cache, no resource echo, and legacy /api default404 unchanged. All36 operations advertise405; RoutingProblem extends only dispatch contract. POSTquotes acquire/force and private Account-market metadata added. Public projection suppresses every x-required-grants* key. |
+
+Original F1/F2 baseline log: `results/baseline.log` (expected failures, not a test pass). Framework baseline: `results/routing-baseline.log`; raw originally observed Spring body timestamp/status/error/path is recorded in task investigation, not asserted to be a preserved original Kiro payload. Targeted corrected probe outputs are in results. Kiro findings are reported inputs; this ledger's implementation assertions are author evidence only.
+
+### F1 precise selection / retained evidence rules
+
+“Latest” reuses the existing admitted snapshot owner: greatest evidenceDate, then exact received/recorded Instant, then snapshotID tie. Fidelity export day and tastytrade receipt day remain different qualifications; never infer an intraday source event from a day. Select per authorized Account. An admitted partial cut is selected with its own unsupported quantities and completeness warning, without borrowing older quantities. An empty admitted securities cut remains empty (cash may remain separately unknown). Failed/rejected acquisition/import cannot insert a successful cut or erase prior admitted evidence; collection warns about the failure. Explicit snapshotId requires exact authorized Account and bypasses default-cut selection; original observations/holdings remain retained. Snapshot discovery is paginated on the existing route, not a new resource. Pagination uses stable canonical ID ordering and scoped authenticated continuation; no new total field or atomic cross-Account snapshot is promised.
+
+### F2 work classification and limits
+
+1. **Authorization/membership:** enumerate authorized Account scope; interpret newly retained source evidence so new current resources are discoverable. Reuse existing portfolio_admission markers with opaque input fingerprints; same source revision does not repeat financial admission/reference/package/current-exposure processing. Catalog bytes/models load once. No credentials, broker calls or new domain cache/service introduced.
+2. **Selection/order:** bound repository response to limit+1, same caller scope, filters, state/exposure and same-Account associations. Only the requested page (not lookahead) is expanded. Stable URI order matches accepted ID order within each resource kind. Retained snapshot catalog also pages before payload summary.
+3. **Invariant:** Account-wide holdings, allocations, current Constructions and coverage must still be examined. It is one linear Account pass per request, reused by included Construction and every Position. SQL CROSS JOIN deliberately starts with scoped Positions then indexed immutable Construction URI lookup; query plan artifact verifies it. This preserves shared100shares/two-call conflict even if only one affected Position is on page. There is no page-local conservation shortcut.
+4. **Representation:** Orders/normalized quote observations/current instruction artifact set are loaded once per Account/request, not once per Position. Sanitization remains per caller/projection; caches never cross requests/Users. Expanded model/constituent/Order detail work remains page-sized.
+5. **Acquisition:** Position page read-through is restricted to returned members' Accounts and requested Instrument/underlying subjects. Provider requests are batched and existing100subject budget remains unchanged. Thirty-second market reuse is partitioned by exact requested subject set; a different page cannot incorrectly reuse a previous page's “complete” response. Existing session/reference qualifications remain. The Orders collection is an explicit exception: bounded authorized Account instruction acquisition defines collection membership; paging only preexisting local Orders would hide new broker Orders. Existing five-minute instruction reuse and finite source scan limits remain. Instance read-through policy is preserved.
+6. **Honest cost bound:** this is not O(page) total CPU or constant latency. Retained source revision checks and one global reconciliation scale with applicable source history/Account inventory; first admission must create/recognize all admitted source resources once. Initial source admission has stored initial evaluations, not 1000 expanded per-request financially enriched responses. Global quote normalization/Order membership inputs remain source-qualified. No new cross-request reconciliation cache with stale authorization or coverage results. Very large/many-Account history and provider latency are not SLA-tested.
+
+The deterministic12-case grid covers10,100,1000 Positions × pages5,20 × actual default summary and expanded+Construction. Assertions: exact min(page,population) expansions, one Account reconciliation, one full Position read for that invariant, SQL statement bound50+3×returned items and rows≤4×population+500 on this retained-history fixture. JDBC counters cover Repository connections/SELECT result rows, not every SQLite internal VM step or unrelated AccountDirectory connection. EXPLAIN is measured separately. Controlled timings supplement counts; no arbitrary wall-clock pass threshold.
+
+`PortfolioPageAcquisitionTest` additionally admits1000 native-shaped equity holdings and mocks only the brokerage transport. Unauthorized reader makes zero requests; authorized first page requests5subjects, identical page zero additional attempts, different page5disjoint subjects, expanded page20subjects; never calls holdings or Orders acquisition. This proves scoped execution/reuse under mock transport, not live provider latency/completeness. Existing loopback option/reference/source failures, R1/R2, financial, authorization and redaction tests remain required.
+
+## Public example provenance and privacy
+
+`derive-examples.py --promote` freezes actual Java HTTP captures after PortfolioDocumentationExamplesTest; it does not generate financial expected values. Synthetic source inputs are existing sanitized `scripts/fixtures/tt-live-economic-observed.json`, native-shaped declared standard contract supplement in PortfolioSourcePackageTest, synthetic aggregate coverage fixture and explicit Fidelity CSV rows inside the new Java test. The supplement establishes declared test reference terms only, not live broker data quality. GUIDs/receipt clocks are regenerated each test; reproducibility means independently asserted economics, source clocks, relationships and statuses, not byte-equal random identities.
+
+- Iron Condor: four source-held legs + corroborated native current closing package; exact immutable IRON_CONDOR/version1. Midpoint signed package value−8USD, terminal payoff plateau0USD between9 and13, tails−50USD; those are terminal liquidation values, not lifetime P/L or opening economics. Opening credit/fees/P&L unknown. Spot10.985USD with source clock2026-10-14T19:21:12.718Z remains STALE, never refreshed by receipt. Actual source expiration2026-11-27 and runtime NY date determine remaining DTE. Working closing instructions do not establish an opening or change holdings.
+- Fidelity: source shares100 then75, reported values10000 then7500 and source-dialect reported open P/L250 then125. No opening, basis or current quote supplied; derived P/L remains incomplete, terminal payoff unsupported where required reference terms absent. A reported number is not relabeled verified gross/net P/L.
+- Coverage: owned100 fungible shares support aggregate required200; no tax-lot, share assignment, buying power or brokerage reservation asserted. Affected Position warnings withhold dependent unsupported payoff.
+- Public projection uses the existing REDACTED Account-source variant. Authoritative OAS keeps necessary private fields; shared Instrument confidentiality is unchanged. No actual private originals, account numbers, credentials or runtime data entered artifacts.
+
+## Contract/security deltas and runtime obligations
+
+The only wire additions are canonical405 dispatch Problem/Allow/header responses; no new operation/resource, source write, grant bypass or schema financial/lifecycle change. Grant metadata declares existing runtime checks: quote.acquire; quote.force additionally on FORCE; market.read plus account.market.read for private Account observations. `tools/api-docs/validate.py` validates the exact approved405/grant delta before comparing all other resolved wire/security constraints to b48; it does not refresh or broadly ignore the preserved baseline. Historical direct-quote preservation tests use the same narrowly asserted adjustment.
+
+Schema validation proves representation shape, not source truth, Account-wide conservation, lifecycle transitions, runtime authorization, absence of timing side channels or broker capability. Runtime obligations preserved: auth on every page/direct/expanded/history/source resource; same-Account relationships; no protected Order timestamps/asOf leakage; no private originals via shared references; source acquisition budgets/reuse and explicit failed-source qualification; immutable Constructions/Models, immediate predecessor, independent GUID and terminal closure. Tests exercise finite deterministic cases, not universal proof.
+
+## F3 and observations explicitly reserved
+
+No production source-admission predicate was added to establish OPEN or CLOSED. First observation is not an opening; disappearance from complete evidence can establish observed zero without proving economic closure; partial/failed cuts cannot establish absence. Current examples are UNRESOLVED. The transaction-local continuity index retains the original matching predicate and qualified GUID reuse; it adds no continuity fact or lifecycle machinery.
+
+A separate Principal Product determination would need concrete admissible evidence for (1) OPEN/CLOSED transition authority, (2) whether a snapshot-only quantity delta can ever justify EXPOSURE_CHANGE versus EVIDENCE_REINTERPRETATION and (3) how any subsequently proven closure/reopening is associated without manufacturing history. Native current closing Orders/package evidence does not answer those opening/closure questions. These do not block this authorized correction and are not submitted as new implementation questions.
+
+CSP recognition conservatism with unrelated options remains unchanged: recognition must see the complete Account evidence before paging, so F2 must not accidentally remove competitors and increase certainty. No authorized falsifier establishes a recognition-policy change here. Maintained Position owner/ASSIM0002 lag is acknowledged; no scope to rewrite or ratify universal meaning. Existing original/current/cumulative examples and accepted financial geometry are preserved.
+
+## Verification results and limitations
+
+Exact commands, final XML summary, operation inventory, schema/financial/source parity, complexity, rendering specimens and hashes are recorded in `results/` and the independent handoff. Final verification table is appended after completion. Intermediate failures are not hidden: original probes failed as expected; an intermediate cold profiling run was intentionally stopped after repeated scans; a reorderable SQL join had an inferior plan; JDBC measurement initially wrapped SQLite's metadata object as ResultSet and was corrected; an independent source-math assertion initially used a text-only helper on numeric quantity and was corrected. None is counted as passing financial evidence. No failing application behavior was repaired by weakening the contract or increasing page limits.
+
+Documentation build uses pinned native Redoc3.0.1/CLI2.64.0/Playwright1.56.1 and existing projection pipeline. Two repeat previews must be byte-identical. Desktop/mobile were visually inspected after native navigation settled; the original screenshot timing captured a transient blank desktop, so the existing specimen now waits for native transition and captures the actual page plus mobile operation view. No renderer, separate public specification, custom UI or documentation ontology was introduced. Vendor recursive-example lint warnings are supplemented by strict JSON Schema validation, not silently called proof of financial correctness.
+
+No live brokerage verification, runtime deployment test, independent Kiro review or Principal Product acceptance is claimed. Preview provenance deliberately says sourceDirty/NOT_PUBLISHED until the isolated candidate freeze; release.json remains unchanged and cannot authorize these new bytes. Tokens/credits are not exposed. Retrieval/execution wall-clock interval is recorded from local state/log timestamps rather than invented billable usage. Repository navigation plus local synthetic tools sufficed for implementation; GitHub workflow/static site and local process identity were necessary to verify actual publication/runtime baseline. Original Kiro artifact remains unavailable, but did not prevent bounded independently testable corrections.
+
+
+## Final measured verification
+
+Complete backend command `./evidence-service-java/gradlew -p evidence-service-java test --console=plain`: **997 tests,0 failures,0 errors,2 optional private-file skips**,5m29s. Raw log and per-suite XML totals are retained as full-final.log/java-final.json. The earlier full run had997/1failure/2skips in the newly added independent test numeric helper; it is separately retained as full.log, not silently counted as a pass. Focused repaired source-example checks passed before the final whole-suite run. `bootJar` separately passed1s; the JAR was built but never installed or started.
+
+| Command (Python uses existing pinned verification environment) | Actual result / meaning |
+|---|---|
+| `python scripts/v2-oas-conformance-test.py` | 7 groups pass;36 operative/controller mappings, structure/reference/quote compatibility checks |
+| `python .../operative-contract-test.py` | 4 pass; exact isolated/idempotent promotion of all four operative files; route/grant/access inventory |
+| `python .../entry-corrections-test.py` | 8 pass; prior entry economic/redaction/conservation corrections |
+| `python .../r1-r2/verify-contract.py` | 6 pass; accepted R1/R2 schema/property/operation inventory |
+| `python docs/reviews/.../verify.py` | 78 pass; accepted contract and financial falsifiers |
+| `python docs/reviews/.../final-targeted-tests.py` | 17 pass; preserved final specification tests |
+| `python .../product-conformance-2026-10-22/verify-corrections.py` | 6 groups pass; new405/grants/source examples/description/page complexity; frozen and freshly emitted payloads |
+| `python .../derive-examples.py` | pass; source-derived frozen qualifications, coverage and current/history coherence (no promotion on verification) |
+| `python .../validate-runtime-responses.py` | 184 fresh route representations +5 standalone;45 route/status combinations;0 schema violations. Separate new dispatch-probe schema tests also pass |
+| `node .../verify-mark-parity.mjs` | actual Java/package mark money, gross P/L, DTE, clocks/freshness, SPOT/RANGE/payoff tails agree with projectLive under explicitly declared synthetic source/terms |
+| `node .../verify-session-parity.mjs` | 9 Java freshness cases agree with accepted tt policy |
+| `node .../verify-management-parity.mjs` | actual normalized-Order opening/DTE/qualified EXIT PROGRESS dollar coordinates, RANGE/SPOT/QUOTE agree; absent trigger/fees unknown |
+| `python tools/api-docs/build.py` / `validate.py` | unpublished native Redoc build;36 internal operations/295 typed examples;32 public operations/263 response examples; exact wire/security preserved except asserted F6 delta |
+| `node tools/api-docs/human-specimen.mjs` | all32 public operations; native cURL/search/error tabs/mobile, no forms/private instructions/unexpected network; actual desktop/mobile visuals inspected |
+| repeat build to `/tmp/ww-api-conformance-repeat` | index/license byte-identical; preview hashes in preview-hashes.json |
+
+Exact full paths/commands are in README.md. Python logs0–4 map respectively to OAS, entry corrections, R1/R2,78-check specification and17-check final specification. Existing LibreSSL/JDK/recursive vendor-lint notices are retained; strict schema validation passed. No optional private fixture was copied, enabled or claimed live.
+
+| Population | Page | Projection | Expansions | Reconciliation | Repository SELECTs | Repository rows | Controlled ms |
+|---|---|---|---|---|---|---|---|
+| 10 | 5 | summary | 5 | 1 | 39 | 58 | 17 |
+| 10 | 20 | summary | 10 | 1 | 44 | 71 | 22 |
+| 10 | 5 | expanded | 5 | 1 | 49 | 68 | 22 |
+| 10 | 20 | expanded | 10 | 1 | 64 | 91 | 33 |
+| 100 | 5 | summary | 5 | 1 | 39 | 342 | 27 |
+| 100 | 20 | summary | 20 | 1 | 54 | 387 | 42 |
+| 100 | 5 | expanded | 5 | 1 | 49 | 352 | 34 |
+| 100 | 20 | expanded | 20 | 1 | 94 | 427 | 66 |
+| 1000 | 5 | summary | 5 | 1 | 39 | 3146 | 189 |
+| 1000 | 20 | summary | 20 | 1 | 54 | 3191 | 196 |
+| 1000 | 5 | expanded | 5 | 1 | 49 | 3156 | 173 |
+| 1000 | 20 | expanded | 20 | 1 | 94 | 3231 | 218 |
+
+Timings are this local warm-admission synthetic run, not an SLA or reproductions of the reported33/120second samples. Counts, source-scope tests and query plans are the acceptance evidence. URI-only warmup establishes membership without expanding/evaluating returned detailed Positions; the initial admission phase is explicitly outside these warm-page timings.
+
+## Freeze, remaining obligations and recommendation
+
+Remote main re-fetched and reverified as8bd75f5700a2cee39b7a9edb5e685c2d5a365312 before freeze; no combined-source reconciliation delta was required. Protected root has unrelated untracked Muse/MCP work; it was neither adopted nor modified. Existing verified/frozen worktrees retain their heads/state (see worktree-protection.json); prunable invalid entries remain untouched, not claimed verified. Candidate comparisons are against this base; all36operations and b48 wire/security remainder are checked by executable tests. Exact changed paths are in changed-files.txt, with commit identity obtained from the isolated branch/final handoff.
+
+Task-state creation 2026-10-22T20:00:45.287045+00:00 → verification recording 2026-10-22T21:16:54.247694+00:00, 76.1minutes of measured wall time; earlier bootstrap/retrieval duration is not separately instrumented. Token/credit accounting unavailable. No follow-up Principal question or intervention required. Verification specimens and logs are author evidence, not independent Product or broker acceptance. Protected local JAR/PID/listener and live Pages hashes/workflow were rechecked unchanged; no backend install/start or Pages publication. A successful candidate build is not proof of the deployed runtime implementing these corrections.
+
+**Recommendation:** ready for targeted independent Kiro implementation/documentation verification. No confirmed residual defect in the authorized correction targets after these finite checks. F3 and separately noted CSP/knowledge topics remain reserved; no new Product decision required for this candidate. Runtime-only financial/evidence/authorization obligations remain; future provider/history scale is not universally proven. Do not integrate or publish before independent verification; then reconcile remote main and follow the existing controlled deployment procedure. No ww live work started.

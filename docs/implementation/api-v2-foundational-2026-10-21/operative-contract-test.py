@@ -7,8 +7,8 @@ from v2_oas import Contracts,FOUNDATION,COMMON,ACCOUNT,implemented_v2_operations
 class OperativeIntegration(unittest.TestCase):
  def test_generation_isolated_and_byte_idempotent(self):
   script=Path(__file__).relative_to(ROOT).with_name('integrate-operative-contract.py')
-  inputs=[script,script.with_name("documentation-annotations.json"),Path('docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json'),Path('docs/contracts')/COMMON,Path('docs/contracts')/ACCOUNT]
-  outputs=[Path('docs/contracts')/name for name in [COMMON,ACCOUNT,FOUNDATION]]
+  inputs=[script,script.with_name("documentation-annotations.json"),Path('docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json'),Path('docs/contracts')/COMMON,Path('docs/contracts')/ACCOUNT,Path('docs/contracts/api-v2-market-evidence-subjects.json')]
+  outputs=[Path('docs/contracts')/name for name in [COMMON,ACCOUNT,FOUNDATION,'api-v2-market-evidence-subjects.json']]
   with tempfile.TemporaryDirectory() as tmp:
    target=Path(tmp)
    for path in inputs:(target/path).parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/path,target/path)

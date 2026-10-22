@@ -1,0 +1,471 @@
+{
+  "standing" : "SYNTHETIC_SOURCE_DERIVED_HTTP_NOT_LIVE_BROKERAGE_EVIDENCE",
+  "source" : "PortfolioSourcePackageTest:100 owned fungible UNG shares and two short calls, declared native-shaped terms; aggregate economic coverage only, no selected shares or broker reservation",
+  "path" : "/v2/constructions/9c34d8fe-7874-462a-910b-a3e4c036df60",
+  "method" : "GET",
+  "status" : 200,
+  "body" : {
+    "id" : "9c34d8fe-7874-462a-910b-a3e4c036df60",
+    "createdAt" : "2026-10-22T20:57:08.287925Z",
+    "changeKind" : "EVIDENCE_REINTERPRETATION",
+    "predecessorStatus" : "KNOWN",
+    "predecessor" : {
+      "href" : "/v2/constructions/f9a1ba31-21f5-450b-84bc-13f4a5a184ad"
+    },
+    "self" : {
+      "href" : "/v2/constructions/9c34d8fe-7874-462a-910b-a3e4c036df60"
+    },
+    "account" : {
+      "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+    },
+    "position" : {
+      "href" : "/v2/positions/158fbc15-91de-46c6-8fb7-3092ca4fa5b1"
+    },
+    "composition" : {
+      "kind" : "GROUP",
+      "nodeId" : "ROOT",
+      "modelVersion" : null,
+      "children" : [ {
+        "nodeId" : "holding-a0e33ab6f2d4c26f51883fc507a49cfdaffaadd3272ad71991c3df5f4884f0a3",
+        "kind" : "OPTION",
+        "side" : "SHORT",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "currency" : "USD",
+        "instrument" : {
+          "href" : "/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154"
+        },
+        "terms" : {
+          "underlying" : {
+            "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+          },
+          "right" : "CALL",
+          "strike" : "14",
+          "currency" : "USD",
+          "expiration" : "2026-11-27",
+          "multiplier" : "100",
+          "exerciseStyle" : "UNKNOWN",
+          "settlement" : "PHYSICAL",
+          "adjustment" : "STANDARD",
+          "payoffApplicability" : "STANDARD_EQUITY_INTRINSIC",
+          "qualification" : "QUALIFIED",
+          "deliverable" : [ {
+            "quantity" : "100",
+            "instrument" : {
+              "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+            },
+            "currency" : null,
+            "kind" : "SHARES"
+          } ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+            },
+            "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+            "artifact" : {
+              "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+            },
+            "recordKey" : "/data/items/2",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/2"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          }, {
+            "kind" : "REFERENCE_SOURCE",
+            "provider" : "TASTYTRADE",
+            "reference" : "urn:wheelwright:tastytrade:option-chain:sha256:6268defc3a906efa632b7eac263debc8334f8d4369bba4f11ef05a66c58dd1d6:item:0",
+            "observedAt" : null,
+            "qualification" : "VERIFIED_REFERENCE"
+          } ]
+        },
+        "allocation" : {
+          "quantity" : "1",
+          "basisMethod" : "UNKNOWN",
+          "availability" : "UNKNOWN",
+          "globalStatus" : "RECONCILED",
+          "inventory" : {
+            "key" : "holding-a0e33ab6f2d4c26f51883fc507a49cfdaffaadd3272ad71991c3df5f4884f0a3",
+            "side" : "SHORT",
+            "quantity" : "1",
+            "unit" : "CONTRACT",
+            "account" : {
+              "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+            },
+            "instrument" : {
+              "href" : "/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154"
+            },
+            "currency" : null,
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+              },
+              "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+              "artifact" : {
+                "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+              },
+              "recordKey" : "/data/items/2",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/2"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ],
+            "holding" : {
+              "href" : "/v2/holdings/400f9ebf-6805-3225-a5ac-15017d1f14f0"
+            }
+          },
+          "holding" : {
+            "href" : "/v2/holdings/400f9ebf-6805-3225-a5ac-15017d1f14f0"
+          },
+          "basis" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:08.266534Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BASIS_ATTRIBUTION_UNKNOWN" ],
+            "dependencies" : [ ]
+          },
+          "authority" : {
+            "claimId" : "allocation:400f9ebf-6805-3225-a5ac-15017d1f14f0",
+            "basis" : "BROKER_HOLDING_OBSERVATION",
+            "status" : "QUALIFIED",
+            "qualification" : "Observed custody quantity; economic occurrence continuity and discretionary basis are not established.",
+            "account" : {
+              "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+            },
+            "subjects" : [ {
+              "href" : "/v2/holdings/400f9ebf-6805-3225-a5ac-15017d1f14f0"
+            } ],
+            "evidence" : [ {
+              "kind" : "ACCOUNT_SOURCE",
+              "account" : {
+                "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+              },
+              "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+              "artifact" : {
+                "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+              },
+              "recordKey" : "/data/items/2",
+              "locator" : {
+                "kind" : "JSON_POINTER",
+                "value" : "/data/items/2"
+              },
+              "provider" : "TASTYTRADE",
+              "environment" : "PRODUCTION",
+              "observedAt" : null,
+              "observationPrecision" : "UNKNOWN",
+              "observationDate" : null,
+              "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+              "timeAuthority" : "BACKEND_RECEIPT"
+            } ]
+          }
+        },
+        "economics" : {
+          "openingCashFlow" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:08.266534Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "OPENING_FILLS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "reportedMarketValue" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedOpenPl" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : null,
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "BROKER_EVALUATION_BASIS_UNVERIFIED" ],
+            "dependencies" : [ ]
+          },
+          "reportedCapitalRequirement" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:08.266534Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "TERMS_UNAVAILABLE" ],
+            "dependencies" : [ ]
+          },
+          "fees" : {
+            "value" : null,
+            "unit" : "MONEY",
+            "currency" : "USD",
+            "status" : "INCOMPLETE",
+            "origin" : "UNKNOWN",
+            "method" : "EVIDENCE_UNAVAILABLE",
+            "asOf" : "2026-10-22T20:57:08.266534Z",
+            "assumptions" : [ ],
+            "evidence" : [ ],
+            "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+            "dependencies" : [ ]
+          }
+        }
+      } ]
+    },
+    "recognition" : {
+      "status" : "UNCLASSIFIED",
+      "modelVersion" : null,
+      "candidateModels" : [ ],
+      "reasonCodes" : [ "UNCLASSIFIED_CONSTRUCTION" ],
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+        "artifact" : {
+          "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+        },
+        "recordKey" : "/data/items/2",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/2"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      } ],
+      "authority" : {
+        "claimId" : "fa1f7af7-8c28-4ece-81bf-3860cc2dc978",
+        "basis" : "BROKER_HOLDING_OBSERVATION",
+        "status" : "QUALIFIED",
+        "qualification" : "Unclassified constituent preservation; no broker package allocation or continuity asserted.",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "subjects" : [ {
+          "href" : "/v2/constructions/fa1f7af7-8c28-4ece-81bf-3860cc2dc978"
+        } ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ]
+      }
+    },
+    "relationships" : [ {
+      "kind" : "ECONOMIC_COVERAGE",
+      "quantity" : "100",
+      "unit" : "SHARE",
+      "status" : "CONFLICT",
+      "effectiveAt" : null,
+      "coverageSetId" : "fungible:/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366",
+      "selection" : "AGGREGATE_FUNGIBLE_NO_SPECIFIC_SHARE_SELECTION",
+      "currency" : null,
+      "relatedPosition" : null,
+      "fromNodes" : [ ],
+      "toNodes" : [ "holding-a0e33ab6f2d4c26f51883fc507a49cfdaffaadd3272ad71991c3df5f4884f0a3" ],
+      "supportHolding" : {
+        "href" : "/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366"
+      },
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+        "artifact" : {
+          "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+        },
+        "recordKey" : "/data/items/0",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/0"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      }, {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+        "artifact" : {
+          "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+        },
+        "recordKey" : "/data/items/2",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/2"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      } ],
+      "authority" : {
+        "claimId" : "coverage:holding-a0e33ab6f2d4c26f51883fc507a49cfdaffaadd3272ad71991c3df5f4884f0a3",
+        "basis" : "AGGREGATE_ECONOMIC_CALCULATION",
+        "status" : "UNRESOLVED",
+        "qualification" : "Current Account-wide coverage is insufficient or incomplete. Requested quantities remain known; no broker reservation is established.",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "subjects" : [ {
+          "href" : "/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366"
+        } ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/0",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/0"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ]
+      }
+    } ],
+    "evidence" : [ {
+      "kind" : "ACCOUNT_SOURCE",
+      "account" : {
+        "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+      },
+      "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+      "artifact" : {
+        "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+      },
+      "recordKey" : "/data/items/2",
+      "locator" : {
+        "kind" : "JSON_POINTER",
+        "value" : "/data/items/2"
+      },
+      "provider" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "observedAt" : null,
+      "observationPrecision" : "UNKNOWN",
+      "observationDate" : null,
+      "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+      "timeAuthority" : "BACKEND_RECEIPT"
+    } ],
+    "warnings" : [ {
+      "code" : "UNCLASSIFIED_CONSTRUCTION",
+      "affected" : [ "/recognition" ],
+      "establishedFacts" : [ "Held constituents retained." ],
+      "incompleteConclusions" : [ "Named composition and authoritative occurrence continuity are not established." ],
+      "evidence" : [ ],
+      "remediation" : [ ]
+    }, {
+      "code" : "COVERAGE_INSUFFICIENT",
+      "affected" : [ "/relationships" ],
+      "establishedFacts" : [ "Owned custody quantities, required quantities and immutable Model-version references remain inspectable." ],
+      "incompleteConclusions" : [ "Retained structural recognition is not proof of sufficient current Account-wide coverage." ],
+      "evidence" : [ ],
+      "remediation" : [ ]
+    } ]
+  },
+  "headers" : {
+    "Content-Type" : "application/json",
+    "Cache-Control" : "private, no-store",
+    "X-Request-Id" : "4560d725-7b97-4d9d-a64f-59f1e4b9c1ec"
+  }
+}

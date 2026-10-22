@@ -1,0 +1,15 @@
+/Users/bollich/kiro/options-candidates/api-v2-integration-deployment-2026-10-22/tools/api-docs/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+test_account_coverage_conflict_and_precise_position_warning_paths (__main__.EntryCorrections) ... ok
+test_financial_field_units_reject_dimension_substitution (__main__.EntryCorrections) ... ok
+test_redacted_metrics_never_keep_asof (__main__.EntryCorrections) ... ok
+test_restricted_establishment_clock_keeps_only_authorized_state (__main__.EntryCorrections) ... ok
+test_review_regeneration_is_idempotent_and_retains_corrected_contract (__main__.EntryCorrections) ... ok
+test_six_examples_source_costs_geometry_and_evaluation_clock (__main__.EntryCorrections) ... ok
+test_unknown_basis_attribution_survives_its_source_redaction (__main__.EntryCorrections) ... ok
+test_unreported_custody_quantity_needs_explicit_incompleteness (__main__.EntryCorrections) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.600s
+
+OK

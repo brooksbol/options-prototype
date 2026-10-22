@@ -40,6 +40,45 @@ public final class PortfolioRepository {
             return List.copyOf(out);
         }
     }
+    public List<Document> getAll(Set<String> uris)throws Exception {
+        if(uris.isEmpty())return List.of();if(uris.size()>200)throw new IllegalArgumentException("Read workset exceeds declared page bound");
+        try(var c=connection();var q=c.prepareStatement("SELECT * FROM portfolio_resource WHERE uri IN ("+String.join(",",Collections.nCopies(uris.size(),"?"))+") ORDER BY uri")){
+            int i=1;for(String uri:new TreeSet<>(uris))q.setString(i++,uri);var out=new ArrayList<Document>();try(var rows=q.executeQuery()){while(rows.next())out.add(row(rows));}return List.copyOf(out);
+        }
+    }
+    /** Select authorized membership and one lookahead row before any financial expansion. */
+    public List<Document> page(Kind kind,Set<String> accounts,Map<String,String> filters,
+            Map<String,String> latestHoldings,String after,boolean descending,int limit)throws Exception {
+        var args=new ArrayList<String>();args.add(kind.name());
+        var where=new StringBuilder("p.kind=? AND (p.account_id IS NULL");
+        if(!accounts.isEmpty()){where.append(" OR p.account_id IN (").append(String.join(",",Collections.nCopies(accounts.size(),"?"))).append(")");args.addAll(new TreeSet<>(accounts));}where.append(")");
+        for(var filter:filters.entrySet()){
+            String name=filter.getKey(),value=filter.getValue();
+            String field=switch(name){case "state"->"$.state";case "exposureStatus"->"$.exposure.status";case "brokerGroupId"->"$.brokerGroupId";case "symbol"->"$.symbol";case "instrumentId"->"$.instrument.href";default->null;};
+            if(field!=null){where.append(" AND json_extract(p.payload_json,'").append(field).append("')=?");args.add(name.equals("instrumentId")?"/v2/instruments/"+value:value);}
+            else if(name.equals("snapshotId")){where.append(" AND p.source_snapshot=?");args.add(value);}
+            else if(name.equals("positionId")){
+                where.append(" AND (json_extract(p.payload_json,'$.position.href')=? OR EXISTS (SELECT 1 FROM json_each(p.payload_json,'$.associations') a LEFT JOIN portfolio_resource c ON c.uri=json_extract(a.value,'$.target.href') AND c.kind='CONSTRUCTION' AND c.account_id=p.account_id WHERE (json_extract(a.value,'$.targetKind')='POSITION' AND json_extract(a.value,'$.target.href')=?) OR (json_extract(a.value,'$.targetKind')='CONSTRUCTION' AND json_extract(c.payload_json,'$.position.href')=?)))");
+                args.add("/v2/positions/"+value);args.add("/v2/positions/"+value);args.add("/v2/positions/"+value);
+            }else throw new IllegalArgumentException("Unknown membership selector");
+        }
+        if(filters.containsKey("exposureStatus"))where.append(" AND json_extract(p.payload_json,'$.state')!='CLOSED'");
+        if(latestHoldings!=null){
+            where.append(" AND (0");for(var entry:new TreeMap<>(latestHoldings).entrySet()){where.append(" OR (p.account_id=? AND p.source_snapshot=?)");args.add(entry.getKey());args.add(entry.getValue());}where.append(")");
+        }
+        if(!after.isEmpty()){where.append(descending?" AND p.uri<?":" AND p.uri>?");args.add(after);}
+        String sql="SELECT p.* FROM portfolio_resource p WHERE "+where+" ORDER BY p.uri "+(descending?"DESC":"ASC")+" LIMIT ?";
+        try(var c=connection();var q=c.prepareStatement(sql)){
+            int i=1;for(String arg:args)q.setString(i++,arg);q.setInt(i,limit+1);var out=new ArrayList<Document>();try(var rs=q.executeQuery()){while(rs.next())out.add(row(rs));}return List.copyOf(out);
+        }
+    }
+    /** The invariant needs every current allocation, never historical Construction versions. */
+    public List<Document> currentConstructions(String account,String snapshot)throws Exception {
+        // SQLite must start with scoped Positions, then look up each immutable URI.
+        // A reorderable join can choose two Account-wide scans and become quadratic.
+        String sql="SELECT c.* FROM portfolio_resource p CROSS JOIN portfolio_resource c ON c.uri=json_extract(p.payload_json,'$.currentConstruction.href') AND c.kind='CONSTRUCTION' AND c.account_id=p.account_id WHERE p.kind='POSITION' AND p.account_id=? AND json_extract(p.payload_json,'$.state')!='CLOSED' AND (p.source_snapshot IS NULL OR p.source_snapshot=?) ORDER BY c.uri";
+        try(var c=connection();var q=c.prepareStatement(sql)){q.setString(1,account);q.setString(2,snapshot);var out=new ArrayList<Document>();try(var rs=q.executeQuery()){while(rs.next())out.add(row(rs));}return List.copyOf(out);}
+    }
     /** Internal normalized admission; callers must own source interpretation and the transaction. */
     public void put(Connection c,Document d)throws Exception {
         validate(d);

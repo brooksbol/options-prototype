@@ -125,6 +125,8 @@ paths:
           pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
         example: 11111111-1111-4111-8111-111111111111
       responses:
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
         '200':
           description: Complete current canonical quote-holdings inventory, ordered by uppercase symbol; empty items is successful. Complete committed items, no collection-wide single-instant snapshot guarantee.
           headers:
@@ -306,6 +308,8 @@ paths:
         source: "curl --request GET 'https://api.example.invalid/v2/quotes' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
     post:
       operationId: acquireDirectQuotes
+      x-required-grants: [quote.acquire]
+      x-required-grants-when-force: [quote.force]
       summary: Acquire or revalidate direct quotes
       description: Returns only when every requested subject has a terminal result. HTTP 200 denotes a completed operation, not fulfillment of every subject. Repeating ORDINARY reevaluates held-evidence reuse; repeating FORCE may cause another upstream attempt. X-Request-Id correlates but does not deduplicate. FORCE bypasses reuse, not provider-contact restrictions. Backend contact policy still applies at actual contact, including disabled off-hours contact. CONTACT_NOT_PERMITTED means policy prevented contact; UPSTREAM_UNAVAILABLE means the upstream source is unavailable for this attempt. Neither outcome is fulfilled, and retained prior evidence does not change that.
       security:
@@ -330,6 +334,8 @@ paths:
               - symbol: SPY
               mode: ORDINARY
       responses:
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
         '200':
           description: All subjects have terminal independent results; some or all may fail.
           headers:
@@ -444,6 +450,8 @@ paths:
           pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
         example: 11111111-1111-4111-8111-111111111111
       responses:
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
         '200':
           description: Complete canonical observation from one committed current holding, preserving identity/facts/provenance; not acquisition or a freshness judgment.
           headers:
@@ -718,6 +726,48 @@ components:
         independently requires quote.read; acquire/force grants do not imply read.
         Deployed operation fails closed without approved configuration.
   responses:
+    MethodNotAllowed:
+      description: The HTTP method is not supported for this route; this does not establish
+        that a private instance exists. Allow identifies supported route methods. Unknown
+        routes use the same Problem envelope with NOT_FOUND; unauthenticated requests
+        remain UNAUTHENTICATED.
+      headers:
+        X-Request-Id:
+          required: true
+          schema:
+            type: string
+            format: uuid
+        Cache-Control:
+          required: true
+          schema:
+            const: private, no-store
+        Allow:
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Supported route methods; GET also permits HEAD and framework OPTIONS.
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/RoutingProblem'
+            - type: object
+              properties:
+                status:
+                  const: 405
+                code:
+                  const: METHOD_NOT_ALLOWED
+          examples:
+            syntheticMethodNotAllowed:
+              summary: Synthetic routing failure; no private resource existence asserted
+              value:
+                type: urn:wheelwright:problem:method_not_allowed
+                title: Method not allowed
+                status: 405
+                code: METHOD_NOT_ALLOWED
+                requestId: 11111111-1111-4111-8111-111111111111
+                detail: Method is not supported for this v2 route
     Problem:
       description: Request-wide failure before trustworthy completed per-subject results.
       headers:
@@ -923,6 +973,150 @@ components:
                 requestId: 11111111-1111-4111-8111-111111111111
                 detail: Synthetic error example.
   schemas:
+    RoutingProblem:
+      type: object
+      additionalProperties: true
+      required:
+      - type
+      - title
+      - status
+      - code
+      - requestId
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Stable problem-type identifier.
+        title:
+          type: string
+          description: Stable short reason.
+        status:
+          type: integer
+          enum:
+          - 401
+          - 403
+          - 404
+          - 422
+          - 500
+          - 503
+          - 405
+        detail:
+          type: string
+          description: Optional safe human-readable detail.
+        instance:
+          type: string
+          format: uri-reference
+          description: Optional occurrence URI.
+        code:
+          type: string
+          enum:
+          - UNAUTHENTICATED
+          - FORBIDDEN
+          - NOT_FOUND
+          - INVALID_REQUEST
+          - INTERNAL_ERROR
+          - CAPABILITY_UNAVAILABLE
+          - METHOD_NOT_ALLOWED
+          description: Machine-readable request-wide failure code.
+        requestId:
+          type: string
+          format: uuid
+          description: Correlates logs and response; not an idempotency key.
+        invalidParams:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - name
+            - reason
+            properties:
+              name:
+                type: string
+                description: JSON Pointer into request where applicable.
+              reason:
+                type: string
+                description: Safe human-readable validation failure.
+      description: Uniform v2 framework routing failures. Unknown routes are NOT_FOUND;
+        unsupported methods are METHOD_NOT_ALLOWED with Allow. Authentication and correlation
+        are enforced before exposing routing results. Resource existence remains separately
+        concealed by its capability.
+      oneOf:
+      - type: object
+        properties:
+          status:
+            const: 401
+          code:
+            const: UNAUTHENTICATED
+          title:
+            const: Unauthenticated
+          type:
+            const: urn:wheelwright:problem:unauthenticated
+      - type: object
+        properties:
+          status:
+            const: 403
+          code:
+            const: FORBIDDEN
+          title:
+            const: Forbidden
+          type:
+            const: urn:wheelwright:problem:forbidden
+      - type: object
+        properties:
+          status:
+            const: 404
+          code:
+            const: NOT_FOUND
+          title:
+            const: Not found
+          type:
+            const: urn:wheelwright:problem:not_found
+      - type: object
+        properties:
+          status:
+            const: 422
+          code:
+            const: INVALID_REQUEST
+          title:
+            const: Invalid request
+          type:
+            const: urn:wheelwright:problem:invalid_request
+          invalidParams:
+            type: array
+            minItems: 1
+        required:
+        - invalidParams
+      - type: object
+        properties:
+          status:
+            const: 500
+          code:
+            const: INTERNAL_ERROR
+          title:
+            const: Internal error
+          type:
+            const: urn:wheelwright:problem:internal_error
+      - type: object
+        properties:
+          status:
+            const: 503
+          code:
+            const: CAPABILITY_UNAVAILABLE
+          title:
+            const: Capability unavailable
+          type:
+            const: urn:wheelwright:problem:capability_unavailable
+      - type: object
+        properties:
+          status:
+            const: 405
+          code:
+            const: METHOD_NOT_ALLOWED
+          title:
+            const: Method not allowed
+          type:
+            const: urn:wheelwright:problem:method_not_allowed
     AcquireQuotesRequest:
       type: object
       additionalProperties: false

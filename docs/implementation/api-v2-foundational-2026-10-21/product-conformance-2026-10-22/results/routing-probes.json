@@ -1,0 +1,11 @@
+[ {
+  "path" : "/v2/no-such-resource",
+  "status" : 404,
+  "contentType" : "application/problem+json;charset=UTF-8",
+  "body" : "{\"type\":\"urn:wheelwright:problem:not_found\",\"title\":\"Not found\",\"status\":404,\"code\":\"NOT_FOUND\",\"detail\":\"V2 resource route not found\",\"requestId\":\"11111111-1111-4111-8111-111111111111\"}"
+}, {
+  "path" : "/v2/positions",
+  "status" : 405,
+  "contentType" : "application/problem+json;charset=UTF-8",
+  "body" : "{\"type\":\"urn:wheelwright:problem:method_not_allowed\",\"title\":\"Method not allowed\",\"status\":405,\"code\":\"METHOD_NOT_ALLOWED\",\"detail\":\"Method is not supported for this v2 route\",\"requestId\":\"11111111-1111-4111-8111-111111111111\"}"
+} ]

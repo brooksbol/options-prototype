@@ -54,7 +54,7 @@ try{
  assert.match(await text(),/application\/problem\+json/);assert.match(await text(),/INVALID_REQUEST/);
  await safety();
  await page.getByRole('link',{name:'Positions',exact:true}).first().click();await page.locator('a[href$="/readposition"]').first().click();
- await page.getByRole('heading',{name:/Read position$/}).first().waitFor();await page.screenshot({path:resolve(evidence,'desktop.png')});
+ await page.getByRole('heading',{name:/Read position$/}).first().waitFor();await page.waitForTimeout(900);await page.getByRole('heading',{name:/Read position$/}).first().scrollIntoViewIfNeeded();await page.screenshot({path:resolve(evidence,'desktop.png')});const positionUrl=page.url();
  // Actual native search, not a reconstructed index or endpoint call.
  await page.keyboard.press(process.platform==='darwin'?'Meta+k':'Control+k');
  const search=page.locator('input:visible').first();await search.waitFor();await search.fill('retained');await page.waitForTimeout(700);
@@ -62,6 +62,7 @@ try{
  await page.setViewportSize({width:390,height:844});await page.goto(entry);await page.waitForTimeout(600);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
  await page.screenshot({path:resolve(evidence,'mobile.png')});await safety();
+ await page.goto(positionUrl);await page.getByRole('heading',{name:/Read position$/}).first().waitFor();await page.waitForTimeout(900);await page.getByRole('heading',{name:/Read position$/}).first().scrollIntoViewIfNeeded();await page.screenshot({path:resolve(evidence,'mobile-position.png')});await safety();
  assert.equal(violations.length,0,JSON.stringify(violations));assert.equal(errors.length,0,JSON.stringify(errors));
  assert.ok(requests.every(r=>r.method==='GET'&&(/^(?:file:|blob:|data:)/.test(r.url)||(live&&r.url===entry))));
  const report={mode:'AUTHOR_BROWSER_VERIFICATION_NOT_INDEPENDENT_REVIEW',entry,live,renderer:'Redoc 3.0.1',browser:browser.version(),

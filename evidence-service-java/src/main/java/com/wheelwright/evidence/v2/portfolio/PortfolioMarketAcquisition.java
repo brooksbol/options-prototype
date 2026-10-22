@@ -17,34 +17,39 @@ public final class PortfolioMarketAcquisition {
  private final ConcurrentHashMap<String,Object> locks=new ConcurrentHashMap<>();
  @Autowired public PortfolioMarketAcquisition(PortfolioRepository repository,AccountDirectory accounts,TastytradeClient client,@Value("${wheelwright.portfolio.market.read-through-enabled:false}")boolean enabled,@Value("${wheelwright.portfolio.market.reuse-seconds:30}")long seconds){this(repository,accounts,client,enabled,Duration.ofSeconds(seconds),Clock.systemUTC());}
  public PortfolioMarketAcquisition(PortfolioRepository repository,AccountDirectory accounts,TastytradeClient client,boolean enabled,Duration reuse,Clock clock){if(reuse.isNegative()||reuse.compareTo(Duration.ofDays(1))>0)throw new IllegalArgumentException("invalid market reuse policy");this.repository=repository;this.accounts=accounts;this.client=client;this.enabled=enabled;this.reuse=reuse;this.clock=clock;}
- public com.fasterxml.jackson.databind.node.ArrayNode read(Set<String> scope)throws Exception{
+ public com.fasterxml.jackson.databind.node.ArrayNode read(Set<String> scope)throws Exception{return read(scope,null);}
+ public com.fasterxml.jackson.databind.node.ArrayNode read(Set<String> scope,Map<String,Set<String>> requested)throws Exception{return read(scope,requested,null);}
+ public com.fasterxml.jackson.databind.node.ArrayNode read(Set<String> scope,Map<String,Set<String>> requested,Map<String,Set<String>> selectedPositions)throws Exception{
   var warnings=PortfolioJson.array();if(!enabled||!client.configured())return warnings;
   for(String account:new TreeSet<>(scope))synchronized(locks.computeIfAbsent(account,k->new Object())){
-   var owner=accounts.get(account);if(owner.isEmpty()||!owner.get().brokerAssociation().broker().equals("TASTYTRADE")||fresh(account))continue;
+   var owner=accounts.get(account);if(owner.isEmpty()||!owner.get().brokerAssociation().broker().equals("TASTYTRADE")||(requested==null&&fresh(account,"tastytrade-market-data.json")))continue;
    var currencies=new TreeMap<String,String>();var equity=new ArrayList<String>();var options=new ArrayList<String>();
    var cut=new PortfolioSnapshots(repository).current(account);if(cut.isEmpty())continue;
-   var subjects=new TreeSet<String>();for(var h:repository.list(Kind.HOLDING,Set.of(account)))if(Objects.equals(h.snapshot(),cut.get().snapshotId())&&h.value().path("instrument").isObject())subjects.add(h.value().at("/instrument/href").asText());
+   var subjects=new TreeSet<String>();if(requested==null){for(var h:repository.list(Kind.HOLDING,Set.of(account)))if(Objects.equals(h.snapshot(),cut.get().snapshotId())&&h.value().path("instrument").isObject())subjects.add(h.value().at("/instrument/href").asText());
    for(var p:repository.list(Kind.POSITION,Set.of(account)))if(!p.value().path("state").asText().equals("CLOSED")&&Objects.equals(p.snapshot(),cut.get().snapshotId())){var construction=repository.get(p.value().at("/currentConstruction/href").asText());if(construction.isPresent())for(var leaf:PortfolioJson.leaves(construction.get().value().path("composition")))if(leaf.at("/terms/underlying/href").isTextual())subjects.add(leaf.at("/terms/underlying/href").asText());}
+   }else subjects.addAll(requested.getOrDefault(account,Set.of()));
+   if(subjects.isEmpty())continue;String filename=requested==null?"tastytrade-market-data.json":"tastytrade-market-data-"+UUID.nameUUIDFromBytes(String.join(",",subjects).getBytes(java.nio.charset.StandardCharsets.UTF_8))+".json";if(requested!=null&&fresh(account,filename))continue;
    for(String uri:subjects){var instrument=repository.get(uri);if(instrument.isEmpty())continue;var value=instrument.get().value();String kind=value.path("kind").asText();if(!Set.of("EQUITY","OPTION").contains(kind))continue;for(var alias:value.path("brokerAliases"))if(alias.path("broker").asText().equals("TASTYTRADE")&&alias.path("environment").asText().equals("PRODUCTION")){String symbol=alias.path("identifier").asText();if(!currencies.containsKey(symbol)){currencies.put(symbol,value.path("currency").isTextual()?value.path("currency").asText():null);(kind.equals("OPTION")?options:equity).add(symbol);}break;}}
    if(currencies.isEmpty())continue;
    String attempt=UUID.randomUUID().toString();String artifact=null;
    try{
     // One accepted typed request is bounded to100 subjects. Exceeding the source budget is a
     // qualified failed refresh, never success with an arbitrarily truncated Account.
-    byte[] bytes=client.marketData(equity,options);artifact=retain(account,attempt,bytes);
+    byte[] bytes=client.marketData(equity,options);artifact=retain(account,attempt,bytes,"API_MARKET_DATA",filename);
     try(var connection=repository.connection()){connection.setAutoCommit(false);try{var admissionWarnings=new PortfolioTastyMarketSources(repository).admit(connection,owner.get(),artifact,currencies);warnings.addAll(admissionWarnings);finish(connection,account,attempt,"ACCEPTED",admissionWarnings.isEmpty()?COMPLETE:"Partial requested quote subjects returned; missing subjects are not a successful refresh");connection.commit();}catch(Exception e){connection.rollback();throw e;}}
-    references(account,options,warnings);session(account,warnings);
+    references(account,options,warnings,selectedPositions==null?null:selectedPositions.getOrDefault(account,Set.of()));session(account,warnings);
    }catch(Exception e){try(var connection=repository.connection()){if(artifact!=null)finish(connection,account,attempt,"REJECTED","Market source unavailable or unsupported; prior admitted observations preserved");warnings.add(PortfolioJson.warning("MARKET_OBSERVATION_MISSING","","Prior admitted custody and source observations remain inspectable.","Current requested market refresh failed or exceeded its source budget; no source response or successful import is manufactured."));}}
   }return warnings;
  }
- private boolean fresh(String account)throws Exception{
-  try(var c=repository.connection();var q=c.prepareStatement("SELECT imported_at,status,result FROM brokerage_import WHERE account=? AND file_type='API_MARKET_DATA' AND imported_at=(SELECT max(imported_at) FROM brokerage_import WHERE account=? AND file_type='API_MARKET_DATA')")){
-   q.setString(1,account);q.setString(2,account);try(var r=q.executeQuery()){String at=null;while(r.next()){if(!r.getString("status").equals("ACCEPTED")||!r.getString("result").equals(COMPLETE))return false;at=r.getString("imported_at");}if(at==null)return false;var age=Duration.between(Instant.parse(at),clock.instant());return !age.isNegative()&&age.compareTo(reuse)<0;}
+ private boolean fresh(String account,String filename)throws Exception{
+  try(var c=repository.connection();var q=c.prepareStatement("SELECT imported_at,status,result FROM brokerage_import WHERE account=? AND file_type='API_MARKET_DATA' AND original_filename=? AND imported_at=(SELECT max(imported_at) FROM brokerage_import WHERE account=? AND file_type='API_MARKET_DATA' AND original_filename=?)")){
+   q.setString(1,account);q.setString(2,filename);q.setString(3,account);q.setString(4,filename);try(var r=q.executeQuery()){String at=null;while(r.next()){if(!r.getString("status").equals("ACCEPTED")||!r.getString("result").equals(COMPLETE))return false;at=r.getString("imported_at");}if(at==null)return false;var age=Duration.between(Instant.parse(at),clock.instant());return !age.isNegative()&&age.compareTo(reuse)<0;}
   }
  }
- private void references(String account,List<String> options,com.fasterxml.jackson.databind.node.ArrayNode warnings)throws Exception{
+ private void references(String account,List<String> options,com.fasterxml.jackson.databind.node.ArrayNode warnings,Set<String> selectedPositions)throws Exception{
+  if(options.isEmpty())return;
   var groups=new TreeMap<String,Set<String>>();var referenceFreshness=new HashMap<String,Boolean>();var cut=new PortfolioSnapshots(repository).current(account);if(cut.isEmpty())return;
-  for(var p:repository.list(Kind.POSITION,Set.of(account)))if(!p.value().path("state").asText().equals("CLOSED")&&Objects.equals(p.snapshot(),cut.get().snapshotId())){
+  for(var p:selectedPositions==null?repository.list(Kind.POSITION,Set.of(account)):repository.getAll(selectedPositions))if(p.kind()==Kind.POSITION&&Objects.equals(p.account(),account)&&!p.value().path("state").asText().equals("CLOSED")&&Objects.equals(p.snapshot(),cut.get().snapshotId())){
    var construction=repository.get(p.value().at("/currentConstruction/href").asText());if(construction.isEmpty())continue;
    for(var leaf:PortfolioJson.leaves(construction.get().value().path("composition")))if(leaf.path("kind").asText().equals("OPTION")){
     var subject=repository.get(leaf.at("/instrument/href").asText());var underlying=repository.get(leaf.at("/terms/underlying/href").asText());if(subject.isEmpty()||underlying.isEmpty())continue;

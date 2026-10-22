@@ -1,0 +1,12 @@
+{
+  "protectedBackendPid": 14143,
+  "port": 3101,
+  "jarSha256": "1d94fb29d0ce8ef4de4d435746e134e74dc5e38b4fa52d3d697d6a16ed07172e",
+  "financialApiInvocations": 0,
+  "runtimeMutations": 0,
+  "index.html": "ce7ebc85d97a9903b78d26df5e08f88e16930ff56797c79b648b4458290ea0b0",
+  "LICENSES.txt": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
+  "remoteMain": "8bd75f5700a2cee39b7a9edb5e685c2d5a365312",
+  "originalCandidate": "847315f1b2bf2964db20f417c9936e961eb5f750",
+  "acceptedBackend": "b48e3c6fc36f9a7feb6abbf97cbacff5934d477e"
+}

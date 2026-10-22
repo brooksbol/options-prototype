@@ -1,0 +1,92 @@
+{
+  "standing" : "SYNTHETIC_SOURCE_DERIVED_HTTP_NOT_LIVE_BROKERAGE_EVIDENCE",
+  "source" : "Synthetic Fidelity positions CSV:SPY100 shares,current value10000,reported P/L250 onOct05; SPY75,current value7500,reported P/L125 onOct06. No opening transaction, basis or current quote supplied.",
+  "path" : "/v2/holdings?accountId=acct_f8a98a9940094d5194484a68558440f6&view=observations",
+  "method" : "GET",
+  "status" : 200,
+  "body" : {
+    "view" : "observations",
+    "items" : [ {
+      "snapshotId" : "8aca2525287ba3e587955bf404e2bcff5b388b567c573c11f43ec694a83b463a",
+      "evidenceDate" : "2026-10-06",
+      "dateBasis" : "SOURCE_EXPORT_DAY",
+      "recordedAt" : "2026-10-22T20:57:07.251663Z",
+      "source" : "FIDELITY",
+      "holdingCount" : 1,
+      "sourceSha256" : "fb3ddbb27ad5fe8653893d7a4f95a8982cfab1e4f06394aa86691e9ef84b6dfd",
+      "account" : {
+        "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+      },
+      "holdings" : {
+        "href" : "/v2/holdings?accountId=acct_f8a98a9940094d5194484a68558440f6&snapshotId=8aca2525287ba3e587955bf404e2bcff5b388b567c573c11f43ec694a83b463a"
+      },
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+        },
+        "requiredCapability" : "account.holdings.read:acct_f8a98a9940094d5194484a68558440f6",
+        "artifact" : {
+          "href" : "/v2/artifacts/ce8a3f6d-1d30-446e-b878-fc473257ece1"
+        },
+        "recordKey" : "1",
+        "locator" : {
+          "kind" : "CSV_ROW",
+          "value" : "1"
+        },
+        "provider" : "FIDELITY",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "DAY",
+        "observationDate" : "2026-10-06",
+        "receivedAt" : "2026-10-22T20:57:07.251663Z",
+        "timeAuthority" : "SOURCE"
+      } ],
+      "qualifications" : [ "Retained source observation; no complete brokerage history or financial-lifecycle assertion. Source date and backend receipt remain distinct." ]
+    }, {
+      "snapshotId" : "c2d16c1042e4995f2d9c30bc5cfa270b66e967fd983df8eaf6bda8134d305d60",
+      "evidenceDate" : "2026-10-05",
+      "dateBasis" : "SOURCE_EXPORT_DAY",
+      "recordedAt" : "2026-10-22T20:57:07.035176Z",
+      "source" : "FIDELITY",
+      "holdingCount" : 1,
+      "sourceSha256" : "5e2c084a81d285862131735d0a4851f74e733d539b5bf041985e5e5855d50544",
+      "account" : {
+        "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+      },
+      "holdings" : {
+        "href" : "/v2/holdings?accountId=acct_f8a98a9940094d5194484a68558440f6&snapshotId=c2d16c1042e4995f2d9c30bc5cfa270b66e967fd983df8eaf6bda8134d305d60"
+      },
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_f8a98a9940094d5194484a68558440f6"
+        },
+        "requiredCapability" : "account.holdings.read:acct_f8a98a9940094d5194484a68558440f6",
+        "artifact" : {
+          "href" : "/v2/artifacts/ff94447d-646d-45ad-bf68-3ba9ed5e387a"
+        },
+        "recordKey" : "1",
+        "locator" : {
+          "kind" : "CSV_ROW",
+          "value" : "1"
+        },
+        "provider" : "FIDELITY",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "DAY",
+        "observationDate" : "2026-10-05",
+        "receivedAt" : "2026-10-22T20:57:07.035176Z",
+        "timeAuthority" : "SOURCE"
+      } ],
+      "qualifications" : [ "Retained source observation; no complete brokerage history or financial-lifecycle assertion. Source date and backend receipt remain distinct." ]
+    } ],
+    "warnings" : [ ],
+    "next" : null
+  },
+  "headers" : {
+    "Content-Type" : "application/json",
+    "Cache-Control" : "private, no-store",
+    "X-Request-Id" : "203f6eb1-fe3c-4bf8-b5fb-1c34bbc011ab"
+  }
+}

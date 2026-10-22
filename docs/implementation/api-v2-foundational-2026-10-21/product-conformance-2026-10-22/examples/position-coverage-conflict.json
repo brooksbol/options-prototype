@@ -1,0 +1,553 @@
+{
+  "standing" : "SYNTHETIC_SOURCE_DERIVED_HTTP_NOT_LIVE_BROKERAGE_EVIDENCE",
+  "source" : "PortfolioSourcePackageTest:100 owned fungible UNG shares and two short calls, declared native-shaped terms; aggregate economic coverage only, no selected shares or broker reservation",
+  "path" : "/v2/positions/158fbc15-91de-46c6-8fb7-3092ca4fa5b1",
+  "method" : "GET",
+  "status" : 200,
+  "body" : {
+    "id" : "158fbc15-91de-46c6-8fb7-3092ca4fa5b1",
+    "state" : "UNRESOLVED",
+    "self" : {
+      "href" : "/v2/positions/158fbc15-91de-46c6-8fb7-3092ca4fa5b1"
+    },
+    "account" : {
+      "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+    },
+    "currentConstruction" : {
+      "href" : "/v2/constructions/9c34d8fe-7874-462a-910b-a3e4c036df60"
+    },
+    "sourceIdentifiers" : [ {
+      "broker" : "TASTYTRADE",
+      "environment" : "PRODUCTION",
+      "identifier" : "UNG   261127C00014000"
+    } ],
+    "orders" : {
+      "href" : "/v2/orders?positionId=158fbc15-91de-46c6-8fb7-3092ca4fa5b1"
+    },
+    "audit" : null,
+    "stateEvidence" : {
+      "status" : "UNRESOLVED",
+      "establishedAt" : null,
+      "completeness" : "UNKNOWN",
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+        "artifact" : {
+          "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+        },
+        "recordKey" : "/data/items/2",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/2"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      } ]
+    },
+    "allocation" : {
+      "status" : "CONFLICT",
+      "reconciliation" : {
+        "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e/inventory-reconciliation"
+      },
+      "holdingSnapshotIds" : [ "snapshot-4d167335-b55a-492f-b277-3d0bec3cd9b2" ],
+      "affectedHoldingIds" : [ "54f43a34-74f4-3c90-9ccb-02c2fe24f366" ],
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+        "artifact" : {
+          "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+        },
+        "recordKey" : "/data/items/2",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/2"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      } ]
+    },
+    "exposure" : {
+      "status" : "OBSERVED",
+      "sourceSnapshotId" : "snapshot-4d167335-b55a-492f-b277-3d0bec3cd9b2",
+      "sourceDate" : "2026-10-22",
+      "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+      "continuity" : "UNRESOLVED",
+      "qualification" : "Current observed quantities only; no opening, uninterrupted occurrence or original cost basis established.",
+      "evidence" : [ {
+        "kind" : "ACCOUNT_SOURCE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+        "artifact" : {
+          "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+        },
+        "recordKey" : "/data/items/2",
+        "locator" : {
+          "kind" : "JSON_POINTER",
+          "value" : "/data/items/2"
+        },
+        "provider" : "TASTYTRADE",
+        "environment" : "PRODUCTION",
+        "observedAt" : null,
+        "observationPrecision" : "UNKNOWN",
+        "observationDate" : null,
+        "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+        "timeAuthority" : "BACKEND_RECEIPT"
+      } ]
+    },
+    "evaluation" : {
+      "evaluatedAt" : "2026-10-22T20:57:08.341871Z",
+      "marketValue" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "CONFLICT",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+        "dependencies" : [ ]
+      },
+      "grossUnrealizedPl" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "CONFLICT",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+        "dependencies" : [ ]
+      },
+      "spot" : {
+        "value" : null,
+        "unit" : "PRICE",
+        "currency" : "USD",
+        "status" : "INCOMPLETE",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "MARKET_OBSERVATION_MISSING" ],
+        "dependencies" : [ ]
+      },
+      "openingCashFlow" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "CONFLICT",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+        "dependencies" : [ ]
+      },
+      "estimatedClosingCashFlow" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "CONFLICT",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+        "dependencies" : [ ]
+      },
+      "netUnrealizedPl" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "CONFLICT",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+        "dependencies" : [ ]
+      },
+      "fees" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "INCOMPLETE",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+        "dependencies" : [ ]
+      },
+      "realizedGrossPl" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "INCOMPLETE",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+        "dependencies" : [ ]
+      },
+      "realizedNetPl" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "INCOMPLETE",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "HISTORY_INCOMPLETE" ],
+        "dependencies" : [ ]
+      },
+      "oldestMaterialObservationAt" : null,
+      "freshness" : "UNKNOWN",
+      "timeline" : {
+        "openedAt" : null,
+        "expiration" : "2026-11-27",
+        "calendarZone" : "America/New_York",
+        "openingAccess" : "UNKNOWN",
+        "openingEvidence" : [ ],
+        "remainingDays" : {
+          "value" : "36",
+          "unit" : "DAY",
+          "currency" : null,
+          "status" : "QUALIFIED",
+          "origin" : "WHEELWRIGHT_DERIVED",
+          "method" : "NY_CALENDAR_DAYS",
+          "asOf" : "2026-10-22T20:57:08.341871Z",
+          "assumptions" : [ ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+            },
+            "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+            "artifact" : {
+              "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+            },
+            "recordKey" : "/data/items/2",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/2"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          } ],
+          "warningCodes" : [ ],
+          "dependencies" : [ ]
+        },
+        "originalDays" : {
+          "value" : null,
+          "unit" : "DAY",
+          "currency" : null,
+          "status" : "INCOMPLETE",
+          "origin" : "UNKNOWN",
+          "method" : "EVIDENCE_UNAVAILABLE",
+          "asOf" : "2026-10-22T20:57:08.341871Z",
+          "assumptions" : [ ],
+          "evidence" : [ ],
+          "warningCodes" : [ "OPENING_FILLS_UNAVAILABLE" ],
+          "dependencies" : [ ]
+        }
+      },
+      "management" : {
+        "access" : "VISIBLE",
+        "associationStatus" : "UNAVAILABLE",
+        "stopInterpretation" : "PROVISIONAL_NOT_EXECUTION_GUARANTEE",
+        "protectiveOrderEvidence" : "UNKNOWN",
+        "manualCheckpoint" : null,
+        "orders" : [ ],
+        "zeroGrossPl" : {
+          "value" : "0",
+          "unit" : "MONEY",
+          "currency" : "USD",
+          "status" : "QUALIFIED",
+          "origin" : "WHEELWRIGHT_DERIVED",
+          "method" : "ZERO_REFERENCE",
+          "asOf" : "2026-10-22T20:57:08.341871Z",
+          "assumptions" : [ ],
+          "evidence" : [ {
+            "kind" : "ACCOUNT_SOURCE",
+            "account" : {
+              "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+            },
+            "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+            "artifact" : {
+              "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+            },
+            "recordKey" : "/data/items/2",
+            "locator" : {
+              "kind" : "JSON_POINTER",
+              "value" : "/data/items/2"
+            },
+            "provider" : "TASTYTRADE",
+            "environment" : "PRODUCTION",
+            "observedAt" : null,
+            "observationPrecision" : "UNKNOWN",
+            "observationDate" : null,
+            "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+            "timeAuthority" : "BACKEND_RECEIPT"
+          } ],
+          "warningCodes" : [ ],
+          "dependencies" : [ ]
+        },
+        "profitTargetGrossPl" : {
+          "value" : null,
+          "unit" : "MONEY",
+          "currency" : "USD",
+          "status" : "CONFLICT",
+          "origin" : "UNKNOWN",
+          "method" : "EVIDENCE_UNAVAILABLE",
+          "asOf" : "2026-10-22T20:57:08.341871Z",
+          "assumptions" : [ ],
+          "evidence" : [ ],
+          "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+          "dependencies" : [ ]
+        },
+        "reportedStopThresholdGrossPl" : {
+          "value" : null,
+          "unit" : "MONEY",
+          "currency" : "USD",
+          "status" : "CONFLICT",
+          "origin" : "UNKNOWN",
+          "method" : "EVIDENCE_UNAVAILABLE",
+          "asOf" : "2026-10-22T20:57:08.341871Z",
+          "assumptions" : [ ],
+          "evidence" : [ ],
+          "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+          "dependencies" : [ ]
+        },
+        "evidence" : [ ],
+        "warningCodes" : [ "ASSOCIATION_UNRESOLVED" ]
+      },
+      "brokerReportedOpenPl" : {
+        "value" : null,
+        "unit" : "MONEY",
+        "currency" : "USD",
+        "status" : "CONFLICT",
+        "origin" : "UNKNOWN",
+        "method" : "EVIDENCE_UNAVAILABLE",
+        "asOf" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ ],
+        "evidence" : [ ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ],
+        "dependencies" : [ ]
+      },
+      "payoff" : {
+        "status" : "CONFLICT",
+        "geometry" : null,
+        "evaluatedAt" : "2026-10-22T20:57:08.341871Z",
+        "assumptions" : [ "Terminal liquidation value only, not P/L. Opening cost and fees are excluded, no economic break-even prices are claimed. Common-expiration standard physical-deliverable intrinsic for the stated constituents, not an executable price or lifecycle assertion." ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        }, {
+          "kind" : "REFERENCE_SOURCE",
+          "provider" : "TASTYTRADE",
+          "reference" : "urn:wheelwright:tastytrade:option-chain:sha256:6268defc3a906efa632b7eac263debc8334f8d4369bba4f11ef05a66c58dd1d6:item:0",
+          "observedAt" : null,
+          "qualification" : "VERIFIED_REFERENCE"
+        } ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ]
+      },
+      "range" : {
+        "status" : "CONFLICT",
+        "kind" : "UNAVAILABLE",
+        "lower" : null,
+        "upper" : null,
+        "currency" : "USD",
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ],
+        "warningCodes" : [ "COVERAGE_INSUFFICIENT" ]
+      }
+    },
+    "warnings" : [ {
+      "code" : "ASSOCIATION_UNRESOLVED",
+      "affected" : [ "/stateEvidence" ],
+      "establishedFacts" : [ "Source custody, quantities and contractual terms remain inspectable under an independent Position GUID." ],
+      "incompleteConclusions" : [ "Compatible observations do not prove uninterrupted economic occurrence, opening date, original investment basis or roll history; unobserved close/reopen events may be indistinguishable." ],
+      "evidence" : [ ],
+      "remediation" : [ ]
+    }, {
+      "code" : "BASIS_ATTRIBUTION_UNKNOWN",
+      "affected" : [ "/evaluation/openingCashFlow" ],
+      "establishedFacts" : [ "Authorized source constituents and separately reported financial facts remain inspectable." ],
+      "incompleteConclusions" : [ "The identified result retains its evidence qualification." ],
+      "evidence" : [ ],
+      "remediation" : [ {
+        "action" : "IMPORT_SOURCE",
+        "description" : "Supply supported historical activity and documented cost attribution; holdings or current marks do not establish missing events.",
+        "capability" : null,
+        "requiredGrant" : null
+      } ]
+    }, {
+      "code" : "BROKER_EVALUATION_BASIS_UNVERIFIED",
+      "affected" : [ "/evaluation/brokerReportedOpenPl" ],
+      "establishedFacts" : [ "Authorized source constituents and separately reported financial facts remain inspectable." ],
+      "incompleteConclusions" : [ "The identified result retains its evidence qualification." ],
+      "evidence" : [ ],
+      "remediation" : [ {
+        "action" : "NO_KNOWN_REMEDY",
+        "description" : "No supported source or calculation remedy is currently established.",
+        "capability" : null,
+        "requiredGrant" : null
+      } ]
+    }, {
+      "code" : "HISTORY_INCOMPLETE",
+      "affected" : [ "/evaluation/fees", "/evaluation/realizedGrossPl", "/evaluation/realizedNetPl" ],
+      "establishedFacts" : [ "Authorized source constituents and separately reported financial facts remain inspectable." ],
+      "incompleteConclusions" : [ "The identified result retains its evidence qualification." ],
+      "evidence" : [ ],
+      "remediation" : [ {
+        "action" : "IMPORT_SOURCE",
+        "description" : "Supply supported historical activity and documented cost attribution; holdings or current marks do not establish missing events.",
+        "capability" : null,
+        "requiredGrant" : null
+      } ]
+    }, {
+      "code" : "MARKET_OBSERVATION_MISSING",
+      "affected" : [ "/evaluation/estimatedClosingCashFlow", "/evaluation/grossUnrealizedPl", "/evaluation/marketValue", "/evaluation/netUnrealizedPl", "/evaluation/spot" ],
+      "establishedFacts" : [ "Authorized source constituents and separately reported financial facts remain inspectable." ],
+      "incompleteConclusions" : [ "The identified result retains its evidence qualification." ],
+      "evidence" : [ ],
+      "remediation" : [ {
+        "action" : "REFRESH_SOURCE",
+        "description" : "Obtain a newer authorized observation for this instrument; refresh cannot create historical evidence.",
+        "capability" : null,
+        "requiredGrant" : null
+      } ]
+    }, {
+      "code" : "OPENING_FILLS_UNAVAILABLE",
+      "affected" : [ "/evaluation/timeline/originalDays" ],
+      "establishedFacts" : [ "Authorized source constituents and separately reported financial facts remain inspectable." ],
+      "incompleteConclusions" : [ "The identified result retains its evidence qualification." ],
+      "evidence" : [ ],
+      "remediation" : [ {
+        "action" : "IMPORT_SOURCE",
+        "description" : "Supply supported historical activity and documented cost attribution; holdings or current marks do not establish missing events.",
+        "capability" : null,
+        "requiredGrant" : null
+      } ]
+    }, {
+      "code" : "VALUATION_UNSUPPORTED",
+      "affected" : [ "/evaluation/payoff", "/evaluation/range" ],
+      "establishedFacts" : [ "Authorized source constituents and separately reported financial facts remain inspectable." ],
+      "incompleteConclusions" : [ "The identified result retains its evidence qualification." ],
+      "evidence" : [ ],
+      "remediation" : [ {
+        "action" : "NO_KNOWN_REMEDY",
+        "description" : "No supported source or calculation remedy is currently established.",
+        "capability" : null,
+        "requiredGrant" : null
+      } ]
+    }, {
+      "code" : "COVERAGE_INSUFFICIENT",
+      "affected" : [ "/evaluation/marketValue", "/evaluation/grossUnrealizedPl", "/evaluation/netUnrealizedPl", "/evaluation/openingCashFlow", "/evaluation/estimatedClosingCashFlow", "/evaluation/brokerReportedOpenPl", "/evaluation/management/profitTargetGrossPl", "/evaluation/management/reportedStopThresholdGrossPl", "/evaluation/payoff", "/evaluation/range" ],
+      "establishedFacts" : [ "Broker-reported custody facts remain independently inspectable." ],
+      "incompleteConclusions" : [ "Account-wide competing allocations or coverage invalidate dependent conclusions." ],
+      "evidence" : [ ],
+      "remediation" : [ ]
+    } ]
+  },
+  "headers" : {
+    "Content-Type" : "application/json",
+    "Cache-Control" : "private, no-store",
+    "X-Request-Id" : "95400a7b-f589-4001-ad07-bbf147ad4e5f"
+  }
+}

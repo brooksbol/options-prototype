@@ -23,6 +23,19 @@ public final class PortfolioReadService {
  @org.springframework.beans.factory.annotation.Autowired(required=false)
  public void marketAcquisition(PortfolioMarketAcquisition acquisition){this.marketAcquisition=acquisition;}
  public ArrayNode synchronizeMarket(Set<String> scope)throws Exception{return marketAcquisition==null?array():marketAcquisition.read(scope);}
+ public ArrayNode synchronizeMarket(Set<String> scope,List<Document> members)throws Exception{
+  if(marketAcquisition==null)return array();var positions=new TreeMap<String,Set<String>>();for(var member:members)if(member.kind()==Kind.POSITION&&member.account()!=null)positions.computeIfAbsent(member.account(),k->new TreeSet<>()).add(member.uri());
+  return marketAcquisition.read(scope,marketSubjects(members),positions);
+ }
+ public Map<String,Set<String>> marketSubjects(List<Document> page)throws Exception {
+  var subjects=new TreeMap<String,Set<String>>();for(var d:page){if(d.account()==null)continue;var selected=subjects.computeIfAbsent(d.account(),k->new TreeSet<>());
+   if(d.kind()==Kind.MARKET_OBSERVATION){if(d.value().at("/instrument/href").isTextual())selected.add(d.value().at("/instrument/href").asText());}
+   else if(d.kind()==Kind.POSITION&&!d.value().path("state").asText().equals("CLOSED")){
+    var c=repo.get(d.value().at("/currentConstruction/href").asText());if(c.isPresent())for(var leaf:leaves(c.get().value().path("composition"))){for(var uri:List.of(leaf.at("/instrument/href"),leaf.at("/terms/underlying/href")))if(uri.isTextual())selected.add(uri.asText());}
+   }
+  }return subjects;
+ }
+
 
  public ArrayNode sourceWarnings(Set<String> scope)throws Exception{
   var result=array();try(var connection=repo.connection()){for(String account:scope)try(var query=connection.prepareStatement("SELECT status,original_filename FROM brokerage_import WHERE account=? AND file_type='API_ORDERS' ORDER BY imported_at DESC,import_id DESC")){query.setString(1,account);var seen=new HashSet<String>();try(var rows=query.executeQuery()){while(rows.next()){String family=rows.getString(2).startsWith("tastytrade-complex-orders-")?"complex":"instructions";if(!seen.add(family))continue;if(!rows.getString(1).equals("ACCEPTED"))result.add(warning("SOURCE_CONFLICT","/items","Prior independently admitted brokerage instructions remain inspectable.",family.equals("complex")?"Latest retained complex parent/child corroboration was not admitted; group-dependent conclusions remain incomplete.":"Latest retained brokerage instruction scan was not completely admitted; current source completeness is unknown."));}}}}return result;
@@ -30,17 +43,64 @@ public final class PortfolioReadService {
  public void synchronize(Set<String> scope)throws Exception {sources.refresh(scope);}
  public List<Document> list(Kind kind,Set<String> scope)throws Exception{return repo.list(kind,scope);}
  public Optional<Document> find(String uri)throws Exception{return repo.get(uri);}
- public ObjectNode read(Document d,Principal p,Instant now)throws Exception {
+ /** Request-local only: never shares private projections or stale reconciliation across callers/requests. */
+ public static final class ReadContext {
+  final Map<String,ObjectNode> reconciliations=new HashMap<>();
+  final Map<String,List<Document>> orders=new HashMap<>();
+  final Map<String,Map<String,ObjectNode>> observations=new HashMap<>();
+  final Map<String,Set<String>> orderArtifacts=new HashMap<>();
+  final Map<String,ArrayNode> sourceWarnings=new HashMap<>();
+ }
+ public Map<String,String> latestHoldings(Set<String> scope)throws Exception {
+  var cuts=new TreeMap<String,String>();for(String account:scope){var cut=new PortfolioSnapshots(repo).current(account);if(cut.isPresent())cuts.put(account,cut.get().snapshotId());}return cuts;
+ }
+ public ArrayNode holdingsWarnings(Set<String> scope,String selectedSnapshot)throws Exception {
+  var result=array();for(String account:scope){
+   var owner=new PortfolioSnapshots(repo);var cut=selectedSnapshot==null?owner.current(account):owner.find(account,selectedSnapshot);
+   if(cut.isPresent()&&(cut.get().excludedNonPositionRows()>0||cut.get().cashObservation()!=null&&!cut.get().cashObservation().status().equals("OBSERVED")))result.add(warning("HOLDING_RECONCILIATION_CONFLICT","/items","Retained reported custody rows and their source snapshot remain inspectable.","The selected cut has unsupported rows or incomplete companion cash evidence; an empty or successful response does not establish complete Account financial truth."));
+   if(selectedSnapshot==null)try(var c=repo.connection();var q=c.prepareStatement("SELECT status FROM brokerage_position_acquisition WHERE account=? ORDER BY completed_at DESC,acquisition_id DESC LIMIT 1")){
+    q.setString(1,account);try(var row=q.executeQuery()){if(row.next()&&!row.getString(1).equals("ACCEPTED"))result.add(warning("SOURCE_CONFLICT","/items","The prior admitted holdings cut and original clocks remain inspectable.","The latest brokerage holdings acquisition failed or was rejected; retained prior evidence does not fulfill that refresh."));}
+   }
+   if(selectedSnapshot==null)try(var c=repo.connection();var q=c.prepareStatement("SELECT status FROM brokerage_import WHERE account=? AND file_type='POSITIONS' ORDER BY imported_at DESC,import_id DESC LIMIT 1")){
+    q.setString(1,account);try(var row=q.executeQuery()){if(row.next()&&!row.getString(1).equals("ACCEPTED"))result.add(warning("SOURCE_CONFLICT","/items","The last independently admitted snapshot remains retained and readable with its original clocks.","The latest retained positions acquisition/import was not admitted. These rows are retained prior evidence, not a successful refresh or a complete current brokerage assertion."));}
+   }
+  }return result;
+ }
+ public List<Document> page(Kind kind,Set<String> scope,Map<String,String> filters,String after,boolean descending,int limit)throws Exception {
+  Map<String,String> cuts=kind==Kind.HOLDING&&!filters.containsKey("snapshotId")?latestHoldings(scope):null;
+  return repo.page(kind,scope,filters,cuts,after,descending,limit);
+ }
+ private ObjectNode reconciliation(String account,Instant now,ReadContext context)throws Exception {
+  if(!context.reconciliations.containsKey(account))context.reconciliations.put(account,reconciliation(account,now));return context.reconciliations.get(account);
+ }
+ private ArrayNode sourceWarnings(String account,ReadContext context)throws Exception {
+  if(!context.sourceWarnings.containsKey(account))context.sourceWarnings.put(account,sourceWarnings(Set.of(account)));return context.sourceWarnings.get(account).deepCopy();
+ }
+ private List<Document> orders(String account,ReadContext context)throws Exception {
+  if(!context.orders.containsKey(account))context.orders.put(account,repo.list(Kind.ORDER,Set.of(account)));return context.orders.get(account);
+ }
+ private Set<String> orderArtifacts(String account,ReadContext context)throws Exception {
+  if(!context.orderArtifacts.containsKey(account))context.orderArtifacts.put(account,currentOrderArtifacts(account));return context.orderArtifacts.get(account);
+ }
+ private Map<String,ObjectNode> observations(String account,Instant now,ReadContext context)throws Exception {
+  if(!context.observations.containsKey(account)){
+   var values=new HashMap<String,ObjectNode>();var session=PortfolioSessionEvidence.read(repo,account,now);
+   for(var m:repo.list(Kind.MARKET_OBSERVATION,Set.of(account)))values.merge(m.value().at("/instrument/href").asText(),PortfolioSessionEvidence.qualify(scopedObservation(m),now,session),(a,b)->Instant.parse(a.path("receivedAt").asText()).compareTo(Instant.parse(b.path("receivedAt").asText()))>=0?a:b);
+   context.observations.put(account,values);
+  }return context.observations.get(account);
+ }
+ public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
+ public ObjectNode read(Document d,Principal p,Instant now,ReadContext context)throws Exception {
   ObjectNode n=d.value().deepCopy();if(d.kind()==Kind.POSITION&&n.path("state").asText().equals("CLOSED"))n.remove("exposure");
-  if(d.kind()==Kind.POSITION){n.set("orders",link("/v2/orders?positionId="+n.path("id").asText()));var c=repo.get(n.at("/currentConstruction/href").asText()).orElseThrow();var observations=new HashMap<String,ObjectNode>();var session=PortfolioSessionEvidence.read(repo,d.account(),now);for(var m:repo.list(Kind.MARKET_OBSERVATION,Set.of(d.account())))observations.merge(m.value().at("/instrument/href").asText(),PortfolioSessionEvidence.qualify(scopedObservation(m),now,session),(a,b)->Instant.parse(a.path("receivedAt").asText()).compareTo(Instant.parse(b.path("receivedAt").asText()))>=0?a:b);
-   n.set("evaluation",PortfolioMath.evaluate(c.value(),observations,now));if(d.value().at("/evaluation/historicalMarketValue").isObject())((ObjectNode)n.get("evaluation")).set("historicalMarketValue",d.value().at("/evaluation/historicalMarketValue").deepCopy());PortfolioOrderEvaluation.apply(n,c.value(),repo.list(Kind.ORDER,Set.of(d.account())),now,currentOrderArtifacts(d.account()));if(p.hasGrant("account.orders.read:"+d.account()))for(var sourceWarning:sourceWarnings(Set.of(d.account()))){((ObjectNode)sourceWarning).set("affected",array().add("/evaluation/management"));((ArrayNode)n.path("warnings")).add(sourceWarning);}if(d.value().at("/evaluation/economicComparison").isObject()){
+  if(d.kind()==Kind.POSITION){n.set("orders",link("/v2/orders?positionId="+n.path("id").asText()));var c=repo.get(n.at("/currentConstruction/href").asText()).orElseThrow();var observations=observations(d.account(),now,context);
+   n.set("evaluation",PortfolioMath.evaluate(c.value(),observations,now));if(d.value().at("/evaluation/historicalMarketValue").isObject())((ObjectNode)n.get("evaluation")).set("historicalMarketValue",d.value().at("/evaluation/historicalMarketValue").deepCopy());PortfolioOrderEvaluation.apply(n,c.value(),orders(d.account(),context),now,orderArtifacts(d.account(),context));if(p.hasGrant("account.orders.read:"+d.account()))for(var sourceWarning:sourceWarnings(d.account(),context)){((ObjectNode)sourceWarning).set("affected",array().add("/evaluation/management"));((ArrayNode)n.path("warnings")).add(sourceWarning);}if(d.value().at("/evaluation/economicComparison").isObject()){
     var retained=d.value().at("/evaluation/economicComparison");var original=repo.get(retained.at("/original/construction/href").asText());if(original.isPresent()&&Objects.equals(original.get().account(),d.account())&&original.get().value().path("position").equals(c.value().path("position")))((ObjectNode)n.get("evaluation")).set("economicComparison",PortfolioEconomicHistory.compare(original.get().value(),c.value(),retained.path("cumulative"),now));else ((ArrayNode)n.get("warnings")).add(warning("HISTORY_INCOMPLETE","/evaluation/economicComparison","Current constituent facts remain inspectable.","Retained original terms do not resolve in this Position and Account scope."));
-   }if(!n.path("state").asText().equals("CLOSED"))propagate(n,reconciliation(d.account(),now));PortfolioCurrentExposure.qualifyEvaluation(n,now);PortfolioSources.qualify(n);
+   }if(!n.path("state").asText().equals("CLOSED"))propagate(n,reconciliation(d.account(),now,context));PortfolioCurrentExposure.qualifyEvaluation(n,now);PortfolioSources.qualify(n);
   }
-  if(d.kind()==Kind.CONSTRUCTION){var parent=repo.get(n.at("/position/href").asText());if(parent.isPresent()&&parent.get().value().at("/currentConstruction/href").asText().equals(d.uri())&&!parent.get().value().path("state").asText().equals("CLOSED"))qualifyConstruction(n,reconciliation(d.account(),now));}
+  if(d.kind()==Kind.CONSTRUCTION){var parent=repo.get(n.at("/position/href").asText());if(parent.isPresent()&&parent.get().value().at("/currentConstruction/href").asText().equals(d.uri())&&!parent.get().value().path("state").asText().equals("CLOSED"))qualifyConstruction(n,reconciliation(d.account(),now,context));}
   if(d.kind()==Kind.MARKET_OBSERVATION)n=PortfolioSessionEvidence.qualify(n,now,d.account()==null?Optional.empty():PortfolioSessionEvidence.read(repo,d.account(),now));
-  if(d.kind()==Kind.ORDER&&!PortfolioOrderEvaluation.currentInstruction(n,currentOrderArtifacts(d.account()))&&!Set.of("FILLED","CANCELED","EXPIRED","REJECTED").contains(n.path("status").asText()))((ArrayNode)n.path("warnings")).add(warning("SOURCE_CONFLICT","/status","Last reported instruction and source times remain inspectable; absence does not prove cancellation, expiration or a fill.","This retained active-status record is not present in the latest admitted bounded instruction scan. Current working state is unconfirmed."));
-  if(d.kind()==Kind.ORDER)for(var warning:sourceWarnings(Set.of(d.account()))){((ObjectNode)warning).set("affected",array().add(""));((ArrayNode)n.get("warnings")).add(warning);}
+  if(d.kind()==Kind.ORDER&&!PortfolioOrderEvaluation.currentInstruction(n,orderArtifacts(d.account(),context))&&!Set.of("FILLED","CANCELED","EXPIRED","REJECTED").contains(n.path("status").asText()))((ArrayNode)n.path("warnings")).add(warning("SOURCE_CONFLICT","/status","Last reported instruction and source times remain inspectable; absence does not prove cancellation, expiration or a fill.","This retained active-status record is not present in the latest admitted bounded instruction scan. Current working state is unconfirmed."));
+  if(d.kind()==Kind.ORDER)for(var warning:sourceWarnings(d.account(),context)){((ObjectNode)warning).set("affected",array().add(""));((ArrayNode)n.get("warnings")).add(warning);}
   return PortfolioAuthorization.project(new Document(d.kind(),d.uri(),d.account(),n,d.snapshot(),d.sourceKey()),p);
  }
  private Set<String> currentOrderArtifacts(String account)throws Exception{try(var tx=repo.connection()){return PortfolioPackageEvidence.latestArtifacts(tx,account,false);}}
@@ -52,22 +112,23 @@ public final class PortfolioReadService {
   for(String field:List.of("bid","ask","mid","mark"))if(observation.path(field).isObject()){var metric=(ObjectNode)observation.get(field);((ArrayNode)metric.path("evidence")).add(ref);var deps=(ArrayNode)metric.path("dependencies");boolean present=false;for(var d:deps)if(d.asText().equals("CURRENT_MARKET"))present=true;if(!present)deps.add("CURRENT_MARKET");}
   return observation;
  }
- public ObjectNode expand(Document d,Principal p,Instant now,Set<String> includes)throws Exception {
-  var n=read(d,p,now);if(!Set.of(Kind.POSITION,Kind.CONSTRUCTION).contains(d.kind())||includes.isEmpty())return n;
+ public ObjectNode expand(Document d,Principal p,Instant now,Set<String> includes)throws Exception {return expand(d,p,now,includes,new ReadContext());}
+ public ObjectNode expand(Document d,Principal p,Instant now,Set<String> includes,ReadContext context)throws Exception {
+  var n=read(d,p,now,context);if(!Set.of(Kind.POSITION,Kind.CONSTRUCTION).contains(d.kind())||includes.isEmpty())return n;
   var included=obj();var warnings=(ArrayNode)n.get("warnings");var c=d.kind()==Kind.CONSTRUCTION?Optional.of(d):repo.get(n.at("/currentConstruction/href").asText());
-  if(c.isPresent()&&(includes.contains("currentConstruction")||includes.contains("constituents")))included.set("construction",read(c.get(),p,now));
+  if(c.isPresent()&&(includes.contains("currentConstruction")||includes.contains("constituents")))included.set("construction",read(c.get(),p,now,context));
   if(includes.contains("modelVersion")&&c.isPresent()){
    var versions=array();String uri=c.get().value().at("/recognition/modelVersion/href").asText();
-   if(!uri.isBlank()){var model=repo.get(uri);if(model.isPresent()&&PortfolioAuthorization.canRead(p,model.get()))versions.add(read(model.get(),p,now));else warnings.add(warning("ACCESS_RESTRICTED","/included/modelVersions","Authorized composition facts retained.","Requested reference expansion requires its own grant."));}included.set("modelVersions",versions);
+   if(!uri.isBlank()){var model=repo.get(uri);if(model.isPresent()&&PortfolioAuthorization.canRead(p,model.get()))versions.add(read(model.get(),p,now,context));else warnings.add(warning("ACCESS_RESTRICTED","/included/modelVersions","Authorized composition facts retained.","Requested reference expansion requires its own grant."));}included.set("modelVersions",versions);
   }
   if(includes.contains("holdingSummaries")&&c.isPresent()){
    var holdings=array();var seen=new HashSet<String>();
-   if(p.hasGrant("account.holdings.read:"+d.account())){for(var leaf:leaves(c.get().value().path("composition"))){String uri=leaf.at("/allocation/holding/href").asText();if(seen.add(uri)){var holding=repo.get(uri);if(holding.isPresent()&&PortfolioAuthorization.canRead(p,holding.get()))holdings.add(read(holding.get(),p,now));}}}
+   if(p.hasGrant("account.holdings.read:"+d.account())){for(var leaf:leaves(c.get().value().path("composition"))){String uri=leaf.at("/allocation/holding/href").asText();if(seen.add(uri)){var holding=repo.get(uri);if(holding.isPresent()&&PortfolioAuthorization.canRead(p,holding.get()))holdings.add(read(holding.get(),p,now,context));}}}
    else warnings.add(warning("ACCESS_RESTRICTED","/included/holdings","Authorized composition retained.","Holdings expansion requires its own grant."));included.set("holdings",holdings);
   }
   if(includes.contains("orderSummaries")){
    var orders=array();String position=d.kind()==Kind.POSITION?d.uri():n.at("/position/href").asText(),construction=c.map(Document::uri).orElse("");
-   if(p.hasGrant("account.orders.read:"+d.account())){for(var order:repo.list(Kind.ORDER,Set.of(d.account())))for(var association:order.value().path("associations"))if(Set.of(position,construction).contains(association.at("/target/href").asText())){orders.add(read(order,p,now));break;}}
+   if(p.hasGrant("account.orders.read:"+d.account())){for(var order:orders(d.account(),context))for(var association:order.value().path("associations"))if(Set.of(position,construction).contains(association.at("/target/href").asText())){orders.add(read(order,p,now,context));break;}}
    else warnings.add(warning("ACCESS_RESTRICTED","/included/orders","Authorized composition retained.","Order expansion requires its own grant."));included.set("orders",orders);
   }
   n.set("included",included);return n;
@@ -108,5 +169,9 @@ public final class PortfolioReadService {
   }
  }
  public ArrayNode snapshots(Set<String> scope)throws Exception {var result=array();var snapshots=new PortfolioSnapshots(repo);for(var snapshot:snapshots.retained(scope))result.add(snapshots.summary(snapshot));return result;}
- public boolean snapshotExists(String account,String id)throws Exception{return new PortfolioSnapshots(repo).retained(Set.of(account)).stream().anyMatch(s->s.snapshotId().equals(id));}
+ public ArrayNode snapshotPage(Set<String> scope,String after,boolean descending,int limit)throws Exception {
+  var snapshots=new PortfolioSnapshots(repo);var result=array();var page=snapshots.page(scope,after,descending,limit);
+  for(int i=0;i<page.size();i++){var snapshot=page.get(i);if(i==limit){var lookahead=obj().put("snapshotId",snapshot.snapshotId());lookahead.set("account",link("/v2/accounts/"+snapshot.account()));lookahead.set("holdings",link("/v2/holdings?accountId="+snapshot.account()));result.add(lookahead);}else result.add(snapshots.summary(snapshot));}return result;
+ }
+ public boolean snapshotExists(String account,String id)throws Exception{return new PortfolioSnapshots(repo).exists(account,id);}
 }

@@ -1,0 +1,237 @@
+[
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java",
+    "line": 22,
+    "evidence": "@GetMapping"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java",
+    "line": 52,
+    "evidence": "Retained-source admission"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java",
+    "line": 57,
+    "evidence": "var membership="
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java",
+    "line": 71,
+    "evidence": "var page=service.page"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java",
+    "line": 82,
+    "evidence": "holdingsWarnings"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRepository.java",
+    "line": 50,
+    "evidence": "List<Document> page"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRepository.java",
+    "line": 76,
+    "evidence": "currentConstructions"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRepository.java",
+    "line": 79,
+    "evidence": "CROSS JOIN"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSnapshots.java",
+    "line": 17,
+    "evidence": "current(String"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSnapshots.java",
+    "line": 32,
+    "evidence": "List<PositionSnapshot> page"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSnapshots.java",
+    "line": 40,
+    "evidence": "ObjectNode summary"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java",
+    "line": 28,
+    "evidence": "marketSubjects"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java",
+    "line": 30,
+    "evidence": "marketSubjects"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java",
+    "line": 47,
+    "evidence": "class ReadContext"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java",
+    "line": 57,
+    "evidence": "holdingsWarnings"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java",
+    "line": 172,
+    "evidence": "snapshotPage"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 18,
+    "evidence": "catalogBytes"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 20,
+    "evidence": "catalogBytes"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 26,
+    "evidence": "catalogBytes"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 33,
+    "evidence": "sourceRevision"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 46,
+    "evidence": "sourceRevision"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 54,
+    "evidence": "sourceRevision"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java",
+    "line": 103,
+    "evidence": "var continuity="
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java",
+    "line": 21,
+    "evidence": "Map<String,Set<String>> requested"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java",
+    "line": 22,
+    "evidence": "Map<String,Set<String>> requested"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java",
+    "line": 31,
+    "evidence": "String filename="
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java",
+    "line": 40,
+    "evidence": "selectedPositions==null"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java",
+    "line": 44,
+    "evidence": "private boolean fresh"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMarketAcquisition.java",
+    "line": 52,
+    "evidence": "selectedPositions==null"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java",
+    "line": 16,
+    "evidence": "indexedAccount"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java",
+    "line": 24,
+    "evidence": "indexedAccount"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java",
+    "line": 25,
+    "evidence": "indexedAccount"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java",
+    "line": 26,
+    "evidence": "indexedAccount"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java",
+    "line": 47,
+    "evidence": "void observe"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReconciliation.java",
+    "line": 19,
+    "evidence": "var positions=repository.list"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/V2RoutingErrors.java",
+    "line": 17,
+    "evidence": "class V2RoutingErrors"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/V2RoutingErrors.java",
+    "line": 24,
+    "evidence": "if(!(path.equals"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/V2RoutingErrors.java",
+    "line": 29,
+    "evidence": "if(!auth.configured"
+  },
+  {
+    "path": "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/V2RoutingErrors.java",
+    "line": 34,
+    "evidence": "response.setStatus"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioCollectionCorrectionTest.java",
+    "line": 32,
+    "evidence": "void defaultHoldings"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioCollectionCorrectionTest.java",
+    "line": 47,
+    "evidence": "void complexity"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioCollectionCorrectionTest.java",
+    "line": 68,
+    "evidence": "void routingErrors"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioCollectionCorrectionTest.java",
+    "line": 118,
+    "evidence": "void emptyLatest"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioDocumentationExamplesTest.java",
+    "line": 31,
+    "evidence": "void nativePackage"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioDocumentationExamplesTest.java",
+    "line": 48,
+    "evidence": "void aggregateCoverage"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioDocumentationExamplesTest.java",
+    "line": 55,
+    "evidence": "void simpleReported"
+  },
+  {
+    "path": "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioPageAcquisitionTest.java",
+    "line": 18,
+    "evidence": "void selectedPage"
+  }
+]
