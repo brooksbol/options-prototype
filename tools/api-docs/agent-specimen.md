@@ -1,3 +1,7 @@
+# Current accepted scope — October22
+
+The foundational Holdings integration has36 authoritative/32public operations. Current machine reconstruction is validate.py and its private agent-specimen.json; accepted wire comparison is b48e3c6. Full expanded API source and source-evidence boundaries are in docs/api-v2/README.md and the deployment record. The following19-operation answer table is historical October15 evidence, not current API inventory.
+
 # Read-only agent consumption specimen — PL-API-02 Step 2
 
 This is author verification evidence and a repeatable review exercise, not another API contract, an execution interface, or independent Step 3 approval. Start at `docs/api-v2/README.md`; use repository OAS and linked Product/domain contracts. Do not use the CLI, generated public projection or rendered HTML as inventory authority. Do not invoke any API.

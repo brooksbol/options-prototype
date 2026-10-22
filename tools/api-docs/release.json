@@ -1,5 +1,5 @@
 {
-  "previewDate": "2026-10-15",
+  "previewDate": "2026-10-22",
   "publicationDate": "2026-10-15",
   "acceptedSource": "a6ab6a01b2f3cfec22e7aa0197e4ca355ae945a4",
   "acceptedPreviewSha256": "6d26b9bc44b80f45a26336d387643959ef45fd1624ea4e977693fa05f2c56821",
@@ -14,5 +14,6 @@
     "docs/api-v2/README.md": "637dd010742d454b124611caffa299a88f9c16d73d32a345146128bee0789c8c",
     "docs/cli/ww-account-evidence.md": "32179d19a8c868d68378edf6ed1e376e819e4ba63ce6d6d812fb8757f6efbf25"
   },
-  "principalCleanupSource": "docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md"
+  "principalCleanupSource": "docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md",
+  "principalIntegrationSource": "docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md"
 }

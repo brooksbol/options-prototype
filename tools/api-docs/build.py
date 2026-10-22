@@ -42,6 +42,10 @@ def public_projection(value, property_names=False):
         return [public_projection(item) for item in value]
     if not isinstance(value, dict):
         return value
+    # Synthetic public examples retain the schema's redacted evidence variant.
+    # Internal OAS and private bundled evidence remain exact.
+    if value.get('kind') == 'ACCOUNT_SOURCE':
+        return {'kind':'REDACTED','reason':'INSUFFICIENT_PERMISSION'}
     result = {}
     for key, item in value.items():
         if not property_names and key in {'security', 'securitySchemes', 'x-required-grants'}:
@@ -82,7 +86,7 @@ def public_reference(spec):
     spec['tags'] = [tag for tag in spec.get('tags', []) if tag['name'] in used]
     spec['tags'].append(dict(name='Identity', description='Current caller identity.'))
     for tag in spec['tags']:
-        if tag['name'] == 'Positions': tag['description'] = 'Retained Position inspection.'
+        if tag['name'] == 'Positions': tag['description'] = 'Independently identified economic Positions and qualified current exposure.'
 
     # COTS schema titles only. Copy error presentation for non-Artifact views;
     # do not change the shared definitions still rendered by Artifact operations.
@@ -174,13 +178,29 @@ def main():
     public = json.loads(pruned.read_text())
     projection.write_text(json.dumps(public, indent=2) + '\n')
     print(run(cli, 'lint', internal, '--config', TOOL / 'redocly.yaml'))
-    print(run(cli, 'build-docs', projection, '--output', site / 'index.html',
+    # The complete recursive domain exceeds the pinned renderer's SSR heap.
+    # The existing pipeline already uses native Redoc.init (not hydration).
+    # Generate its unchanged COTS shell, then embed the FULL validated projection
+    # for native browser rendering. No schema or operation is omitted.
+    shell=copy.deepcopy(public)
+    shell['paths']={}; shell['components']={}; shell['tags']=[]
+    shell_path=private/'native-shell.json'
+    shell_path.write_text(json.dumps(shell)+'\n')
+    print(run(cli, 'build-docs', shell_path, '--output', site / 'index.html',
               '--config', TOOL / 'redocly.yaml', '--disableGoogleFont',
               '--theme.openapi.hideSecuritySection=true', '--theme.openapi.hideDownloadButtons=true',
               '--theme.openapi.hideTryItPanel=true', '--theme.openapi.disableSearch=false',
               '--theme.openapi.expandResponses=200,401,403,404,422,500,503',
-              '--theme.openapi.showExtensions=false'))
+              '--theme.openapi.showExtensions=false', '--theme.openapi.generatedSamplesMaxDepth=3'))
     html = (site / 'index.html').read_text()
+    state_pattern=re.compile(r'const __redoc_state = (\{.*?\});(?=\s*var container)',re.S)
+    matches=list(state_pattern.finditer(html))
+    if len(matches)!=1: raise ValueError('Changed native COTS state layout')
+    native_state=json.loads(matches[0].group(1))
+    native_state['spec']['data']=public
+    serialized=json.dumps(native_state,separators=(',',':')).replace('</','<\\/')
+    html=state_pattern.sub(lambda _: 'const __redoc_state = '+serialized+';',html,count=1)
+
     asset = TOOL / 'node_modules/redoc/bundles/redoc.standalone.js'
     sri = 'sha384-' + base64.b64encode(hashlib.sha384(asset.read_bytes()).digest()).decode()
     url = 'https://cdn.redocly.com/redoc/v2.5.4/bundles/redoc.standalone.js'
@@ -205,7 +225,7 @@ def main():
     if html.count(hydrate) != 1:
         raise ValueError('Unexpected COTS bootstrap; review before changing versions')
     options = dict(hideSecuritySection=True, hideDownloadButtons=True, hideTryItPanel=True,
-                   disableSearch=False, showExtensions=False,
+                   disableSearch=False, showExtensions=False, generatedSamplesMaxDepth=3,
                    expandResponses='200,401,403,404,422,500,503')
     html = html.replace(hydrate, 'Redoc.init(__redoc_state.spec.data, ' + json.dumps(options) + ', container);')
     (site / 'index.html').write_text(html)
@@ -226,9 +246,9 @@ def main():
         if not isinstance(date, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', date):
             raise ValueError('Publication requires an explicit reproducible ISO date')
         marker = 'not published — local preview'
-        if html.count(marker) != 3:
+        if html.count(marker) != 2:
             raise ValueError('Publication metadata layout differs from accepted renderer')
-        # Only the three native prerender/state copies of this label may change.
+        # Only the two native introductory/state copies of this label may change.
         (site / 'index.html').write_text(html.replace(marker, date))
         public['info']['description'] = public['info']['description'].replace(marker, date)
         projection.write_text(json.dumps(public, indent=2) + '\n')

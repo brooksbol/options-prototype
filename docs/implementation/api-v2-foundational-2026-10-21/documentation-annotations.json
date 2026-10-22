@@ -1,0 +1,3716 @@
+{
+  "standing": "SYNTHETIC_JAVA_RESPONSE_DOCUMENTATION_ANNOTATIONS_NOT_RUNTIME_OR_SOURCE_AUTHORITY",
+  "source": "Combined-source deterministic Java capture; schema validated, no operational data or credentials",
+  "operations": {
+    "/v2/positions": {
+      "summary": "List positions",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "summary",
+              "items": [],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/positions/{positionId}": {
+      "summary": "Read position",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "b2fb05ea-ba93-430d-9f58-8e002cd14dfd",
+              "state": "UNRESOLVED",
+              "self": {
+                "href": "/v2/positions/b2fb05ea-ba93-430d-9f58-8e002cd14dfd"
+              },
+              "account": {
+                "href": "/v2/accounts/acct_51b54d27ff6241779f9af53a89aefed0"
+              },
+              "currentConstruction": {
+                "href": "/v2/constructions/e6af7ba2-6486-4ae9-823a-b007052c16b9"
+              },
+              "sourceIdentifiers": [],
+              "orders": null,
+              "audit": null,
+              "stateEvidence": {
+                "status": "UNRESOLVED",
+                "establishedAt": null,
+                "completeness": "UNKNOWN",
+                "evidence": [
+                  {
+                    "kind": "REDACTED",
+                    "reason": "INSUFFICIENT_PERMISSION"
+                  }
+                ]
+              },
+              "allocation": {
+                "status": "RECONCILED",
+                "reconciliation": {
+                  "href": "/v2/accounts/acct_51b54d27ff6241779f9af53a89aefed0/inventory-reconciliation"
+                },
+                "holdingSnapshotIds": [
+                  "snapshot-d1951d99-cc9b-4562-9efc-9ae7f1fa8a08"
+                ],
+                "affectedHoldingIds": [],
+                "evidence": [
+                  {
+                    "kind": "REDACTED",
+                    "reason": "INSUFFICIENT_PERMISSION"
+                  }
+                ]
+              },
+              "exposure": {
+                "status": "OBSERVED",
+                "sourceSnapshotId": "snapshot-d1951d99-cc9b-4562-9efc-9ae7f1fa8a08",
+                "sourceDate": "2026-10-22",
+                "receivedAt": "2026-10-22T17:50:16.036210000Z",
+                "continuity": "UNRESOLVED",
+                "qualification": "Current observed quantities only; no opening, uninterrupted occurrence or original cost basis established.",
+                "evidence": [
+                  {
+                    "kind": "REDACTED",
+                    "reason": "INSUFFICIENT_PERMISSION"
+                  }
+                ]
+              },
+              "evaluation": {
+                "evaluatedAt": "2026-10-22T17:50:16.163897Z",
+                "marketValue": {
+                  "value": "1234.56",
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "QUALIFIED",
+                  "origin": "WHEELWRIGHT_DERIVED",
+                  "method": "SIGNED_HELD_MIDPOINT_SUM",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [
+                    {
+                      "kind": "REDACTED",
+                      "reason": "INSUFFICIENT_PERMISSION"
+                    },
+                    {
+                      "kind": "REDACTED",
+                      "reason": "INSUFFICIENT_PERMISSION"
+                    }
+                  ],
+                  "warningCodes": [],
+                  "dependencies": [
+                    "HELD_INVENTORY"
+                  ]
+                },
+                "grossUnrealizedPl": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "NOT_APPLICABLE",
+                  "origin": "UNKNOWN",
+                  "method": "NOT_APPLICABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [],
+                  "dependencies": []
+                },
+                "spot": {
+                  "value": null,
+                  "unit": "PRICE",
+                  "currency": "USD",
+                  "status": "NOT_APPLICABLE",
+                  "origin": "UNKNOWN",
+                  "method": "NOT_APPLICABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [],
+                  "dependencies": []
+                },
+                "openingCashFlow": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "NOT_APPLICABLE",
+                  "origin": "UNKNOWN",
+                  "method": "NOT_APPLICABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [],
+                  "dependencies": []
+                },
+                "estimatedClosingCashFlow": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "NOT_APPLICABLE",
+                  "origin": "UNKNOWN",
+                  "method": "NOT_APPLICABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [],
+                  "dependencies": []
+                },
+                "netUnrealizedPl": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "NOT_APPLICABLE",
+                  "origin": "UNKNOWN",
+                  "method": "NOT_APPLICABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [],
+                  "dependencies": []
+                },
+                "fees": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "INCOMPLETE",
+                  "origin": "UNKNOWN",
+                  "method": "EVIDENCE_UNAVAILABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [
+                    "HISTORY_INCOMPLETE"
+                  ],
+                  "dependencies": []
+                },
+                "realizedGrossPl": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "INCOMPLETE",
+                  "origin": "UNKNOWN",
+                  "method": "EVIDENCE_UNAVAILABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [
+                    "HISTORY_INCOMPLETE"
+                  ],
+                  "dependencies": []
+                },
+                "realizedNetPl": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "INCOMPLETE",
+                  "origin": "UNKNOWN",
+                  "method": "EVIDENCE_UNAVAILABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [
+                    "HISTORY_INCOMPLETE"
+                  ],
+                  "dependencies": []
+                },
+                "oldestMaterialObservationAt": null,
+                "freshness": "UNKNOWN",
+                "timeline": {
+                  "openedAt": null,
+                  "expiration": null,
+                  "calendarZone": "America/New_York",
+                  "openingAccess": "UNKNOWN",
+                  "openingEvidence": [],
+                  "remainingDays": {
+                    "value": null,
+                    "unit": "DAY",
+                    "currency": null,
+                    "status": "NOT_APPLICABLE",
+                    "origin": "UNKNOWN",
+                    "method": "NOT_APPLICABLE",
+                    "asOf": "2026-10-22T17:50:16.163897Z",
+                    "assumptions": [],
+                    "evidence": [],
+                    "warningCodes": [],
+                    "dependencies": []
+                  },
+                  "originalDays": {
+                    "value": null,
+                    "unit": "DAY",
+                    "currency": null,
+                    "status": "NOT_APPLICABLE",
+                    "origin": "UNKNOWN",
+                    "method": "NOT_APPLICABLE",
+                    "asOf": "2026-10-22T17:50:16.163897Z",
+                    "assumptions": [],
+                    "evidence": [],
+                    "warningCodes": [],
+                    "dependencies": []
+                  }
+                },
+                "management": {
+                  "access": "VISIBLE",
+                  "associationStatus": "UNAVAILABLE",
+                  "stopInterpretation": "PROVISIONAL_NOT_EXECUTION_GUARANTEE",
+                  "protectiveOrderEvidence": "UNKNOWN",
+                  "manualCheckpoint": null,
+                  "orders": [],
+                  "zeroGrossPl": {
+                    "value": "0",
+                    "unit": "MONEY",
+                    "currency": "USD",
+                    "status": "QUALIFIED",
+                    "origin": "WHEELWRIGHT_DERIVED",
+                    "method": "ZERO_REFERENCE",
+                    "asOf": "2026-10-22T17:50:16.163897Z",
+                    "assumptions": [],
+                    "evidence": [
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      }
+                    ],
+                    "warningCodes": [],
+                    "dependencies": []
+                  },
+                  "profitTargetGrossPl": {
+                    "value": null,
+                    "unit": "MONEY",
+                    "currency": "USD",
+                    "status": "NOT_APPLICABLE",
+                    "origin": "UNKNOWN",
+                    "method": "NOT_APPLICABLE",
+                    "asOf": "2026-10-22T17:50:16.163897Z",
+                    "assumptions": [],
+                    "evidence": [],
+                    "warningCodes": [],
+                    "dependencies": []
+                  },
+                  "reportedStopThresholdGrossPl": {
+                    "value": null,
+                    "unit": "MONEY",
+                    "currency": "USD",
+                    "status": "NOT_APPLICABLE",
+                    "origin": "UNKNOWN",
+                    "method": "NOT_APPLICABLE",
+                    "asOf": "2026-10-22T17:50:16.163897Z",
+                    "assumptions": [],
+                    "evidence": [],
+                    "warningCodes": [],
+                    "dependencies": []
+                  },
+                  "evidence": [],
+                  "warningCodes": []
+                },
+                "brokerReportedOpenPl": {
+                  "value": null,
+                  "unit": "MONEY",
+                  "currency": "USD",
+                  "status": "NOT_APPLICABLE",
+                  "origin": "UNKNOWN",
+                  "method": "NOT_APPLICABLE",
+                  "asOf": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [],
+                  "dependencies": []
+                },
+                "payoff": {
+                  "status": "UNSUPPORTED",
+                  "geometry": null,
+                  "evaluatedAt": "2026-10-22T17:50:16.163897Z",
+                  "assumptions": [],
+                  "evidence": [],
+                  "warningCodes": [
+                    "VALUATION_UNSUPPORTED"
+                  ]
+                },
+                "range": {
+                  "status": "UNSUPPORTED",
+                  "kind": "UNAVAILABLE",
+                  "lower": null,
+                  "upper": null,
+                  "currency": "USD",
+                  "evidence": [],
+                  "warningCodes": [
+                    "VALUATION_UNSUPPORTED"
+                  ]
+                }
+              },
+              "warnings": [
+                {
+                  "code": "ASSOCIATION_UNRESOLVED",
+                  "affected": [
+                    "/stateEvidence"
+                  ],
+                  "establishedFacts": [
+                    "Source custody, quantities and contractual terms remain inspectable under an independent Position GUID."
+                  ],
+                  "incompleteConclusions": [
+                    "Compatible observations do not prove uninterrupted economic occurrence, opening date, original investment basis or roll history; unobserved close/reopen events may be indistinguishable."
+                  ],
+                  "evidence": [],
+                  "remediation": []
+                },
+                {
+                  "code": "HISTORY_INCOMPLETE",
+                  "affected": [
+                    "/evaluation/fees",
+                    "/evaluation/realizedGrossPl",
+                    "/evaluation/realizedNetPl"
+                  ],
+                  "establishedFacts": [
+                    "Authorized source constituents and separately reported financial facts remain inspectable."
+                  ],
+                  "incompleteConclusions": [
+                    "The identified result retains its evidence qualification."
+                  ],
+                  "evidence": [],
+                  "remediation": [
+                    {
+                      "action": "IMPORT_SOURCE",
+                      "description": "Supply supported historical activity and documented cost attribution; holdings or current marks do not establish missing events.",
+                      "capability": null,
+                      "requiredGrant": null
+                    }
+                  ]
+                },
+                {
+                  "code": "VALUATION_UNSUPPORTED",
+                  "affected": [
+                    "/evaluation/payoff",
+                    "/evaluation/range"
+                  ],
+                  "establishedFacts": [
+                    "Authorized source constituents and separately reported financial facts remain inspectable."
+                  ],
+                  "incompleteConclusions": [
+                    "The identified result retains its evidence qualification."
+                  ],
+                  "evidence": [],
+                  "remediation": [
+                    {
+                      "action": "NO_KNOWN_REMEDY",
+                      "description": "No supported source or calculation remedy is currently established.",
+                      "capability": null,
+                      "requiredGrant": null
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/constructions": {
+      "summary": "List constructions",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "summary",
+              "items": [
+                {
+                  "id": "e6af7ba2-6486-4ae9-823a-b007052c16b9",
+                  "createdAt": "2026-10-22T17:50:16.044870Z",
+                  "changeKind": "INITIAL",
+                  "predecessorStatus": "NONE",
+                  "predecessor": null,
+                  "self": {
+                    "href": "/v2/constructions/e6af7ba2-6486-4ae9-823a-b007052c16b9"
+                  },
+                  "account": {
+                    "href": "/v2/accounts/acct_51b54d27ff6241779f9af53a89aefed0"
+                  },
+                  "position": {
+                    "href": "/v2/positions/b2fb05ea-ba93-430d-9f58-8e002cd14dfd"
+                  },
+                  "composition": {
+                    "kind": "GROUP",
+                    "nodeId": "ROOT",
+                    "modelVersion": null,
+                    "children": [
+                      {
+                        "nodeId": "settled-cash:USD",
+                        "kind": "CASH",
+                        "instrument": null,
+                        "side": "LONG",
+                        "quantity": "1234.56",
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "allocation": {
+                          "quantity": "1234.56",
+                          "basisMethod": "BROKER_ATTRIBUTED",
+                          "availability": "UNKNOWN",
+                          "globalStatus": "RECONCILED",
+                          "inventory": {
+                            "key": "settled-cash:USD",
+                            "side": "LONG",
+                            "quantity": "1234.56",
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "instrument": null,
+                            "account": {
+                              "href": "/v2/accounts/acct_51b54d27ff6241779f9af53a89aefed0"
+                            },
+                            "holding": {
+                              "href": "/v2/holdings/1ab3d7b0-8b3a-3972-a58c-3ffd8985326f"
+                            },
+                            "evidence": [
+                              {
+                                "kind": "REDACTED",
+                                "reason": "INSUFFICIENT_PERMISSION"
+                              }
+                            ]
+                          },
+                          "holding": {
+                            "href": "/v2/holdings/1ab3d7b0-8b3a-3972-a58c-3ffd8985326f"
+                          },
+                          "basis": {
+                            "value": "1234.56",
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "status": "QUALIFIED",
+                            "origin": "WHEELWRIGHT_DERIVED",
+                            "method": "CASH_PRINCIPAL",
+                            "asOf": "2026-10-14T12:34:56Z",
+                            "assumptions": [],
+                            "evidence": [
+                              {
+                                "kind": "REDACTED",
+                                "reason": "INSUFFICIENT_PERMISSION"
+                              }
+                            ],
+                            "warningCodes": [],
+                            "dependencies": []
+                          },
+                          "authority": {
+                            "claimId": "ACCESS_RESTRICTED",
+                            "basis": "UNKNOWN",
+                            "status": "UNRESOLVED",
+                            "qualification": "Restricted association evidence.",
+                            "account": {
+                              "href": "/v2/accounts/acct_51b54d27ff6241779f9af53a89aefed0"
+                            },
+                            "subjects": [],
+                            "evidence": []
+                          }
+                        },
+                        "economics": {
+                          "openingCashFlow": {
+                            "value": null,
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "status": "NOT_APPLICABLE",
+                            "origin": "UNKNOWN",
+                            "method": "NOT_APPLICABLE",
+                            "asOf": null,
+                            "assumptions": [],
+                            "evidence": [],
+                            "warningCodes": [],
+                            "dependencies": []
+                          },
+                          "reportedMarketValue": {
+                            "value": "1234.56",
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "status": "QUALIFIED",
+                            "origin": "BROKER_REPORTED",
+                            "method": "BROKER_REPORTED_SETTLED_CASH_BALANCE",
+                            "asOf": "2026-10-14T12:34:56Z",
+                            "assumptions": [
+                              "Reported settled cash only; no buying power, withdrawal availability, broker reservation or atomic securities/cash observation asserted."
+                            ],
+                            "evidence": [
+                              {
+                                "kind": "REDACTED",
+                                "reason": "INSUFFICIENT_PERMISSION"
+                              }
+                            ],
+                            "warningCodes": [],
+                            "dependencies": []
+                          },
+                          "reportedOpenPl": {
+                            "value": null,
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "status": "NOT_APPLICABLE",
+                            "origin": "UNKNOWN",
+                            "method": "NOT_APPLICABLE",
+                            "asOf": null,
+                            "assumptions": [],
+                            "evidence": [],
+                            "warningCodes": [],
+                            "dependencies": []
+                          },
+                          "reportedCapitalRequirement": {
+                            "value": null,
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "status": "INCOMPLETE",
+                            "origin": "UNKNOWN",
+                            "method": "EVIDENCE_UNAVAILABLE",
+                            "asOf": null,
+                            "assumptions": [],
+                            "evidence": [],
+                            "warningCodes": [
+                              "TERMS_UNAVAILABLE"
+                            ],
+                            "dependencies": []
+                          },
+                          "fees": {
+                            "value": null,
+                            "unit": "MONEY",
+                            "currency": "USD",
+                            "status": "INCOMPLETE",
+                            "origin": "UNKNOWN",
+                            "method": "EVIDENCE_UNAVAILABLE",
+                            "asOf": null,
+                            "assumptions": [],
+                            "evidence": [],
+                            "warningCodes": [
+                              "HISTORY_INCOMPLETE"
+                            ],
+                            "dependencies": []
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "recognition": {
+                    "status": "UNCLASSIFIED",
+                    "modelVersion": null,
+                    "candidateModels": [],
+                    "reasonCodes": [
+                      "ACCESS_RESTRICTED"
+                    ],
+                    "evidence": [
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      }
+                    ],
+                    "authority": {
+                      "claimId": "ACCESS_RESTRICTED",
+                      "basis": "UNKNOWN",
+                      "status": "UNRESOLVED",
+                      "qualification": "Restricted association evidence.",
+                      "account": {
+                        "href": "/v2/accounts/acct_51b54d27ff6241779f9af53a89aefed0"
+                      },
+                      "subjects": [],
+                      "evidence": []
+                    }
+                  },
+                  "relationships": [],
+                  "evidence": [
+                    {
+                      "kind": "REDACTED",
+                      "reason": "INSUFFICIENT_PERMISSION"
+                    }
+                  ],
+                  "warnings": [
+                    {
+                      "code": "ACCESS_RESTRICTED",
+                      "affected": [
+                        "/recognition"
+                      ],
+                      "establishedFacts": [
+                        "Authorized constituents remain inspectable."
+                      ],
+                      "incompleteConclusions": [
+                        "Validated recognition requires association evidence outside this projection's source permissions."
+                      ],
+                      "evidence": [],
+                      "remediation": []
+                    }
+                  ]
+                }
+              ],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/constructions/{constructionId}": {
+      "summary": "Read construction",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "7dba7537-2870-4bc9-a683-c05aca6e7eda",
+              "createdAt": "2026-10-22T17:50:16.198776Z",
+              "changeKind": "INITIAL",
+              "predecessorStatus": "NONE",
+              "predecessor": null,
+              "self": {
+                "href": "/v2/constructions/7dba7537-2870-4bc9-a683-c05aca6e7eda"
+              },
+              "account": {
+                "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+              },
+              "position": {
+                "href": "/v2/positions/08eed038-d80c-4c4a-82db-630fd6d56012"
+              },
+              "composition": {
+                "kind": "GROUP",
+                "nodeId": "ROOT",
+                "modelVersion": null,
+                "children": [
+                  {
+                    "nodeId": "settled-cash:USD",
+                    "kind": "CASH",
+                    "instrument": null,
+                    "side": "LONG",
+                    "quantity": "1234.56",
+                    "unit": "MONEY",
+                    "currency": "USD",
+                    "allocation": {
+                      "quantity": "1234.56",
+                      "basisMethod": "BROKER_ATTRIBUTED",
+                      "availability": "UNKNOWN",
+                      "globalStatus": "UNKNOWN",
+                      "inventory": {
+                        "key": "settled-cash:USD",
+                        "side": "LONG",
+                        "quantity": "1234.56",
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "instrument": null,
+                        "account": {
+                          "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                        },
+                        "holding": {
+                          "href": "/v2/holdings/7c9b32cd-6d63-32de-b1ee-fbd6c0f10575"
+                        },
+                        "evidence": [
+                          {
+                            "kind": "ACCOUNT_SOURCE",
+                            "account": {
+                              "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                            },
+                            "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                            "artifact": {
+                              "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                            },
+                            "recordKey": "/data/cash-balance",
+                            "locator": {
+                              "kind": "JSON_POINTER",
+                              "value": "/data/cash-balance"
+                            },
+                            "provider": "TASTYTRADE",
+                            "environment": "PRODUCTION",
+                            "observedAt": "2026-10-14T12:34:56Z",
+                            "observationPrecision": "INSTANT",
+                            "observationDate": "2026-10-14",
+                            "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                            "timeAuthority": "SOURCE"
+                          }
+                        ]
+                      },
+                      "holding": {
+                        "href": "/v2/holdings/7c9b32cd-6d63-32de-b1ee-fbd6c0f10575"
+                      },
+                      "basis": {
+                        "value": "1234.56",
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "status": "QUALIFIED",
+                        "origin": "WHEELWRIGHT_DERIVED",
+                        "method": "CASH_PRINCIPAL",
+                        "asOf": "2026-10-14T12:34:56Z",
+                        "assumptions": [],
+                        "evidence": [
+                          {
+                            "kind": "ACCOUNT_SOURCE",
+                            "account": {
+                              "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                            },
+                            "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                            "artifact": {
+                              "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                            },
+                            "recordKey": "/data/cash-balance",
+                            "locator": {
+                              "kind": "JSON_POINTER",
+                              "value": "/data/cash-balance"
+                            },
+                            "provider": "TASTYTRADE",
+                            "environment": "PRODUCTION",
+                            "observedAt": "2026-10-14T12:34:56Z",
+                            "observationPrecision": "INSTANT",
+                            "observationDate": "2026-10-14",
+                            "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                            "timeAuthority": "SOURCE"
+                          }
+                        ],
+                        "warningCodes": [],
+                        "dependencies": []
+                      },
+                      "authority": {
+                        "claimId": "allocation:7c9b32cd-6d63-32de-b1ee-fbd6c0f10575",
+                        "basis": "BROKER_HOLDING_OBSERVATION",
+                        "status": "QUALIFIED",
+                        "qualification": "Settled owned cash quantity; neither reserved collateral nor unrestricted buying power.",
+                        "account": {
+                          "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                        },
+                        "subjects": [
+                          {
+                            "href": "/v2/holdings/7c9b32cd-6d63-32de-b1ee-fbd6c0f10575"
+                          }
+                        ],
+                        "evidence": [
+                          {
+                            "kind": "ACCOUNT_SOURCE",
+                            "account": {
+                              "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                            },
+                            "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                            "artifact": {
+                              "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                            },
+                            "recordKey": "/data/cash-balance",
+                            "locator": {
+                              "kind": "JSON_POINTER",
+                              "value": "/data/cash-balance"
+                            },
+                            "provider": "TASTYTRADE",
+                            "environment": "PRODUCTION",
+                            "observedAt": "2026-10-14T12:34:56Z",
+                            "observationPrecision": "INSTANT",
+                            "observationDate": "2026-10-14",
+                            "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                            "timeAuthority": "SOURCE"
+                          }
+                        ]
+                      }
+                    },
+                    "economics": {
+                      "openingCashFlow": {
+                        "value": null,
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "status": "NOT_APPLICABLE",
+                        "origin": "UNKNOWN",
+                        "method": "NOT_APPLICABLE",
+                        "asOf": null,
+                        "assumptions": [],
+                        "evidence": [],
+                        "warningCodes": [],
+                        "dependencies": []
+                      },
+                      "reportedMarketValue": {
+                        "value": "1234.56",
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "status": "QUALIFIED",
+                        "origin": "BROKER_REPORTED",
+                        "method": "BROKER_REPORTED_SETTLED_CASH_BALANCE",
+                        "asOf": "2026-10-14T12:34:56Z",
+                        "assumptions": [
+                          "Reported settled cash only; no buying power, withdrawal availability, broker reservation or atomic securities/cash observation asserted."
+                        ],
+                        "evidence": [
+                          {
+                            "kind": "ACCOUNT_SOURCE",
+                            "account": {
+                              "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                            },
+                            "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                            "artifact": {
+                              "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                            },
+                            "recordKey": "/data/cash-balance",
+                            "locator": {
+                              "kind": "JSON_POINTER",
+                              "value": "/data/cash-balance"
+                            },
+                            "provider": "TASTYTRADE",
+                            "environment": "PRODUCTION",
+                            "observedAt": "2026-10-14T12:34:56Z",
+                            "observationPrecision": "INSTANT",
+                            "observationDate": "2026-10-14",
+                            "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                            "timeAuthority": "SOURCE"
+                          }
+                        ],
+                        "warningCodes": [],
+                        "dependencies": []
+                      },
+                      "reportedOpenPl": {
+                        "value": null,
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "status": "NOT_APPLICABLE",
+                        "origin": "UNKNOWN",
+                        "method": "NOT_APPLICABLE",
+                        "asOf": null,
+                        "assumptions": [],
+                        "evidence": [],
+                        "warningCodes": [],
+                        "dependencies": []
+                      },
+                      "reportedCapitalRequirement": {
+                        "value": null,
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "status": "INCOMPLETE",
+                        "origin": "UNKNOWN",
+                        "method": "EVIDENCE_UNAVAILABLE",
+                        "asOf": null,
+                        "assumptions": [],
+                        "evidence": [],
+                        "warningCodes": [
+                          "TERMS_UNAVAILABLE"
+                        ],
+                        "dependencies": []
+                      },
+                      "fees": {
+                        "value": null,
+                        "unit": "MONEY",
+                        "currency": "USD",
+                        "status": "INCOMPLETE",
+                        "origin": "UNKNOWN",
+                        "method": "EVIDENCE_UNAVAILABLE",
+                        "asOf": null,
+                        "assumptions": [],
+                        "evidence": [],
+                        "warningCodes": [
+                          "HISTORY_INCOMPLETE"
+                        ],
+                        "dependencies": []
+                      }
+                    }
+                  }
+                ]
+              },
+              "recognition": {
+                "status": "VALIDATED",
+                "modelVersion": {
+                  "href": "/v2/constructions/models/CASH/versions/1"
+                },
+                "candidateModels": [],
+                "reasonCodes": [],
+                "evidence": [
+                  {
+                    "kind": "ACCOUNT_SOURCE",
+                    "account": {
+                      "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                    },
+                    "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                    "artifact": {
+                      "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                    },
+                    "recordKey": "/data/cash-balance",
+                    "locator": {
+                      "kind": "JSON_POINTER",
+                      "value": "/data/cash-balance"
+                    },
+                    "provider": "TASTYTRADE",
+                    "environment": "PRODUCTION",
+                    "observedAt": "2026-10-14T12:34:56Z",
+                    "observationPrecision": "INSTANT",
+                    "observationDate": "2026-10-14",
+                    "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                    "timeAuthority": "SOURCE"
+                  }
+                ],
+                "authority": {
+                  "claimId": "7dba7537-2870-4bc9-a683-c05aca6e7eda",
+                  "basis": "BROKER_HOLDING_OBSERVATION",
+                  "status": "QUALIFIED",
+                  "qualification": "Single constituent sourced directly from the referenced custody observation; no multi-leg package, reservation, occurrence continuity or discretionary basis association asserted.",
+                  "account": {
+                    "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                  },
+                  "subjects": [
+                    {
+                      "href": "/v2/constructions/7dba7537-2870-4bc9-a683-c05aca6e7eda"
+                    }
+                  ],
+                  "evidence": [
+                    {
+                      "kind": "ACCOUNT_SOURCE",
+                      "account": {
+                        "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                      },
+                      "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                      "artifact": {
+                        "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                      },
+                      "recordKey": "/data/cash-balance",
+                      "locator": {
+                        "kind": "JSON_POINTER",
+                        "value": "/data/cash-balance"
+                      },
+                      "provider": "TASTYTRADE",
+                      "environment": "PRODUCTION",
+                      "observedAt": "2026-10-14T12:34:56Z",
+                      "observationPrecision": "INSTANT",
+                      "observationDate": "2026-10-14",
+                      "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                      "timeAuthority": "SOURCE"
+                    }
+                  ]
+                }
+              },
+              "relationships": [],
+              "evidence": [
+                {
+                  "kind": "ACCOUNT_SOURCE",
+                  "account": {
+                    "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                  },
+                  "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                  "artifact": {
+                    "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                  },
+                  "recordKey": "/data/cash-balance",
+                  "locator": {
+                    "kind": "JSON_POINTER",
+                    "value": "/data/cash-balance"
+                  },
+                  "provider": "TASTYTRADE",
+                  "environment": "PRODUCTION",
+                  "observedAt": "2026-10-14T12:34:56Z",
+                  "observationPrecision": "INSTANT",
+                  "observationDate": "2026-10-14",
+                  "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                  "timeAuthority": "SOURCE"
+                }
+              ],
+              "warnings": []
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/orders": {
+      "summary": "List orders",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/orders'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "summary",
+              "items": [],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/orders/{orderId}": {
+      "summary": "Read order",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/orders/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "0850b26c-cdca-36a6-80f9-33b6743f16d1",
+              "sourceStatus": "Cancelled",
+              "status": "CANCELED",
+              "observedAt": null,
+              "observationCoverage": "PARTIAL",
+              "self": {
+                "href": "/v2/orders/0850b26c-cdca-36a6-80f9-33b6743f16d1"
+              },
+              "account": {
+                "href": "/v2/accounts/acct_e3858438bc024a2a88b1e5609b92ce00"
+              },
+              "sourceIdentifier": {
+                "broker": "TASTYTRADE",
+                "environment": "PRODUCTION",
+                "identifier": "synthetic-19"
+              },
+              "brokerGroupId": "synthetic-20",
+              "relatedOrders": [
+                {
+                  "href": "/v2/orders/c675a3c6-417d-3d0c-9e04-e6228905b18a"
+                },
+                {
+                  "href": "/v2/orders/f9743abc-35f0-32ce-b318-fc3a0bc1f1bd"
+                }
+              ],
+              "orderType": "LIMIT",
+              "timeInForce": "DAY",
+              "gtdDate": null,
+              "priceEffect": "CREDIT",
+              "limitPrice": {
+                "value": "0.05",
+                "unit": "PRICE",
+                "currency": "USD",
+                "status": "QUALIFIED",
+                "origin": "BROKER_REPORTED",
+                "method": "SOURCE_REPORTED_INSTRUCTION_LIMIT",
+                "asOf": "2026-10-14T19:21:00Z",
+                "assumptions": [],
+                "evidence": [
+                  {
+                    "kind": "REDACTED",
+                    "reason": "INSUFFICIENT_PERMISSION"
+                  },
+                  {
+                    "kind": "REDACTED",
+                    "reason": "INSUFFICIENT_PERMISSION"
+                  }
+                ],
+                "warningCodes": [],
+                "dependencies": [
+                  "ORDER_EVIDENCE"
+                ]
+              },
+              "stopTrigger": {
+                "value": null,
+                "unit": "PRICE",
+                "currency": "USD",
+                "status": "NOT_APPLICABLE",
+                "origin": "UNKNOWN",
+                "method": "NOT_APPLICABLE",
+                "asOf": "2026-10-14T19:21:00Z",
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [],
+                "dependencies": []
+              },
+              "legs": [
+                {
+                  "action": "BUY_TO_OPEN",
+                  "requestedQuantity": "1",
+                  "instrument": {
+                    "href": "/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154"
+                  },
+                  "filledQuantity": {
+                    "value": "0",
+                    "unit": "CONTRACT",
+                    "currency": null,
+                    "status": "QUALIFIED",
+                    "origin": "WHEELWRIGHT_DERIVED",
+                    "method": "OBSERVED_REPORTED_FILL_SUM",
+                    "asOf": "2026-10-14T19:21:00Z",
+                    "assumptions": [],
+                    "evidence": [
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      },
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      }
+                    ],
+                    "warningCodes": [],
+                    "dependencies": [
+                      "ORDER_EVIDENCE"
+                    ]
+                  },
+                  "fillsCoverage": "COMPLETE_REPORTED",
+                  "fills": []
+                },
+                {
+                  "action": "SELL_TO_OPEN",
+                  "requestedQuantity": "1",
+                  "instrument": {
+                    "href": "/v2/instruments/b703f655-410f-39b6-8bec-88b4fe970cf2"
+                  },
+                  "filledQuantity": {
+                    "value": "0",
+                    "unit": "CONTRACT",
+                    "currency": null,
+                    "status": "QUALIFIED",
+                    "origin": "WHEELWRIGHT_DERIVED",
+                    "method": "OBSERVED_REPORTED_FILL_SUM",
+                    "asOf": "2026-10-14T19:21:00Z",
+                    "assumptions": [],
+                    "evidence": [
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      },
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      }
+                    ],
+                    "warningCodes": [],
+                    "dependencies": [
+                      "ORDER_EVIDENCE"
+                    ]
+                  },
+                  "fillsCoverage": "COMPLETE_REPORTED",
+                  "fills": []
+                },
+                {
+                  "action": "SELL_TO_OPEN",
+                  "requestedQuantity": "1",
+                  "instrument": {
+                    "href": "/v2/instruments/02693a11-5479-3d9e-ac36-daa84b4a315f"
+                  },
+                  "filledQuantity": {
+                    "value": "0",
+                    "unit": "CONTRACT",
+                    "currency": null,
+                    "status": "QUALIFIED",
+                    "origin": "WHEELWRIGHT_DERIVED",
+                    "method": "OBSERVED_REPORTED_FILL_SUM",
+                    "asOf": "2026-10-14T19:21:00Z",
+                    "assumptions": [],
+                    "evidence": [
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      },
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      }
+                    ],
+                    "warningCodes": [],
+                    "dependencies": [
+                      "ORDER_EVIDENCE"
+                    ]
+                  },
+                  "fillsCoverage": "COMPLETE_REPORTED",
+                  "fills": []
+                },
+                {
+                  "action": "BUY_TO_OPEN",
+                  "requestedQuantity": "1",
+                  "instrument": {
+                    "href": "/v2/instruments/949f9c49-5b97-330b-9173-f10530af86da"
+                  },
+                  "filledQuantity": {
+                    "value": "0",
+                    "unit": "CONTRACT",
+                    "currency": null,
+                    "status": "QUALIFIED",
+                    "origin": "WHEELWRIGHT_DERIVED",
+                    "method": "OBSERVED_REPORTED_FILL_SUM",
+                    "asOf": "2026-10-14T19:21:00Z",
+                    "assumptions": [],
+                    "evidence": [
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      },
+                      {
+                        "kind": "REDACTED",
+                        "reason": "INSUFFICIENT_PERMISSION"
+                      }
+                    ],
+                    "warningCodes": [],
+                    "dependencies": [
+                      "ORDER_EVIDENCE"
+                    ]
+                  },
+                  "fillsCoverage": "COMPLETE_REPORTED",
+                  "fills": []
+                }
+              ],
+              "priceConvention": {
+                "unit": "PER_UNDERLYING_UNIT",
+                "multiplier": null,
+                "packageQuantity": "1"
+              },
+              "associations": [],
+              "evidence": [
+                {
+                  "kind": "REDACTED",
+                  "reason": "INSUFFICIENT_PERMISSION"
+                },
+                {
+                  "kind": "REDACTED",
+                  "reason": "INSUFFICIENT_PERMISSION"
+                }
+              ],
+              "warnings": [
+                {
+                  "code": "ASSOCIATION_UNRESOLVED",
+                  "affected": [
+                    "/associations"
+                  ],
+                  "establishedFacts": [
+                    "Broker instruction and reported fills remain inspectable."
+                  ],
+                  "incompleteConclusions": [
+                    "Holdings similarity alone does not establish a Position or Construction association."
+                  ],
+                  "evidence": [],
+                  "remediation": []
+                }
+              ]
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/instruments": {
+      "summary": "List instruments",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/instruments'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "summary",
+              "items": [
+                {
+                  "id": "9a88555b-fe6f-3d2b-88ac-9ea55166afbd",
+                  "kind": "OPTION",
+                  "symbol": "-SPY261016C550",
+                  "currency": "USD",
+                  "self": {
+                    "href": "/v2/instruments/9a88555b-fe6f-3d2b-88ac-9ea55166afbd"
+                  },
+                  "brokerAliases": [
+                    {
+                      "broker": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "identifier": "-SPY261016C550"
+                    }
+                  ],
+                  "evidence": [],
+                  "warnings": [],
+                  "option": null
+                },
+                {
+                  "id": "ac554173-92d2-33c4-bc92-cca96b239041",
+                  "kind": "EQUITY",
+                  "symbol": "SPY",
+                  "currency": "USD",
+                  "self": {
+                    "href": "/v2/instruments/ac554173-92d2-33c4-bc92-cca96b239041"
+                  },
+                  "brokerAliases": [
+                    {
+                      "broker": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "identifier": "SPY"
+                    }
+                  ],
+                  "evidence": [],
+                  "warnings": [],
+                  "option": null
+                },
+                {
+                  "id": "b4ffff36-8eba-3604-a947-c656f783e8f8",
+                  "kind": "OPTION",
+                  "symbol": "-SPY261016C560",
+                  "currency": "USD",
+                  "self": {
+                    "href": "/v2/instruments/b4ffff36-8eba-3604-a947-c656f783e8f8"
+                  },
+                  "brokerAliases": [
+                    {
+                      "broker": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "identifier": "-SPY261016C560"
+                    }
+                  ],
+                  "evidence": [],
+                  "warnings": [],
+                  "option": null
+                },
+                {
+                  "id": "bc505197-7098-3dc3-bdf6-3fbf0c3f5c19",
+                  "kind": "OTHER",
+                  "symbol": "SPAXX**",
+                  "currency": "USD",
+                  "option": null,
+                  "self": {
+                    "href": "/v2/instruments/bc505197-7098-3dc3-bdf6-3fbf0c3f5c19"
+                  },
+                  "brokerAliases": [
+                    {
+                      "broker": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "identifier": "SPAXX**"
+                    }
+                  ],
+                  "evidence": [],
+                  "warnings": []
+                }
+              ],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/instruments/{instrumentId}": {
+      "summary": "Read instrument",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/instruments/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "a0c92983-957e-3700-a66a-84eae8a53154",
+              "kind": "OPTION",
+              "symbol": "UNG   261127C00014000",
+              "currency": "USD",
+              "option": null,
+              "self": {
+                "href": "/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154"
+              },
+              "brokerAliases": [
+                {
+                  "broker": "TASTYTRADE",
+                  "environment": "PRODUCTION",
+                  "identifier": "UNG   261127C00014000"
+                }
+              ],
+              "evidence": [],
+              "warnings": []
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/market-observations": {
+      "summary": "List market observations",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/market-observations'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "summary",
+              "items": [],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/market-observations/{observationId}": {
+      "summary": "Read market observation",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/market-observations/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "f02abcd0-b7d2-3423-8205-5bda83587f85",
+              "provider": "TASTYTRADE",
+              "environment": "PRODUCTION",
+              "receivedAt": "2026-10-14T19:22:00Z",
+              "session": "UNKNOWN",
+              "freshness": "UNKNOWN",
+              "self": {
+                "href": "/v2/market-observations/f02abcd0-b7d2-3423-8205-5bda83587f85"
+              },
+              "account": {
+                "href": "/v2/accounts/acct_db2374f7408e41628d3afd3f22317c29"
+              },
+              "instrument": {
+                "href": "/v2/instruments/f9842506-9851-3f86-b2dc-53441d1f82d9"
+              },
+              "observedAt": "2026-10-14T19:21:12.715Z",
+              "evidence": [
+                {
+                  "kind": "ACCOUNT_SOURCE",
+                  "account": {
+                    "href": "/v2/accounts/acct_db2374f7408e41628d3afd3f22317c29"
+                  },
+                  "requiredCapability": "account.market.read:acct_db2374f7408e41628d3afd3f22317c29",
+                  "artifact": {
+                    "href": "/v2/artifacts/cc6e96b0-a66f-4889-a0d3-b18863aa51fa"
+                  },
+                  "recordKey": "/data/items/1",
+                  "locator": {
+                    "kind": "JSON_POINTER",
+                    "value": "/data/items/1"
+                  },
+                  "provider": "TASTYTRADE",
+                  "environment": "PRODUCTION",
+                  "observedAt": "2026-10-14T19:21:12.715Z",
+                  "observationPrecision": "INSTANT",
+                  "observationDate": "2026-10-14",
+                  "receivedAt": "2026-10-14T19:22:00Z",
+                  "timeAuthority": "SOURCE"
+                }
+              ],
+              "warnings": [
+                {
+                  "code": "TERMS_UNAVAILABLE",
+                  "affected": [
+                    "/mid"
+                  ],
+                  "establishedFacts": [
+                    "Original source prices remain inspectable."
+                  ],
+                  "incompleteConclusions": [
+                    "Quote currency is not established by the admitted source profile."
+                  ],
+                  "evidence": [],
+                  "remediation": []
+                }
+              ],
+              "bid": {
+                "value": null,
+                "unit": "PRICE",
+                "currency": null,
+                "status": "INCOMPLETE",
+                "origin": "UNKNOWN",
+                "method": "EVIDENCE_UNAVAILABLE",
+                "asOf": null,
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [
+                  "TERMS_UNAVAILABLE"
+                ],
+                "dependencies": []
+              },
+              "ask": {
+                "value": null,
+                "unit": "PRICE",
+                "currency": null,
+                "status": "INCOMPLETE",
+                "origin": "UNKNOWN",
+                "method": "EVIDENCE_UNAVAILABLE",
+                "asOf": null,
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [
+                  "TERMS_UNAVAILABLE"
+                ],
+                "dependencies": []
+              },
+              "mid": {
+                "value": null,
+                "unit": "PRICE",
+                "currency": null,
+                "status": "INCOMPLETE",
+                "origin": "UNKNOWN",
+                "method": "EVIDENCE_UNAVAILABLE",
+                "asOf": null,
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [
+                  "TERMS_UNAVAILABLE"
+                ],
+                "dependencies": []
+              },
+              "mark": {
+                "value": null,
+                "unit": "PRICE",
+                "currency": null,
+                "status": "INCOMPLETE",
+                "origin": "UNKNOWN",
+                "method": "EVIDENCE_UNAVAILABLE",
+                "asOf": null,
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [
+                  "TERMS_UNAVAILABLE"
+                ],
+                "dependencies": []
+              }
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/constructions/models": {
+      "summary": "List construction models",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "summary",
+              "items": [
+                {
+                  "id": "BUY_WRITE",
+                  "self": {
+                    "href": "/v2/constructions/models/BUY_WRITE"
+                  },
+                  "name": "BUY WRITE",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/BUY_WRITE/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "CALL_BROKEN_WING_BUTTERFLY",
+                  "self": {
+                    "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY"
+                  },
+                  "name": "CALL BROKEN WING BUTTERFLY",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/CALL_BROKEN_WING_BUTTERFLY/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "CASH",
+                  "self": {
+                    "href": "/v2/constructions/models/CASH"
+                  },
+                  "name": "CASH",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/CASH/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "CASH_SECURED_PUT",
+                  "self": {
+                    "href": "/v2/constructions/models/CASH_SECURED_PUT"
+                  },
+                  "name": "CASH SECURED PUT",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/CASH_SECURED_PUT/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "COVERED_CALL",
+                  "self": {
+                    "href": "/v2/constructions/models/COVERED_CALL"
+                  },
+                  "name": "COVERED CALL",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/COVERED_CALL/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "IRON_CONDOR",
+                  "self": {
+                    "href": "/v2/constructions/models/IRON_CONDOR"
+                  },
+                  "name": "IRON CONDOR",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/IRON_CONDOR/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "LONG_SHARES",
+                  "self": {
+                    "href": "/v2/constructions/models/LONG_SHARES"
+                  },
+                  "name": "LONG SHARES",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/LONG_SHARES/versions/1"
+                    }
+                  ]
+                },
+                {
+                  "id": "REVERSE_JADE_LIZARD",
+                  "self": {
+                    "href": "/v2/constructions/models/REVERSE_JADE_LIZARD"
+                  },
+                  "name": "REVERSE JADE LIZARD",
+                  "versions": [
+                    {
+                      "href": "/v2/constructions/models/REVERSE_JADE_LIZARD/versions/1"
+                    }
+                  ]
+                }
+              ],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/constructions/models/{modelId}": {
+      "summary": "Read construction model",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models/COVERED_CALL'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "CASH",
+              "self": {
+                "href": "/v2/constructions/models/CASH"
+              },
+              "name": "CASH",
+              "versions": [
+                {
+                  "href": "/v2/constructions/models/CASH/versions/1"
+                }
+              ]
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/constructions/models/{modelId}/versions/{versionId}": {
+      "summary": "Read construction model version",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/constructions/models/COVERED_CALL/versions/1'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "self": {
+                "href": "/v2/constructions/models/CASH/versions/1"
+              },
+              "family": {
+                "href": "/v2/constructions/models/CASH"
+              },
+              "version": "1",
+              "createdAt": "2026-10-20T18:00:00Z",
+              "roles": [
+                {
+                  "name": "CASH",
+                  "kind": "CASH",
+                  "side": "LONG",
+                  "unit": "MONEY",
+                  "ratio": "1",
+                  "optionRight": null,
+                  "modelVersion": null
+                }
+              ],
+              "constraints": [
+                {
+                  "kind": "SAME_ACCOUNT",
+                  "roles": [
+                    "CASH"
+                  ],
+                  "relation": null,
+                  "ratio": null
+                },
+                {
+                  "kind": "SAME_CURRENCY",
+                  "roles": [
+                    "CASH"
+                  ],
+                  "relation": null,
+                  "ratio": null
+                },
+                {
+                  "kind": "EVIDENCED_MEMBERSHIP",
+                  "roles": [
+                    "CASH"
+                  ],
+                  "relation": null,
+                  "ratio": null
+                }
+              ],
+              "valuation": {
+                "kind": "SIGNED_CONSTITUENT_SUM",
+                "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+                "primitives": [
+                  "CASH_CONSTANT",
+                  "SHARES_LINEAR",
+                  "OPTION_INTRINSIC"
+                ]
+              },
+              "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/positions/{positionId}/audit": {
+      "summary": "List position audit",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions/11111111-1111-4111-8111-111111111111/audit'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "projection": "expanded",
+              "items": [
+                {
+                  "id": "1b6324c1-9024-4c9e-ad37-f3f9381bc662",
+                  "recordedAt": "2026-10-22T17:50:19.351991Z",
+                  "kind": "STATE_ASSERTION",
+                  "self": {
+                    "href": "/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893/audit/1b6324c1-9024-4c9e-ad37-f3f9381bc662"
+                  },
+                  "account": {
+                    "href": "/v2/accounts/acct_91b319726c204593921b2fd2a2de4d00"
+                  },
+                  "position": {
+                    "href": "/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893"
+                  },
+                  "beforeState": null,
+                  "beforeConstruction": null,
+                  "afterState": "UNRESOLVED",
+                  "afterConstruction": {
+                    "href": "/v2/constructions/cbea6d8f-ba2c-40ee-a40f-fc7b5e03767d"
+                  },
+                  "evidence": [
+                    {
+                      "kind": "ACCOUNT_SOURCE",
+                      "account": {
+                        "href": "/v2/accounts/acct_91b319726c204593921b2fd2a2de4d00"
+                      },
+                      "requiredCapability": "account.holdings.read:acct_91b319726c204593921b2fd2a2de4d00",
+                      "artifact": {
+                        "href": "/v2/artifacts/5aab1476-4bb3-4cef-9916-af538271109b"
+                      },
+                      "recordKey": "2",
+                      "locator": {
+                        "kind": "CSV_ROW",
+                        "value": "2"
+                      },
+                      "provider": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "observedAt": null,
+                      "observationPrecision": "DAY",
+                      "observationDate": "2026-10-05",
+                      "receivedAt": "2026-10-22T17:50:19.314511Z",
+                      "timeAuthority": "SOURCE"
+                    }
+                  ],
+                  "warnings": []
+                }
+              ],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/positions/{positionId}/audit/{auditId}": {
+      "summary": "Read position audit",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/positions/11111111-1111-4111-8111-111111111111/audit/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "1b6324c1-9024-4c9e-ad37-f3f9381bc662",
+              "recordedAt": "2026-10-22T17:50:19.351991Z",
+              "kind": "STATE_ASSERTION",
+              "self": {
+                "href": "/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893/audit/1b6324c1-9024-4c9e-ad37-f3f9381bc662"
+              },
+              "account": {
+                "href": "/v2/accounts/acct_91b319726c204593921b2fd2a2de4d00"
+              },
+              "position": {
+                "href": "/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893"
+              },
+              "beforeState": null,
+              "beforeConstruction": null,
+              "afterState": "UNRESOLVED",
+              "afterConstruction": {
+                "href": "/v2/constructions/cbea6d8f-ba2c-40ee-a40f-fc7b5e03767d"
+              },
+              "evidence": [
+                {
+                  "kind": "ACCOUNT_SOURCE",
+                  "account": {
+                    "href": "/v2/accounts/acct_91b319726c204593921b2fd2a2de4d00"
+                  },
+                  "requiredCapability": "account.holdings.read:acct_91b319726c204593921b2fd2a2de4d00",
+                  "artifact": {
+                    "href": "/v2/artifacts/5aab1476-4bb3-4cef-9916-af538271109b"
+                  },
+                  "recordKey": "2",
+                  "locator": {
+                    "kind": "CSV_ROW",
+                    "value": "2"
+                  },
+                  "provider": "FIDELITY",
+                  "environment": "PRODUCTION",
+                  "observedAt": null,
+                  "observationPrecision": "DAY",
+                  "observationDate": "2026-10-05",
+                  "receivedAt": "2026-10-22T17:50:19.314511Z",
+                  "timeAuthority": "SOURCE"
+                }
+              ],
+              "warnings": []
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/accounts/{accountId}/inventory-reconciliation": {
+      "summary": "Read inventory reconciliation",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/inventory-reconciliation'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "asOf": "2026-10-22T17:50:16.208574Z",
+              "coverage": "COMPLETE_CURRENT_ALLOCATIONS",
+              "account": {
+                "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+              },
+              "balances": [
+                {
+                  "allocated": "1234.56",
+                  "residual": "0",
+                  "status": "RECONCILED",
+                  "availability": "UNKNOWN",
+                  "inventory": {
+                    "key": "settled-cash:USD",
+                    "side": "LONG",
+                    "quantity": "1234.56",
+                    "unit": "MONEY",
+                    "account": {
+                      "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                    },
+                    "instrument": null,
+                    "currency": "USD",
+                    "evidence": [
+                      {
+                        "kind": "ACCOUNT_SOURCE",
+                        "account": {
+                          "href": "/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0"
+                        },
+                        "requiredCapability": "account.holdings.read:acct_705e2df2c20946c284a64bd3bf8562d0",
+                        "artifact": {
+                          "href": "/v2/artifacts/8af11b17-bf4f-30a8-a962-1856a0481650"
+                        },
+                        "recordKey": "/data/cash-balance",
+                        "locator": {
+                          "kind": "JSON_POINTER",
+                          "value": "/data/cash-balance"
+                        },
+                        "provider": "TASTYTRADE",
+                        "environment": "PRODUCTION",
+                        "observedAt": "2026-10-14T12:34:56Z",
+                        "observationPrecision": "INSTANT",
+                        "observationDate": "2026-10-14",
+                        "receivedAt": "2026-10-22T17:50:16.194395000Z",
+                        "timeAuthority": "SOURCE"
+                      }
+                    ],
+                    "holding": {
+                      "href": "/v2/holdings/7c9b32cd-6d63-32de-b1ee-fbd6c0f10575"
+                    }
+                  },
+                  "currentConstructions": [
+                    {
+                      "href": "/v2/constructions/7dba7537-2870-4bc9-a683-c05aca6e7eda"
+                    }
+                  ]
+                }
+              ],
+              "warnings": [],
+              "coverageAssessments": []
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/holdings": {
+      "summary": "List broker holdings",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/holdings'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "view": "observations",
+              "items": [
+                {
+                  "snapshotId": "b2bbaae247267634e13836104185529e1a9812d21107c272b3242b2ce08d2ac6",
+                  "evidenceDate": "2026-10-05",
+                  "dateBasis": "SOURCE_EXPORT_DAY",
+                  "recordedAt": "2026-10-22T17:50:13.978265Z",
+                  "source": "FIDELITY",
+                  "holdingCount": 5,
+                  "sourceSha256": "67ee6d8cb4bf65038b0aa23a10633d538759e967261fa87f42c4c739bccf4bb7",
+                  "account": {
+                    "href": "/v2/accounts/acct_31dafd6102c548819fc4daccd6659066"
+                  },
+                  "holdings": {
+                    "href": "/v2/holdings?accountId=acct_31dafd6102c548819fc4daccd6659066&snapshotId=b2bbaae247267634e13836104185529e1a9812d21107c272b3242b2ce08d2ac6"
+                  },
+                  "evidence": [
+                    {
+                      "kind": "ACCOUNT_SOURCE",
+                      "account": {
+                        "href": "/v2/accounts/acct_31dafd6102c548819fc4daccd6659066"
+                      },
+                      "requiredCapability": "account.holdings.read:acct_31dafd6102c548819fc4daccd6659066",
+                      "artifact": {
+                        "href": "/v2/artifacts/866f92ca-ff70-4312-8663-19eb887e86a6"
+                      },
+                      "recordKey": "1",
+                      "locator": {
+                        "kind": "CSV_ROW",
+                        "value": "1"
+                      },
+                      "provider": "FIDELITY",
+                      "environment": "PRODUCTION",
+                      "observedAt": null,
+                      "observationPrecision": "DAY",
+                      "observationDate": "2026-10-05",
+                      "receivedAt": "2026-10-22T17:50:13.978265Z",
+                      "timeAuthority": "SOURCE"
+                    }
+                  ],
+                  "qualifications": [
+                    "Retained source observation; no complete brokerage history or financial-lifecycle assertion. Source date and backend receipt remain distinct."
+                  ]
+                }
+              ],
+              "warnings": [],
+              "next": null
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    },
+    "/v2/holdings/{holdingId}": {
+      "summary": "Read broker holding",
+      "externalDocs": {
+        "description": "Wheelwright v2 domain and evidence contract",
+        "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/api-v2/README.md"
+      },
+      "x-codeSamples": [
+        {
+          "lang": "cURL",
+          "label": "Synthetic cURL",
+          "source": "curl --request GET 'https://api.example.invalid/v2/holdings/11111111-1111-4111-8111-111111111111'"
+        }
+      ],
+      "examples": {
+        "200": {
+          "synthetic": {
+            "summary": "Synthetic deterministic backend response; independent example, not live financial evidence",
+            "value": {
+              "id": "3f22ae06-17b6-316e-8533-6b9d8f64c2b3",
+              "snapshotId": "97a8e81f36c061381191d74a935d0b367c659aab1f2c4b71e8e018d1a1c05aae",
+              "snapshotCoverage": "COMPLETE_REPORTED",
+              "side": "SHORT",
+              "quantity": "2",
+              "unit": "CONTRACT",
+              "kind": "SECURITY",
+              "self": {
+                "href": "/v2/holdings/3f22ae06-17b6-316e-8533-6b9d8f64c2b3"
+              },
+              "account": {
+                "href": "/v2/accounts/acct_d52802bf248b4a8f8212cd98a51e3dc7"
+              },
+              "instrument": {
+                "href": "/v2/instruments/9a88555b-fe6f-3d2b-88ac-9ea55166afbd"
+              },
+              "sourceInstrument": {
+                "broker": "FIDELITY",
+                "environment": "PRODUCTION",
+                "identifier": "-SPY261016C550"
+              },
+              "observedAt": null,
+              "observationDate": "2026-10-05",
+              "receivedAt": "2026-10-22T17:50:27.360147Z",
+              "evidence": [
+                {
+                  "kind": "ACCOUNT_SOURCE",
+                  "account": {
+                    "href": "/v2/accounts/acct_d52802bf248b4a8f8212cd98a51e3dc7"
+                  },
+                  "requiredCapability": "account.holdings.read:acct_d52802bf248b4a8f8212cd98a51e3dc7",
+                  "artifact": {
+                    "href": "/v2/artifacts/2b3b9ab1-809c-46ec-84d2-b2a786caff85"
+                  },
+                  "recordKey": "3",
+                  "locator": {
+                    "kind": "CSV_ROW",
+                    "value": "3"
+                  },
+                  "provider": "FIDELITY",
+                  "environment": "PRODUCTION",
+                  "observedAt": null,
+                  "observationPrecision": "DAY",
+                  "observationDate": "2026-10-05",
+                  "receivedAt": "2026-10-22T17:50:27.360147Z",
+                  "timeAuthority": "SOURCE"
+                }
+              ],
+              "warnings": [
+                {
+                  "code": "ASSOCIATION_UNRESOLVED",
+                  "affected": [
+                    "/snapshotId"
+                  ],
+                  "establishedFacts": [
+                    "This retained custody observation is independently inspectable."
+                  ],
+                  "incompleteConclusions": [
+                    "Repeated observations are not economic events. Position occurrence continuity and any ambiguous or incompatible prior association remain unresolved."
+                  ],
+                  "evidence": [],
+                  "remediation": []
+                }
+              ],
+              "reportedMarketValue": {
+                "value": "-200",
+                "unit": "MONEY",
+                "currency": "USD",
+                "status": "QUALIFIED",
+                "origin": "BROKER_REPORTED",
+                "method": "BROKER_REPORTED_MARKET_VALUE",
+                "asOf": null,
+                "assumptions": [],
+                "evidence": [
+                  {
+                    "kind": "ACCOUNT_SOURCE",
+                    "account": {
+                      "href": "/v2/accounts/acct_d52802bf248b4a8f8212cd98a51e3dc7"
+                    },
+                    "requiredCapability": "account.holdings.read:acct_d52802bf248b4a8f8212cd98a51e3dc7",
+                    "artifact": {
+                      "href": "/v2/artifacts/2b3b9ab1-809c-46ec-84d2-b2a786caff85"
+                    },
+                    "recordKey": "3",
+                    "locator": {
+                      "kind": "CSV_ROW",
+                      "value": "3"
+                    },
+                    "provider": "FIDELITY",
+                    "environment": "PRODUCTION",
+                    "observedAt": null,
+                    "observationPrecision": "DAY",
+                    "observationDate": "2026-10-05",
+                    "receivedAt": "2026-10-22T17:50:27.360147Z",
+                    "timeAuthority": "SOURCE"
+                  }
+                ],
+                "warningCodes": [],
+                "dependencies": []
+              },
+              "reportedOpenPl": {
+                "value": null,
+                "unit": "MONEY",
+                "currency": "USD",
+                "status": "INCOMPLETE",
+                "origin": "UNKNOWN",
+                "method": "EVIDENCE_UNAVAILABLE",
+                "asOf": null,
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [
+                  "BROKER_EVALUATION_BASIS_UNVERIFIED"
+                ],
+                "dependencies": []
+              },
+              "reportedCapitalRequirement": {
+                "value": null,
+                "unit": "MONEY",
+                "currency": "USD",
+                "status": "INCOMPLETE",
+                "origin": "UNKNOWN",
+                "method": "EVIDENCE_UNAVAILABLE",
+                "asOf": "2026-10-22T17:50:27.406879Z",
+                "assumptions": [],
+                "evidence": [],
+                "warningCodes": [
+                  "TERMS_UNAVAILABLE"
+                ],
+                "dependencies": []
+              }
+            }
+          }
+        },
+        "401": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:unauthenticated",
+              "title": "Unauthenticated",
+              "status": 401,
+              "code": "UNAUTHENTICATED",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "403": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:forbidden",
+              "title": "Forbidden",
+              "status": 403,
+              "code": "FORBIDDEN",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "404": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:not_found",
+              "title": "Not found",
+              "status": 404,
+              "code": "NOT_FOUND",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "422": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:invalid_request",
+              "title": "Invalid request",
+              "status": 422,
+              "code": "INVALID_REQUEST",
+              "requestId": "11111111-1111-4111-8111-111111111111",
+              "invalidParams": [
+                {
+                  "name": "request",
+                  "reason": "Synthetic invalid request"
+                }
+              ]
+            }
+          }
+        },
+        "503": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:capability_unavailable",
+              "title": "Capability unavailable",
+              "status": 503,
+              "code": "CAPABILITY_UNAVAILABLE",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        },
+        "500": {
+          "synthetic": {
+            "summary": "Synthetic operation failure",
+            "value": {
+              "type": "urn:wheelwright:problem:internal_error",
+              "title": "Internal error",
+              "status": 500,
+              "code": "INTERNAL_ERROR",
+              "requestId": "11111111-1111-4111-8111-111111111111"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -54,6 +54,14 @@ for path,item in module['paths'].items():
    response['headers']=copy.deepcopy(op['responses']['200']['headers'])
    if status==401:response['headers']['WWW-Authenticate']={'required':True,'schema':{'const':'Bearer'}}
 module['x-implementation-handoff']='docs/discovery/api-v2-full-implementation-handoff-2026-10-21.md'
+# Publication annotations from deterministic synthetic Java responses; no wire constraints changed.
+annotations=json.loads((ROOT/'docs/implementation/api-v2-foundational-2026-10-21/documentation-annotations.json').read_text())['operations']
+for path,notes in annotations.items():
+ op=module['paths'][path]['get']
+ for field in ['summary','externalDocs','x-codeSamples']:op[field]=copy.deepcopy(notes[field])
+ for status,examples in notes['examples'].items():
+  media='application/json' if status=='200' else 'application/problem+json'
+  op['responses'][status]['content'][media]['examples']=copy.deepcopy(examples)
 (CONTRACTS/NAME).write_text(json.dumps(module,indent=2)+'\n')
 p=CONTRACTS/COMMON;text=p.read_text()
 text=text.replace('title: Wheelwright v2 canonical evidence — quotes and accounts','title: Wheelwright v2 financial domain and source evidence').replace('version: 0.5.0-contract','version: 0.6.0-foundational')

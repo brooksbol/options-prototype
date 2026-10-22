@@ -39,7 +39,7 @@ for(const op of agent.operations){
  const expected=agent.publicOperationIds.includes(op.operationId)?1:0;
  assert.equal(await page.locator(`[data-section-id="operation/${op.operationId}"]`).count(),expected,op.operationId);
 }
-assert.equal(agent.publicOperationCount,15);
+assert.equal(agent.publicOperationCount,32);
 assert.ok(body.includes('Identity'));
 for(const path of ['/v2/users','/v2/position-acquisitions','/v2/market-evidence-subjects']) assert.ok(!body.includes(path));
 for(const [tag,id] of [['Accounts','listAccounts'],['Quotes','listHeldDirectQuotes']]){

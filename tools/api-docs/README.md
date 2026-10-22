@@ -1,3 +1,7 @@
+# Current foundational Holdings publication — October22,2026
+
+Principal-authorized integration of independently verified b48e3c6 updates the reference to36 authoritative operations and32 public operations, preserving the existing four administrative exclusions. See [deployment record](../../docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md). The pipeline validates accepted wire/security constraints against b48e3c6, annotations/examples, every public operation, exact HTML-embedded OAS, the two-file allowlist and native browser behavior. Full recursive schemas exceeded the pinned renderer's server-side heap; the same COTS CLI generates its native shell and the existing Redoc.init renders the exact full embedded projection in the browser. No schema, operation or execution guard is omitted. Historical phase notes below retain their original standing.
+
 # Wheelwright static API reference — preview and GitHub Pages publication
 
 One authoritative API contract serves two audiences. Agents enter through [repository OAS and linked contracts](../../docs/api-v2/README.md). Humans open the generated static Redoc reference. Generated output is derived, ignored by Git and not an alternative contract authority.

@@ -26,7 +26,7 @@ def main():
     assert implemented_v2_operations() == {(m, normalized_route(p)) for m, p in operations}
     report = []; examples = 0
     for name, current in contracts.documents.items():
-        raw = subprocess.check_output(['git', 'show', '450106a:docs/contracts/' + name], cwd=ROOT, text=True)
+        raw = subprocess.check_output(['git', 'show', 'b48e3c6fc36f9a7feb6abbf97cbacff5934d477e:docs/contracts/' + name], cwd=ROOT, text=True)
         import yaml
         baseline = json.loads(raw) if name.endswith('.json') else yaml.safe_load(raw)
         assert without_documentation(baseline) == without_documentation(current), 'Wire contract changed: ' + name
@@ -94,7 +94,7 @@ def main():
     internal_ops = {(method, path) for path, item in internal['paths'].items() for method in item if method in {'get', 'post'}}
     public_ops = {(method, path) for path, item in public['paths'].items() for method in item if method in {'get', 'post'}}
     assert public_ops == internal_ops - EXCLUDED_PUBLIC
-    assert len(internal_ops) == 19 and len(public_ops) == 15
+    assert len(internal_ops) == 36 and len(public_ops) == 32
     assert public['paths']['/v2/me']['get']['tags'] == ['Identity']
     assert not any(tag['name'] in {'Users', 'Market evidence'} for tag in public['tags'])
     # Independently check native Redocly pruning: every retained component reachable.
@@ -222,6 +222,8 @@ def main():
     assert not re.findall(r'<link[^>]+href=["\']https?://', html)
     assert 'https://fonts.googleapis.com' not in html
     assert '<form' not in html.lower() and 'type="password"' not in html.lower()
+    state=re.search(r'const __redoc_state = (\{.*?\});(?=\s*var container)',html,re.S)
+    assert state and json.loads(state.group(1))['spec']['data']==public, 'HTML does not embed the exact full public contract'
     manifest = json.loads((output / 'private/provenance.json').read_text())
     assert manifest['sourceCommit'] not in html
     assert str(ROOT) not in html, 'Local path leaked into generated HTML'

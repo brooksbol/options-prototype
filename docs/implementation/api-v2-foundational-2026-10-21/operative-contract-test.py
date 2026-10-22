@@ -7,7 +7,7 @@ from v2_oas import Contracts,FOUNDATION,COMMON,ACCOUNT,implemented_v2_operations
 class OperativeIntegration(unittest.TestCase):
  def test_generation_isolated_and_byte_idempotent(self):
   script=Path(__file__).relative_to(ROOT).with_name('integrate-operative-contract.py')
-  inputs=[script,Path('docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json'),Path('docs/contracts')/COMMON,Path('docs/contracts')/ACCOUNT]
+  inputs=[script,script.with_name("documentation-annotations.json"),Path('docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json'),Path('docs/contracts')/COMMON,Path('docs/contracts')/ACCOUNT]
   outputs=[Path('docs/contracts')/name for name in [COMMON,ACCOUNT,FOUNDATION]]
   with tempfile.TemporaryDirectory() as tmp:
    target=Path(tmp)
