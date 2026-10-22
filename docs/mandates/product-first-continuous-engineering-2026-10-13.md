@@ -24,3 +24,14 @@ This is a mandate to establish enforceable proof-carrying work, not a claim that
 Engineering proceeds continuously within actual delegated authority. Proof checks should be proportional and incremental, not serial Principal approval gates. A reviewer REJECT invalidates a frozen candidate and informs model synthesis; retry still requires whatever authority the current enforcement mechanism actually grants. Consequential evidence and operational changes remain separately authorized. Changing those rules requires explicit authoritative reconciliation, not reinterpretation of this mandate.
 
 **Immediate regression specimen:** `ww show positions` must discover the accepted `tt live` visual precedent, existing Position/association semantics (Doc 58, Doc 70 and current v2 contracts), and broker-owned execution boundaries before proposing new renderer or order-lifecycle machinery. Verify that failure to recover those precedents is detected before substantial implementation. This is a proof-of-enforcement requirement, not another document acknowledgement.
+
+
+## Principal clarification — smallest thin slice (October 22, 2026)
+
+**Principal exact wording:** “the simplest thin slice is a hello world.”
+
+**Scope:** Wheelwright-wide engineering methodology, **not limited to PL-MCP-01, MCP, a particular client, or a particular workstream**. This reinforces the Product-first mandate's demand for the earliest useful working observation; it is not a new standalone ratified Principle or permission to bypass established authority.
+
+**Operational interpretation (actor inference, not additional Principal quotation):** Begin with the *simplest genuinely executable end-to-end “hello world”* that establishes basic wiring, boundaries, feedback, and observable behavior, before adding domain complexity. A hello world can prove connectivity or execution flow; **it does not prove** business-semantic correctness, authorization, privacy isolation, fitness, acceptance, or readiness for deployment. Increase scope only when the next question or falsifier requires it. Where even a hello world would cause protected changes or disclosure, authorization and safety constraints still apply.
+
+**Reconciliation and recoverability:** Applies under the existing Product-first, reuse-first, early-observation and proof-carrying engineering guidance. Future actor bootstraps must recover this through the engineering mandate, rather than treating the phrase as a special-case PL-MCP-01 specification. Associated PL-MCP-01 discovery is merely one application. No new execution or implementation authorization is created by recording this clarification.
