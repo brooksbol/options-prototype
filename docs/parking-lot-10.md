@@ -1802,3 +1802,12 @@ The Principal reports independent Kiro ACCEPT ofb48e3c6 (982 Java tests/125 repo
 
 
 **October22 subsequent observed release:** source4c659a7 pushed to main; Pages workflow39839265856 build/deploy succeeded, exact live bytes and32-operation browser/desktop/mobile checks passed. Local v2 backend remains separately verified on3101 with v1/CLI protected. [Durable release evidence](implementation/api-v2-foundational-2026-10-21/deployment-results-2026-10-22.json) and deployment record carry source/JAR/run/hash/test identities and measured latency/source limitations. No broader PL-CLI-01 completion, ww live authorization or unresolved-ontology ratification is implied.
+
+
+### PL-MCP-01 — October 22 cross-cutting first-slice clarification and 4AM stopping point
+
+**Principal exact words:** “the simplest thin slice is a hello world.” **Explicit correction:** “the simplest thin slice is a hello world is not limited to the MCP PL”.
+
+**Authority placement:** Wheelwright-wide engineering guidance is maintained in [the Product-first mandate](mandates/product-first-continuous-engineering-2026-10-13.md#principal-clarification--smallest-thin-slice-october-22-2026) and routed from `docs/AGENTS.md`. This parking-lot entry is **one application**, not the rule's owner. A minimal hello world demonstrates basic wiring, not user isolation, financial semantics or deployment fitness.
+
+**4AM continuation:** [October 22 independent-actor stopping-point snapshot](discovery/4am-pl-mcp-01-stopping-point-2026-10-22.md) preserves Kiro's pinned report summary, pending Muse/Codex reports, API v2 concurrent-revision caveats, actor independence, open `ASSIM-0002`, and resumption conditions. **Standing unchanged:** INTAKE / DISCOVERY, no Reconciliation Completion Record, no implementation authorization.
