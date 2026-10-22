@@ -224,6 +224,25 @@ public class TastytradeClient {
         catch(Exception e){throw new IllegalStateException("brokerage acquisition unavailable");}
     }
 
+    /** Requested Account settled cash only; margin and buying-power fields are retained but not modeled. */
+    public byte[] settledCashBalance(String account) throws Exception {
+        if(!configured()||!account.matches("[A-Za-z0-9]+"))throw new IllegalStateException("cash observation unavailable");
+        long expires=System.nanoTime()+deadline.toNanos();
+        try {
+            String token=accessToken(expires);
+            var request=HttpRequest.newBuilder(base.resolve("/accounts/"+account+"/balances?currency=USD")).timeout(Duration.ofSeconds(10))
+                    .header("Accept","application/json").header("Authorization","Bearer "+token).GET().build();
+            var reply=receive(request,BrokerageArtifacts.MAX_BYTES,expires);
+            if(reply.statusCode()!=200||!reply.headers().firstValue("Content-Type").orElse("").matches("(?i)application/json(?:\\s*;.*)?"))throw new IllegalStateException();
+            // Exact source bytes are retained only after a secret-exclusion check. OAuth responses never are.
+            byte[] bytes=reply.body(); String content=new String(bytes,StandardCharsets.UTF_8);
+            for(String secret:List.of(clientId,clientSecret,refreshToken,token))if(content.contains(secret))throw new IllegalStateException();
+            if(!safeDocument(TastytradeHoldings.document(bytes),List.of(clientId,clientSecret,refreshToken,token)))throw new IllegalStateException();
+            return bytes;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("cash observation unavailable");}
+        catch(Exception e){throw new IllegalStateException("cash observation unavailable");}
+    }
+
     /** Read-only per-underlying volatility metrics (tastytrade {@code /market-metrics}).
      *
      * <p>INTERIM v1 market-data read. Deliberately SEPARATE from {@link #holdings} and

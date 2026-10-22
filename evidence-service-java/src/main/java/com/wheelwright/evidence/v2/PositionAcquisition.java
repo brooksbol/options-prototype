@@ -60,13 +60,39 @@ public class PositionAcquisition {
             var observation=new PositionSnapshot.Observation("TASTYTRADE","PRODUCTION",id,started,received,TastytradeHoldings.VERSION,"REQUESTED_ACCOUNT_FULL_HOLDINGS");
             snapshot=TastytradeHoldings.parse(bytes,account,accounts.identityNamespace(accountId),artifact,hash,observation);
         }catch(Exception e){return finish(requestId,accountId,id,"REJECTED",artifact,null,started,received);}
+        snapshot=snapshot.withCash(cash(accountId,account.brokerAssociation().accountNumber()));
         return finish(requestId,accountId,id,"ACCEPTED",artifact,snapshot,started,received);
+    }
+    /** A second retained observation, not an atomic securities/cash snapshot or buying power. */
+    private PositionSnapshot.CashObservation cash(String account,String brokerAccount)throws Exception {
+        byte[] bytes;String received;
+        try{bytes=client.settledCashBalance(brokerAccount);received=timestamp();}
+        catch(Exception unavailable){return new PositionSnapshot.CashObservation("FAILED",null,null,null,null,null,null);}
+        String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        String artifact=UUID.nameUUIDFromBytes((account+"|"+hash).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString(),attempt=UUID.randomUUID().toString();
+        try(var c=connect()){
+            c.setAutoCommit(false);
+            try{
+                try(var q=c.prepareStatement("SELECT artifact_id FROM brokerage_artifact WHERE account=? AND sha256=?")){q.setString(1,account);q.setString(2,hash);try(var rows=q.executeQuery()){if(rows.next())artifact=rows.getString(1);}}
+                try(var q=c.prepareStatement("INSERT OR IGNORE INTO brokerage_artifact VALUES (?,?,?,?,?,?,?)")){q.setString(1,account);q.setString(2,artifact);q.setString(3,hash);q.setString(4,"application/json");q.setInt(5,bytes.length);q.setBytes(6,bytes);q.setString(7,received);q.executeUpdate();}
+                try(var q=c.prepareStatement("INSERT INTO brokerage_import VALUES (?,?,?,?,?,?,?,?)")){q.setString(1,account);q.setString(2,attempt);q.setString(3,artifact);q.setString(4,"tastytrade-balances.json");q.setString(5,"API_BALANCES");q.setString(6,received);q.setString(7,"PENDING");q.setString(8,"Retained settled-cash source; no buying-power or reservation interpretation.");q.executeUpdate();}
+                c.commit();
+            }catch(Exception e){c.rollback();throw e;}
+        }
+        PositionSnapshot.CashObservation result;
+        try{result=TastytradeCashBalance.parse(bytes,brokerAccount,artifact,received);}
+        catch(Exception rejected){result=new PositionSnapshot.CashObservation("REJECTED",null,null,artifact,received,null,null);}
+        try(var c=connect();var q=c.prepareStatement("UPDATE brokerage_import SET status=?,result=? WHERE account=? AND import_id=?")){
+            q.setString(1,result.status().equals("REJECTED")?"REJECTED":"ACCEPTED");q.setString(2,"Settled-cash observation: "+result.status()+". Securities and cash receipts are separate; no atomic cut, buying power or reservation asserted.");q.setString(3,account);q.setString(4,attempt);q.executeUpdate();
+        }
+        return result;
     }
     private Result finish(String requestId,String account,String id,String status,String artifact,PositionSnapshot snapshot,
             String started,String received)throws Exception {
         String completed=timestamp();
         String result=status.equals("ACCEPTED")?"Holdings observation admitted. Occurrence, opening economics, orders and Program applicability unresolved.":
                 "Acquisition not admitted. Previous successful holdings observation preserved; freshness has not advanced.";
+        if(snapshot!=null&&snapshot.cashObservation()!=null)result+=" Companion settled-cash outcome: "+snapshot.cashObservation().status()+"; separately timed source, not buying power or reservation.";
         try(var c=connect()) {
             c.setAutoCommit(false);
             try {

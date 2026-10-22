@@ -155,7 +155,7 @@ class TastytradeAcquisitionTest {
             assertThat(mvc.perform(get("/v2/positions").param("accountId",id).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(200);
             String selected=mapper.readTree(response.getContentAsString()).path("snapshotId").asText();
             for(String query:List.of("&view=observations","&snapshotId="+selected))assertThat(mvc.perform(get("/v2/positions?accountId="+id+query).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(200);
-            assertThat(requests.get()).isEqualTo(1);assertThat(oauth.get()).isEqualTo(1);
+            assertThat(requests.get()).isEqualTo(1);assertThat(oauth.get()).isEqualTo(2); // Separate read-only settled-cash attempt (404 in this fixture).
             String artifact=mapper.readTree(response.getContentAsString()).path("artifactId").asText();
             assertThat(mvc.perform(get("/v2/artifacts/"+artifact+"/content").header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(403);
             users.bootstrap("reader",Set.of("account.artifacts.read:"+id));

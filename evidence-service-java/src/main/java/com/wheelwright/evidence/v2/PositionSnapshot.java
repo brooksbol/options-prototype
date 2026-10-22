@@ -7,7 +7,15 @@ import java.util.List;
 public record PositionSnapshot(String account, String brokerAccount, String accountName,
         String snapshotId, String evidenceDate, String recordedAt, String sourceFile,
         String sourceSha256, String artifactId, List<Constituent> holdings,
-        List<Association> associations, int excludedNonPositionRows, Observation observation) {
+        List<Association> associations, int excludedNonPositionRows, Observation observation,
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) CashObservation cashObservation) {
+    /** Companion settled-cash evidence; neither buying power nor a brokerage accounting ledger. */
+    public record CashObservation(String status,BigDecimal balance,String currency,String artifactId,String receivedAt,String observedAt,String observationDate) {}
+    public PositionSnapshot(String account,String brokerAccount,String accountName,String snapshotId,String evidenceDate,String recordedAt,
+            String sourceFile,String sourceSha256,String artifactId,List<Constituent> holdings,List<Association> associations,int excludedNonPositionRows,Observation observation) {
+        this(account,brokerAccount,accountName,snapshotId,evidenceDate,recordedAt,sourceFile,sourceSha256,artifactId,holdings,associations,excludedNonPositionRows,observation,null);
+    }
+    public PositionSnapshot withCash(CashObservation cash){return new PositionSnapshot(account,brokerAccount,accountName,snapshotId,evidenceDate,recordedAt,sourceFile,sourceSha256,artifactId,holdings,associations,excludedNonPositionRows,observation,cash);}
     public record Observation(String broker, String environment, String acquisitionId, String startedAt,
             String receivedAt, String interpretationVersion, String sourceScope) {}
     public PositionSnapshot(String account,String brokerAccount,String accountName,String snapshotId,String evidenceDate,String recordedAt,

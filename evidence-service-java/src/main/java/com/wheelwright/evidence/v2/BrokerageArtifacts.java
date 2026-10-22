@@ -73,6 +73,9 @@ public class BrokerageArtifacts {
                     try{var root=TastytradeHoldings.document(bytes);String brokerAccount=sourceAccount.get().brokerAssociation().accountNumber();String context=root.path("context").asText();boolean scoped=root.at("/data/items").isArray()&&(context.isBlank()||context.equals("/accounts/"+brokerAccount+"/orders"));for(var item:root.at("/data/items"))scoped&=item.path("account-number").asText().equals(brokerAccount);if(scoped)return new SourceScope(true,Set.of(owner));}catch(Exception invalid){return SourceScope.unknown();}
                 }}
             }
+            try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_BALANCES' LIMIT 1")){
+                q.setString(1,owner);q.setString(2,hash);try(var row=q.executeQuery()){if(row.next()&&TastytradeCashBalance.sourceAccount(bytes,sourceAccount.get().brokerAssociation().accountNumber()))return new SourceScope(true,Set.of(owner));}
+            }
             // Reference-feed originals have no broker Account rows. Require the backend-only
             // acquisition provenance plus the narrow source shape, not merely a missing Account field.
             try(var c=DriverManager.getConnection(url);var q=c.prepareStatement("SELECT 1 FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.account=? AND a.sha256=? AND i.file_type='API_MARKET_DATA' LIMIT 1")){

@@ -900,19 +900,19 @@
     "R07_R08_R09": {
       "status": "PARTIAL",
       "implementation": "PortfolioRecognition, PortfolioMath",
-      "tests": "PortfolioFinancialTest",
-      "remaining": "Accepted source-derived runtime recognition/market replay and full catalog constraints"
+      "tests": "PortfolioFinancialTest, PortfolioMarkParityTest, PortfolioSessionEvidenceTest, verify-mark-parity.mjs",
+      "remaining": "Whole-package Java/projectLive numerical replay and session freshness parity pass. Nested Model-role applicability, complete source-to-contract field reconciliation and whole-application acceptance remain pending."
     },
     "R10_R18": {
       "status": "PARTIAL",
-      "implementation": "PortfolioSources, PortfolioSnapshots",
-      "tests": "PortfolioContractIntegrationTest, PortfolioHttpTest, PortfolioFidelityFactsTest",
-      "remaining": "Fidelity capital and typed tastytrade quote normalization/read-through are implemented; session/contract reference qualification and broader source observation enrichment remain incomplete."
+      "implementation": "PortfolioSources, PortfolioSnapshots, PortfolioFidelityAdditionalCustody, PortfolioCashCustody, PortfolioMarketSources, PortfolioTastyMarketSources, PortfolioOptionReferenceSources, PortfolioOptionDefinitions, PortfolioReferenceEnrichment",
+      "tests": "PortfolioContractIntegrationTest, PortfolioHttpTest, PortfolioFidelityFactsTest, PortfolioUnquantifiedCustodyTest, PortfolioCashCustodyTest, PortfolioOptionReferenceTest, PortfolioMarketReadThroughTest",
+      "remaining": "Implemented retained custody/cash, session and requested native contract qualification. Full source/property/route reconciliation and operative conformance remain pending; no live brokerage or complete history claim."
     },
     "R11_R12_R13_R14": {
       "status": "PARTIAL",
       "implementation": "PortfolioAuthorization, PortfolioController",
-      "tests": "PortfolioHttpTest, PortfolioContractIntegrationTest",
+      "tests": "PortfolioHttpTest, PortfolioContractIntegrationTest; PortfolioCashCustodyTest",
       "remaining": "Full runtime source-qualified Order timeline and original/history negative permission matrix"
     },
     "R15": {
