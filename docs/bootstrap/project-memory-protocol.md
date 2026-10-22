@@ -540,3 +540,20 @@ Both AI actors must respect mode and authorization boundaries. Noticing that doc
 > **Read before reasoning.**
 > **Reconcile while learning.**
 > **Stop before committing.**
+
+
+---
+
+## External research confidentiality — Muse (Principal instruction, October 22, 2026)
+
+**Standing:** Explicit Principal operating instruction for external Muse research handoffs. This is a project-memory/research disclosure boundary, not a new Product Principle, domain ontology decision, Muse architectural role, or authority to execute research.
+
+**Principal exact wording:** “muse must never be given internal information, e.g., Wheelwright, etc.”
+
+**Practical meaning for actor handoffs:** Muse is an **external research-only actor**. Do not give Muse the Wheelwright name, repository identity or URLs, internal project descriptions, design documents, architecture, code, operating models, client/user data, accounts, credentials, proprietary hypotheses, private experiments, internal source evidence, prior actor reports, or project-specific steering—even for the purpose of contextualizing a research question. Do not attach Wheelwright internal materials or ask Muse to bootstrap from or inspect the repository.
+
+A Muse research request must instead be a **standalone, generic external research question**, expressed without internally identifying facts or context. Muse may investigate public standards, published research, vendor documents and publicly available methods. After Muse returns independent externally sourced findings, the authorized Wheelwright actors may internally reconcile them against repository authority. This flow is **internal question sanitization → independent external research → internal reconciliation**, not an exchange of internal knowledge with Muse.
+
+**Scope and limitations:** This records the Principal's categorical confidentiality restriction, including information that might also be visible in a public repository; accessibility does not make disclosure to Muse permitted. Muse cannot act as Wheelwright architect, implementation engineer, repository reviewer or internal knowledge receiver under this rule. Actor instructions and tool configurations do not themselves prove a hard technical data-egress barrier; where automated handoffs are contemplated, separately verify payload minimization and disclosure controls. On ambiguity about whether a prompt reveals internal information, exclude the detail and formulate the external research question generically, or do not send the prompt.
+
+**Recovery / related topic:** `docs/AGENTS.md` routes fresh actors here; the `PL-MCP-01` research discussion provides a concrete triggering case without becoming the rule's sole home. No MCP implementation, new permission, data transfer or research dispatch is authorized by this documentation record.
