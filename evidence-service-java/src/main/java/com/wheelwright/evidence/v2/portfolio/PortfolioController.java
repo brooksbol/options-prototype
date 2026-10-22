@@ -21,12 +21,12 @@ public final class PortfolioController {
  public PortfolioController(PortfolioReadService service,BearerAuthenticator auth,AccountDirectory accounts){this.service=service;this.auth=auth;this.accounts=accounts;new SecureRandom().nextBytes(cursorKey);}
  @GetMapping({"/v2/positions","/v2/positions/{positionId}","/v2/constructions","/v2/constructions/{constructionId}","/v2/constructions/models","/v2/constructions/models/{modelId}","/v2/constructions/models/{modelId}/versions/{versionId}","/v2/orders","/v2/orders/{orderId}","/v2/instruments","/v2/instruments/{instrumentId}","/v2/market-observations","/v2/market-observations/{observationId}","/v2/holdings","/v2/holdings/{holdingId}","/v2/positions/{positionId}/audit","/v2/positions/{positionId}/audit/{auditId}","/v2/accounts/{accountId}/inventory-reconciliation"})
  public ResponseEntity<JsonNode> get(HttpServletRequest request,@RequestBody(required=false) byte[] body)throws Exception {
-  String supplied=request.getHeader("X-Request-Id");String id=validUuid(supplied)?supplied:UUID.randomUUID().toString();
+  var ids=Collections.list(request.getHeaders("X-Request-Id"));String supplied=ids.size()==1?ids.getFirst().trim():"";boolean badCorrelation=ids.size()>1||!supplied.isEmpty()&&!validUuid(supplied);String id=!badCorrelation&&!supplied.isEmpty()?supplied:UUID.randomUUID().toString();
   if(!auth.configured())return problem(503,"CAPABILITY_UNAVAILABLE",id,"Authentication unavailable");var identity=auth.authenticate(request.getHeader("Authorization"));if(identity.isEmpty())return problem(401,"UNAUTHENTICATED",id,"Missing or invalid Bearer credential");var caller=identity.get();
   String path=request.getRequestURI();Kind kind=kind(path);String account=request.getParameter("accountId");boolean recon=path.endsWith("/inventory-reconciliation");if(recon)account=path.split("/")[3];
   if(account!=null&&!caller.hasGrant(kind==Kind.MARKET_OBSERVATION?"account.market.read:"+account:PortfolioAuthorization.grant(kind,account)))return problem(403,"FORBIDDEN",id,"Account capability required");
   boolean collection=isCollection(path);Set<String> parameters=collection?params(kind,path):Set.of();
-  if(body!=null&&body.length>0||supplied!=null&&!validUuid(supplied)||Collections.list(request.getHeaders("X-Request-Id")).size()>1)return problem(422,"INVALID_REQUEST",id,"Invalid correlation header or GET body");
+  if(body!=null&&body.length>0||badCorrelation)return problem(422,"INVALID_REQUEST",id,"Invalid correlation header or GET body");
   for(String name:request.getParameterMap().keySet())if(!parameters.contains(name)||request.getParameterValues(name).length!=1)return problem(422,"INVALID_REQUEST",id,"Unknown or repeated query parameter");
   if(account!=null&&!AccountDirectory.validId(account))return problem(422,"INVALID_REQUEST",id,"Canonical Account ID required");
   if(Set.of(Kind.MODEL,Kind.MODEL_VERSION,Kind.INSTRUMENT,Kind.MARKET_OBSERVATION).contains(kind)&&!caller.hasGrant(PortfolioAuthorization.grant(kind,null)))return problem(403,"FORBIDDEN",id,"Reference or market capability required");
@@ -84,5 +84,9 @@ public final class PortfolioController {
  private String mac(String payload)throws Exception{var m=Mac.getInstance("HmacSHA256");m.init(new SecretKeySpec(cursorKey,"HmacSHA256"));return Base64.getUrlEncoder().withoutPadding().encodeToString(m.doFinal(payload.getBytes(StandardCharsets.UTF_8)));}
  private static String enc(String x){return java.net.URLEncoder.encode(x,StandardCharsets.UTF_8);}
  private ResponseEntity<JsonNode> ok(JsonNode n,String id){return ResponseEntity.ok().header("X-Request-Id",id).header("Cache-Control","private, no-store").contentType(MediaType.APPLICATION_JSON).body(n);}
- private ResponseEntity<JsonNode> problem(int status,String code,String id,String detail){var n=obj().put("type","urn:wheelwright:problem:"+code.toLowerCase(Locale.ROOT)).put("title",code).put("status",status).put("code",code).put("detail",detail).put("requestId",id);var response=ResponseEntity.status(status).header("X-Request-Id",id).header("Cache-Control","private, no-store").contentType(MediaType.APPLICATION_PROBLEM_JSON);if(status==401)response.header("WWW-Authenticate","Bearer");return response.body(n);}
+ private ResponseEntity<JsonNode> problem(int status,String code,String id,String detail){
+  var fixed=ProblemCode.valueOf(code);if(fixed.status()!=status)throw new IllegalArgumentException("Problem status/code mismatch");
+  JsonNode n=JSON.valueToTree(ProblemDetails.of(fixed,id,detail,fixed==ProblemCode.INVALID_REQUEST?List.of(new ProblemDetails.InvalidParam("request",detail)):null));
+  var response=ResponseEntity.status(status).header("X-Request-Id",id).header("Cache-Control","private, no-store").contentType(MediaType.APPLICATION_PROBLEM_JSON);if(status==401)response.header("WWW-Authenticate","Bearer");return response.body(n);
+ }
 }

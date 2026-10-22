@@ -1,0 +1,25 @@
+{
+  "status": "TARGETED_PASSED_NOT_COMPLETE_API",
+  "command": "./evidence-service-java/gradlew -p evidence-service-java test --tests '*Portfolio*' --tests '*Tastytrade*' --rerun-tasks --console=plain",
+  "duration": "16s",
+  "javaLog": "/tmp/ww-operative-fresh-targeted.log",
+  "schemaLog": "/tmp/ww-operative-fresh-schema.log",
+  "freshCaptures": {
+    "routeRepresentations": 133,
+    "standaloneFinancialRepresentations": 4,
+    "routeStatusCombinations": 30,
+    "schemaViolations": 0
+  },
+  "structureChecks": {
+    "script": "scripts/v2-oas-conformance-test.py",
+    "tests": 7,
+    "operations": 36,
+    "result": "PASSED"
+  },
+  "promotionChecks": {
+    "script": "docs/implementation/api-v2-foundational-2026-10-21/operative-contract-test.py",
+    "tests": 3,
+    "result": "PASSED"
+  },
+  "meaning": "Mapped-route inventory, emitted HTTP/source/evaluator representations and byte-idempotent generation. Not complete API, all-route positive responses, live brokerage, independent review or Product acceptance."
+}

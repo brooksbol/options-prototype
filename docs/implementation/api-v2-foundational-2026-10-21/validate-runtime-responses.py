@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
-"""Validate actual Java service responses; no synthetic response copies or broker requests."""
-import json,sys
+"""Validate emitted Java HTTP/source/evaluator representations against operative routes.
+No network, copied expected responses or financial truth inferred from schema success.
+"""
+import json,re,sys
 from pathlib import Path
-import jsonschema
 root=Path(__file__).resolve().parents[3]
-spec=json.loads((root/'docs/reviews/api-v2-foundational-contract-2026-10-20/openapi.json').read_text())
-lookup={'positions':'PositionCollection','constructions':'ConstructionCollection','orders':'OrderCollection','instruments':'InstrumentCollection','holdings':'BrokerHoldingCollection','market-observations':'MarketObservationCollection'}
-failures=[];count=0
+sys.path.insert(0,str(root/'scripts'))
+from v2_oas import Contracts,FOUNDATION
+contracts=Contracts();operations=contracts.operations();failures=[];count=0;standalone=0;selected=set()
 for f in sorted((root/'evidence-service-java/build/portfolio-responses').glob('*.json')):
- r=json.loads(f.read_text());p=r['path'].split('?')[0];body=r['body'];parts=p.split('/')[2:]
- if r.get('schema'):name=r['schema']
- elif '/audit/' in p:name='AuditRecord'
- elif p.endswith('/audit'):name='AuditRecordCollection'
- elif p.endswith('inventory-reconciliation'):name='InventoryReconciliation'
- elif body.get('view')=='observations':name='HoldingSnapshotCollection'
- elif p=='/v2/constructions/models':name='ModelFamilyCollection'
- elif '/versions/' in p:name='ModelVersion'
- elif 'items' in body:name=lookup[parts[0]]
- else:name={'positions':'Position','constructions':'Construction','holdings':'BrokerHolding','instruments':'Instrument','orders':'Order','market-observations':'MarketObservation'}[parts[0]]
- v=jsonschema.Draft202012Validator({'$ref':'#/components/schemas/'+name,'components':spec['components']},format_checker=jsonschema.FormatChecker())
- for error in v.iter_errors(body):failures.append((r['path'],name,'/'.join(map(str,error.absolute_path)),error.message[:240]))
+ r=json.loads(f.read_text());path=r['path'].split('?')[0];body=r['body'];status=r.get('status',200);method=r.get('method','GET')
+ candidates=[p for m,p in operations if m==method and re.fullmatch(re.sub(r'\\\{[^}]+\\\}',r'[^/]+',re.escape(p)),path)]
+ if not candidates:
+  if r.get('schema'):
+   try:contracts.validator({'$ref':'#/components/schemas/'+r['schema']},FOUNDATION).validate(body)
+   except Exception as error:failures.append((path,r['schema'],str(error)[:500]))
+   standalone+=1
+  else:failures.append((path,'No operative route or declared standalone schema matches emitted representation'))
+  continue
+ template=sorted(candidates,key=lambda p:(p.count('{'),-len(p)))[0];selected.add((method,template,status))
+ try:
+  contracts.validate_response(method,template,status,body,r.get('headers'))
+  if r.get('schema'):contracts.validator({'$ref':'#/components/schemas/'+r['schema']},FOUNDATION).validate(body)
+ except Exception as error:failures.append((path,template,str(error)[:500]))
  count+=1
-for e in failures: print(*e,sep=' | ')
-print(f'{count} actual response payloads; {len(failures)} schema violations')
+for error in failures:print(*error,sep=' | ')
+print(f'{count} route representations plus {standalone} standalone financial representations; {len(selected)} route/status combinations; {len(failures)} operative schema violations')
+print('Includes HTTP, source-normalizer and evaluator captures. Payload count is not endpoint or authorization coverage.')
 sys.exit(bool(failures) or not count)

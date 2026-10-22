@@ -16,6 +16,7 @@ CONTRACTS = ROOT / 'docs/contracts'
 COMMON = 'api-v2-direct-quote-acquisition-proposal.yaml'
 ACCOUNT = 'api-v2-account-evidence.json'
 SELECTION = 'api-v2-market-evidence-subjects.json'
+FOUNDATION = 'api-v2-foundational-portfolio.json'
 METHODS = {'get', 'post', 'put', 'patch', 'delete', 'head', 'options'}
 
 
@@ -41,7 +42,7 @@ def without_documentation(value, property_names=False):
 class Contracts:
     def __init__(self):
         self.documents = {}
-        for name in (COMMON, ACCOUNT, SELECTION):
+        for name in (COMMON, ACCOUNT, SELECTION, FOUNDATION):
             raw = (CONTRACTS / name).read_text()
             self.documents[name] = json.loads(raw) if name.endswith('.json') else yaml.safe_load(raw)
         self.registry = Registry().with_resources(

@@ -8,6 +8,7 @@ from jsonschema import ValidationError
 from v2_oas import (ACCOUNT, COMMON, SELECTION, Contracts, assert_preserved_quote_contract,
                     implemented_v2_operations, normalized_route)
 
+BACKEND_SOURCE_TYPES = ['API_BALANCES','API_ORDERS','API_MARKET_DATA','API_MARKET_SESSION','API_OPTION_CHAIN','API_OPTION_DEFINITIONS','API_OPTION_DEFINITION']
 UUID = '11111111-1111-4111-8111-111111111111'
 ACCOUNT_ID = 'acct_' + 'a' * 32
 ERRORS = {
@@ -59,7 +60,7 @@ class ContractConformance(unittest.TestCase):
         for kind, media, import_id in [('POSITIONS', 'text/csv', UUID),
                                       ('API_POSITIONS', 'application/json', UUID),
                                       ('API_TRANSACTIONS', 'application/json', UUID + '-0'),
-                                      ('API_TRANSACTIONS', 'application/json', UUID + '-99')]:
+                                      ('API_TRANSACTIONS', 'application/json', UUID + '-99')] + [(kind,'application/json',UUID) for kind in BACKEND_SOURCE_TYPES]:
             with self.subTest(kind=kind, import_id=import_id):
                 value = artifact(kind, media, import_id)
                 self.contracts.validate_response('GET', '/v2/artifacts/{artifactId}', 200, value)
@@ -91,7 +92,7 @@ class ContractConformance(unittest.TestCase):
         for kind in ['POSITIONS', 'BALANCES', 'ACTIVITY', 'OPTION_SUMMARY']:
             good = dict(values); good[('header', 'X-Brokerage-File-Type')] = kind
             self.contracts.validate_parameters('POST', '/v2/artifacts', good)
-        for kind in ['API_POSITIONS', 'API_TRANSACTIONS', 'positions', 'UNKNOWN']:
+        for kind in ['API_POSITIONS', 'API_TRANSACTIONS', 'positions', 'UNKNOWN'] + BACKEND_SOURCE_TYPES:
             bad = dict(values); bad[('header', 'X-Brokerage-File-Type')] = kind
             with self.assertRaises(ValidationError):
                 self.contracts.validate_parameters('POST', '/v2/artifacts', bad)
