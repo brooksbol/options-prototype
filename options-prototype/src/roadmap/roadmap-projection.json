@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-22T19:16:07.586Z",
+    "generatedAt": "2026-10-22T19:19:36.128Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4464,6 +4464,13 @@
           "heading": "PL-MCP-01 — Muse research disclosure correction (October 22, 2026)",
           "level": 3,
           "content": "**Principal exact instruction:** “muse must never be given internal information, e.g., Wheelwright, etc.”\n\n**Disposition:** This is a project-wide confidentiality rule for Muse external-research handoffs, maintained in [the Project-Memory Protocol](bootstrap/project-memory-protocol.md#external-research-confidentiality--muse-principal-instruction-october-22-2026) and routed through `docs/AGENTS.md`; this PL-MCP-01 entry is the research-triggering example, not competing authority. Earlier suggestions to provide Muse with the PL-MCP-01 identifier, Wheelwright repository URL, internal goals or governing architecture are **incorrect for any Muse prompt** and must not be reused. Muse may only receive an independent generic public-research question with no Wheelwright or other internal information. External results may be imported into private reconciliation afterward. No Muse research invocation or implementation authority is granted by this capture. PL-MCP-01 remains INTAKE.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-CLI-01 / PL-API-03 — October22 accepted backend release",
+          "level": 3,
+          "content": "The Principal reports independent Kiro ACCEPT ofb48e3c6 (982 Java tests/125 reported Python checks/36 operations) and explicitly authorizes main integration, local backend deployment and API Pages publication. [Actual deployment record](implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md) separates source acceptance, author combined-source checks (982 Java/120 observed Python plus Node parity), local runtime verification, independent Codex documentation review and actual Pages state. Local v2 installation on3101 passed evidence/grant preservation; v1/BUG-043 and existing CLI remain protected. Separate documentation review first REJECTED an obsolete Position definition, then ACCEPTED corrected content and publication packaging. Expanded Position collection performance is a measured limitation; no unreviewed backend optimization or scope exception is introduced. No ww live, CLI/MCP migration, trading, unauthorized broker acquisition or closure of unresolved ontology/ASSIM-0002. Pages observation follows only on actual successful deployment.",
           "truncated": false,
           "tables": []
         }
@@ -10734,7 +10741,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 672
+      "sourceOrder": 673
     },
     {
       "plId": null,
@@ -10877,7 +10884,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 644
+      "sourceOrder": 645
     },
     {
       "plId": null,
@@ -10890,7 +10897,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 645
+      "sourceOrder": 646
     },
     {
       "plId": null,
@@ -10903,7 +10910,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 646
+      "sourceOrder": 647
     },
     {
       "plId": null,
@@ -10916,7 +10923,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 649
+      "sourceOrder": 650
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -10942,7 +10949,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 647
+      "sourceOrder": 648
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -11124,7 +11131,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 627
+      "sourceOrder": 628
     },
     {
       "plId": null,
@@ -11137,7 +11144,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 628
+      "sourceOrder": 629
     },
     {
       "plId": null,
@@ -11150,7 +11157,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 629
+      "sourceOrder": 630
     },
     {
       "plId": null,
@@ -11163,7 +11170,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 630
+      "sourceOrder": 631
     },
     {
       "plId": null,
@@ -11176,7 +11183,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 631
+      "sourceOrder": 632
     },
     {
       "plId": null,
@@ -11189,7 +11196,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 632
+      "sourceOrder": 633
     },
     {
       "plId": null,
@@ -11202,7 +11209,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 633
+      "sourceOrder": 634
     },
     {
       "plId": null,
@@ -11215,7 +11222,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 634
+      "sourceOrder": 635
     },
     {
       "plId": null,
@@ -11228,7 +11235,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 635
+      "sourceOrder": 636
     },
     {
       "plId": null,
@@ -11241,7 +11248,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 636
+      "sourceOrder": 637
     },
     {
       "plId": null,
@@ -11254,7 +11261,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 637
+      "sourceOrder": 638
     },
     {
       "plId": null,
@@ -11267,7 +11274,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 638
+      "sourceOrder": 639
     },
     {
       "plId": null,
@@ -11280,7 +11287,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 639
+      "sourceOrder": 640
     },
     {
       "plId": null,
@@ -11293,7 +11300,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 640
+      "sourceOrder": 641
     },
     {
       "plId": null,
@@ -11306,7 +11313,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 641
+      "sourceOrder": 642
     },
     {
       "plId": null,
@@ -11319,7 +11326,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 642
+      "sourceOrder": 643
     },
     {
       "plId": null,
@@ -11332,7 +11339,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 643
+      "sourceOrder": 644
     },
     {
       "plId": null,
@@ -11345,7 +11352,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 648
+      "sourceOrder": 649
     },
     {
       "plId": null,
@@ -11358,7 +11365,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 671
+      "sourceOrder": 672
     },
     {
       "plId": "PL-SEM-01",
@@ -11527,7 +11534,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 650
+      "sourceOrder": 651
     },
     {
       "plId": null,
@@ -11540,7 +11547,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 651
+      "sourceOrder": 652
     },
     {
       "plId": "PL-SETUP-01",
@@ -11748,7 +11755,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 652
+      "sourceOrder": 653
     },
     {
       "plId": null,
@@ -11761,7 +11768,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 653
+      "sourceOrder": 654
     },
     {
       "plId": null,
@@ -11774,26 +11781,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 654
+      "sourceOrder": 655
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 655
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -11805,6 +11799,19 @@
     {
       "plId": null,
       "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 657
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
       "title": "Principal acceptance and closure — 2026-10-05",
       "eventKind": "remediation",
       "establishesIntake": false,
@@ -11813,7 +11820,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 657
+      "sourceOrder": 658
     },
     {
       "plId": null,
@@ -11826,7 +11833,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 658
+      "sourceOrder": 659
     },
     {
       "plId": null,
@@ -11839,7 +11846,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 659
+      "sourceOrder": 660
     },
     {
       "plId": null,
@@ -11852,7 +11859,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 660
+      "sourceOrder": 661
     },
     {
       "plId": null,
@@ -11865,7 +11872,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 661
+      "sourceOrder": 662
     },
     {
       "plId": null,
@@ -11878,7 +11885,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 662
+      "sourceOrder": 663
     },
     {
       "plId": null,
@@ -11891,7 +11898,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 663
+      "sourceOrder": 664
     },
     {
       "plId": "PL-STRAT-01",
@@ -11969,7 +11976,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 664
+      "sourceOrder": 665
     },
     {
       "plId": null,
@@ -11982,7 +11989,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 665
+      "sourceOrder": 666
     },
     {
       "plId": null,
@@ -11995,7 +12002,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 666
+      "sourceOrder": 667
     },
     {
       "plId": null,
@@ -12008,7 +12015,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 667
+      "sourceOrder": 668
     },
     {
       "plId": null,
@@ -12021,7 +12028,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 668
+      "sourceOrder": 669
     },
     {
       "plId": "PL-EVID-04",
@@ -12073,7 +12080,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
-      "sourceOrder": 669
+      "sourceOrder": 670
     },
     {
       "plId": null,
@@ -12086,7 +12093,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md",
-      "sourceOrder": 670
+      "sourceOrder": 671
     }
   ],
   "intakeDateUnknown": [

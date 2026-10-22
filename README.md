@@ -16,18 +16,19 @@ Wheelwright has multiple **distinct operational surfaces**. They are not interch
 | Surface | Current role | Evidence / limitations |
 |---|---|---|
 | **v1 Web** (React/Vite + Java evidence service) | **Operational Cash Deployment and opportunity-selection system of record**; put, call and buy-write recommendations, Write Desk, briefs and production views | Retains historical v1 browser-owned decision logic and evidence cache. Protected transitional software; no forced cutover. |
-| **v2 backend + `ww` CLI** | Operational held-evidence and Account inspection, Fidelity CSV synchronization, Position snapshot inspection, direct-quote acquisition/read and query commands | Backend-authoritative v2 resources, Account-specific grants and evidence provenance. Positions are historical observations unless explicitly qualified otherwise. |
+| **v2 backend** | Foundational Holdings API: independently identified economic Positions, immutable Constructions/Model versions, separate broker Holdings/snapshots, read-only Orders, financial evaluations and retained evidence | Accepted backend installed locally on3101; source qualifications and Account grants apply. See the [deployment record](docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md) for verification and limitations. |
+| **`ww` CLI** | Existing human held-evidence and Account inspection client | Preserved without migration in this API release; compatibility with the changed Position contract is not asserted. |
 | **`tt positions` / `tt live`** | Standalone, read-only tastytrade API companion for broker positions and recognizable live-trade monitoring | Transitional companion, **not** v2 Position admission. Broker observations and indicative calculations are not execution or governed advice. |
 
 **Accepted multi-broker Account discovery:** `ww ls accounts` shows authorized Fidelity and tastytrade Accounts using operator-selected aliases (`pts`, `sawdust`, `tt1` in the current operator setup) and masked native account numbers. Account identity, nickname resolution and User–Account grants are backend-owned.
 
-**Work in progress:** The bounded Step 5 effort to acquire and retain tastytrade holdings **through the v2 backend** is authorized but **not yet accepted or deployed**. Do not assume `ww show positions --account tt1` already returns tastytrade holdings. XLE occurrence attribution and shared governed reconsideration are separate, later capabilities. The proposed v2 Web reconstruction remains under reconciliation and requires explicit Principal approval.
+**Current delivery:** The independently verified foundational Holdings backend is integrated and locally installed. Separate source-qualified broker custody observations and economic Positions are available through v2; missing occurrence/Order history remains unknown. No new live brokerage acquisition was performed during release verification. `ww live`, CLI/MCP migrations and v2 Web remain separate work; no client cutover is implied.
 
 See [the convergence intake](docs/parking-lot-10.md) and [the roadmap](docs/roadmap.md) for current dispositions; this README is an overview, not the project-state ledger.
 
 ## Architecture at a glance
 
-- **Brokerage sources** supply observations, not Wheelwright policy or decisions. Fidelity evidence currently enters v2 through CSVs; standalone `tt` reads tastytrade through its API. Backend-owned tastytrade acquisition is under development.
+- **Brokerage sources** supply observations, not Wheelwright policy or decisions. Fidelity evidence enters v2 through CSVs; backend tastytrade acquisition/normalization is implemented and fixture-verified. This release does not establish new live brokerage coverage. Standalone `tt` remains separate.
 - **Authoritative v2 backend** owns durable evidence, Account/Position semantics, authorization, acquisition, business rules, policy and decision logic. Clients own interaction and presentation. Equivalent evidence and governance should yield equivalent domain conclusions across clients.
 - **Evidence first:** retain provenance and distinguish source observation, acquisition, recording and inspection. Missing lifecycle history does not establish continuity, a working order, executable pricing or a management objective.
 - **Operational separation:** v1 Web and v2 use separate Java services and SQLite files. The existing v1 Web workflow remains protected until an accepted replacement exists.
@@ -45,7 +46,7 @@ The installed `ww` CLI is intended to be used with familiar aliases, not interna
     ww show SPY
     ww ls quotes
 
-`ww sync account pts` scans supported Fidelity CSV exports. It does not imply complete brokerage lifecycle coverage. At the current accepted baseline, `ww sync account tt1` reports that tastytrade synchronization is not yet supported; the authorized Step 5 work aims to change this.
+`ww sync account pts` scans supported Fidelity CSV exports. It does not imply complete brokerage lifecycle coverage. The installed CLI was not migrated or reaccepted as part of the foundational backend release.
 
 The standalone tastytrade companion provides:
 
