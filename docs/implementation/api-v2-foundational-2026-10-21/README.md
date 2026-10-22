@@ -1,3 +1,7 @@
+# Current R1/R2 successor — independent verification required
+
+Read [R1/R2 verification](r1-r2/verification.md), [source/association evidence](r1-r2/evidence-map.md), [current versus historical exposure](r1-r2/reconciliation.md), [correction ledger](r1-r2/correction-ledger.md) and [review handoff](r1-r2/independent-review.md). Active branch: `codex/api-v2-r1-r2-correction-2026-10-22`; frozen baseline: `b27971d80a0cd3e4a8db371763acbffb3e1acd30`. Complete accepted API remains in scope; full backend acceptance is withheld pending independent Kiro verification and Principal acceptance. Earlier summaries below describe their original revisions, not this successor.
+
 # Current successor — deterministic checks pass; independent review pending
 
 Read [successor verification](successor-verification-report.md), [correction ledger](successor-correction-ledger.md) and [independent raw evidence](independent-review-evidence/README.md) first. Active branch: `codex/api-v2-implementation-corrections-2026-10-21`; frozen comparison and review target: `a2ed63062edce5af65c1ea635ddfce97b520c475`. Full combined regression:961 tests,0 failures/errors,2 optional private-file skips,5m19s;180 fresh route representations plus5 financial representations,0 operative schema violations. OAS36 mappings and source-derived Java/projectLive comparisons pass. The following earlier submission summary is retained as chronological context; use the successor report/results for current verification.

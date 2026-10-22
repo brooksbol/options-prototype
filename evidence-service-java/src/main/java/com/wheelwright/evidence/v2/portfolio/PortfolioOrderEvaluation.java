@@ -16,13 +16,16 @@ import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
 public final class PortfolioOrderEvaluation {
  private PortfolioOrderEvaluation(){}
  public static void apply(ObjectNode position,ObjectNode construction,List<Document> orders,Instant now){
+  apply(position,construction,orders,now,null);
+ }
+ public static void apply(ObjectNode position,ObjectNode construction,List<Document> orders,Instant now,Set<String> currentArtifacts){
   var evaluation=(ObjectNode)position.path("evaluation");
   String account=position.at("/account/href").asText(),positionUri=position.at("/self/href").asText(),constructionUri=construction.at("/self/href").asText();
   var options=leaves(construction.path("composition")).stream().filter(n->n.path("kind").asText().equals("OPTION")).toList();
   if(options.isEmpty())return;
   var associated=new ArrayList<ObjectNode>();
   for(var document:orders){var order=document.value();if(!order.path("account").equals(position.path("account")))continue;
-   for(var association:order.path("associations"))if(admitted(association,order,account,positionUri,constructionUri)){associated.add(order);break;}
+   for(var association:order.path("associations"))if(admitted(association,order,account,positionUri,constructionUri,position.path("exposure").isObject())){associated.add(order);break;}
   }
   if(!associated.isEmpty())position.set("orders",link("/v2/orders?positionId="+positionUri.substring("/v2/positions/".length())));
   var opening=associated.stream().filter(o->o.path("status").asText().equals("FILLED")&&matches(o,options,true)).toList();
@@ -40,8 +43,8 @@ public final class PortfolioOrderEvaluation {
    }
   }
   var activeClosing=associated.stream().filter(o->!Set.of("FILLED","CANCELED","EXPIRED","REJECTED").contains(o.path("status").asText())&&touchesClosing(o,options)).toList();
-  var working=activeClosing.stream().filter(o->o.path("status").asText().equals("WORKING")&&matches(o,options,false)&&unfilled(o)).toList();
-  boolean unsettledScope=activeClosing.stream().anyMatch(o->!o.path("status").asText().equals("WORKING")||!matches(o,options,false)||!unfilled(o)||Set.of("Cancel Requested","Replace Requested","Contingent").contains(o.path("sourceStatus").asText()));
+  var working=activeClosing.stream().filter(o->o.path("status").asText().equals("WORKING")&&currentInstruction(o,currentArtifacts)&&matches(o,options,false)&&unfilled(o)).toList();
+  boolean unsettledScope=activeClosing.stream().anyMatch(o->!currentInstruction(o,currentArtifacts)||!o.path("status").asText().equals("WORKING")||!matches(o,options,false)||!unfilled(o)||Set.of("Cancel Requested","Replace Requested","Contingent").contains(o.path("sourceStatus").asText()));
   var management=(ObjectNode)evaluation.path("management");management.set("profitTargetGrossPl",unknown("MONEY",now.toString(),"ASSOCIATION_UNRESOLVED"));management.set("reportedStopThresholdGrossPl",unknown("MONEY",now.toString(),"ASSOCIATION_UNRESOLVED"));management.putNull("manualCheckpoint");var links=array();var evidence=array();for(var order:activeClosing){links.add(order.path("self"));for(var ev:order.path("evidence"))evidence.add(ev);}management.set("orders",links);management.set("evidence",evidence);
   var targets=working.stream().filter(o->o.path("orderType").asText().equals("LIMIT")).toList();var stops=working.stream().filter(o->o.path("orderType").asText().equals("STOP_LIMIT")).toList();
   boolean ambiguous=unsettledScope||targets.size()>1||stops.size()>1;management.put("associationStatus",ambiguous?"AMBIGUOUS":working.isEmpty()?"UNAVAILABLE":"ESTABLISHED");management.put("protectiveOrderEvidence",stops.size()==1?"PRESENT":"UNKNOWN");management.set("warningCodes",ambiguous?array().add("AMBIGUOUS_ORDER_ASSOCIATION"):working.isEmpty()?array().add("ASSOCIATION_UNRESOLVED"):array());
@@ -58,6 +61,8 @@ public final class PortfolioOrderEvaluation {
   // Qualified manual convention only; neither an execution guarantee nor a timed exit.
 
  }
+ /** Native source records remain historical when absent from the latest admitted scan; no cancellation inferred. */
+ static boolean currentInstruction(JsonNode order,Set<String> artifacts){if(artifacts==null||artifacts.isEmpty())return true;boolean nativeSource=false;for(var e:order.path("evidence"))if(e.path("provider").asText().equals("TASTYTRADE")&&e.path("kind").asText().equals("ACCOUNT_SOURCE")){nativeSource=true;String uri=e.at("/artifact/href").asText();if(artifacts.stream().anyMatch(id->uri.equals("/v2/artifacts/"+id)))return true;}return !nativeSource;}
  private static JsonNode checkpoint(ObjectNode evaluation,ObjectNode target,Instant now,boolean active,List<ObjectNode> options){
   if(!corroboratedGroup(target))return NullNode.instance;
   if(!target.path("timeInForce").asText().equals("GTD")||!target.path("priceEffect").asText().equals("DEBIT")||!established(evaluation.path("openingCashFlow"))||number(evaluation.at("/openingCashFlow/value")).signum()<=0)return NullNode.instance;
@@ -88,12 +93,13 @@ public final class PortfolioOrderEvaluation {
   var terminal=PortfolioMath.terminalPayoff(construction,now);if(terminal.path("geometry").isObject()){terminal.set("warningCodes",array().add("SOURCE_CONFLICT"));((ArrayNode)terminal.path("assumptions")).add("Opening cash evidence conflicts. Only terminal liquidation geometry is established; no gross P/L offset or economic break-even is claimed.");}evaluation.set("payoff",terminal);
   var warning=warning("SOURCE_CONFLICT","/evaluation/openingCashFlow","Reported fills, their source times, contractual rights and custody remain inspectable.","Attributed opening basis and matched fill cash disagree; no source wins merely because it was read later.");warning.set("affected",array().add("/evaluation/openingCashFlow").add("/evaluation/grossUnrealizedPl").add("/evaluation/netUnrealizedPl").add("/evaluation/payoff"));if(!position.path("warnings").isArray())position.set("warnings",array());((ArrayNode)position.path("warnings")).add(warning);
  }
- private static boolean admitted(JsonNode a,JsonNode order,String account,String position,String construction){
+ private static boolean admitted(JsonNode a,JsonNode order,String account,String position,String construction,boolean observedScope){
+  if(a.path("purpose").asText().equals("CURRENT_OBSERVED_CLOSING_SCOPE"))for(var leg:order.path("legs"))if(!Set.of("BUY_TO_CLOSE","SELL_TO_CLOSE").contains(leg.path("action").asText()))return false;
   String target=a.at("/target/href").asText();if(!Set.of(position,construction).contains(target)||!a.path("status").asText().equals("ESTABLISHED"))return false;
   if(!a.path("targetKind").asText().equals(target.equals(position)?"POSITION":"CONSTRUCTION"))return false;
   var authority=a.path("authority");if(!authority.path("status").asText().equals("ESTABLISHED")||!Set.of("BROKER_EXPLICIT_ORDER_LINK","RECONCILED_DOCUMENTED_ACTIVITY").contains(authority.path("basis").asText())||!authority.at("/account/href").asText().equals(account)||authority.path("evidence").isEmpty()||a.path("evidence").isEmpty())return false;
-  var subjects=new HashSet<String>();authority.path("subjects").forEach(s->subjects.add(s.path("href").asText()));if(!subjects.contains(target)||!subjects.contains(order.at("/self/href").asText()))return false;
-  boolean scoped=false;for(var e:a.path("evidence"))if(e.path("kind").asText().equals("ACCOUNT_SOURCE")){if(!e.at("/account/href").asText().equals(account)||!e.path("requiredCapability").asText().equals("account.orders.read:"+account.substring(account.lastIndexOf('/')+1)))return false;scoped=true;}return scoped;
+  var subjects=new HashSet<String>();authority.path("subjects").forEach(s->subjects.add(s.path("href").asText()));if(!subjects.contains(target)||!subjects.contains(order.at("/self/href").asText()))return false;if(observedScope&&a.path("targetKind").asText().equals("POSITION")&&!subjects.contains(construction))for(var leg:order.path("legs"))if(Set.of("BUY_TO_OPEN","SELL_TO_OPEN").contains(leg.path("action").asText()))return false;
+  boolean scoped=false;String suffix=account.substring(account.lastIndexOf('/')+1);for(var e:a.path("evidence"))if(e.path("kind").asText().equals("ACCOUNT_SOURCE")){String capability=e.path("requiredCapability").asText();if(!e.at("/account/href").asText().equals(account)||!capability.equals("account.orders.read:"+suffix)&&!(a.path("purpose").asText().equals("CURRENT_OBSERVED_CLOSING_SCOPE")&&capability.equals("account.holdings.read:"+suffix)))return false;scoped|=capability.equals("account.orders.read:"+suffix);}return scoped;
  }
  private static boolean matches(JsonNode order,List<ObjectNode> options,boolean opening){
   if(order.path("legs").size()!=options.size())return false;var used=new HashSet<String>();for(var option:options){String uri=option.at("/instrument/href").asText();if(!used.add(uri))return false;JsonNode matched=null;for(var leg:order.path("legs"))if(leg.at("/instrument/href").asText().equals(uri)){if(matched!=null)return false;matched=leg;}if(matched==null)return false;var quantity=number(matched.path("requestedQuantity"));if(quantity==null||quantity.compareTo(number(option.path("quantity")))!=0)return false;String expected=option.path("side").asText().equals("LONG")?(opening?"BUY_TO_OPEN":"SELL_TO_CLOSE"):(opening?"SELL_TO_OPEN":"BUY_TO_CLOSE");if(!matched.path("action").asText().equals(expected))return false;}return true;

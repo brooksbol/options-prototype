@@ -109,6 +109,7 @@ public final class TastytradeHoldings {
             index++;
             if(!item.isObject()||!text(item,"account-number").equals(account.brokerAssociation().accountNumber()))throw invalid();
             String symbol=text(item,"symbol"),type=text(item,"instrument-type"),direction=text(item,"quantity-direction");
+            if(item.hasNonNull("currency")&&!item.path("currency").asText().equals("USD"))throw invalid(); // Supported US-equity profile cannot silently relabel another reported currency.
             if(!Set.of("Long","Short").contains(direction))throw invalid();
             var quantityNode=item.get("quantity");
             if(quantityNode==null||(!quantityNode.isNumber()&&!quantityNode.isTextual()))throw invalid();

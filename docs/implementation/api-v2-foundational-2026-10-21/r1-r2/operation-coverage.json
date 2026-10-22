@@ -1,0 +1,583 @@
+{
+  "standing": "CONTRACT_MAPPING_NOT_LIVE_OR_PRODUCT_ACCEPTANCE",
+  "acceptedOperationCount": 33,
+  "retainedOperationCount": 3,
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/v2/accounts",
+      "operationId": "listAccounts",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "AccountsController + AccountDirectory",
+      "runtimeMapped": true,
+      "tests": [
+        "AccountsTest",
+        "MultiBrokerAccountsTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}",
+      "operationId": "readAccount",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "AccountsController + AccountDirectory",
+      "runtimeMapped": true,
+      "tests": [
+        "AccountsTest",
+        "MultiBrokerAccountsTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/inventory-reconciliation",
+      "operationId": "readInventoryReconciliation",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
+        "PortfolioUnquantifiedCustodyTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/transactions",
+      "operationId": "readAccountTransactions",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "TransactionsController + TransactionHistory",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioFillEvidenceTest",
+        "TransactionHistoryTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/transactions/{transactionId}",
+      "operationId": "readAccountTransaction",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "TransactionsController + TransactionHistory",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioFillEvidenceTest",
+        "TransactionHistoryTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts",
+      "operationId": "listAccountArtifacts",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "ArtifactsController + BrokerageArtifacts",
+      "runtimeMapped": true,
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts/{artifactId}",
+      "operationId": "readAccountArtifact",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "ArtifactsController + BrokerageArtifacts",
+      "runtimeMapped": true,
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts/{artifactId}/content",
+      "operationId": "retrieveAccountArtifactBytes",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "ArtifactsController + BrokerageArtifacts",
+      "runtimeMapped": true,
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions",
+      "operationId": "listConstructions",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models",
+      "operationId": "listConstructionModels",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models/{modelId}",
+      "operationId": "readConstructionModel",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models/{modelId}/versions/{versionId}",
+      "operationId": "readConstructionModelVersion",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/{constructionId}",
+      "operationId": "readConstruction",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFinancialTest",
+        "PortfolioHttpTest",
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/holdings",
+      "operationId": "listBrokerHoldings",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
+        "PortfolioUnquantifiedCustodyTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/holdings/{holdingId}",
+      "operationId": "readBrokerHolding",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioCashCustodyTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioFidelityFactsTest",
+        "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
+        "PortfolioUnquantifiedCustodyTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/instruments",
+      "operationId": "listInstruments",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/instruments/{instrumentId}",
+      "operationId": "readInstrument",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioHttpTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-evidence-subjects",
+      "operationId": "listRelevantMarketEvidenceSubjects",
+      "contract": "api-v2-market-evidence-subjects.json",
+      "scope": "RETAINED_LEGITIMATE_OPERATION",
+      "controller": null,
+      "runtimeMapped": true,
+      "tests": []
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-observations",
+      "operationId": "listMarketObservations",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioMarketAcquisitionTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-observations/{observationId}",
+      "operationId": "readMarketObservation",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioMarketAcquisitionTest",
+        "PortfolioMarketReadThroughTest",
+        "PortfolioOptionReferenceTest",
+        "PortfolioSessionEvidenceTest",
+        "PortfolioTastyMarketSourcesTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/me",
+      "operationId": "readCurrentUser",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "UsersController + UserDirectory + BearerAuthenticator",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "UsersTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/orders",
+      "operationId": "listOrders",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioAssociationFilterTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioHttpTest",
+        "PortfolioOrderAcquisitionTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/orders/{orderId}",
+      "operationId": "readOrder",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioAssociationFilterTest",
+        "PortfolioComplexOrderEvidenceTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioHttpTest",
+        "PortfolioOrderAcquisitionTest",
+        "PortfolioOrderEvaluationTest",
+        "PortfolioOrderEvidenceTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/portfolio-capital-observations",
+      "operationId": "readPortfolioCapitalObservations",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "RETAINED_LEGITIMATE_OPERATION",
+      "controller": null,
+      "runtimeMapped": true,
+      "tests": []
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions",
+      "operationId": "listPositions",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}",
+      "operationId": "readPosition",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}/audit",
+      "operationId": "listPositionAudit",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}/audit/{auditId}",
+      "operationId": "readPositionAudit",
+      "contract": "api-v2-foundational-portfolio.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "portfolio/PortfolioController",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "PortfolioContinuityTest",
+        "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
+        "PortfolioEconomicHistoryTest",
+        "PortfolioHttpTest",
+        "PortfolioManagementParityTest",
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes",
+      "operationId": "listHeldDirectQuotes",
+      "contract": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "V2QuotesController + HeldQuotesController + DirectQuoteService",
+      "runtimeMapped": true,
+      "tests": [
+        "DirectQuoteServiceTest",
+        "HeldQuoteDetailControllerTest",
+        "HeldQuotesControllerTest",
+        "V2QuotesControllerTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes/{symbol}",
+      "operationId": "readHeldDirectQuote",
+      "contract": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "V2QuotesController + HeldQuotesController + DirectQuoteService",
+      "runtimeMapped": true,
+      "tests": [
+        "DirectQuoteServiceTest",
+        "HeldQuoteDetailControllerTest",
+        "HeldQuotesControllerTest",
+        "V2QuotesControllerTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/users",
+      "operationId": "listUsers",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "UsersController + UserDirectory + BearerAuthenticator",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "UsersTest"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v2/users/{userId}",
+      "operationId": "readUser",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "UsersController + UserDirectory + BearerAuthenticator",
+      "runtimeMapped": true,
+      "tests": [
+        "PortfolioApplicationWiringTest",
+        "UsersTest"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v2/artifacts",
+      "operationId": "retainAndProcessAccountArtifact",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "ArtifactsController + BrokerageArtifacts",
+      "runtimeMapped": true,
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v2/artifacts/{artifactId}/imports",
+      "operationId": "retryRetainedArtifactProcessing",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "ArtifactsController + BrokerageArtifacts",
+      "runtimeMapped": true,
+      "tests": [
+        "BrokerageArtifactsTest",
+        "OriginalSourceAuthorizationTest",
+        "PortfolioApplicationWiringTest"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v2/position-acquisitions",
+      "operationId": "acquireAccountPositions",
+      "contract": "api-v2-account-evidence.json",
+      "scope": "RETAINED_LEGITIMATE_OPERATION",
+      "controller": null,
+      "runtimeMapped": true,
+      "tests": []
+    },
+    {
+      "method": "POST",
+      "path": "/v2/quotes",
+      "operationId": "acquireDirectQuotes",
+      "contract": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "scope": "ACCEPTED_IN_SCOPE",
+      "controller": "V2QuotesController + HeldQuotesController + DirectQuoteService",
+      "runtimeMapped": true,
+      "tests": [
+        "DirectQuoteServiceTest",
+        "HeldQuoteDetailControllerTest",
+        "HeldQuotesControllerTest",
+        "V2QuotesControllerTest"
+      ]
+    }
+  ]
+}

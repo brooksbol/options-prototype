@@ -1,7 +1,7 @@
 {
   "standing": "IMPLEMENTATION_RECONCILIATION_NOT_PRODUCT_ACCEPTANCE",
   "acceptedPlan": "docs/reviews/api-v2-foundational-contract-2026-10-20/source-coverage.json",
-  "baseline": "a2ed630 plus the bounded closing-scale and authorization successor corrections; resolve containing commit",
+  "baseline": "b27971d frozen baseline plus isolated R1/R2 successor; resolve containing commit",
   "rows": [
     {
       "field": "Account/broker",
@@ -31,14 +31,15 @@
       "runtimeOwners": [
         "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSources.java:17",
         "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioCashCustody.java:13",
-        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java:13"
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioContinuity.java:13",
+        "portfolio/PortfolioCurrentExposure.java:15"
       ],
       "classification": [
         "ALREADY_SUPPORTED",
         "BACKEND_DERIVATION_NEEDED"
       ],
       "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
-      "qualification": "Source-specific qualification, actual authorization and missing/conflicting evidence propagate through detailed and collection representations.",
+      "qualification": "Latest applicable source-cut quantities are separate from lifecycle state. Complete disappearance is zero-observed, partial source retains last facts without asserting current totals, ambiguity preserves raw custody.",
       "originalRepositoryEvidence": [
         "scripts/tastytrade.mjs:395-407",
         "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/TastytradeHoldings.java:104-139",
@@ -51,14 +52,15 @@
       "source": "Held options plus instrument responses and qualified Order/association evidence",
       "response": "Construction.recognition; ModelVersion",
       "runtimeOwners": [
-        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRecognition.java:10"
+        "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioRecognition.java:10",
+        "portfolio/PortfolioPackageEvidence.java:18"
       ],
       "classification": [
         "ALREADY_SUPPORTED",
         "BACKEND_DERIVATION_NEEDED"
       ],
       "implementationState": "IMPLEMENTED_CONDITIONAL_ON_ADMITTED_EVIDENCE",
-      "qualification": "Validated naming requires source-predicate membership in addition to structural terms; ambiguous/unclassified constituents remain inspectable.",
+      "qualification": "Exact, unique current closing-instruction scope plus observed custody supports qualified financial composition. Aggregate fungible coverage supports Covered Call/CSP economic scope. Neither proves original occurrence or Buy-Write formation. Competing/unsupported cases remain unclassified.",
       "originalRepositoryEvidence": [
         "scripts/tastytrade-live-domain.mjs:62-98",
         "scripts/tastytrade-live-domain.mjs:534-568",
@@ -481,5 +483,6 @@
     "Source availability means repository/native contract/loopback evidence, never live Account availability.",
     "No DOMAIN_MODEL_GAP identified; complex/manual corroboration is implemented and fixture-tested, subject to its actual source-predicate boundary.",
     "This matrix is not complete route/property or runtime acceptance evidence."
-  ]
+  ],
+  "r1R2Evidence": "r1-r2/evidence-map.md"
 }

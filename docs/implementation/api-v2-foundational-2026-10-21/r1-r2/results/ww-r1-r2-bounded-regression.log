@@ -1,0 +1,37 @@
+> Task :compileJava
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :compileTestJava
+> Task :processTestResources UP-TO-DATE
+> Task :testClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :test
+
+PortfolioContinuityTest > conflictingKnownContractTermsWithholdAssociationRatherThanInventingOccurrence() FAILED
+    org.opentest4j.AssertionFailedError at PortfolioContinuityTest.java:41
+
+PortfolioContinuityTest > establishedOpenScopeIsNotSilentlyReinterpretedAsUnresolved() FAILED
+    org.opentest4j.AssertionFailedError at PortfolioContinuityTest.java:44
+
+PortfolioContinuityTest > ambiguousMatchesRemainSeparateAndDoNotSpawnAnotherGuess() FAILED
+    org.opentest4j.AssertionFailedError at PortfolioContinuityTest.java:35
+
+PortfolioContinuityTest > overlappingPackageScopeCannotInventSplitOrRecombination() FAILED
+    org.opentest4j.AssertionFailedError at PortfolioContinuityTest.java:47
+
+14 tests completed, 4 failed
+
+> Task :test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///Users/bollich/kiro/options-candidates/api-v2-r1-r2-correction-2026-10-22/evidence-service-java/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 7s
+5 actionable tasks: 3 executed, 2 up-to-date

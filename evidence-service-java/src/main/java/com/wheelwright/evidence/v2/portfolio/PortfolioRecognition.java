@@ -89,7 +89,7 @@ public final class PortfolioRecognition {
  }
  static boolean standardTerms(JsonNode terms){
   var multiplier=number(terms.path("multiplier"));var quantity=number(terms.at("/deliverable/0/quantity"));
-  return terms.path("payoffApplicability").asText().equals("STANDARD_EQUITY_INTRINSIC")&&terms.path("adjustment").asText().equals("STANDARD")&&terms.path("settlement").asText().equals("PHYSICAL")&&terms.path("deliverable").size()==1&&multiplier!=null&&multiplier.signum()>0&&quantity!=null&&quantity.compareTo(multiplier)==0&&terms.at("/deliverable/0/kind").asText().equals("SHARES")&&terms.at("/deliverable/0/instrument/href").equals(terms.at("/underlying/href"))&&!terms.at("/underlying/href").asText().isBlank();
+  return Set.of("ESTABLISHED","QUALIFIED").contains(terms.path("qualification").asText())&&terms.path("payoffApplicability").asText().equals("STANDARD_EQUITY_INTRINSIC")&&terms.path("adjustment").asText().equals("STANDARD")&&terms.path("settlement").asText().equals("PHYSICAL")&&terms.path("deliverable").size()==1&&multiplier!=null&&multiplier.signum()>0&&quantity!=null&&quantity.compareTo(multiplier)==0&&terms.at("/deliverable/0/kind").asText().equals("SHARES")&&terms.at("/deliverable/0/instrument/href").equals(terms.at("/underlying/href"))&&!terms.at("/underlying/href").asText().isBlank();
  }
  private static boolean same(List<ObjectNode> nodes,String pointer,boolean numeric){JsonNode first=null;for(var node:nodes){var value=node.at(pointer);if(value.isMissingNode()||value.isNull()||value.isTextual()&&(value.asText().isBlank()||value.asText().equals("UNKNOWN")))return false;if(first!=null&&(numeric?number(first).compareTo(number(value))!=0:!first.equals(value)))return false;first=value;}return true;}
 }

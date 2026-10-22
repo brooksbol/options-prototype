@@ -1,0 +1,6 @@
+{
+  "trackedCorrectionStateCreatedAt": "2026-10-22T15:43:59.538357+00:00",
+  "freezePreparationAt": "2026-10-22T17:04:48.723695+00:00",
+  "trackedWallSeconds": 4849.2,
+  "limitation": "Bootstrap/retrieval began before durable state creation; exact earlier duration and token/credit usage unavailable."
+}

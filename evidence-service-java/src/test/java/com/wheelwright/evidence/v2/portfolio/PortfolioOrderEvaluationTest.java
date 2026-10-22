@@ -67,4 +67,6 @@ class PortfolioOrderEvaluationTest {
   var c=creditConstruction();var p=position(c);var opening=order(c,true);for(var leg:opening.value().path("legs"))for(var fill:leg.path("fills"))((ObjectNode)fill).putNull("multiplier");for(var leaf:leaves(c.path("composition")))((ObjectNode)leaf.path("allocation")).set("basis",unknown("MONEY",null,"BASIS_ATTRIBUTION_UNKNOWN"));p.set("evaluation",PortfolioMath.evaluate(c,Map.of(),now));PortfolioOrderEvaluation.apply(p,c,List.of(opening),now);assertThat(p.at("/evaluation/openingCashFlow/value").isNull()).isTrue();
  }
 
+ @Test void guidOnlyOpeningAuthorityCannotFollowAReinterpretedObservedConstruction(){var c=creditConstruction();var p=position(c);var opening=order(c,true);var a=(ObjectNode)opening.value().at("/associations/0");a.put("targetKind","POSITION");a.set("target",p.path("self"));((ObjectNode)a.path("authority")).set("subjects",array().add(opening.value().path("self")).add(p.path("self")));p.set("exposure",obj().put("status","OBSERVED").put("continuity","UNRESOLVED"));PortfolioOrderEvaluation.apply(p,c,List.of(opening),now);assertThat(p.at("/evaluation/timeline/openedAt").isNull()).isTrue();((ArrayNode)a.at("/authority/subjects")).add(c.path("self"));PortfolioOrderEvaluation.apply(p,c,List.of(opening),now);assertThat(p.at("/evaluation/timeline/openedAt").isTextual()).isTrue();}
+
 }

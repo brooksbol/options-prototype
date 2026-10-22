@@ -122,6 +122,22 @@
             "style": "form",
             "explode": false,
             "description": "Authorized optional expansions, one collection request. Order expansions require separate order-read grants; absent permission returns generic redaction, never protected detail. Financial qualifications survive projection. No screen-specific endpoint."
+          },
+          {
+            "name": "exposureStatus",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OBSERVED",
+                "ZERO_OBSERVED",
+                "UNKNOWN",
+                "RETAINED",
+                "SUPERSEDED_INTERPRETATION"
+              ]
+            },
+            "description": "Filter current observed, zero-observed, unknown, retained, or superseded provisional financial interpretations independently from lifecycle state."
           }
         ],
         "responses": {
@@ -13006,6 +13022,10 @@
             "required": [],
             "additionalProperties": false,
             "description": "Optional authorized collection/instance expansion; same immutable identities and scope. Missing expansions are not missing domain objects."
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/CurrentExposureEvidence",
+            "description": "Current quantity interpretation is separate from Position lifecycle. Empty UNKNOWN composition is not zero; SUPERSEDED_INTERPRETATION is prior provisional interpretation, not an economic merge or CLOSED transition."
           }
         },
         "required": [
@@ -13049,6 +13069,25 @@
                     "completeness"
                   ]
                 }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "CLOSED"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "exposure"
+                ]
               }
             }
           }
@@ -13249,6 +13288,13 @@
           },
           "authority": {
             "$ref": "#/components/schemas/AssociationAuthority"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "CURRENT_OBSERVED_CLOSING_SCOPE"
+            ],
+            "description": "When present, the established predicate is instruction-to-current-observed-contract-quantity scope only. It supplies no opening occurrence, historical origin, reservation or fill evidence. Absence preserves the original association predicate, whose authority must still be demonstrated."
           }
         },
         "required": [
@@ -13962,6 +14008,10 @@
             "required": [],
             "additionalProperties": false,
             "description": "Optional authorized collection/instance expansion; same immutable identities and scope. Missing expansions are not missing domain objects."
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/CurrentExposureEvidence",
+            "description": "Current quantity interpretation is separate from Position lifecycle. Empty UNKNOWN composition is not zero; SUPERSEDED_INTERPRETATION is prior provisional interpretation, not an economic merge or CLOSED transition."
           }
         },
         "required": [
@@ -13975,7 +14025,28 @@
           "allocation"
         ],
         "additionalProperties": false,
-        "description": "Same complete qualified financial evaluations as expanded Position; excludes navigation/sourceIdentifiers, never suppresses warnings for shown conclusions."
+        "description": "Same complete qualified financial evaluations as expanded Position; excludes navigation/sourceIdentifiers, never suppresses warnings for shown conclusions.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "CLOSED"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "exposure"
+                ]
+              }
+            }
+          }
+        ]
       },
       "PositionCollection": {
         "type": "object",
@@ -22495,6 +22566,77 @@
           "items",
           "next",
           "warnings"
+        ]
+      },
+      "CurrentExposureEvidence": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "OBSERVED",
+              "ZERO_OBSERVED",
+              "UNKNOWN",
+              "RETAINED",
+              "SUPERSEDED_INTERPRETATION"
+            ]
+          },
+          "sourceSnapshotId": {
+            "type": "string"
+          },
+          "sourceDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "continuity": {
+            "const": "UNRESOLVED"
+          },
+          "qualification": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRef"
+            }
+          },
+          "successorPosition": {
+            "$ref": "#/components/schemas/Link"
+          }
+        },
+        "required": [
+          "status",
+          "sourceSnapshotId",
+          "sourceDate",
+          "receivedAt",
+          "continuity",
+          "qualification",
+          "evidence"
+        ],
+        "description": "Latest applicable retained inventory cut, not a proven opening/closing event. RETAINED/UNKNOWN cannot establish current financial totals. Historical source observations and immutable predecessors remain readable. A superseding financial interpretation does not establish economic occurrence continuity or split/recombine policy.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "SUPERSEDED_INTERPRETATION"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "successorPosition"
+              ]
+            }
+          }
         ]
       }
     }

@@ -31,6 +31,7 @@ public final class PortfolioOrderSources {
    if(multiplier!=null&&multiplier.signum()<=0)throw new IllegalArgumentException("positive reported contract multiplier required");
   }
   int index=0;for(var raw:root.at("/data/items")){
+   if(raw.hasNonNull("currency")&&!raw.path("currency").asText().equals("USD"))throw new IllegalArgumentException("unsupported reported Order currency");for(var leg:raw.path("legs"))if(leg.hasNonNull("currency")&&!leg.path("currency").asText().equals("USD"))throw new IllegalArgumentException("unsupported reported leg currency");
    if(!raw.path("account-number").asText().equals(account.brokerAssociation().accountNumber())||raw.path("id").isMissingNode()||!raw.path("legs").isArray()||raw.path("legs").isEmpty())throw new IllegalArgumentException("unsupported or unscoped Order");
    String sourceId=raw.path("id").asText(),guid=id(account.id()+":TASTYTRADE:order:"+sourceId),uri="/v2/orders/"+guid;var source=source(account.id(),artifact,"/data/items/"+index++,null,received,"TASTYTRADE");source.put("requiredCapability","account.orders.read:"+account.id());var evidence=array().add(source);
    if(raw.hasNonNull("received-at")){

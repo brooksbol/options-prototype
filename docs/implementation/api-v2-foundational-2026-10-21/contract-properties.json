@@ -4194,6 +4194,13 @@
             "additionalProperties": false,
             "description": "Optional authorized collection/instance expansion; same immutable identities and scope. Missing expansions are not missing domain objects."
           }
+        },
+        "exposure": {
+          "required": false,
+          "definition": {
+            "$ref": "#/components/schemas/CurrentExposureEvidence",
+            "description": "Current quantity interpretation is separate from Position lifecycle. Empty UNKNOWN composition is not zero; SUPERSEDED_INTERPRETATION is prior provisional interpretation, not an economic merge or CLOSED transition."
+          }
         }
       },
       "conditionalRules": [
@@ -4221,6 +4228,25 @@
                   "completeness"
                 ]
               }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "CLOSED"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "exposure"
+              ]
             }
           }
         }
@@ -4517,6 +4543,16 @@
           "required": true,
           "definition": {
             "$ref": "#/components/schemas/AssociationAuthority"
+          }
+        },
+        "purpose": {
+          "required": false,
+          "definition": {
+            "type": "string",
+            "enum": [
+              "CURRENT_OBSERVED_CLOSING_SCOPE"
+            ],
+            "description": "When present, the established predicate is instruction-to-current-observed-contract-quantity scope only. It supplies no opening occurrence, historical origin, reservation or fill evidence. Absence preserves the original association predicate, whose authority must still be demonstrated."
           }
         }
       },
@@ -5475,9 +5511,36 @@
             "additionalProperties": false,
             "description": "Optional authorized collection/instance expansion; same immutable identities and scope. Missing expansions are not missing domain objects."
           }
+        },
+        "exposure": {
+          "required": false,
+          "definition": {
+            "$ref": "#/components/schemas/CurrentExposureEvidence",
+            "description": "Current quantity interpretation is separate from Position lifecycle. Empty UNKNOWN composition is not zero; SUPERSEDED_INTERPRETATION is prior provisional interpretation, not an economic merge or CLOSED transition."
+          }
         }
       },
-      "conditionalRules": [],
+      "conditionalRules": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "CLOSED"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "exposure"
+              ]
+            }
+          }
+        }
+      ],
       "variants": [],
       "implementation": [
         "PortfolioAuthorization",
@@ -8989,6 +9052,99 @@
         "PortfolioFidelityFactsTest",
         "PortfolioHttpTest"
       ]
+    },
+    "CurrentExposureEvidence": {
+      "schemaRef": "docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/CurrentExposureEvidence",
+      "implementation": [
+        "PortfolioCurrentExposure",
+        "PortfolioAuthorization"
+      ],
+      "tests": [
+        "PortfolioCurrentExposureTest",
+        "PortfolioSourcePackageTest"
+      ],
+      "properties": {
+        "status": {
+          "required": true,
+          "definition": {
+            "type": "string",
+            "enum": [
+              "OBSERVED",
+              "ZERO_OBSERVED",
+              "UNKNOWN",
+              "RETAINED",
+              "SUPERSEDED_INTERPRETATION"
+            ]
+          }
+        },
+        "sourceSnapshotId": {
+          "required": true,
+          "definition": {
+            "type": "string"
+          }
+        },
+        "sourceDate": {
+          "required": true,
+          "definition": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "receivedAt": {
+          "required": true,
+          "definition": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "continuity": {
+          "required": true,
+          "definition": {
+            "const": "UNRESOLVED"
+          }
+        },
+        "qualification": {
+          "required": true,
+          "definition": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "required": true,
+          "definition": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRef"
+            }
+          }
+        },
+        "successorPosition": {
+          "required": false,
+          "definition": {
+            "$ref": "#/components/schemas/Link"
+          }
+        }
+      },
+      "conditionalRules": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "SUPERSEDED_INTERPRETATION"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "successorPosition"
+            ]
+          }
+        }
+      ],
+      "variants": []
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "acceptedBaseline": "a32c7c79a059cc58d5262cf3e30c520d2e087825",
-  "remoteMain": "76bdb903458a4226f73ef5ead591e7d1cdaa0916",
+  "remoteMain": "9fd8567b9d7ca73b4b573649c5d25cfb3b482ea2",
   "routes": [
     {
       "path": "/v2/positions",
@@ -17,12 +17,14 @@
         "PortfolioApplicationWiringTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioEconomicHistoryTest",
         "PortfolioHttpTest",
         "PortfolioManagementParityTest",
-        "PortfolioReconciliationTest"
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/positions/{positionId}",
@@ -39,12 +41,14 @@
         "PortfolioApplicationWiringTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioEconomicHistoryTest",
         "PortfolioHttpTest",
         "PortfolioManagementParityTest",
-        "PortfolioReconciliationTest"
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/constructions",
@@ -60,11 +64,13 @@
       "tests": [
         "PortfolioApplicationWiringTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFinancialTest",
         "PortfolioHttpTest",
-        "PortfolioNestedRecognitionTest"
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/constructions/{constructionId}",
@@ -80,11 +86,13 @@
       "tests": [
         "PortfolioApplicationWiringTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFinancialTest",
         "PortfolioHttpTest",
-        "PortfolioNestedRecognitionTest"
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/orders",
@@ -102,12 +110,14 @@
         "PortfolioAssociationFilterTest",
         "PortfolioComplexOrderEvidenceTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioHttpTest",
         "PortfolioOrderAcquisitionTest",
         "PortfolioOrderEvaluationTest",
-        "PortfolioOrderEvidenceTest"
+        "PortfolioOrderEvidenceTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/orders/{orderId}",
@@ -125,12 +135,14 @@
         "PortfolioAssociationFilterTest",
         "PortfolioComplexOrderEvidenceTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioHttpTest",
         "PortfolioOrderAcquisitionTest",
         "PortfolioOrderEvaluationTest",
-        "PortfolioOrderEvidenceTest"
+        "PortfolioOrderEvidenceTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/instruments",
@@ -226,11 +238,13 @@
       "tests": [
         "PortfolioApplicationWiringTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFinancialTest",
         "PortfolioHttpTest",
-        "PortfolioNestedRecognitionTest"
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/constructions/models/{modelId}",
@@ -246,11 +260,13 @@
       "tests": [
         "PortfolioApplicationWiringTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFinancialTest",
         "PortfolioHttpTest",
-        "PortfolioNestedRecognitionTest"
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/constructions/models/{modelId}/versions/{versionId}",
@@ -266,11 +282,13 @@
       "tests": [
         "PortfolioApplicationWiringTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFinancialTest",
         "PortfolioHttpTest",
-        "PortfolioNestedRecognitionTest"
+        "PortfolioNestedRecognitionTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/positions/{positionId}/audit",
@@ -287,12 +305,14 @@
         "PortfolioApplicationWiringTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioEconomicHistoryTest",
         "PortfolioHttpTest",
         "PortfolioManagementParityTest",
-        "PortfolioReconciliationTest"
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/positions/{positionId}/audit/{auditId}",
@@ -309,12 +329,14 @@
         "PortfolioApplicationWiringTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioEconomicHistoryTest",
         "PortfolioHttpTest",
         "PortfolioManagementParityTest",
-        "PortfolioReconciliationTest"
+        "PortfolioReconciliationTest",
+        "PortfolioSourcePackageTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/accounts/{accountId}/inventory-reconciliation",
@@ -332,11 +354,13 @@
         "PortfolioCashCustodyTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFidelityFactsTest",
         "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
         "PortfolioUnquantifiedCustodyTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/users",
@@ -570,11 +594,13 @@
         "PortfolioCashCustodyTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFidelityFactsTest",
         "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
         "PortfolioUnquantifiedCustodyTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     },
     {
       "path": "/v2/holdings/{holdingId}",
@@ -592,11 +618,13 @@
         "PortfolioCashCustodyTest",
         "PortfolioContinuityTest",
         "PortfolioContractIntegrationTest",
+        "PortfolioCurrentExposureTest",
         "PortfolioFidelityFactsTest",
         "PortfolioHttpTest",
+        "PortfolioSourcePackageTest",
         "PortfolioUnquantifiedCustodyTest"
       ],
-      "remaining": "Independent Kiro verification and Principal API acceptance; source-truth boundaries are explicit in this inventory and runtime-field-coverage.json."
+      "remaining": "Independent Kiro verification and Principal backend acceptance. See r1-r2/evidence-map.md and reconciliation.md for source predicates and unresolved occurrence history."
     }
   ],
   "schemas": {
@@ -2277,5 +2305,6 @@
       "method": "GET",
       "path": "/v2/portfolio-capital-observations"
     }
-  ]
+  ],
+  "r1R2Evidence": "r1-r2/verification.md"
 }

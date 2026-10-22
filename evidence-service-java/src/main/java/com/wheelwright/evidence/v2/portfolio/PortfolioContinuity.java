@@ -18,9 +18,9 @@ final class PortfolioContinuity {
   var incoming=index(members);if(incoming.isEmpty()||incoming.size()!=members.size())return new Decision(null,true);
   var compatible=new ArrayList<Document>();boolean activeScope=false,overlappingScope=false;
   for(var position:repo.list(connection,Kind.POSITION,Set.of(snapshot.account()))){
-   if(!Objects.equals(position.account(),snapshot.account())||position.value().path("state").asText().equals("CLOSED"))continue;
+   if(!Objects.equals(position.account(),snapshot.account())||position.value().path("state").asText().equals("CLOSED")||position.value().at("/exposure/status").asText().equals("SUPERSEDED_INTERPRETATION"))continue;
    var construction=repo.get(connection,position.value().at("/currentConstruction/href").asText());if(construction.isEmpty())continue;
-   var existing=index(leaves(construction.get().value().path("composition")));if(Collections.disjoint(existing.keySet(),incoming.keySet()))continue;activeScope=true;if(!existing.keySet().equals(incoming.keySet())){overlappingScope=true;continue;}
+   var existing=index(PortfolioCurrentExposure.priorLeaves(repo,connection,position));if(Collections.disjoint(existing.keySet(),incoming.keySet()))continue;activeScope=true;if(!existing.keySet().equals(incoming.keySet())){overlappingScope=true;continue;}
    if(!position.value().path("state").asText().equals("UNRESOLVED")||existing.size()!=members.size())continue;
    boolean same=true;for(String key:incoming.keySet())same&=compatible(existing.get(key),incoming.get(key));
    if(same)compatible.add(position);

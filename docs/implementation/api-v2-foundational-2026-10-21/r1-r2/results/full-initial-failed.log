@@ -1,0 +1,36 @@
+> Task :compileJava
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources UP-TO-DATE
+> Task :testClasses UP-TO-DATE
+> Task :test
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :test
+
+PortfolioCashCustodyTest > missingCashDoesNotUseBuyingPowerAndFailuresDoNotErasePriorEvidence() FAILED
+    java.lang.AssertionError at PortfolioCashCustodyTest.java:56
+
+PortfolioContractIntegrationTest > closureAndImmutableHistoryAreEnforcedInThePersistedRepository() FAILED
+    org.opentest4j.AssertionFailedError at PortfolioContractIntegrationTest.java:58
+
+PortfolioHttpTest > actualServerProtectsDirectCollectionHistoryAndSnapshotReads() FAILED
+    org.opentest4j.AssertionFailedError at PortfolioHttpTest.java:36
+
+974 tests completed, 3 failed, 2 skipped
+
+> Task :test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///Users/bollich/kiro/options-candidates/api-v2-r1-r2-correction-2026-10-22/evidence-service-java/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 5m 22s
+5 actionable tasks: 2 executed, 3 up-to-date
