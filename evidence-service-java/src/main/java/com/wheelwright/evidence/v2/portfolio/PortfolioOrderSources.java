@@ -57,6 +57,23 @@ public final class PortfolioOrderSources {
    order.set("legs",legs);var convention=obj().put("unit","PER_UNDERLYING_UNIT");if(multiplierKnown&&commonMultiplier!=null)convention.put("multiplier",decimal(commonMultiplier));else convention.putNull("multiplier");if(packageQuantity==null||packageQuantity.signum()<=0)convention.putNull("packageQuantity");else convention.put("packageQuantity",decimal(packageQuantity));order.set("priceConvention",convention);var prior=repository.get(c,uri);order.set("associations",prior.filter(p->p.kind()==Kind.ORDER&&p.value().path("sourceIdentifier").equals(order.path("sourceIdentifier"))&&p.value().path("account").equals(order.path("account"))). <JsonNode>map(p->p.value().path("associations").deepCopy()).orElseGet(PortfolioJson::array));order.set("evidence",evidence);order.set("warnings",array().add(warning("ASSOCIATION_UNRESOLVED","/associations","Broker instruction and reported fills remain inspectable.","Holdings similarity alone does not establish a Position or Construction association.")));repository.put(c,new Document(Kind.ORDER,uri,account.id(),order,null,sourceId));
   }
  }
+ /** Links only known read-only Orders reporting the same broker-qualified parent ID.
+  * This does not establish OCO behavior, current completeness or Position membership. */
+ public void reconcileGroups(Connection c,String account)throws Exception{
+  var groups=new LinkedHashMap<List<String>,List<String>>();var memberships=new LinkedHashMap<String,List<String>>();
+  try(var q=c.prepareStatement("SELECT uri,payload_json FROM portfolio_resource WHERE kind='ORDER' AND account_id=? ORDER BY uri")){
+   q.setString(1,account);try(var rows=q.executeQuery()){while(rows.next()){
+    var value=JSON.readTree(rows.getString(2));String group=value.path("brokerGroupId").asText("");if(group.isBlank())continue;
+    var key=List.of(value.at("/sourceIdentifier/broker").asText(),value.at("/sourceIdentifier/environment").asText(),group);if(key.get(0).isBlank()||key.get(1).isBlank())continue;String uri=rows.getString(1);memberships.put(uri,key);groups.computeIfAbsent(key,k->new ArrayList<>()).add(uri);
+   }}
+  }
+  // Stream payloads rather than retaining the entire Account's expanded Order JSON in memory.
+  for(var entry:memberships.entrySet()){
+   var document=repository.get(c,entry.getKey()).orElseThrow();var value=document.value().deepCopy();var links=array();var peers=groups.get(entry.getValue());for(String peer:peers)if(!peer.equals(document.uri())&&links.size()<200)links.add(link(peer));
+   var warnings=array();for(var w:value.path("warnings"))if(!w.path("code").asText().equals("RELATED_ORDERS_PARTIAL"))warnings.add(w.deepCopy());if(peers.size()>201){var warning=warning("RELATED_ORDERS_PARTIAL","/relatedOrders","Displayed peers report the same Account, broker, environment and parent complex-order ID.","This relationship projection is capped at200 known peers and does not establish complete/current group history or OCO/OTOCO execution behavior.");var remedy=obj().put("action","REFRESH_SOURCE").put("description","Page the authorized Orders collection using accountId and brokerGroupId to inspect all retained known peers; refresh may supply additional records, but cannot prove missing history.").put("capability","GET /v2/orders").put("requiredGrant","account.orders.read:"+account);warning.set("remediation",array().add(remedy));warnings.add(warning);}
+   if(!value.path("relatedOrders").equals(links)||!value.path("warnings").equals(warnings)){value.set("relatedOrders",links);value.set("warnings",warnings);repository.put(c,new Document(Kind.ORDER,document.uri(),account,value,document.snapshot(),document.sourceKey()));}
+  }
+ }
  private static ObjectNode price(JsonNode node,String received,ArrayNode evidence,String method){var value=decimalNode(node);if(value==null)return unknown("PRICE",received,"TERMS_UNAVAILABLE");if(value.signum()<0)throw new IllegalArgumentException("unsigned instruction price required");var price=metric(value,"PRICE","USD",received,method,"QUALIFIED",evidence,"ORDER_EVIDENCE");price.put("origin","BROKER_REPORTED");return price;}
  private static BigDecimal decimalNode(JsonNode n){return n.isNumber()||n.isTextual()?new BigDecimal(n.asText()):null;}
  private static String id(String value){return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8)).toString();}

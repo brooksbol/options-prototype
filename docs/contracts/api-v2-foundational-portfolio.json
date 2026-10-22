@@ -3012,6 +3012,17 @@
               "format": "uuid"
             },
             "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
+          },
+          {
+            "name": "brokerGroupId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "description": "Exact reported parent complex-order ID; combine with accountId for broker-qualified scope. Selection of retained peers does not establish current completeness or OCO/OTOCO behavior."
           }
         ],
         "responses": {
@@ -13310,7 +13321,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Link"
-            }
+            },
+            "description": "Known retained peers reporting the same Account/broker/environment parent complex-order ID. At most200 instance links; RELATED_ORDERS_PARTIAL warns when more are retained, discoverable through the paginated brokerGroupId filter. This is not proof of OCO/OTOCO behavior, complete current group membership or Position association."
           },
           "status": {
             "type": "string",

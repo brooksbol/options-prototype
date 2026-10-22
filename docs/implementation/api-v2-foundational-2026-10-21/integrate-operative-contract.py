@@ -20,6 +20,7 @@ def rewrite(value):
  if '$ref' in out:out['$ref']=out['$ref'].replace('../../contracts/','')
  return out
 module=rewrite(module)
+module['components']['schemas']['Order']['properties']['relatedOrders']['description']='Known retained peers reporting the same Account/broker/environment parent complex-order ID. At most200 instance links; RELATED_ORDERS_PARTIAL warns when more are retained, discoverable through the paginated brokerGroupId filter. This is not proof of OCO/OTOCO behavior, complete current group membership or Position association.'
 module['components']['schemas']['Position']['properties']['orders']['description']='Authorized scoped collection navigation, including Construction-targeted relationships. A link does not establish an opening, complete history or an Order association; inspect each result qualification. Null for readers without the Order capability.'
 module['components']['schemas']['Problem']={'$ref':COMMON+'#/components/schemas/HeldQuoteReadProblem'}
 statuses={401:('UNAUTHENTICATED','Unauthenticated'),403:('FORBIDDEN','Forbidden'),404:('NOT_FOUND','Not found'),422:('INVALID_REQUEST','Invalid request'),503:('CAPABILITY_UNAVAILABLE','Capability unavailable'),500:('INTERNAL_ERROR','Internal error')}
@@ -31,6 +32,7 @@ for path,item in module['paths'].items():
   op['tags']=['Holdings' if path.startswith('/v2/holdings') else 'Construction Models' if '/models' in path else 'Constructions' if path.startswith('/v2/constructions') else 'Orders' if path.startswith('/v2/orders') else 'Instruments' if path.startswith('/v2/instruments') else 'Market observations' if path.startswith('/v2/market-observations') else 'Positions']
   # Reuse internal description convention; security remains machine-readable too.
   op['description']='Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n<!-- internal-only:start -->\n'+op['description']+'\n<!-- internal-only:end -->'
+  if path=='/v2/orders':op['parameters'].append({'name':'brokerGroupId','in':'query','required':False,'schema':{'type':'string','minLength':1,'maxLength':1024},'description':'Exact reported parent complex-order ID; combine with accountId for broker-qualified scope. Selection of retained peers does not establish current completeness or OCO/OTOCO behavior.'})
   for parameter in op.get('parameters',[]):
    if parameter.get('name')=='positionId':parameter['description']='Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them.'
   for status,(code,title) in statuses.items():
