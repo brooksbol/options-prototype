@@ -24,6 +24,7 @@ public final class PortfolioOrderEvaluation {
   for(var document:orders){var order=document.value();if(!order.path("account").equals(position.path("account")))continue;
    for(var association:order.path("associations"))if(admitted(association,order,account,positionUri,constructionUri)){associated.add(order);break;}
   }
+  if(!associated.isEmpty())position.set("orders",link("/v2/orders?positionId="+positionUri.substring("/v2/positions/".length())));
   var opening=associated.stream().filter(o->o.path("status").asText().equals("FILLED")&&matches(o,options,true)).toList();
   if(opening.size()==1){
    var order=opening.getFirst();var fills=opening(order,options,now);

@@ -465,7 +465,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": ""
+            "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
           }
         ],
         "responses": {
@@ -1513,7 +1513,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": ""
+            "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
           },
           {
             "name": "include",
@@ -3011,7 +3011,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": ""
+            "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
           }
         ],
         "responses": {
@@ -6531,7 +6531,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": ""
+            "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
           }
         ],
         "responses": {
@@ -6875,7 +6875,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": ""
+            "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
           },
           {
             "name": "auditId",
@@ -12935,7 +12935,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Authorized scoped collection navigation, including Construction-targeted relationships. A link does not establish an opening, complete history or an Order association; inspect each result qualification. Null for readers without the Order capability."
           },
           "audit": {
             "anyOf": [

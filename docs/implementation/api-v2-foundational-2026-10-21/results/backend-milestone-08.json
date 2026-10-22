@@ -1,0 +1,1264 @@
+{
+  "commit": "6d41375f771b090154f72001a0c6d4723935fa7a",
+  "command": "./evidence-service-java/gradlew -p evidence-service-java test --console=plain",
+  "log": "/tmp/ww-full-operative-recursive.log",
+  "duration": "5m15s",
+  "status": "PASSED",
+  "summary": {
+    "tests": 928,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "suites": [
+    {
+      "name": "opening delay window (Phase 2, 09:30\u201309:45 ET) is provider-aware",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "publication behavior",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.034"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeDeadlineTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "5.231"
+    },
+    {
+      "name": "com.wheelwright.evidence.DispositionFailClosedTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.V2QuotesControllerTest",
+      "tests": "30",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.215"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ResponseCacheTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteCorrelationTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.BrokerageArtifactsTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.566"
+    },
+    {
+      "name": "weekends",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioFidelityFactsTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.125"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioTastyMarketSourcesTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.122"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.MultiBrokerAccountsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.086"
+    },
+    {
+      "name": "operator-forced one-shot acquisition (PL-OPS-08)",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "13.131"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HeldQuoteDetailControllerTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.465"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.IndexMarketParsingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$HeldExpirationOverlay",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.026"
+    },
+    {
+      "name": "chain serialization \u2014 nullable greeks",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.082"
+    },
+    {
+      "name": "com.wheelwright.evidence.DegradedRecoveryWhileBlockedTest",
+      "tests": "19",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "150.087"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioMarkParityTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.007"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioContractIntegrationTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.753"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioEconomicHistoryTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.02"
+    },
+    {
+      "name": "com.wheelwright.evidence.ProviderHysteresisAndCadenceTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.603"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.AccountsTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.163"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ChainNormalization",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ConfigurationValidation",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.continuity.ContinuityEngineTest",
+      "tests": "17",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.005"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.RequestPacerTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.414"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ObservationRecorderTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioFinancialTest",
+      "tests": "16",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.132"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$SetChainForExpiration",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.015"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$PacingBehavior",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "Ready preservation on expirations refresh",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.037"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioMarketReadThroughTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.296"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.RealFileAssessmentTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "1",
+      "time": "0.001"
+    },
+    {
+      "name": "Malformed artifacts are rejected loudly",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.BrokerScopedMigrationTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.042"
+    },
+    {
+      "name": "com.wheelwright.evidence.DegradedModeIntegrationTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "22.067"
+    },
+    {
+      "name": "Real persisted artifact",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.StatusEnvironmentTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "publication coalescing",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "10.06"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HeldQuoteCodecTransportTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.626"
+    },
+    {
+      "name": "failover-aware: the SAME classifier reflects a live authority switch",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$Generation",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.02"
+    },
+    {
+      "name": "com.wheelwright.evidence.RecoveryProbeTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HistoricalPositionsTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.457"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioUnquantifiedCustodyTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.035"
+    },
+    {
+      "name": "com.wheelwright.evidence.ProviderAfterHoursMeasurementControllerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioMarketAcquisitionTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.005"
+    },
+    {
+      "name": "off-hours",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "classified population (eligible vs due)",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.036"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.MarketEvidenceSubjectsTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.102"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ExpirationNormalization",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "held-expiration validation is strict and ATOMIC (malformed \u2192 400, no state mutation)",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PathSymbolCodecTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.179"
+    },
+    {
+      "name": "operator-forced TARGETED acquisition (console refresh?symbol=...)",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "55.756"
+    },
+    {
+      "name": "Pre/post/non-trading unchanged",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteSubjectVerificationTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteServiceTest",
+      "tests": "30",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.319"
+    },
+    {
+      "name": "com.wheelwright.evidence.AcquisitionFencingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.732"
+    },
+    {
+      "name": "com.wheelwright.evidence.NudgeControllerTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.063"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioOptionReferenceTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.364"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TransactionHistoryTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "1",
+      "time": "0.354"
+    },
+    {
+      "name": "BUG-014: durable sealed-session completeness fact",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.04"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.ProductionAssessorTest",
+      "tests": "35",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.029"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ProviderMeasurementRecorderTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.029"
+    },
+    {
+      "name": "com.wheelwright.evidence.QuotesControllerTest",
+      "tests": "20",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.31"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioHttpTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.228"
+    },
+    {
+      "name": "Production (real-time) \u2014 the defect scenario",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "multi-DTE surface freshness (PL-COHERE-01 Finding #1 recovery)",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.09"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$EligibleExpirations",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "session gate integration",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.103"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$SchemaInitialization",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.013"
+    },
+    {
+      "name": "com.wheelwright.evidence.StatusControllerTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.HeldQuoteDetailStoreTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.035"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioNestedRecognitionTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.044"
+    },
+    {
+      "name": "BUG-013 sealed-evidence validity across the ET midnight into a trading day",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.HeldExpirationAcquisitionTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.52"
+    },
+    {
+      "name": "Observation demand vs recommendation universe separation",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.046"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$RestartDurability",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.03"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.GovernedDecisionStoreTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.04"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.ProviderProvenanceTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.026"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.OriginalSourceAuthorizationTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.161"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioReferenceTermsTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$FailedRefreshPreservation",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$GreekNullability",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.006"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$SessionDateParity",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteSessionIdentityTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PositionsTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.15"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$CacheBehavior",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.Bug021RoundTripFixtureTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.052"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.StrictHeldQuoteDecoderTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.HeldQuotesControllerTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.285"
+    },
+    {
+      "name": "com.wheelwright.evidence.GovernedContextControllerTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.039"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioCapitalHistoryTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.239"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.FidelityActivityParserTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.006"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$GetAllChains",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$EvidenceWriteRead",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.025"
+    },
+    {
+      "name": "com.wheelwright.evidence.ProviderFailureClassificationTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "5.063"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeDisclosureTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.252"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioCashCustodyTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.325"
+    },
+    {
+      "name": "malformed request validation (400, never 500/ClassCastException)",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.015"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeAcquisitionTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.185"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.ContinuityStoreTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.029"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ObserverRealPacerIntegrationTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.261"
+    },
+    {
+      "name": "com.wheelwright.evidence.OpportunityHistoryBoundaryTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.048"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioOrderEvaluationTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.066"
+    },
+    {
+      "name": "com.wheelwright.evidence.universe.DispositionApplierTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.075"
+    },
+    {
+      "name": "holidays",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "Sandbox (delayed) \u2014 legitimate delayed-open preserved",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "com.wheelwright.evidence.SnapshotControllerTest",
+      "tests": "22",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.197"
+    },
+    {
+      "name": "Mixed authority \u2014 no laundering (subject judged by its OWN environment)",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "com.wheelwright.evidence.OpportunityHistoryProvenanceTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.022"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.BuyToCloseProductionTest",
+      "tests": "27",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.009"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$WorkQueue",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.007"
+    },
+    {
+      "name": "prioritized work queue \u2014 classification",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.047"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.EconomicDecomposerTest",
+      "tests": "16",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.02"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioOrderEvidenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.ClassifyFromChainTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.133"
+    },
+    {
+      "name": "com.wheelwright.evidence.EvidenceServiceApplicationTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.303"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$RealQuoteNormalization",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.009"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$GetEvidenceWithChains",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.014"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SpotHistoryTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.062"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.UniverseImportTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.121"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.HeldDirectQuoteStoreTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.098"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioOrderAcquisitionTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.081"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierSourceEventTimeTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.015"
+    },
+    {
+      "name": "service-floor debt boundaries",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.044"
+    },
+    {
+      "name": "early-close days",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "regular session",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.0"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.UsersTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.071"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TradierTimestampAcquisitionTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.011"
+    },
+    {
+      "name": "heldExpirations declaration lifecycle (present vs omitted)",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.022"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.WeeklyRefreshCadenceTest",
+      "tests": "11",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.077"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.TradierAdapterTest$ErrorHandling",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "classified population parity",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.034"
+    },
+    {
+      "name": "com.wheelwright.evidence.WeeklyAttemptClockTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.054"
+    },
+    {
+      "name": "status null semantics",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.055"
+    },
+    {
+      "name": "restart with durable evidence",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "10.087"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.OpportunityHistoryTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.043"
+    },
+    {
+      "name": "com.wheelwright.evidence.ContinuityControllerTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.6"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioFillEvidenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.037"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioReconciliationTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.355"
+    },
+    {
+      "name": "anti-starvation",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.037"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.TreasuryBasisResolverTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "empty-portfolio clear path",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.015"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.portfolio.PortfolioSessionEvidenceTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.008"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.TransactionClassifierTest",
+      "tests": "20",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.01"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.MarketMetricsTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.013"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.IntradayBarsParsingTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.TerminalDispositionTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "9.207"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.DirectQuoteContactBoundaryTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.129"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeReferenceFallbackTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.007"
+    },
+    {
+      "name": "com.wheelwright.evidence.provider.ProviderAuthorityManagerTest",
+      "tests": "12",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.048"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.SqliteEvidenceStoreTest$PrimaryExpirationSelection",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "com.wheelwright.evidence.production.ProductionAttributionTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "com.wheelwright.evidence.db.MultiExpirationTest$ChainAcquisitionProvenanceUnavailable",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.015"
+    }
+  ],
+  "meaning": "Full deterministic regression, not live brokerage or complete API acceptance."
+}
