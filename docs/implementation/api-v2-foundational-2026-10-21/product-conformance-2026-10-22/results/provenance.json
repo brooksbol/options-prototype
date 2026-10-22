@@ -1,9 +1,9 @@
 {
-  "sourceCommit": "8bd75f5700a2cee39b7a9edb5e685c2d5a365312",
-  "sourceDirty": true,
+  "sourceCommit": "de3605e1bd8fb15278b29e4969d4bcfb2d3eec9a",
+  "sourceDirty": false,
   "publication": "NOT_PUBLISHED",
   "publicationDate": null,
-  "acceptedPreviewSha256": "f528d7302e6dfb299dd0b643fa9361fcce32dd10db17634557d1b47816fd2313",
+  "acceptedPreviewSha256": "caab89ce5e35f1c9c6c2ae38b759099a3933d5cc1e647966b4590b6cc011e75c",
   "acceptedSource": "8dcee81203c91e10bdec94a6ed24e307a8729b54",
   "independentReview": "PENDING",
   "node": "v24.18.0",
@@ -31,7 +31,7 @@
     "tools/api-docs/README.md": "558bbf3f0ff5141448797a45f8f065346fd497a3f1eafb227e075094fd292898",
     "tools/api-docs/agent-specimen.md": "8ad2a78580d8d34c7558461a95fda6de3dc0417ca100b50272fe5000412873b5",
     "tools/api-docs/build.py": "b170827dfdf777d80c83cbdeca638f64a61b198316ddcfb9d5238a3d37cfbd83",
-    "tools/api-docs/human-specimen.mjs": "323cf05970734d3d0d83eb30aaf0d0d2adaa1a7995cb3ad5fb9d35876a00ebee",
+    "tools/api-docs/human-specimen.mjs": "abcfeddaa642816a2c5936d2b09935a93af43bd5b331e01ffd7aea350ab4a8a9",
     "tools/api-docs/kiro-public-test-instructions.txt": "eb6b2003a67f794426a2ef67f05aeb166944aa90a40bf4f785bec889cf5f5c0c",
     "tools/api-docs/overview.md": "1f641fb6aeb73d8e681380153979e316483b9b3aa645041f3cf0429364a62a82",
     "tools/api-docs/package-lock.json": "7075496eab0d02abc0ad997125726fbafb4e4509ea68f4007624a47b1b312800",
@@ -40,12 +40,12 @@
     "tools/api-docs/redocly.yaml": "6607622ab366789d7d4ae6e963114036cfef1faab7bce1a4c982be13c920b4ab",
     "tools/api-docs/release.json": "14a4da4af8d276b8267834e74f761f76212a01a732f29f8c76099fd915208cfd",
     "tools/api-docs/requirements.txt": "99e74c369b08e1d8d8e24af702f848fedcf1f828bf831e5280f1f69f4b0c35b5",
-    "tools/api-docs/validate.py": "38ac46b246468aa3e9aa4d98a1664d6061ecf891f494882d5d8215aa1b50db2f"
+    "tools/api-docs/validate.py": "887e317aa33dac5399dbfaf72e501702f0f4e422c79c662fc35c171c956ee0b6"
   },
   "publicFiles": {
     "LICENSES.txt": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
-    "index.html": "f528d7302e6dfb299dd0b643fa9361fcce32dd10db17634557d1b47816fd2313"
+    "index.html": "caab89ce5e35f1c9c6c2ae38b759099a3933d5cc1e647966b4590b6cc011e75c"
   },
   "authoritativeBundleSha256": "b87fa6d257ec02ecf05e3ca54775e7622e09232f6e1fb1ca70c03c29732de90e",
-  "projectionSha256": "9dbaa46f60d554abde5d1fc609f44bdd780a4eff768fbf1deea480bf292fff56"
+  "projectionSha256": "e4660519e632987270d478d290d32200430e3f655d22f5c16c36b34b0b2f1039"
 }
