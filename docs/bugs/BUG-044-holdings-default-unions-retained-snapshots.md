@@ -34,3 +34,11 @@ Author deterministic tests and static documentation specimens are recorded in th
 
 ## Related
 [Correction task state](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/STATE.md); F3 lifecycle questions are reserved and are not this defect.
+
+## October22 — retained-catalog pagination regression
+
+The Principal reports independent Kiro verification resolved the original F1/F2/F4–F6 targets but REJECTED frozen5377610c because retained snapshot catalog pagination lost cuts. This is reported independent disposition; original full Kiro probe artifacts were not supplied. It does not erase the original rejection or authorize deployment. The Principal separately explicitly authorizes this one bounded regression correction.
+
+New source-admission/HTTP walks independently reproduce the failure: seven cuts at ascending limits1/2/3 yield2/3/4, reverse limit1 yields1; one Account/fivecuts/limit2 yields3. SQL compared `account||':'||snapshot_id` against the signed controller continuation `/v2/accounts/{account}:{snapshotId}`. Catalog summary generation, sorting and serialization therefore disagreed with persistence selection.
+
+The isolated successor uses the existing canonical Account URI plus snapshot ID consistently in SQL and the controller's shared PortfolioSnapshots.orderingKey. Public cursor encoding, signature, grants, filters and resource identities remain unchanged. New19-check catalog suite covers one/two Accounts, limits1/2/3/default50, both directions, same-date distinct cuts, page boundaries, history/latest selection and restricted visibility; targeted31 checks including existing F1/F2 pass. Full regression and exact before/after traces are recorded in [the successor evidence/handoff](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/catalog-pagination-regression/README.md). Status remains Open pending targeted independent Kiro re-verification and later controlled acceptance. No F3 lifecycle or recognition policy change.

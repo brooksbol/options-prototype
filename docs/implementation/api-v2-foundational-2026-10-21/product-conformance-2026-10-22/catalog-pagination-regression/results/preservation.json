@@ -1,0 +1,30 @@
+{
+  "frozenCandidate": "5377610c004b35a0653011813068309eab42bf1e",
+  "remoteMain": "65604784ee4ea6141cab66f7bb482a437cbe6e7b",
+  "protectedPathsUnchanged": [
+    "docs/contracts",
+    "tools/api-docs",
+    "scripts",
+    "docs/api-v2",
+    "docs/knowledge",
+    "docs/assimilation-obligations.md",
+    "docs/reviews",
+    "options-prototype"
+  ],
+  "changedProductionFiles": [
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioController.java",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioSnapshots.java"
+  ],
+  "frozenWorktreeHead": "5377610c004b35a0653011813068309eab42bf1e",
+  "frozenWorktreeDirty": false,
+  "rootUnrelatedInFlight": "tools/mcp-standalone-agent/ observed untracked and untouched",
+  "taskStateCreatedUTC": "2026-10-23T00:34:17.315320+00:00",
+  "verificationRecordedUTC": "2026-10-23T00:45:35.282544+00:00",
+  "elapsedSecondsFromTaskState": 677.967224,
+  "bootstrapDuration": "NOT_SEPARATELY_INSTRUMENTED",
+  "principalFollowupInterventions": 0,
+  "tokenCreditUsage": "NOT_EXPOSED",
+  "liveBrokerCalls": 0,
+  "runtimeChanges": 0,
+  "independentReview": "PENDING"
+}

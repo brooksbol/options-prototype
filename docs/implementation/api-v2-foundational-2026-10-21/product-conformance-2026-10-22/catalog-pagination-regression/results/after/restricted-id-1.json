@@ -1,0 +1,68 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_SYNTHETIC_SOURCE_HTTP_WALK_NOT_KIRO_OR_LIVE_BROKER_PROBE",
+  "applicationBase": "5377610c004b35a0653011813068309eab42bf1e",
+  "applicationDelta": "PortfolioSnapshots SQL canonical Account URI prefix plus shared controller key helper",
+  "fullGeneratedCaptureSha256": "5df0b845dfd635a4525ab8995cf1fff243764ed878f4be44d5622effd6215082",
+  "expectedCount": 5,
+  "actualCount": 5,
+  "termination": "NEXT_NULL",
+  "reference": [
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:801721d847a10ca635d644d2ed7a2e15367256860eb3d6ee0142edc424158011",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:88abd787c6eb39e585dbc38a0d91d825eb221404049cf3bda0a6c10964824c93",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:9a4e32b63cab3b1c8ccb13f4ef4516a5f539ab0eb186d13afa059ce1f2eee863",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:e7f13e98173060c651ce413fc3207df6d2d90b97166a47a7870e88df7e0fb462",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:ef74b3d074af172a353fcb49e67d540bad8f073abd4b23e0e45991cc272574db"
+  ],
+  "concatenated": [
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:801721d847a10ca635d644d2ed7a2e15367256860eb3d6ee0142edc424158011",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:88abd787c6eb39e585dbc38a0d91d825eb221404049cf3bda0a6c10964824c93",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:9a4e32b63cab3b1c8ccb13f4ef4516a5f539ab0eb186d13afa059ce1f2eee863",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:e7f13e98173060c651ce413fc3207df6d2d90b97166a47a7870e88df7e0fb462",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:ef74b3d074af172a353fcb49e67d540bad8f073abd4b23e0e45991cc272574db"
+  ],
+  "pages": [
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:801721d847a10ca635d644d2ed7a2e15367256860eb3d6ee0142edc424158011"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo4MDE3MjFkODQ3YTEwY2E2MzVkNjQ0ZDJlZDdhMmUxNTM2NzI1Njg2MGViM2Q2ZWUwMTQyZWRjNDI0MTU4MDEx.Ju1aFLL_QF2KeJyyp8LGeh7iUsJ7Mt4peTfMnEbEmJk"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo4MDE3MjFkODQ3YTEwY2E2MzVkNjQ0ZDJlZDdhMmUxNTM2NzI1Njg2MGViM2Q2ZWUwMTQyZWRjNDI0MTU4MDEx.Ju1aFLL_QF2KeJyyp8LGeh7iUsJ7Mt4peTfMnEbEmJk",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:88abd787c6eb39e585dbc38a0d91d825eb221404049cf3bda0a6c10964824c93"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo4OGFiZDc4N2M2ZWIzOWU1ODVkYmMzOGEwZDkxZDgyNWViMjIxNDA0MDQ5Y2YzYmRhMGE2YzEwOTY0ODI0Yzkz.r_mwVd2UehhrdxOzQrNqUvJJhir1dAR3pEKJauhQhFk"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo4OGFiZDc4N2M2ZWIzOWU1ODVkYmMzOGEwZDkxZDgyNWViMjIxNDA0MDQ5Y2YzYmRhMGE2YzEwOTY0ODI0Yzkz.r_mwVd2UehhrdxOzQrNqUvJJhir1dAR3pEKJauhQhFk",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:9a4e32b63cab3b1c8ccb13f4ef4516a5f539ab0eb186d13afa059ce1f2eee863"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo5YTRlMzJiNjNjYWIzYjFjOGNjYjEzZjRlZjQ1MTZhNWY1MzlhYjBlYjE4NmQxM2FmYTA1OWNlMWYyZWVlODYz.vumoMR4FCCZ3Bkbu-dX7zZD0V4WRAVcVbufVJAl6GQA"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo5YTRlMzJiNjNjYWIzYjFjOGNjYjEzZjRlZjQ1MTZhNWY1MzlhYjBlYjE4NmQxM2FmYTA1OWNlMWYyZWVlODYz.vumoMR4FCCZ3Bkbu-dX7zZD0V4WRAVcVbufVJAl6GQA",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:e7f13e98173060c651ce413fc3207df6d2d90b97166a47a7870e88df7e0fb462"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5NzplN2YxM2U5ODE3MzA2MGM2NTFjZTQxM2ZjMzIwN2RmNmQyZDkwYjk3MTY2YTQ3YTc4NzBlODhkZjdlMGZiNDYy.XcFqoO6n1dffXTS5OC98fxx7hylJGOue-G5F90-zLBw"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&cursor=ZDBlYTBlM2M5MjY4MzE5OTgyYjJjYzcyZWIyNjJlMDZkM2M0ZjkwYmEzOTE1MDM3NWQzMGM4ZmIyZTE2MjMxZgovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5NzplN2YxM2U5ODE3MzA2MGM2NTFjZTQxM2ZjMzIwN2RmNmQyZDkwYjk3MTY2YTQ3YTc4NzBlODhkZjdlMGZiNDYy.XcFqoO6n1dffXTS5OC98fxx7hylJGOue-G5F90-zLBw",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:ef74b3d074af172a353fcb49e67d540bad8f073abd4b23e0e45991cc272574db"
+      ],
+      "next": null
+    }
+  ]
+}

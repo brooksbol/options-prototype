@@ -1,0 +1,44 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_SYNTHETIC_SOURCE_HTTP_WALK_NOT_KIRO_OR_LIVE_BROKER_PROBE",
+  "applicationBase": "5377610c004b35a0653011813068309eab42bf1e",
+  "applicationDelta": "PortfolioSnapshots SQL canonical Account URI prefix plus shared controller key helper",
+  "fullGeneratedCaptureSha256": "5d0653a9a6c34bc4f06f2998478cfe56889992fc772087a0447e273b3b5da02f",
+  "expectedCount": 5,
+  "actualCount": 5,
+  "termination": "NEXT_NULL",
+  "reference": [
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:801721d847a10ca635d644d2ed7a2e15367256860eb3d6ee0142edc424158011",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:88abd787c6eb39e585dbc38a0d91d825eb221404049cf3bda0a6c10964824c93",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:9a4e32b63cab3b1c8ccb13f4ef4516a5f539ab0eb186d13afa059ce1f2eee863",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:e7f13e98173060c651ce413fc3207df6d2d90b97166a47a7870e88df7e0fb462",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:ef74b3d074af172a353fcb49e67d540bad8f073abd4b23e0e45991cc272574db"
+  ],
+  "concatenated": [
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:801721d847a10ca635d644d2ed7a2e15367256860eb3d6ee0142edc424158011",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:88abd787c6eb39e585dbc38a0d91d825eb221404049cf3bda0a6c10964824c93",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:9a4e32b63cab3b1c8ccb13f4ef4516a5f539ab0eb186d13afa059ce1f2eee863",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:e7f13e98173060c651ce413fc3207df6d2d90b97166a47a7870e88df7e0fb462",
+    "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:ef74b3d074af172a353fcb49e67d540bad8f073abd4b23e0e45991cc272574db"
+  ],
+  "pages": [
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=3",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:801721d847a10ca635d644d2ed7a2e15367256860eb3d6ee0142edc424158011",
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:88abd787c6eb39e585dbc38a0d91d825eb221404049cf3bda0a6c10964824c93",
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:9a4e32b63cab3b1c8ccb13f4ef4516a5f539ab0eb186d13afa059ce1f2eee863"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=3&cursor=OTBmZTE4YWYxODY5YjNmYWM0ODIwOTllZjZhNTY5NjhjN2Y2MzQwNGIzZTZjN2ZmOTk1NzQ2MjQxNTRkY2I2ZQovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo5YTRlMzJiNjNjYWIzYjFjOGNjYjEzZjRlZjQ1MTZhNWY1MzlhYjBlYjE4NmQxM2FmYTA1OWNlMWYyZWVlODYz.LiYg8RDvBVG5hQDyK8PZUQmrecto0gWuUSLRc96et7M"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=3&cursor=OTBmZTE4YWYxODY5YjNmYWM0ODIwOTllZjZhNTY5NjhjN2Y2MzQwNGIzZTZjN2ZmOTk1NzQ2MjQxNTRkY2I2ZQovdjIvYWNjb3VudHMvYWNjdF8wNWQ3OTBlZDZjYzA0ZDkzOTg1OTEwZjUzN2E1ODQ5Nzo5YTRlMzJiNjNjYWIzYjFjOGNjYjEzZjRlZjQ1MTZhNWY1MzlhYjBlYjE4NmQxM2FmYTA1OWNlMWYyZWVlODYz.LiYg8RDvBVG5hQDyK8PZUQmrecto0gWuUSLRc96et7M",
+      "keys": [
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:e7f13e98173060c651ce413fc3207df6d2d90b97166a47a7870e88df7e0fb462",
+        "/v2/accounts/acct_05d790ed6cc04d93985910f537a58497:ef74b3d074af172a353fcb49e67d540bad8f073abd4b23e0e45991cc272574db"
+      ],
+      "next": null
+    }
+  ]
+}

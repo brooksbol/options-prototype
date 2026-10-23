@@ -1,0 +1,90 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_SYNTHETIC_SOURCE_HTTP_WALK_NOT_KIRO_OR_LIVE_BROKER_PROBE",
+  "applicationBase": "5377610c004b35a0653011813068309eab42bf1e",
+  "applicationDelta": "PortfolioSnapshots SQL canonical Account URI prefix plus shared controller key helper",
+  "fullGeneratedCaptureSha256": "774470f01b97c6f247c42e677fb8df54cd319574d5fcfad4d867e86384fdfd17",
+  "expectedCount": 7,
+  "actualCount": 7,
+  "termination": "NEXT_NULL",
+  "reference": [
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:4969ff8a94564d174aa9cab05353642c89bdf268397eae8cf421978ce93c74cb",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:579addef64decc4e44b204501d2c5b6cd228de91026de6a5ec0b0f2846b4faf7",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:a2d1b4d71d10af5cae3acf299b3086f43c2001139ce38fa2b21a4fc9fdd6c52b",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:a4a07f24bb96f7b8e92cec6abd2403d2fb3e82d6572c7d7ef71db06a9a2a09e3",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:c6b502688a46adfa1210c6e250d7afa8608d7faafac5912c4b5a28dd6d7d0b57",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:e4d214c0c295c966209452e68ec47a4927c43c024743e2a1916b2d21c3ce8fe1",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:f8c45c854acc347f96913f6f17a859ce6ed2fe7d02345b10a98aabffbfc015ae"
+  ],
+  "concatenated": [
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:4969ff8a94564d174aa9cab05353642c89bdf268397eae8cf421978ce93c74cb",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:579addef64decc4e44b204501d2c5b6cd228de91026de6a5ec0b0f2846b4faf7",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:a2d1b4d71d10af5cae3acf299b3086f43c2001139ce38fa2b21a4fc9fdd6c52b",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:a4a07f24bb96f7b8e92cec6abd2403d2fb3e82d6572c7d7ef71db06a9a2a09e3",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:c6b502688a46adfa1210c6e250d7afa8608d7faafac5912c4b5a28dd6d7d0b57",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:e4d214c0c295c966209452e68ec47a4927c43c024743e2a1916b2d21c3ce8fe1",
+    "/v2/accounts/acct_035061876d8340da9b252da37d58888f:f8c45c854acc347f96913f6f17a859ce6ed2fe7d02345b10a98aabffbfc015ae"
+  ],
+  "pages": [
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:4969ff8a94564d174aa9cab05353642c89bdf268397eae8cf421978ce93c74cb"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4Zjo0OTY5ZmY4YTk0NTY0ZDE3NGFhOWNhYjA1MzUzNjQyYzg5YmRmMjY4Mzk3ZWFlOGNmNDIxOTc4Y2U5M2M3NGNi.ImXnmkFNx3Vx9YcAkoYsMyYIuzy1piGKq5WnEJHjjf8"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4Zjo0OTY5ZmY4YTk0NTY0ZDE3NGFhOWNhYjA1MzUzNjQyYzg5YmRmMjY4Mzk3ZWFlOGNmNDIxOTc4Y2U5M2M3NGNi.ImXnmkFNx3Vx9YcAkoYsMyYIuzy1piGKq5WnEJHjjf8",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:579addef64decc4e44b204501d2c5b6cd228de91026de6a5ec0b0f2846b4faf7"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4Zjo1NzlhZGRlZjY0ZGVjYzRlNDRiMjA0NTAxZDJjNWI2Y2QyMjhkZTkxMDI2ZGU2YTVlYzBiMGYyODQ2YjRmYWY3.cVbTwDwOlfVt0Or3KIuqrYW5uh0M7v6KksAtzShP1Bc"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4Zjo1NzlhZGRlZjY0ZGVjYzRlNDRiMjA0NTAxZDJjNWI2Y2QyMjhkZTkxMDI2ZGU2YTVlYzBiMGYyODQ2YjRmYWY3.cVbTwDwOlfVt0Or3KIuqrYW5uh0M7v6KksAtzShP1Bc",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:a2d1b4d71d10af5cae3acf299b3086f43c2001139ce38fa2b21a4fc9fdd6c52b"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjphMmQxYjRkNzFkMTBhZjVjYWUzYWNmMjk5YjMwODZmNDNjMjAwMTEzOWNlMzhmYTJiMjFhNGZjOWZkZDZjNTJi.YuRenVYB54J78qQvDM79uzmg299M1LCK_sYNGJNUti4"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjphMmQxYjRkNzFkMTBhZjVjYWUzYWNmMjk5YjMwODZmNDNjMjAwMTEzOWNlMzhmYTJiMjFhNGZjOWZkZDZjNTJi.YuRenVYB54J78qQvDM79uzmg299M1LCK_sYNGJNUti4",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:a4a07f24bb96f7b8e92cec6abd2403d2fb3e82d6572c7d7ef71db06a9a2a09e3"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjphNGEwN2YyNGJiOTZmN2I4ZTkyY2VjNmFiZDI0MDNkMmZiM2U4MmQ2NTcyYzdkN2VmNzFkYjA2YTlhMmEwOWUz.YTRy4ZnOjKgVyhxRHpfS1vkZiHFsZhc3Fq6iQFSvyWQ"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjphNGEwN2YyNGJiOTZmN2I4ZTkyY2VjNmFiZDI0MDNkMmZiM2U4MmQ2NTcyYzdkN2VmNzFkYjA2YTlhMmEwOWUz.YTRy4ZnOjKgVyhxRHpfS1vkZiHFsZhc3Fq6iQFSvyWQ",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:c6b502688a46adfa1210c6e250d7afa8608d7faafac5912c4b5a28dd6d7d0b57"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjpjNmI1MDI2ODhhNDZhZGZhMTIxMGM2ZTI1MGQ3YWZhODYwOGQ3ZmFhZmFjNTkxMmM0YjVhMjhkZDZkN2QwYjU3.ojset9yL6P56dm-pmUPz0lSXQr8leJIq6m2D7Z41N_0"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjpjNmI1MDI2ODhhNDZhZGZhMTIxMGM2ZTI1MGQ3YWZhODYwOGQ3ZmFhZmFjNTkxMmM0YjVhMjhkZDZkN2QwYjU3.ojset9yL6P56dm-pmUPz0lSXQr8leJIq6m2D7Z41N_0",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:e4d214c0c295c966209452e68ec47a4927c43c024743e2a1916b2d21c3ce8fe1"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjplNGQyMTRjMGMyOTVjOTY2MjA5NDUyZTY4ZWM0N2E0OTI3YzQzYzAyNDc0M2UyYTE5MTZiMmQyMWMzY2U4ZmUx.Ka4TfL_4XrlHjDEbt1pNzw7sJIvQ88tzjKPycARzmzY"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&accountId=acct_035061876d8340da9b252da37d58888f&cursor=YjI1NTNkYzMzNDM0N2I2MTNlOTE2OWI5Y2ZiZGVkNWY5ZjkwNTIzNGVjMmM1M2QyOGFiNzQyMGY3NGM1ZDZhNwovdjIvYWNjb3VudHMvYWNjdF8wMzUwNjE4NzZkODM0MGRhOWIyNTJkYTM3ZDU4ODg4ZjplNGQyMTRjMGMyOTVjOTY2MjA5NDUyZTY4ZWM0N2E0OTI3YzQzYzAyNDc0M2UyYTE5MTZiMmQyMWMzY2U4ZmUx.Ka4TfL_4XrlHjDEbt1pNzw7sJIvQ88tzjKPycARzmzY",
+      "keys": [
+        "/v2/accounts/acct_035061876d8340da9b252da37d58888f:f8c45c854acc347f96913f6f17a859ce6ed2fe7d02345b10a98aabffbfc015ae"
+      ],
+      "next": null
+    }
+  ]
+}
