@@ -1,11 +1,11 @@
 {
   "previewDate": "2026-10-22",
-  "publicationDate": "2026-10-22",
-  "acceptedSource": "c48e6062ebb806a83bdb86611bdc22500e67e4d3",
-  "acceptedPreviewSha256": "caab89ce5e35f1c9c6c2ae38b759099a3933d5cc1e647966b4590b6cc011e75c",
+  "publicationDate": "2026-10-23",
+  "acceptedSource": "dbdd6ea037a8ed8d6be57da403e95d0f569a0300",
+  "acceptedPreviewSha256": "4620889ee7df48576658ec8c39b6d02d5ed4e395592cbc6919372cfd7c730e52",
   "acceptedLicensesSha256": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
   "acceptedContractInputs": {
-    "docs/contracts/api-v2-account-evidence.json": "dcd92667b45a00c6ad203d3d8ab4d8797da7c56332d2ee4ce0ab53f2d1542b07",
+    "docs/contracts/api-v2-account-evidence.json": "6b7c27b3d3567e1572ee8dd3ee85425e05c11e871f18bdbad40b91454a6acfd7",
     "docs/contracts/api-v2-direct-quote-acquisition-proposal.md": "00139acd118c46e886152814e6334ff8c7946080b3ab5a7efeb949dda9788ebb",
     "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml": "36267fa7f84e8d512a05eb2c3f254a1e59cb6f095d2a442a80b94b97dc5b3987",
     "docs/contracts/api-v2-foundational-portfolio.json": "d6b58572e931d58faa2556680ce3009d8815dd8e1d3e37950c8c37016bf3eea8",
@@ -13,7 +13,7 @@
     "docs/contracts/api-v2-market-evidence-subjects.json": "159f00f23a5329b7319a275326c466e9ec8f7dd884f7215a9c27c2f36d4d6537",
     "docs/contracts/api-v2-subject-show-held-quote.md": "c99dd498b1148f40f1a9891629bc99de5d47ea84bc1dad856546cb9b39b993e2",
     "docs/api-v2/README.md": "7b9075acbf2beb94b04a97c7c17bed814ebdabb546f94ad12bad6c2d805faed4",
-    "docs/cli/ww-account-evidence.md": "32179d19a8c868d68378edf6ed1e376e819e4ba63ce6d6d812fb8757f6efbf25"
+    "docs/cli/ww-account-evidence.md": "311d007eb183013751c99c89f53db2dab7eb269fc37a77c7936748c6f70c104a"
   },
   "principalCleanupSource": "docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md",
   "principalIntegrationSource": "docs/implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md",
