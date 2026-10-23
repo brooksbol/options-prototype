@@ -1,0 +1,29 @@
+#!/bin/bash
+# H-003 terminal launcher; the agent owns all model/MCP behavior.
+set -e
+self=$(realpath "$0")
+agent_dir=$(CDPATH= cd "$(dirname "$self")" && pwd -P)
+
+case ${1-} in
+  ''|--test) ;;
+  *) printf 'Usage: wwt [--test]\n'; exit 2 ;;
+esac
+
+command -v node >/dev/null || { printf 'Install Node.js 22 or later first.\n' >&2; exit 1; }
+command -v npm >/dev/null || { printf 'Install npm 10 or later first.\n' >&2; exit 1; }
+node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 22 ? 0 : 1)' || {
+  printf 'Node.js 22 or later is required.\n' >&2; exit 1;
+}
+for directory in "$agent_dir/../mcp-hello-world" "$agent_dir"; do
+  if ! env -u OPENAI_API_KEY npm ls --prefix "$directory" --depth=0 >/dev/null 2>&1; then
+    printf 'Installing locked dependencies: %s\n' "$(basename "$directory")"
+    env -u OPENAI_API_KEY npm ci --prefix "$directory" --ignore-scripts
+  fi
+done
+
+if [ "${1-}" = --test ]; then
+  exec env -u OPENAI_API_KEY npm test --prefix "$agent_dir"
+fi
+
+# The agent reads OPENAI_API_KEY from the existing ignored repository .env.
+exec node "$agent_dir/agent.mjs"

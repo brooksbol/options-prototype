@@ -1,0 +1,12 @@
+{
+  "name": "wheelwright-h003-standalone-agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22", "npm": ">=10" },
+  "scripts": { "start": "node agent.mjs", "test": "node --test agent.test.mjs" },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.3.1",
+    "openai": "7.43.0"
+  }
+}
