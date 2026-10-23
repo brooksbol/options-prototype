@@ -18,7 +18,7 @@ test('aliases resolve only through backend authorized discovery; rename preserve
   assert.ok(calls.every(path=>path==='/v2/accounts'));
 });
 
-test('Account tables apply the tt palette without changing cells, masking or machine output',()=>{
+test('Account tables apply the tt palette with nickname-first human cells and stable machine output',()=>{
   const accounts=[{id,alias:'pts',displayName:'Personal Treasury',brokerAssociation:{broker:'FIDELITY',accountNumber:'0000123459'}},
     {id:'acct_'+'b'.repeat(32),alias:'tt1',displayName:'Tastytrade',brokerAssociation:{broker:'TASTYTRADE',accountNumber:'123456789'}}];
   const env={TERM:'xterm-256color'};
@@ -34,8 +34,10 @@ test('Account tables apply the tt palette without changing cells, masking or mac
   assert.doesNotMatch(colored,/\x1b\[(?:92|93|4\d|48;)m/);
   const unknown=renderAccounts([{...accounts[0],brokerAssociation:{broker:'OTHER',accountNumber:'0000123459'}}],{tty:true,env});
   assert.doesNotMatch(unknown,/\x1b\[(?:32|91)m/);
-  assert.match(unknown,/OTHER +\*\*\*\*3459/);
-  assert.ok(colored.includes('****3459'));assert.ok(!colored.includes('0000123459'));
+  assert.match(unknown,/OTHER/);
+  assert.ok(!unknown.includes('****'));
+  assert.ok(!plain.includes('BROKER ACCOUNT'));
+  assert.ok(!colored.includes('****3459'));assert.ok(!colored.includes('0000123459'));
   for(const options of [{noColor:true,env},{env:{NO_COLOR:'',TERM:'xterm'}},{env:{NO_COLOR:'1'}},{env:{TERM:'dumb'}}])
     assert.equal(renderAccounts(accounts,{format:'table',...options}),plain);
   for(const options of [{},{format:'tsv',tty:true},{format:'jsonl',tty:true}]) {

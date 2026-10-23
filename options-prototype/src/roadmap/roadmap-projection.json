@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-23T01:37:41.469Z",
+    "generatedAt": "2026-10-23T15:44:45.448Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -40,7 +40,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 43,
+      "bugTotal": 49,
       "logTotal": 120,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -4534,6 +4534,41 @@
           "heading": "PL-MCP-01 — H-003 Wheelwright Talk acceptance and integration — October 22, 2026",
           "level": 3,
           "content": "The Principal explicitly accepted H-003 and authorized commit/integration of the independently accepted six-file candidate plus its dated receipt. Kiro's **ACCEPT** of archive SHA-256 `b367522c0c981313af562a8597ab7625a8590c88838f7176cfd72b38759daab1` is Principal-supplied review evidence. The Principal personally observed two live model-directed MCP calls, exact `Hello, world!` tool results and conversational responses, and successful shutdown. The [H-003 authorization/acceptance/integration receipt](discovery/4am-pl-mcp-01-h003-authorization-acceptance-2026-10-22.md) preserves exact authorizations, evidence attribution, 15 passing deterministic tests, runtime/SDK/protocol identities, operator procedure and accepted nonblocking mutation-coverage, Ctrl-C messaging and shared-root-`.env` limitations.\n\nCodex verified all six archive/file bytes and modes unchanged, integrated them at **`ddacef0e9343e2583a8e85d1a6785ce46edb810c`**, directly pushed under current Git safeguards, and fetched/verified remote contents. `wwt` is the accepted bounded standalone terminal host over the unchanged H-001 server; model API credentials remain in ignored local `.env`, never in this commit. H-001/H-002 are unchanged. The frozen README's historical pending-state text is superseded by the dated receipt without editing the accepted candidate. H-003 is **IMPLEMENTED / AUTHOR-VERIFIED / INDEPENDENTLY ACCEPTED / PRINCIPAL-ACCEPTED / COMMITTED / INTEGRATED**.\n\n**PL-MCP-01 remains INTAKE**; no Reconciliation Completion Record, production architecture choice, H-004 authority, financial integration, persistent memory, multi-user isolation or deployment assurance follows. Existing question discovery and broader reconciliation remain separate.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 / H-004 — October 22 independent question recovery reconciled",
+          "level": 3,
+          "content": "[Bounded Kiro/Codex question-harvest reconciliation](discovery/h004-4am-question-harvest-reconciliation-2026-10-22.md) preserves the two separate read-only actor findings (Kiro approximately 30 missing questions; Codex 43 source-grounded formulations), meaningful overlap, additional **Production / withdrawal** questions, capital/basis/source-time differences, provenance issues in the initial 62, and competing candidate first questions. The recovered formulations are not all unique or direct Principal quotations. Both actors independently favor basic authorized Account orientation as a low-complexity first *candidate*, with qualified Holdings and source-time as useful subsequent questions. **No H-004 first question has been selected, no new domain tool or API access authorized, and the broader PL-MCP-01 intake/reconciliation state is unchanged.**",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 / H-004 — October 22 first-answer same-evening stopping point",
+          "level": 3,
+          "content": "The Principal instructed a **persisted snapshot → 4AM consensus prompt → Codex implementation of the agreed first question → personal answer in `wwt` tonight**. [H-004 stopping point](discovery/h004-4am-tonight-stopping-point-2026-10-22.md) captures the question-family evidence, Herbie combinatorics as a Theory of Constraints learning metaphor, EWY graph and production-withdrawal questions as *future* discovery rather than immediate work, and the shared first-question direction **“What accounts do I have?”** interpreted by authenticated authorized Account visibility. No live financial data, new domain logic, implementation success or Reconciliation Completion Record is claimed by this snapshot. Any first implementation must remain synthetic-only and pass a bounded actor consensus/authorization check.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 / H-004 — October 22 collision and consensus reset",
+          "level": 3,
+          "content": "The Principal corrected the actor sequencing: **damage control first, then read-only 4AM consensus presented for Principal agreement, and only after that a separate Codex implementation assignment**. The earlier combined consensus/implementation prompt was used by both Codex and Kiro in one mutable worktree, resulting in an unverified, uncommitted mixed H-004 candidate. [Recovery and stopping-point record](discovery/h004-4am-collision-recovery-stopping-point-2026-10-22.md) preserves actor-reported evidence and a safe read-only inventory-first procedure. **No H-004 code should be modified or built during the recovery inventory; no actor consensus alone authorizes proceeding to implementation.** PL-MCP-01 remains INTAKE.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 / H-004 — October 23 privacy and model-safety snapshot",
+          "level": 3,
+          "content": "The Principal identified full brokerage-account-number disclosure in ordinary API v2 Account discovery as **BUG-049**. Codex reported an isolated author-verified correction awaiting independent acceptance, integration and deployment. The Principal's sequence is: fix BUG-049; audit other API PII/sensitive disclosures and correct verified defects; assess actual hosted-model/project and `wwt` privacy, inference egress and financial-answer integrity; then pursue the first selected Account question with **real authorized data** only after appropriate safety gates. Synthetic fixtures remain useful for testing but are not a substitute for the Product's real operator experience.\n\nThe [H-004 privacy/model-safety stopping point](discovery/h004-privacy-and-model-safety-snapshot-2026-10-23.md) preserves Principal intent, the frozen collision, current actor assignments, explicit nonclaims and next gates. Muse's [complete independent external-provider research Markdown](research/hosted-llm-api-financial-data-privacy-20261022.md) is preserved verbatim as external evidence, not Product authority or clearance of the actual API project. **PL-MCP-01 remains INTAKE.**",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 / H-004 — October 23 Principal selection: nickname-first and model metadata",
+          "level": 3,
+          "content": "The Principal selected **nickname-first Account discovery**, redaction of brokerage numbers where exceptionally displayed (at most final four), and **Option A external model sees only authorized nickname, broker and count**, and directed “make it so.” [Principal decision and execution boundary](discovery/h004-principal-account-disclosure-and-inference-choice-2026-10-23.md). This does not authorize live financial-data model egress until provider/project retention, host egress/history and grounded-answer safety checks are accepted. BUG-049's earlier 11-file candidate was independently accepted by Kiro but needs current-main derived-projection re-freeze and narrow re-verification, followed by coordinated backend + CLI deployment. The collided H-004 working tree remains frozen. PL-MCP-01 remains INTAKE.",
           "truncated": false,
           "tables": []
         }
@@ -10595,6 +10630,484 @@
           "tables": []
         }
       ]
+    },
+    {
+      "id": "BUG-044",
+      "title": "Default holdings unions historical snapshots",
+      "area": "Holdings API v2",
+      "severity": "S2",
+      "status": "Resolved",
+      "recordFile": "BUG-044-holdings-default-unions-retained-snapshots.md",
+      "provenance": "Kiro-reported F1; independently constructed author falsifiers, October22",
+      "recordTitle": "BUG-044 — Default holdings unions historical snapshots",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Two accepted same-Account snapshots produced two retained cuts in a default response; the accepted contract promises the latest applicable cut.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Default must select one latest applicable admitted cut per authorized Account; explicit historical access remains available. Doc77 §§4,12,13,19 and the operative contract govern the relevant boundary. Principal explicitly authorized bounded correction; no domain redesign.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[F1 reproduction, source/contract citations and author verification](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/verification.md). New probes are identified separately from reported samples and Kiro evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Current custody can be double-counted across time. Severity describes that consequence; no live financial loss or disclosure incident demonstrated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "PortfolioController selected every retained HOLDING before filtering/pagination.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Bounded F1 correction only. No v1/CLI migration, live acquisition, lifecycle policy, trade submission, or publication. Filing is not an execution grant.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Default must select one latest applicable admitted cut per authorized Account; explicit historical access remains available. Existing36operations, financial/evidence/security semantics and retained source history remain intact. Independent Kiro verification required before integration/publication.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Candidate prepared in codex/api-v2-product-conformance-correction-2026-10-22. See linked immutable candidate review package; not deployed or independently accepted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Author deterministic tests and static documentation specimens are recorded in the linked report. Bug remains Open pending independent verification and controlled acceptance; passing author tests are not Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "[Correction task state](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/STATE.md); F3 lifecycle questions are reserved and are not this defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "October22 — retained-catalog pagination regression",
+          "level": 2,
+          "content": "The Principal reports independent Kiro verification resolved the original F1/F2/F4–F6 targets but REJECTED frozen5377610c because retained snapshot catalog pagination lost cuts. This is reported independent disposition; original full Kiro probe artifacts were not supplied. It does not erase the original rejection or authorize deployment. The Principal separately explicitly authorizes this one bounded regression correction.\n\nNew source-admission/HTTP walks independently reproduce the failure: seven cuts at ascending limits1/2/3 yield2/3/4, reverse limit1 yields1; one Account/fivecuts/limit2 yields3. SQL compared `account||':'||snapshot_id` against the signed controller continuation `/v2/accounts/{account}:{snapshotId}`. Catalog summary generation, sorting and serialization therefore disagreed with persistence selection.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Release disposition — October 22, 2026",
+          "level": 2,
+          "content": "Principal reports independent Kiro ACCEPT of successor65d57e91471cb2b04b69e6351bc04c57952881bb and explicitly authorized integration/deployment. Combined-source1,016 Java tests (0 failures,2 optional skips), schema/financial/security and corrected catalog-walk checks passed. Integrated publication81094d8a is installed on port3101 (same executable tree) and documentation LIVE_VERIFIED through successful workflow39885184660, artifact/live hash identity and desktop/mobile checks. See [release receipt](../implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md). Historical candidate-pending statements above describe the earlier phase, not current status. Separate pre-existing BUG-048 remains Open. F3 is unchanged.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-045",
+      "title": "Collections expand whole portfolio before pagination",
+      "area": "Holdings API v2",
+      "severity": "S2",
+      "status": "Resolved",
+      "recordFile": "BUG-045-collections-expand-before-pagination.md",
+      "provenance": "Kiro-reported F2; independently constructed author falsifiers, October22",
+      "recordTitle": "BUG-045 — Collections expand whole portfolio before pagination",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "A limit=1 Position request expanded every source Position. Cold 1000-source admission also repeated continuity scans; the SQL planner could choose a quadratic reconciliation join.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Select authorized membership and the page before per-item evaluation; keep exact Account-wide reconciliation once per request and bounded read-through. Doc77 §§4,12,13,19 and the operative contract govern the relevant boundary. Principal explicitly authorized bounded correction; no domain redesign.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[F2 reproduction, source/contract citations and author verification](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/verification.md). New probes are identified separately from reported samples and Kiro evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Small collection pages impose unnecessary portfolio-sized latency/work. Severity describes that consequence; no live financial loss or disclosure incident demonstrated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Whole-population read/expansion and repeated source interpretation; per-item invariant recomputation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Bounded F2 correction only. No v1/CLI migration, live acquisition, lifecycle policy, trade submission, or publication. Filing is not an execution grant.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Select authorized membership and the page before per-item evaluation; keep exact Account-wide reconciliation once per request and bounded read-through. Existing36operations, financial/evidence/security semantics and retained source history remain intact. Independent Kiro verification required before integration/publication.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Candidate prepared in codex/api-v2-product-conformance-correction-2026-10-22. See linked immutable candidate review package; not deployed or independently accepted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Author deterministic tests and static documentation specimens are recorded in the linked report. Bug remains Open pending independent verification and controlled acceptance; passing author tests are not Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "[Correction task state](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/STATE.md); F3 lifecycle questions are reserved and are not this defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Release disposition — October 22, 2026",
+          "level": 2,
+          "content": "Principal reports independent Kiro ACCEPT of successor65d57e91471cb2b04b69e6351bc04c57952881bb and explicitly authorized integration/deployment. Combined-source1,016 Java tests (0 failures,2 optional skips), schema/financial/security and corrected catalog-walk checks passed. Integrated publication81094d8a is installed on port3101 (same executable tree) and documentation LIVE_VERIFIED through successful workflow39885184660, artifact/live hash identity and desktop/mobile checks. See [release receipt](../implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md). Historical candidate-pending statements above describe the earlier phase, not current status. Separate pre-existing BUG-048 remains Open. F3 is unchanged.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-046",
+      "title": "Holdings public reference loses operation semantics and source qualifications",
+      "area": "Holdings API v2",
+      "severity": "S3",
+      "status": "Resolved",
+      "recordFile": "BUG-046-holdings-public-documentation-fidelity.md",
+      "provenance": "Kiro-reported F4/F5; independently constructed author falsifiers, October22",
+      "recordTitle": "BUG-046 — Holdings public reference loses operation semantics and source qualifications",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The published native projection had 17 identical generic descriptions and a singular OPEN example alongside a named UNRESOLVED example. Source-backed multi-leg, conflict and history examples were absent.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Public operation explanations and examples must faithfully express accepted evidence-qualified financial results. Doc77 §§4,12,13,19 and the operative contract govern the relevant boundary. Principal explicitly authorized bounded correction; no domain redesign.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[F4/F5 reproduction, source/contract citations and author verification](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/verification.md). New probes are identified separately from reported samples and Kiro evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Clients can misunderstand financial evidence and resource capabilities. Severity describes that consequence; no live financial loss or disclosure incident demonstrated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Promotion placed domain explanations inside private-only blocks and retained an obsolete singular example.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Bounded F4/F5 correction only. No v1/CLI migration, live acquisition, lifecycle policy, trade submission, or publication. Filing is not an execution grant.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "Public operation explanations and examples must faithfully express accepted evidence-qualified financial results. Existing36operations, financial/evidence/security semantics and retained source history remain intact. Independent Kiro verification required before integration/publication.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Candidate prepared in codex/api-v2-product-conformance-correction-2026-10-22. See linked immutable candidate review package; not deployed or independently accepted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Author deterministic tests and static documentation specimens are recorded in the linked report. Bug remains Open pending independent verification and controlled acceptance; passing author tests are not Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "[Correction task state](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/STATE.md); F3 lifecycle questions are reserved and are not this defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Release disposition — October 22, 2026",
+          "level": 2,
+          "content": "Principal reports independent Kiro ACCEPT of successor65d57e91471cb2b04b69e6351bc04c57952881bb and explicitly authorized integration/deployment. Combined-source1,016 Java tests (0 failures,2 optional skips), schema/financial/security and corrected catalog-walk checks passed. Integrated publication81094d8a is installed on port3101 (same executable tree) and documentation LIVE_VERIFIED through successful workflow39885184660, artifact/live hash identity and desktop/mobile checks. See [release receipt](../implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md). Historical candidate-pending statements above describe the earlier phase, not current status. Separate pre-existing BUG-048 remains Open. F3 is unchanged.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-047",
+      "title": "V2 routing errors and declarative grant metadata are incomplete",
+      "area": "Holdings API v2",
+      "severity": "S3",
+      "status": "Resolved",
+      "recordFile": "BUG-047-v2-framework-errors-and-grant-metadata.md",
+      "provenance": "Kiro-reported F6; independently constructed author falsifiers, October22",
+      "recordTitle": "BUG-047 — V2 routing errors and declarative grant metadata are incomplete",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "A real loopback Spring server returned application/json default errors for unknown v2 route404 and wrong-method405. Market Account-scope and quote acquisition/force grants existed in prose/runtime but not complete declarative metadata.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "V2 errors use the canonical problem envelope, correlation and non-disclosure; authoritative OAS advertises actual grants while public projection suppresses instructions. Doc77 §§4,12,13,19 and the operative contract govern the relevant boundary. Principal explicitly authorized bounded correction; no domain redesign.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[F6 reproduction, source/contract citations and author verification](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/verification.md). New probes are identified separately from reported samples and Kiro evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Clients receive inconsistent error contracts or incomplete machine-readable security requirements. Severity describes that consequence; no live financial loss or disclosure incident demonstrated.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "Controller-local errors did not cover framework dispatch failures; metadata additions were omitted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Bounded F6 correction only. No v1/CLI migration, live acquisition, lifecycle policy, trade submission, or publication. Filing is not an execution grant.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "V2 errors use the canonical problem envelope, correlation and non-disclosure; authoritative OAS advertises actual grants while public projection suppresses instructions. Existing36operations, financial/evidence/security semantics and retained source history remain intact. Independent Kiro verification required before integration/publication.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Candidate prepared in codex/api-v2-product-conformance-correction-2026-10-22. See linked immutable candidate review package; not deployed or independently accepted.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Author deterministic tests and static documentation specimens are recorded in the linked report. Bug remains Open pending independent verification and controlled acceptance; passing author tests are not Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "[Correction task state](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/STATE.md); F3 lifecycle questions are reserved and are not this defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Release disposition — October 22, 2026",
+          "level": 2,
+          "content": "Principal reports independent Kiro ACCEPT of successor65d57e91471cb2b04b69e6351bc04c57952881bb and explicitly authorized integration/deployment. Combined-source1,016 Java tests (0 failures,2 optional skips), schema/financial/security and corrected catalog-walk checks passed. Integrated publication81094d8a is installed on port3101 (same executable tree) and documentation LIVE_VERIFIED through successful workflow39885184660, artifact/live hash identity and desktop/mobile checks. See [release receipt](../implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md). Historical candidate-pending statements above describe the earlier phase, not current status. Separate pre-existing BUG-048 remains Open. F3 is unchanged.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-048",
+      "title": "Empty-composition zero reference violates Metric evidence constraint",
+      "area": "Holdings API v2",
+      "severity": "S3",
+      "status": "Open",
+      "recordFile": "BUG-048-empty-composition-zero-reference-schema.md",
+      "provenance": "Pre-existing installed-data schema failure; prior-JAR replay confirmed, October22",
+      "recordTitle": "BUG-048 — Empty-composition zero reference violates Metric evidence constraint",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "A Position with `exposure.status=ZERO_OBSERVED` and empty current constituents returns `evaluation.management.zeroGrossPl` as value `\"0\"`, status `QUALIFIED`, method `ZERO_REFERENCE`, and `evidence: []`. Both summary and expanded collection members fail the operative Metric `minItems: 1` evidence condition. No source opening, closure or profit is thereby established. This is a serialization/contract defect in the zero reference, not a demonstrated erroneous trading result.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The operative `docs/contracts/api-v2-foundational-portfolio.json#/components/schemas/Metric` requires nonempty evidence for QUALIFIED metrics. A successful API operation must still produce its documented schema. UNKNOWN states and terminal lifecycle qualifications must not be invented to hide missing evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence and reproduction",
+          "level": 2,
+          "content": "`evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java:23` constructs the zero metric using Construction evidence, which can be empty for an empty current composition. Real installed authorized GET `/v2/positions?limit=5&projection=summary` and `projection=expanded` produced this failure. The prior JAR SHA-256 `1d94fb29d0ce8ef4de4d435746e134e74dc5e38b4fa52d3d697d6a16ed07172e` reproduced the same Metric error in an isolated database-copy replay. Current corrected JAR `c94389c9b4a47ce4538f7cd744ebe1dfafdd4547412a2d9a6e113e9b8f0b85f4` has the same issue. This is pre-existing, not an F1/F2 correction regression.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Consequence and scope",
+          "level": 2,
+          "content": "Strict clients can reject affected Position representations. Other supplied deterministic representations pass. No grant weakening, invented P/L, lifecycle policy or brokerage activity is demonstrated. Record as an existing limitation of the accepted release; do not silently broaden this release into implementation repair or claim complete installed-response conformance. Narrow correction and regression verification remain pending separate authorization.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "[Release record](../implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md). F3 lifecycle policy remains reserved.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-049",
+      "title": "Account metadata exposes full brokerage account numbers",
+      "area": "API v2 Account discovery",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-049-api-v2-account-discovery-full-number-disclosure.md",
+      "provenance": "Isolated number-free remediation candidate; independent acceptance/deployment pending",
+      "recordTitle": "BUG-049 — API v2 Account discovery exposes full brokerage account numbers",
+      "sections": [
+        {
+          "heading": "Source-confirmed behavior",
+          "level": 2,
+          "content": "- `evidence-service-java/src/main/java/com/wheelwright/evidence/v2/AccountDirectory.java`: `BrokerAssociation(String broker, String accountNumber)` and `Account(..., BrokerAssociation brokerAssociation)` are ordinary serialized records populated from `brokerage_account.broker_account`.\n- `evidence-service-java/src/main/java/com/wheelwright/evidence/v2/AccountsController.java`: both `GET /v2/accounts` and `GET /v2/accounts/{accountId}` serialize `AccountDirectory.Account` through `ObjectMapper.writeValueAsString`, without an API projection that excludes the full number.\n- Account-grant checks protect which Account records can be read, but a mere `account.read` metadata grant does not establish a separate authority to disclose full brokerage numbers.\n- `docs/77-api-v2-architectural-guardrails.md` Account confidentiality section prohibits full numbers in resource links and treats account",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Expected behavior / defect boundary",
+          "level": 2,
+          "content": "Ordinary authenticated Account metadata discovery must not expose full brokerage account numbers. Preserve backend Account identity, alias/nickname, broker label, per-Account grants, and legitimate trusted broker integrations. Decide the correct default API representation (omit or mask), and reserve any exceptional full-number access for an explicitly authorized separate capability and Product decision. Do not assume CLI masking or MCP projection repairs the backend defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance / falsifiers for a separately assigned fix",
+          "level": 2,
+          "content": "1. Both collection and instance Account reads use the accepted no-full-number default disclosure contract.\n2. A metadata-authorized User can discover the Accounts they are entitled to without receiving full brokerage account numbers.\n3. Different Users, absent/invalid credentials and grant failures retain accepted authorization semantics; collection and instance paths do not leak unauthorized Account identity.\n4. API contracts/examples/client compatibility and tests reflect the selected representation.\n5. Regression probes cover short/missing/malformed numbers and response body, links, errors and relevant redirection/logging surfaces, without logging real numbers.\n6. No regression to established internal brokerage binding/Account identity, `ww` nicknames or accepted H-001 through H-003.\n7.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Subsequent bounded work",
+          "level": 2,
+          "content": "After fixing this defect, **audit API v2** for additional PII or inappropriate sensitive disclosure in payloads, URLs, error responses, generated examples/specifications, logs and agent-facing boundaries. File distinct evidence-backed defects as needed and remediate them under the applicable authority. Treat financial sensitivity separately from formal PII. Do not call every exposed financial value a bug: compare against accepted Product contract and grants.\n\nOnly then resume H-004 against **real authorized Account metadata**, with a verified model-egress disclosure boundary and actual `wwt` operator observation. The earlier synthetic-fixture plan is not assumed to be the Product target. Retain synthetic/test fixtures as needed for deterministic negative testing, not as a substitute for the real operator experience.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Operational freeze",
+          "level": 2,
+          "content": "The collided H-004 local candidate is frozen and unaccepted. Installed `wwt` points at the mixed launcher, and an earlier build rewrote classes within the running v1 backend's classpath. No build, runtime restart, mixed-tree cleanup or H-004 implementation is authorized by this filing. Remediation engineering must work in an isolated environment with explicit candidate and independent review controls.\n\n**Current state:** BUG filed; no fix, audit or deployed correction claimed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Additional Principal requirement — October 22, 2026: model safety gate",
+          "level": 2,
+          "content": "The Principal added: **“oh, and figure out if the model is actually safe to use”**. This is a separate, explicit prerequisite to allowing actual authorized financial data into `wwt` inference. API disclosure repair or absence of conventional PII is **not** sufficient proof of model safety.\n\nBefore Step 4 real-data operator use, conduct a bounded, independently reviewed **provider-plus-application assessment** of the exact `wwt` model, API endpoint/features, API account/project settings, and host implementation. Document at least:",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Codex remediation candidate — October 22, 2026",
+          "level": 2,
+          "content": "**Standing:** implemented candidate in an isolated checkout based on `241cbabbefef996febe9f83f7f1f872cd609d19e`; author verification only. BUG remains **Open** pending independent acceptance. No commit, integration, deployment or real-data/model clearance is claimed.\n\n**Default representation:** omit brokerage account numbers entirely, including masked numbers. Both `GET /v2/accounts` and `GET /v2/accounts/{accountId}` serialize an explicit allowlisted metadata record containing only `id`, `alias`, `displayName`, and `brokerAssociation.broker`. Internal `AccountDirectory` records and broker bindings are unchanged; there is no database migration or new full-number capability. The existing masking maximum permits withholding the number entirely.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Author verification results",
+          "level": 3,
+          "content": "- Full isolated Java regression: **1,018 tests, 0 failures, 0 errors, 2 optional skips**, BUILD SUCCESSFUL in **5m38s**. Final additions to the same two disclosure tests (invalid/denied response checks and capture emission) then passed a focused rerun in **8s**; production/OAS bytes were unchanged between these runs.\n- Relevant CLI regression: **21 passed, 0 failed**, including Account discovery, confidentiality, sync, historical observation consumption and Position alias compatibility. The initial fresh-clone run lacked Java-generated historical captures; after the full Java suite generated them, the complete rerun passed.",
+          "truncated": true,
+          "tables": []
+        }
+      ]
     }
   ],
   "log": [
@@ -10804,7 +11317,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 682
+      "sourceOrder": 687
     },
     {
       "plId": null,
@@ -10947,7 +11460,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 654
+      "sourceOrder": 659
     },
     {
       "plId": null,
@@ -10960,7 +11473,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 655
+      "sourceOrder": 660
     },
     {
       "plId": null,
@@ -10973,7 +11486,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 656
+      "sourceOrder": 661
     },
     {
       "plId": null,
@@ -10986,7 +11499,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 659
+      "sourceOrder": 664
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -11012,7 +11525,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 657
+      "sourceOrder": 662
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -11194,7 +11707,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 637
+      "sourceOrder": 642
     },
     {
       "plId": null,
@@ -11207,7 +11720,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 638
+      "sourceOrder": 643
     },
     {
       "plId": null,
@@ -11220,7 +11733,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 639
+      "sourceOrder": 644
     },
     {
       "plId": null,
@@ -11233,7 +11746,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 640
+      "sourceOrder": 645
     },
     {
       "plId": null,
@@ -11246,7 +11759,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 641
+      "sourceOrder": 646
     },
     {
       "plId": null,
@@ -11259,7 +11772,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 642
+      "sourceOrder": 647
     },
     {
       "plId": null,
@@ -11272,7 +11785,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 643
+      "sourceOrder": 648
     },
     {
       "plId": null,
@@ -11285,7 +11798,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 644
+      "sourceOrder": 649
     },
     {
       "plId": null,
@@ -11298,7 +11811,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 645
+      "sourceOrder": 650
     },
     {
       "plId": null,
@@ -11311,7 +11824,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 646
+      "sourceOrder": 651
     },
     {
       "plId": null,
@@ -11324,7 +11837,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 647
+      "sourceOrder": 652
     },
     {
       "plId": null,
@@ -11337,7 +11850,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 648
+      "sourceOrder": 653
     },
     {
       "plId": null,
@@ -11350,7 +11863,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 649
+      "sourceOrder": 654
     },
     {
       "plId": null,
@@ -11363,7 +11876,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 650
+      "sourceOrder": 655
     },
     {
       "plId": null,
@@ -11376,7 +11889,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 651
+      "sourceOrder": 656
     },
     {
       "plId": null,
@@ -11389,7 +11902,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 652
+      "sourceOrder": 657
     },
     {
       "plId": null,
@@ -11402,7 +11915,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 653
+      "sourceOrder": 658
     },
     {
       "plId": null,
@@ -11415,7 +11928,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 658
+      "sourceOrder": 663
     },
     {
       "plId": null,
@@ -11428,7 +11941,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 681
+      "sourceOrder": 686
     },
     {
       "plId": "PL-SEM-01",
@@ -11597,7 +12110,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 660
+      "sourceOrder": 665
     },
     {
       "plId": null,
@@ -11610,7 +12123,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 661
+      "sourceOrder": 666
     },
     {
       "plId": "PL-SETUP-01",
@@ -11818,7 +12331,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 662
+      "sourceOrder": 667
     },
     {
       "plId": null,
@@ -11831,7 +12344,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 663
+      "sourceOrder": 668
     },
     {
       "plId": null,
@@ -11844,75 +12357,75 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 664
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 665
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 666
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 667
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 668
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
       "sourceOrder": 669
     },
     {
       "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 670
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 671
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 672
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 673
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 674
+    },
+    {
+      "plId": null,
       "bugId": "BUG-032",
       "title": "Principal acceptance and closure — 2026-10-05",
       "eventKind": "remediation",
@@ -11922,7 +12435,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 670
+      "sourceOrder": 675
     },
     {
       "plId": null,
@@ -11935,7 +12448,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 671
+      "sourceOrder": 676
     },
     {
       "plId": null,
@@ -11948,7 +12461,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 672
+      "sourceOrder": 677
     },
     {
       "plId": null,
@@ -11961,7 +12474,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 673
+      "sourceOrder": 678
     },
     {
       "plId": "PL-STRAT-01",
@@ -12039,7 +12552,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 674
+      "sourceOrder": 679
     },
     {
       "plId": null,
@@ -12052,7 +12565,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 675
+      "sourceOrder": 680
     },
     {
       "plId": null,
@@ -12065,7 +12578,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 676
+      "sourceOrder": 681
     },
     {
       "plId": null,
@@ -12078,7 +12591,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 677
+      "sourceOrder": 682
     },
     {
       "plId": null,
@@ -12091,7 +12604,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 678
+      "sourceOrder": 683
     },
     {
       "plId": "PL-EVID-04",
@@ -12143,7 +12656,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
-      "sourceOrder": 679
+      "sourceOrder": 684
     },
     {
       "plId": null,
@@ -12156,7 +12669,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md",
-      "sourceOrder": 680
+      "sourceOrder": 685
     }
   ],
   "intakeDateUnknown": [

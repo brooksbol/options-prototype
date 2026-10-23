@@ -55,3 +55,30 @@ Before Step 4 real-data operator use, conduct a bounded, independently reviewed 
 OpenAI currently publicly states API inputs/outputs are **not used for model training by default**, subject to explicit opt-in, but normal API abuse-monitoring retention may apply (generally up to 30 days with exceptions), and ZDR is **eligibility/configuration-dependent**. These general commitments must not be substituted for inspection of this actual deployment. References: https://openai.com/enterprise-privacy/ and https://openai.com/index/offering-zero-data-retention-for-frontier-models/ (2026 updates). This record does not claim that the local API project is ZDR-enabled, that host egress is verified, or that the model is cleared for real financial information.
 
 **Revised sequence:** BUG-049 fix → API v2 PII/sensitive disclosure audit and necessary fixes → model/provider/host safety gate → real-data H-004 `wwt` interaction, conditional on verified authorization and Principal acceptance. The mixed H-004 candidate stays frozen until separately handled.
+
+
+## Codex remediation candidate — October 22, 2026
+
+**Standing:** implemented candidate in an isolated checkout based on `241cbabbefef996febe9f83f7f1f872cd609d19e`; author verification only. BUG remains **Open** pending independent acceptance. No commit, integration, deployment or real-data/model clearance is claimed.
+
+**Default representation:** omit brokerage account numbers entirely, including masked numbers. Both `GET /v2/accounts` and `GET /v2/accounts/{accountId}` serialize an explicit allowlisted metadata record containing only `id`, `alias`, `displayName`, and `brokerAssociation.broker`. Internal `AccountDirectory` records and broker bindings are unchanged; there is no database migration or new full-number capability. The existing masking maximum permits withholding the number entirely.
+
+**Compatibility:** the OAS and its two Account examples reflect the number-free representation. The `ww` discovery validator no longer requires a brokerage number, preserving nickname resolution and broker-dependent synchronization. Existing table/TSV rendering uses its established withheld-value `****` fallback; JSONL reflects the number-free response. Legacy response handling remains available for existing installations. Consumers that required the removed sensitive field must adopt the corrected contract; unchanged legacy clients are not claimed compatible with the new backend.
+
+**Proof:** new backend tests cover both Account reads, distinct User scopes, ungranted/admin-only/empty scope, missing/invalid authentication, internal-binding preservation, and short/missing/malformed number projection. CLI tests cover number-free discovery and table/TSV/JSONL. The documentation validator permits only this exact Account schema delta while preserving other baseline wire/security checks; mutation tests reject number reintroduction and unrelated identity/broker/schema changes.
+
+**Isolation:** `/tmp/wheelwright-bug049-codex-20261022` is a separate Git clone with its own build outputs. No compilation runs in the frozen H-004 tree, and no operational service, database, configuration, credential or installed `wwt` is changed. Documentation output is an unpublished temporary preview; release acceptance metadata is unchanged. H-001 through H-003 source is unchanged.
+
+**Remaining boundaries:** independent review of the exact candidate; separate persistence/integration and operational authorization. The broader API sensitive-disclosure audit, model/provider/host safety gate and real-data H-004 interaction remain subsequent work and are not certified by this fix.
+
+
+### Author verification results
+
+- Full isolated Java regression: **1,018 tests, 0 failures, 0 errors, 2 optional skips**, BUILD SUCCESSFUL in **5m38s**. Final additions to the same two disclosure tests (invalid/denied response checks and capture emission) then passed a focused rerun in **8s**; production/OAS bytes were unchanged between these runs.
+- Relevant CLI regression: **21 passed, 0 failed**, including Account discovery, confidentiality, sync, historical observation consumption and Position alias compatibility. The initial fresh-clone run lacked Java-generated historical captures; after the full Java suite generated them, the complete rerun passed. No mocked pass is substituted for that prerequisite.
+- **4 emitted Account responses** validate against the corrected operative collection/instance schemas; **4 full-number reintroduction mutations** are rejected.
+- Existing operative runtime/source/evaluator validation: **184 route representations + 5 standalone representations**, 45 route/status combinations, **0 schema violations**. These fixture counts are not live endpoint or production-security coverage.
+- Existing OAS conformance **7/7**, operative integration **4/4**, and disclosure-delta guard tests **2/2** passed.
+- Unpublished documentation build/validation passed: **36 internal operations / 295 examples; 32 public operations / 263 response examples**. Renderer emitted warnings; strict existing example/wire/security validation passed. No browser inspection or publication is claimed.
+- Roadmap projection regenerated from canonical sources and freshness check passed. Generation also incorporates already-accepted collision/index continuations missing from the baseline projection; those source records were not altered.
+- No independent review, installed operator observation, broader disclosure audit, provider assessment or live-model test was performed.

@@ -18,7 +18,7 @@ export async function readAccounts(token,{base=process.env.WW_BASE_URL,fetchImpl
   const ids=new Set(),aliases=new Set();
   for(const account of data.accounts){
     if(!canonicalAccountId(account.id)||typeof account.alias!=='string'||typeof account.displayName!=='string'||
-       typeof account.brokerAssociation?.accountNumber!=='string'||typeof account.brokerAssociation?.broker!=='string'||ids.has(account.id)||aliases.has(account.alias))throw new ShowError('account discovery: invalid Account metadata');
+       typeof account.brokerAssociation?.broker!=='string'||ids.has(account.id)||aliases.has(account.alias))throw new ShowError('account discovery: invalid Account metadata');
     ids.add(account.id);aliases.add(account.alias);
   }
   return data.accounts;
@@ -32,14 +32,15 @@ export async function resolveAccount(alias,token,options={}) {
 
 export const ACCOUNTS_HELP = `Usage: ww ls accounts [--table | --tsv | --jsonl] [--no-color]
 
-List the accounts you can access, including the alias used in other commands.
+List the accounts you can access, nickname (alias) first for use in other commands.
 
 Examples:
   ww ls accounts
   ww sync account pts
   ww positions --account pts --verbose
 
-Terminal output is a table; redirected output is headerless TSV.
+Terminal output is a nickname-first table without brokerage account numbers.
+Redirected output preserves headerless TSV: alias, name, broker, masked number, ID.
 Use --table to keep the colored table when redirecting, or --jsonl for one Account per line.
 Tables use cyan aliases, branded brokers (Fidelity green, tastytrade red),
 bright white details and dark gray IDs.
@@ -51,15 +52,17 @@ export function renderAccounts(accounts,{format,tty=false,noColor=false,env=proc
   const rows=accounts.map(a=>[a.alias,a.displayName,a.brokerAssociation?.broker ?? '—',maskAccountNumber(a.brokerAssociation?.accountNumber),a.id].map(clean));
   if(format==='tsv'||(!format&&!tty))return rows.map(row=>row.join('\t')+'\n').join('');
   if(!rows.length)return 'No accounts available.\n';
-  const headers=['ALIAS','NAME','BROKER','BROKER ACCOUNT','ID'];
-  const widths=headers.map((h,i)=>Math.max(h.length,...rows.map(row=>row[i].length)));
+  // Preserve the existing positional TSV contract above; human discovery needs no number column.
+  const tableRows=rows.map(([alias,name,broker,,id])=>[alias,name,broker,id]);
+  const headers=['ALIAS','NAME','BROKER','ID'];
+  const widths=headers.map((h,i)=>Math.max(h.length,...tableRows.map(row=>row[i].length)));
   const color=!noColor&&!Object.hasOwn(env,'NO_COLOR')&&env.TERM!=='dumb';
   const layout=(row,header=false)=>row.map((cell,i)=>{
-    const code=header?null:i===0?'96':i===2?brokerInk.get(cell):i===4?'38;5;240':null;
+    const code=header?null:i===0?'96':i===2?brokerInk.get(cell):i===3?'38;5;240':null;
     const value=color&&code?`\x1b[${code}m${cell}\x1b[97m`:cell;
     return value+(i===row.length-1?'':' '.repeat(widths[i]-cell.length));
   }).join('  ');
-  return [layout(headers,true),...rows.map(row=>layout(row))]
+  return [layout(headers,true),...tableRows.map(row=>layout(row))]
     .map(line=>color?`\x1b[97m${line}\x1b[0m`:line).join('\n')+'\n';
 }
 // Short or unrecognized values have no safely disclosable suffix.

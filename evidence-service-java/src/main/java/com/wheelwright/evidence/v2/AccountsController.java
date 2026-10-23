@@ -9,8 +9,16 @@ import java.util.*;
 @RestController
 @RequestMapping("/v2/accounts")
 public class AccountsController {
-    public record Inventory(String requestId, List<AccountDirectory.Account> accounts) {}
-    public record Detail(String requestId, AccountDirectory.Account account) {}
+    /** Ordinary metadata never carries the sensitive brokerage reference used internally. */
+    public record BrokerMetadata(String broker) {}
+    public record AccountMetadata(String id, String alias, String displayName, BrokerMetadata brokerAssociation) {
+        static AccountMetadata from(AccountDirectory.Account account) {
+            return new AccountMetadata(account.id(), account.alias(), account.displayName(),
+                    new BrokerMetadata(account.brokerAssociation().broker()));
+        }
+    }
+    public record Inventory(String requestId, List<AccountMetadata> accounts) {}
+    public record Detail(String requestId, AccountMetadata account) {}
     private final AccountDirectory accounts;
     private final BearerAuthenticator auth;
     private final ObjectMapper mapper;
@@ -38,9 +46,9 @@ public class AccountsController {
             return problem(ProblemCode.INVALID_REQUEST,id,"canonical Account ID required; query/body unsupported");
         try {
             if(accountId==null)return response(200,id,MediaType.APPLICATION_JSON,new Inventory(id,
-                    accounts.list().stream().filter(a->caller.get().hasGrant("account.read:"+a.id())).toList()));
+                    accounts.list().stream().filter(a->caller.get().hasGrant("account.read:"+a.id())).map(AccountMetadata::from).toList()));
             var account=accounts.get(accountId);
-            return account.isPresent()?response(200,id,MediaType.APPLICATION_JSON,new Detail(id,account.get())):
+            return account.isPresent()?response(200,id,MediaType.APPLICATION_JSON,new Detail(id,AccountMetadata.from(account.get()))):
                     problem(ProblemCode.NOT_FOUND,id,"account not found");
         }catch(java.sql.SQLException e){return problem(ProblemCode.CAPABILITY_UNAVAILABLE,id,"account storage unavailable");}
     }

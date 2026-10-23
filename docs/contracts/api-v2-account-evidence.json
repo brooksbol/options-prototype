@@ -667,7 +667,7 @@
       "get": {
         "operationId": "listAccounts",
         "summary": "List Accounts",
-        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability.\n\n<!-- internal-only:start -->\nAuthentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
+        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability.\n\n<!-- internal-only:start -->\nAuthentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->\nOrdinary metadata omits brokerage account numbers entirely, including masked numbers. Broker label, identity and nicknames remain available. Full-number disclosure is not provided by this capability.",
         "security": [
           {
             "bearerAuth": []
@@ -710,8 +710,7 @@
                           "alias": "demo",
                           "displayName": "Synthetic demo Account",
                           "brokerAssociation": {
-                            "broker": "FIDELITY",
-                            "accountNumber": "SYNTHETIC01"
+                            "broker": "FIDELITY"
                           }
                         }
                       ]
@@ -785,7 +784,7 @@
       "get": {
         "operationId": "readAccount",
         "summary": "Read an Account",
-        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability.\n\n<!-- internal-only:start -->\nAuthentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->",
+        "description": "Backend-generated immutable Account identity, mutable alias/display metadata and broker association. No query/body. CLI aliases resolve through this discovery, never through REST path interchangeability.\n\n<!-- internal-only:start -->\nAuthentication identifies caller; exact account.read:ID grants determine visibility. List filters to authorized Accounts; possessing an ID grants no authority. Bearer credentials resolve to stable Users; permissions are read from committed backend User authority, independently of credential strings or Account ownership.\n<!-- internal-only:end -->\nOrdinary metadata omits brokerage account numbers entirely, including masked numbers. Broker label, identity and nicknames remain available. Full-number disclosure is not provided by this capability.",
         "security": [
           {
             "bearerAuth": []
@@ -827,8 +826,7 @@
                         "alias": "demo",
                         "displayName": "Synthetic demo Account",
                         "brokerAssociation": {
-                          "broker": "FIDELITY",
-                          "accountNumber": "SYNTHETIC01"
+                          "broker": "FIDELITY"
                         }
                       }
                     }
@@ -2434,15 +2432,13 @@
                   "FIDELITY",
                   "TASTYTRADE"
                 ]
-              },
-              "accountNumber": {
-                "type": "string"
               }
             },
             "required": [
-              "broker",
-              "accountNumber"
-            ]
+              "broker"
+            ],
+            "additionalProperties": false,
+            "description": "Broker label only. Ordinary Account metadata omits brokerage account numbers; internal broker bindings are not disclosure authority."
           }
         },
         "required": [
@@ -2450,7 +2446,8 @@
           "alias",
           "displayName",
           "brokerAssociation"
-        ]
+        ],
+        "description": "Authorized Account metadata: stable identity, nickname, display name and broker label. No full or masked brokerage account number is disclosed."
       },
       "AccountInventory": {
         "type": "object",

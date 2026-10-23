@@ -12,11 +12,14 @@ test('authoritative Account contract admits both supported brokerage codes',asyn
   assert.ok(oas.paths['/v2/accounts']);assert.ok(!oas.paths['/v2/brokerages']);
 });
 
-test('BUG-035: both brokerages mask default and forced tables and redirected TSV',()=>{
+test('BUG-035: both brokerages omit numbers in tables and mask redirected TSV',()=>{
   for(const broker of ['FIDELITY','TASTYTRADE']) for(const options of [{tty:true},{format:'table'},{},{format:'tsv',tty:true}]) {
     const result=renderAccounts([account(broker,'0000123459')],options);
     assert.ok(result.includes('tt1'));assert.ok(result.includes(broker));
-    assert.ok(result.includes('****3459'));assert.ok(!result.includes('0000123459'));
+    if(options.tty&&!options.format||options.format==='table') {
+      assert.ok(!result.includes('BROKER ACCOUNT'));assert.ok(!result.includes('****3459'));
+    } else assert.ok(result.includes('****3459'));
+    assert.ok(!result.includes('0000123459'));
   }
 });
 test('BUG-035: short, missing, malformed and non-string references disclose no suffix',()=>{
@@ -45,4 +48,21 @@ test('tastytrade sync requests only backend acquisition without scanning Downloa
   assert.equal((await syncAccount('tt1','credential',{fetchImpl,directory:'/nonexistent-downloads',out:()=>{}})).complete,true);
   await assert.rejects(resolveAccount('missing','credential',{fetchImpl}),/run ww ls accounts/);
   assert.deepEqual(paths,['/v2/accounts','/v2/accounts','/v2/position-acquisitions','/v2/accounts']);
+});
+
+test('BUG-049: number-free API metadata retains nickname discovery and every output mode',async()=>{
+  const metadata={id,alias:'tt1',displayName:'Broker account',brokerAssociation:{broker:'TASTYTRADE'}};
+  const fetchImpl=async()=>new Response(JSON.stringify({requestId,accounts:[metadata]}),{
+    headers:{'Content-Type':'application/json','X-Request-Id':requestId}
+  });
+  assert.deepEqual(await resolveAccount('tt1','credential',{fetchImpl}),metadata);
+  for(const options of [{tty:true},{format:'tsv'},{format:'jsonl'}]) {
+    const output=renderAccounts([metadata],options);
+    assert.ok(output.includes('tt1'));assert.ok(output.includes('TASTYTRADE'));
+    assert.ok(!output.includes('accountNumber'));
+  }
+  const oas=JSON.parse(await readFile(new URL('../docs/contracts/api-v2-account-evidence.json',import.meta.url),'utf8'));
+  const association=oas.components.schemas.Account.properties.brokerAssociation;
+  assert.deepEqual(Object.keys(association.properties),['broker']);
+  assert.equal(association.additionalProperties,false);
 });

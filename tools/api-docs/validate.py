@@ -46,6 +46,22 @@ def without_authorized_f6_delta(current, baseline, name):
     return value
 
 
+def without_bug049_disclosure_delta(current, baseline, name):
+    """Allow only BUG-049's number-free Account schema; preserve every other wire check."""
+    if name != 'api-v2-account-evidence.json':
+        return current
+    import copy
+    value = copy.deepcopy(current)
+    expected = copy.deepcopy(baseline['components']['schemas']['Account'])
+    association = expected['properties']['brokerAssociation']
+    del association['properties']['accountNumber']
+    association['required'] = ['broker']
+    association['additionalProperties'] = False
+    assert without_documentation(value['components']['schemas']['Account']) == without_documentation(expected), 'Unexpected BUG-049 Account contract delta'
+    value['components']['schemas']['Account'] = copy.deepcopy(baseline['components']['schemas']['Account'])
+    return value
+
+
 def main():
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else TOOL / 'dist'
     contracts = Contracts(); contracts.validate_structure()
@@ -56,7 +72,9 @@ def main():
         raw = subprocess.check_output(['git', 'show', 'b48e3c6fc36f9a7feb6abbf97cbacff5934d477e:docs/contracts/' + name], cwd=ROOT, text=True)
         import yaml
         baseline = json.loads(raw) if name.endswith('.json') else yaml.safe_load(raw)
-        assert without_documentation(baseline) == without_documentation(without_authorized_f6_delta(current, baseline, name)), 'Wire contract changed: ' + name
+        preserved = without_bug049_disclosure_delta(current, baseline, name)
+        preserved = without_authorized_f6_delta(preserved, baseline, name)
+        assert without_documentation(baseline) == without_documentation(preserved), 'Wire contract changed: ' + name
     for (method, path), (op, item, name) in operations.items():
         assert op['operationId'] and op['tags'] and op['summary'] != op['operationId']
         assert op['security'] == [{'bearerAuth': []}]

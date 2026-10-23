@@ -154,3 +154,24 @@ October 15, 2026 for installed bare `ww positions`, the single BROKER/ACCOUNT ta
 and consistent human contract syntax. `ww show positions` remains equivalent;
 bare output is holdings-only. [Accepted delivery and recovery](ww-positions-command-2026-10-15.md)
 supersedes earlier pending acceptance for this bounded CLI refinement.
+
+
+### BUG-049 number-free Account metadata candidate
+
+The isolated BUG-049 backend candidate omits brokerage numbers from ordinary Account collection and instance responses, while retaining identity, nickname, display name and broker label. Its matching `ww` discovery accepts this number-free response. Table/TSV retains the established `****` withheld-value cell; JSONL contains no number because the backend supplies none. Internal broker integrations retain their original binding. This is candidate behavior, not a deployed/accepted replacement of the operating loop above; see the [bug record](../bugs/BUG-049-api-v2-account-discovery-full-number-disclosure.md).
+
+
+## BUG-049 nickname-first presentation candidate — October 23, 2026
+
+Separately proposed for independent review; not covered by Kiro's October 22
+byte acceptance. `ww ls accounts` human tables show ALIAS, NAME, BROKER and ID,
+with the nickname first and no meaningless BROKER ACCOUNT column. Selection
+continues to resolve nicknames through authorized backend discovery.
+
+Headerless TSV preserves its existing positional contract (alias, display name,
+broker, masked brokerage-number slot, canonical ID). The corrected backend
+provides no number, so that slot is `****`. Legacy backend numbers, if present,
+remain masked to at most four final characters; no hint is reconstructed from
+other fields. Explicit JSONL continues to represent the returned API metadata,
+which contains no number under the corrected Account contract. No new
+full-number capability or disclosure grant is introduced.
