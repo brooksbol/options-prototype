@@ -36,3 +36,39 @@ Frozen mixed H-004 worktree remains unverified, uncommitted and unsafe to launch
 **CURRENT STATE:** Principal's nickname-first + Option A directions captured; BUG-049 accepted frozen candidate pending re-freeze/integration; no live model safety GO.
 
 **DECISION REQUIRED:** NO to perform bounded BUG-049 re-freeze and verification; later real inference requires safety evidence and Principal risk acceptance.
+
+## Subsequent Principal execution direction and scoped retention choice — October 23
+
+The Principal directed working software with real authorized financial data as
+the next milestone: finish BUG-049 after Kiro acceptance, verify the actual OpenAI
+project settings, implement the first Account question with one isolated Codex
+implementer using existing API/MCP and Option A, then launch/test it. Do not repeat
+completed architecture/privacy investigations. The separate artifacts finding
+must not automatically block this Account question if its path demonstrably
+cannot access or transmit artifacts.
+
+The Principal supplied organization screenshots: API call logging Enabled per
+call; sharing of model feedback, evaluation/fine-tuning data, and API inputs and
+outputs all Disabled. Asked whether these were the correct organization settings
+for wwt and whether to permit only authorized Account nicknames, broker labels
+and counts with store:false under standard retention (including abuse-monitoring
+retention up to30 days and documented exceptions), the Principal answered:
+**“Yes—correct organization; proceed with this limited data.”** This establishes
+that bounded disclosure-risk acceptance; no ZDR/MAM enrollment or general
+financial-data clearance is inferred. No settings were changed by Codex.
+
+BUG-049's revised candidate was independently accepted and then integrated and
+installed as a coordinated backend/client pair; [delivery receipt](../reviews/bug-049-integration-deployment-2026-10-23.md).
+BUG-049 remains Open until Principal operator acceptance.
+
+An isolated Codex H-004 candidate at `/tmp/wheelwright-h004-account-question-20261023`
+uses one fixed zero-argument MCP Account-list tool and an explicit nickname/broker/count
+projection. The model composes the full sentence; host inventory/grammar checks
+withhold unsupported claims, wrong/missing/extra Accounts and unsafe tool calls.
+No prior tool history is replayed. Actual SDK wire checks verify store:false and
+background:false; nine new deterministic tests and15 unchanged H-003 tests pass.
+Existing launcher is extended; H-001/H-002 and H-003 agent/test/package bytes stay
+unchanged. Frozen archive SHA-256
+`8bf0b6d5a6a46b6988af84ce8c7f8a32dddf3e9bff0fdd2287a41d6707a80175`.
+This is author-tested, not independent acceptance, installation or a real Account
+conversation. The original collided H-004 tree stays frozen and untouched.

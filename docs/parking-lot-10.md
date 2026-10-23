@@ -1891,3 +1891,18 @@ The [H-004 privacy/model-safety stopping point](discovery/h004-privacy-and-model
 ### PL-MCP-01 / H-004 — October 23 Principal selection: nickname-first and model metadata
 
 The Principal selected **nickname-first Account discovery**, redaction of brokerage numbers where exceptionally displayed (at most final four), and **Option A external model sees only authorized nickname, broker and count**, and directed “make it so.” [Principal decision and execution boundary](discovery/h004-principal-account-disclosure-and-inference-choice-2026-10-23.md). This does not authorize live financial-data model egress until provider/project retention, host egress/history and grounded-answer safety checks are accepted. BUG-049's earlier 11-file candidate was independently accepted by Kiro but needs current-main derived-projection re-freeze and narrow re-verification, followed by coordinated backend + CLI deployment. The collided H-004 working tree remains frozen. PL-MCP-01 remains INTAKE.
+
+### PL-MCP-01 / H-004 — October 23 working-software direction and limited disclosure acceptance
+
+The Principal directed the first real authorized Account conversation as the next
+milestone, using existing MCP/API and Option A without repeating completed broad
+research. The separate artifacts disclosure must not automatically block a path
+that cannot access/transmit it. The Principal confirmed the actual shown OpenAI
+organization and explicitly accepted only nickname/broker/count transmission with
+store:false under standard retention and documented exceptions; all three sharing
+options shown Disabled. [Exact scope, settings and current candidate standing](discovery/h004-principal-account-disclosure-and-inference-choice-2026-10-23.md#subsequent-principal-execution-direction-and-scoped-retention-choice--october-23).
+BUG-049 is independently accepted and installed as a coordinated backend/client
+pair, awaiting Principal operator acceptance. Isolated Codex H-004 implementation
+has nine new tests plus15 H-003 tests passing; independent H-004 acceptance,
+actual-data conversation and installation remain pending. No real Account metadata
+sent to inference, no general model-safety GO, and PL-MCP-01 remains INTAKE.

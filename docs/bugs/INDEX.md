@@ -55,7 +55,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-047 | V2 routing errors and declarative grant metadata are incomplete | Holdings API v2 | S3 | Resolved | [record](BUG-047-v2-framework-errors-and-grant-metadata.md) | Kiro-reported F6; independently constructed author falsifiers, October22 |
 
 | BUG-048 | Empty-composition zero reference violates Metric evidence constraint | Holdings API v2 | S3 | Open | [record](BUG-048-empty-composition-zero-reference-schema.md) | Pre-existing installed-data schema failure; prior-JAR replay confirmed, October22 |
-| BUG-049 | Account metadata exposes full brokerage account numbers | API v2 Account discovery | Not established | Open | [record](BUG-049-api-v2-account-discovery-full-number-disclosure.md) | Isolated number-free remediation candidate; independent acceptance/deployment pending |
+| BUG-049 | Account metadata exposes full brokerage account numbers | API v2 Account discovery | Not established | Open | [record](BUG-049-api-v2-account-discovery-full-number-disclosure.md) | Independently accepted; matching backend/client installed; Principal operator acceptance pending |
 
 ## Open-bug audit checkpoint (2026-09-22)
 

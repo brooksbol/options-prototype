@@ -82,3 +82,21 @@ OpenAI currently publicly states API inputs/outputs are **not used for model tra
 - Unpublished documentation build/validation passed: **36 internal operations / 295 examples; 32 public operations / 263 response examples**. Renderer emitted warnings; strict existing example/wire/security validation passed. No browser inspection or publication is claimed.
 - Roadmap projection regenerated from canonical sources and freshness check passed. Generation also incorporates already-accepted collision/index continuations missing from the baseline projection; those source records were not altered.
 - No independent review, installed operator observation, broader disclosure audit, provider assessment or live-model test was performed.
+
+## Independent acceptance and installed delivery — October 23, 2026
+
+The Principal supplied Kiro **ACCEPT** of revised 12-file archive SHA-256
+`1e27c1f6f1c374ca8cb6e850c4583568b91156b379e313cbe27817694a346366`
+and explicitly authorized final post-checks and coordinated integration/deployment.
+Post-test manifest hashes and operational isolation both passed. Exact accepted
+source is integrated at `dbdd6ea037a8ed8d6be57da403e95d0f569a0300`.
+Corrected backend and matching ww client are installed together; ordinary installed
+Account reads pass with no number fields and a nickname-first human table.
+Canonical identity, grants, bindings and retained evidence were preserved; v1 and
+frozen H-004 remained untouched. [Delivery/verification receipt](../reviews/bug-049-integration-deployment-2026-10-23.md).
+
+**Status remains Open — Principal operator acceptance pending.** Earlier
+candidate-only/pending-review statements describe their recorded phase; they do
+not override this later delivery evidence. Explicit JSONL against an old backend
+can still expose its full-number payload, reinforcing paired deployment. The
+artifacts brokerAccount finding remains separate and is not remediated by BUG-049.
