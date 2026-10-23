@@ -1,0 +1,5 @@
+# Launch Codex from the checkout root; Node.js >=20 must be on PATH.
+[mcp_servers.h001_hello]
+command = "node"
+args = ["server.mjs"]
+cwd = "tools/mcp-hello-world"

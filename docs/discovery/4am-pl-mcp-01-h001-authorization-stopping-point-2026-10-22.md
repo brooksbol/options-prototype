@@ -107,3 +107,31 @@ Codex's observed host path therefore exercises **2025-06-18**, using the accepte
 6. After closing the experimental sessions, remove only the `[mcp_servers.h001_hello]` block from project `.codex/config.toml`, or set its `enabled = false`, and open a fresh session. The newly created project file currently contains only that block; preserve any subsequently added entries. Do not remove or change user-global integrations.
 
 **State:** HOST-CONFIGURED, CONNECTED, TOOL DISCOVERED, TOOL-INVOKED and AUTHOR-VERIFIED. PRINCIPAL-OBSERVED and ACCEPTED remain PENDING. H-002's configuration is local/uncommitted; these dated observations are documentation evidence only. The local MCP subprocess is distinct from normal Codex model-provider inference. This proves neither provider handling, cross-user privacy, finance semantics nor production suitability.
+
+## H-002 Principal acceptance and portable configuration integration — October 22, 2026
+
+This subsequent receipt supersedes the previous H-002 pending observation/acceptance state. H-001 remains unchanged at `3173f8649ab52a63b7c6874d5b8a8c4fd4f0736b`, independently ACCEPTED by Kiro and Principal-accepted; the preceding integration/observation receipt was persisted at `0f0da265d0a79282c44c6f544aacb245f9d89655`.
+
+**Principal-observed PASS, twice:** The Principal supplied the installed Codex 0.163.0 terminal transcript: `/mcp` showed `h001_hello: connected (1 tool)`. On each of two requests, “Use my hello_world MCP tool to say hello.”, Codex displayed `Called h001_hello.hello_world`, the tool result `Hello, world!`, and final response `Hello, world!`. Reported interaction times were 6s and 7s at 6:23 PM. This is Principal-supplied observation evidence, not a new author simulation or a claim of separate H-002 Kiro review.
+
+**Principal exact acceptance/integration authorization:** “I choose A. I accept H-002 and authorize Codex to commit the project-local MCP configuration and acceptance receipt, subject to repository Git safeguards.” Source: Principal's H-002 Integration Engineer handoff in the current conversation. It was not previously represented by an earlier repository citation. No repeated acceptance or authorization was requested.
+
+**Portable configuration:** `.codex/config.toml` registers only `h001_hello`, with `command = "node"`, `args = ["server.mjs"]` and `cwd = "tools/mcp-hello-world"`. It contains no credentials, absolute machine paths, provider configuration, other tools or services. Existing user-global registrations are untouched. Another trusted checkout requires Node.js >=20 on PATH and the locked H-001 dependencies installed. Launch Codex **from that checkout's root**. Codex 0.163.0 was observed to interpret the MCP cwd relative to the session working directory; a preliminary config-folder-relative `../tools/...` attempt did not expose the tool and was discarded. The final root-relative configuration succeeded with the actual installed host. This is a narrow portability correction, not a new runtime or MCP client.
+
+**Current reproducible operator procedure:**
+
+```sh
+# In the root of this repository checkout:
+npm ci --prefix tools/mcp-hello-world --ignore-scripts --no-audit --no-fund
+codex
+```
+
+In the fresh Codex conversation, type `/mcp` and confirm `h001_hello` exposes `hello_world`; then type `Use my hello_world MCP tool to say hello.` Observe the actual tool-call indication and `Hello, world!`. Send the same request again to repeat. No separate server launch, API key, backend service or brokerage access is needed. The project must be trusted under the normal Codex rules; do not bypass trust controls.
+
+For cleanup, close the experimental sessions, then set `enabled = false` inside only `[mcp_servers.h001_hello]`, or remove only that table from `.codex/config.toml`, and open a fresh session. Do not remove unrelated registrations. This is a local checkout change to the now-versioned project configuration; undo it later if the specimen is wanted again.
+
+**Verification:** `codex mcp get h001_hello --json` recognizes the project registration. A fresh actual `codex exec --ephemeral --json -C <checkout-root>` against the portable configuration completed an `mcp_tool_call` for `h001_hello.hello_world` with `{}`, no error, exact text content `Hello, world!`, and a subsequent agent response `Hello, world!`; process exit 0. This verifies the portability edit without repeating Principal acceptance. Configuration presence alone was not counted as discovery or invocation. H-001 files are compared against their integrated commit before persistence; no server/client/dependency/readme bytes are changed. Only this existing receipt and the approved project-local configuration belong to the H-002 integration change set. Transient host logs and installed dependencies are excluded. Final commit/remote synchronization identities are reported after actual push; the commit containing this receipt is the H-002 persistence identity.
+
+**Protocol/assurance boundary unchanged:** H-001's programmatic test exercised **2026-07-28**. The observed Codex 0.163.0 conversational host uses **2025-06-18** through the existing SDK compatibility path; native modern-protocol host support is not established. No H-001 downgrade or protocol repair was made. The previously recorded nonblocking SDK version-enforcement anomaly remains for separately authorized investigation. H-002 establishes only local conversational tool discovery/invocation of the inert greeting. It establishes no financial semantics, privacy isolation, provider handling or production architecture. Normal Codex model-provider inference remains distinct from the local MCP process. No persistent memory, User/Account data, finance/broker integration, remote service, H-003, or trading functionality is included.
+
+**Accepted state:** H-002 HOST-CONFIGURED, CONNECTED, TOOL DISCOVERED, TOOL-INVOKED, AUTHOR-VERIFIED, PRINCIPAL-OBSERVED (twice), and PRINCIPAL-ACCEPTED. Repository persistence/integration is carried by the containing accepted-main commit after its verified push, not by this prose alone. PL-MCP-01 remains **INTAKE**; no Reconciliation Completion Record or broader Product/architecture selection is implied.
