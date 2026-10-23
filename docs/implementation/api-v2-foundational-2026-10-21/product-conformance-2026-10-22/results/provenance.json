@@ -1,0 +1,51 @@
+{
+  "sourceCommit": "de3605e1bd8fb15278b29e4969d4bcfb2d3eec9a",
+  "sourceDirty": false,
+  "publication": "NOT_PUBLISHED",
+  "publicationDate": null,
+  "acceptedPreviewSha256": "caab89ce5e35f1c9c6c2ae38b759099a3933d5cc1e647966b4590b6cc011e75c",
+  "acceptedSource": "8dcee81203c91e10bdec94a6ed24e307a8729b54",
+  "independentReview": "PENDING",
+  "node": "v24.18.0",
+  "npm": "11.16.0",
+  "packages": {
+    "@redocly/cli": "2.64.0",
+    "playwright": "1.56.1",
+    "redoc": "3.0.1"
+  },
+  "rendererAssetIntegrity": "sha384-j07qRKHNNmcwU1/Y1elJc7pDLHXP/QfbQXTtSkbOJ7uYGJikqAzsFVbY2zR9FqOT",
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "packagedRendererSha256": "fc36081ef73a7f3433e4788342862442956c9221d0de8beffcbfe48f743cf3d9",
+  "inputs": {
+    "docs/contracts/api-v2-account-evidence.json": "dcd92667b45a00c6ad203d3d8ab4d8797da7c56332d2ee4ce0ab53f2d1542b07",
+    "docs/contracts/api-v2-direct-quote-acquisition-proposal.md": "00139acd118c46e886152814e6334ff8c7946080b3ab5a7efeb949dda9788ebb",
+    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml": "36267fa7f84e8d512a05eb2c3f254a1e59cb6f095d2a442a80b94b97dc5b3987",
+    "docs/contracts/api-v2-foundational-portfolio.json": "d6b58572e931d58faa2556680ce3009d8815dd8e1d3e37950c8c37016bf3eea8",
+    "docs/contracts/api-v2-held-quotes-read.md": "47b43d5d6bda50fb956e6ae981b9041ab624aa7183646f71e5ff4089c44ece75",
+    "docs/contracts/api-v2-market-evidence-subjects.json": "159f00f23a5329b7319a275326c466e9ec8f7dd884f7215a9c27c2f36d4d6537",
+    "docs/contracts/api-v2-subject-show-held-quote.md": "c99dd498b1148f40f1a9891629bc99de5d47ea84bc1dad856546cb9b39b993e2",
+    "scripts/v2_oas.py": "e88292b37fbfde1b00f5b99285512b389118de32b6c839ed49396531a3788b28",
+    "tools/api-docs/.gitignore": "a39e51e519980457f6e9583d736c56a0c4ff9cef5718deae14a5c3e332a087b4",
+    "tools/api-docs/.node-version": "55075b5ec4e8b31936cbbc282b8829116d1fd48f2f2f1856dee592a6650700ce",
+    "tools/api-docs/.npmrc": "3b88d1057add6f92ec23dc22dd017e312ded13a042deb0ba6f08bad85d936456",
+    "tools/api-docs/README.md": "558bbf3f0ff5141448797a45f8f065346fd497a3f1eafb227e075094fd292898",
+    "tools/api-docs/agent-specimen.md": "8ad2a78580d8d34c7558461a95fda6de3dc0417ca100b50272fe5000412873b5",
+    "tools/api-docs/build.py": "b170827dfdf777d80c83cbdeca638f64a61b198316ddcfb9d5238a3d37cfbd83",
+    "tools/api-docs/human-specimen.mjs": "abcfeddaa642816a2c5936d2b09935a93af43bd5b331e01ffd7aea350ab4a8a9",
+    "tools/api-docs/kiro-public-test-instructions.txt": "eb6b2003a67f794426a2ef67f05aeb166944aa90a40bf4f785bec889cf5f5c0c",
+    "tools/api-docs/overview.md": "1f641fb6aeb73d8e681380153979e316483b9b3aa645041f3cf0429364a62a82",
+    "tools/api-docs/package-lock.json": "7075496eab0d02abc0ad997125726fbafb4e4509ea68f4007624a47b1b312800",
+    "tools/api-docs/package.json": "c0f5b8c5ec7ee89a74e18e14a78e4b4beec9a95f3a8bdbe35080bc95c0e083e1",
+    "tools/api-docs/redoc-logo.svg": "1dab4315f8de2177b2b2726b29e84a26314c69cd27d692228947c0058793d5a7",
+    "tools/api-docs/redocly.yaml": "6607622ab366789d7d4ae6e963114036cfef1faab7bce1a4c982be13c920b4ab",
+    "tools/api-docs/release.json": "14a4da4af8d276b8267834e74f761f76212a01a732f29f8c76099fd915208cfd",
+    "tools/api-docs/requirements.txt": "99e74c369b08e1d8d8e24af702f848fedcf1f828bf831e5280f1f69f4b0c35b5",
+    "tools/api-docs/validate.py": "887e317aa33dac5399dbfaf72e501702f0f4e422c79c662fc35c171c956ee0b6"
+  },
+  "publicFiles": {
+    "LICENSES.txt": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
+    "index.html": "caab89ce5e35f1c9c6c2ae38b759099a3933d5cc1e647966b4590b6cc011e75c"
+  },
+  "authoritativeBundleSha256": "b87fa6d257ec02ecf05e3ca54775e7622e09232f6e1fb1ca70c03c29732de90e",
+  "projectionSha256": "e4660519e632987270d478d290d32200430e3f655d22f5c16c36b34b0b2f1039"
+}

@@ -1,0 +1,403 @@
+[
+  {
+    "case": "five-cuts-limit-two",
+    "expectedCount": 5,
+    "beforeCount": 3,
+    "afterCount": 5,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "restricted-id-1",
+    "expectedCount": 5,
+    "beforeCount": 2,
+    "afterCount": 5,
+    "beforeReferenceRanks": [
+      1,
+      2
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi--id-1",
+    "expectedCount": 7,
+    "beforeCount": 1,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi--id-2",
+    "expectedCount": 7,
+    "beforeCount": 2,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi--id-3",
+    "expectedCount": 7,
+    "beforeCount": 3,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi--id-50",
+    "expectedCount": 7,
+    "beforeCount": 7,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi-id-1",
+    "expectedCount": 7,
+    "beforeCount": 2,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi-id-2",
+    "expectedCount": 7,
+    "beforeCount": 3,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi-id-3",
+    "expectedCount": 7,
+    "beforeCount": 4,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-multi-id-50",
+    "expectedCount": 7,
+    "beforeCount": 7,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single--id-1",
+    "expectedCount": 7,
+    "beforeCount": 1,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single--id-2",
+    "expectedCount": 7,
+    "beforeCount": 2,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single--id-3",
+    "expectedCount": 7,
+    "beforeCount": 3,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single--id-50",
+    "expectedCount": 7,
+    "beforeCount": 7,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single-id-1",
+    "expectedCount": 7,
+    "beforeCount": 2,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single-id-2",
+    "expectedCount": 7,
+    "beforeCount": 3,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single-id-3",
+    "expectedCount": 7,
+    "beforeCount": 4,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  },
+  {
+    "case": "walk-single-id-50",
+    "expectedCount": 7,
+    "beforeCount": 7,
+    "afterCount": 7,
+    "beforeReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterReferenceRanks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "afterExactOrder": true,
+    "afterFinalNext": null
+  }
+]

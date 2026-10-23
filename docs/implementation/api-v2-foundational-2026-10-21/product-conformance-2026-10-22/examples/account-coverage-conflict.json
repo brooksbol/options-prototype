@@ -1,0 +1,228 @@
+{
+  "standing" : "SYNTHETIC_SOURCE_DERIVED_HTTP_NOT_LIVE_BROKERAGE_EVIDENCE",
+  "source" : "PortfolioSourcePackageTest:100 owned fungible UNG shares and two short calls, declared native-shaped terms; aggregate economic coverage only, no selected shares or broker reservation",
+  "path" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e/inventory-reconciliation",
+  "method" : "GET",
+  "status" : 200,
+  "body" : {
+    "asOf" : "2026-10-22T20:57:08.333214Z",
+    "coverage" : "INCOMPLETE",
+    "account" : {
+      "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+    },
+    "balances" : [ {
+      "allocated" : "1",
+      "residual" : "0",
+      "status" : "RECONCILED",
+      "availability" : "UNKNOWN",
+      "inventory" : {
+        "key" : "holding-dea7a42ed76c5b85af6e242d1bd602d14bb0ef418e5cff78114b88bfcc9d115c",
+        "side" : "SHORT",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "instrument" : {
+          "href" : "/v2/instruments/ff61d71c-2093-33a6-986c-285706c027b8"
+        },
+        "currency" : null,
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/1",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/1"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ],
+        "holding" : {
+          "href" : "/v2/holdings/3fc560b5-bce4-3622-a515-f5b1016e9a80"
+        }
+      },
+      "currentConstructions" : [ {
+        "href" : "/v2/constructions/7e4d0268-72b7-4c5f-ad77-52a644ea3761"
+      } ]
+    }, {
+      "allocated" : "1",
+      "residual" : "0",
+      "status" : "RECONCILED",
+      "availability" : "UNKNOWN",
+      "inventory" : {
+        "key" : "holding-a0e33ab6f2d4c26f51883fc507a49cfdaffaadd3272ad71991c3df5f4884f0a3",
+        "side" : "SHORT",
+        "quantity" : "1",
+        "unit" : "CONTRACT",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "instrument" : {
+          "href" : "/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154"
+        },
+        "currency" : null,
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/2",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/2"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ],
+        "holding" : {
+          "href" : "/v2/holdings/400f9ebf-6805-3225-a5ac-15017d1f14f0"
+        }
+      },
+      "currentConstructions" : [ {
+        "href" : "/v2/constructions/9c34d8fe-7874-462a-910b-a3e4c036df60"
+      } ]
+    }, {
+      "allocated" : "100",
+      "residual" : "0",
+      "status" : "RECONCILED",
+      "availability" : "UNKNOWN",
+      "inventory" : {
+        "key" : "holding-1e8c488972eba459f6c2bac6f1083b535bb13c1cf361e6ee0551d02432b5dd06",
+        "side" : "LONG",
+        "quantity" : "100",
+        "unit" : "SHARE",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "instrument" : {
+          "href" : "/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab"
+        },
+        "currency" : null,
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/0",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/0"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ],
+        "holding" : {
+          "href" : "/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366"
+        }
+      },
+      "currentConstructions" : [ {
+        "href" : "/v2/constructions/e9deef66-0caf-4518-be0a-f2169486a4bc"
+      } ]
+    } ],
+    "warnings" : [ {
+      "code" : "HOLDING_RECONCILIATION_CONFLICT",
+      "affected" : [ "/coverage" ],
+      "establishedFacts" : [ "Supported securities observations remain independently inspectable." ],
+      "incompleteConclusions" : [ "Companion settled-cash evidence is FAILED; no complete cash or buying-power conclusion established." ],
+      "evidence" : [ ],
+      "remediation" : [ ]
+    }, {
+      "code" : "COVERAGE_INSUFFICIENT",
+      "affected" : [ "/coverageAssessments/0" ],
+      "establishedFacts" : [ "Reported owned quantities remain inspectable." ],
+      "incompleteConclusions" : [ "Aggregate supported obligations exceed eligible owned exposure." ],
+      "evidence" : [ ],
+      "remediation" : [ ]
+    } ],
+    "coverageAssessments" : [ {
+      "id" : "aggregate:snapshot-4d167335-b55a-492f-b277-3d0bec3cd9b2:SHARE:/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab",
+      "unit" : "SHARE",
+      "status" : "INSUFFICIENT",
+      "reservationStatus" : "NOT_ESTABLISHED",
+      "selection" : "AGGREGATE_FUNGIBLE_NO_SPECIFIC_SHARE_SELECTION",
+      "eligibleQuantity" : "100",
+      "requiredQuantity" : "200",
+      "currency" : null,
+      "supportHolding" : {
+        "href" : "/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366"
+      },
+      "supportHoldings" : [ {
+        "href" : "/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366"
+      } ],
+      "obligations" : [ {
+        "href" : "/v2/positions/d03f3f9d-0bc6-42c4-91c8-d8e8f9c5b450"
+      }, {
+        "href" : "/v2/positions/158fbc15-91de-46c6-8fb7-3092ca4fa5b1"
+      } ],
+      "authority" : {
+        "claimId" : "aggregate:SHARE:/v2/instruments/8b3aa188-288f-352b-82ee-f9790ccacfab",
+        "basis" : "AGGREGATE_ECONOMIC_CALCULATION",
+        "status" : "QUALIFIED",
+        "qualification" : "Aggregate current-cut owned fungible support; not broker reservation, available buying power or selected shares.",
+        "account" : {
+          "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+        },
+        "subjects" : [ {
+          "href" : "/v2/holdings/54f43a34-74f4-3c90-9ccb-02c2fe24f366"
+        } ],
+        "evidence" : [ {
+          "kind" : "ACCOUNT_SOURCE",
+          "account" : {
+            "href" : "/v2/accounts/acct_a6176aeb44d040ca94f275260e6be83e"
+          },
+          "requiredCapability" : "account.holdings.read:acct_a6176aeb44d040ca94f275260e6be83e",
+          "artifact" : {
+            "href" : "/v2/artifacts/02d2b6cc-1035-354e-ac33-a8b8af03f50c"
+          },
+          "recordKey" : "/data/items/0",
+          "locator" : {
+            "kind" : "JSON_POINTER",
+            "value" : "/data/items/0"
+          },
+          "provider" : "TASTYTRADE",
+          "environment" : "PRODUCTION",
+          "observedAt" : null,
+          "observationPrecision" : "UNKNOWN",
+          "observationDate" : null,
+          "receivedAt" : "2026-10-22T20:57:08.261633000Z",
+          "timeAuthority" : "BACKEND_RECEIPT"
+        } ]
+      }
+    } ]
+  },
+  "headers" : {
+    "Content-Type" : "application/json",
+    "Cache-Control" : "private, no-store",
+    "X-Request-Id" : "bd3f5616-d7e4-4ef2-97fc-fb48af28fcdd"
+  }
+}

@@ -1,0 +1,1 @@
+[ "SEARCH p USING INDEX portfolio_scope (kind=? AND account_id=?)", "SEARCH c USING INDEX portfolio_scope (kind=? AND account_id=? AND uri=?)", "USE TEMP B-TREE FOR ORDER BY" ]

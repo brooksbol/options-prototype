@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Deterministic engineering promotion of accepted domain shapes; never publication acceptance."""
-import copy,json,re
+import copy,json,re,yaml
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[3]
 CONTRACTS=ROOT/'docs/contracts'
@@ -59,8 +59,10 @@ annotations=json.loads((ROOT/'docs/implementation/api-v2-foundational-2026-10-21
 for path,notes in annotations.items():
  op=module['paths'][path]['get']
  for field in ['summary','externalDocs','x-codeSamples']:op[field]=copy.deepcopy(notes[field])
+ op['description']=notes['description']+'\n\n<!-- internal-only:start -->\n'+op['description'].split('<!-- internal-only:start -->',1)[1].split('<!-- internal-only:end -->',1)[0].strip()+'\n<!-- internal-only:end -->'
  for status,examples in notes['examples'].items():
   media='application/json' if status=='200' else 'application/problem+json'
+  op['responses'][status]['content'][media].pop('example',None)
   op['responses'][status]['content'][media]['examples']=copy.deepcopy(examples)
 (CONTRACTS/NAME).write_text(json.dumps(module,indent=2)+'\n')
 p=CONTRACTS/COMMON;text=p.read_text()
@@ -98,3 +100,53 @@ operation['description']=operation['description'].replace('Interpretation is all
 addition=' A separately timed settled-cash companion response is retained in the existing Artifact/import owner when available. Securities ACCEPTED does not imply cash completeness: the result and holdings snapshot qualifications identify the cash outcome. Cash source failure preserves securities evidence; cash, securities and receipt clocks do not establish an atomic brokerage cut, buying power or reservation.'
 if addition not in operation['description']:operation['description']=operation['description'].replace('Every response has X-Request-Id and private,no-store.', 'Every response has X-Request-Id and private,no-store.'+addition)
 p.write_text(json.dumps(account,indent=2)+'\n')
+
+
+# Principal-authorized F6 delta: common routing failure grammar, no new operation.
+common_path=CONTRACTS/COMMON
+common=yaml.safe_load(common_path.read_text())
+routing=copy.deepcopy(common['components']['schemas']['HeldQuoteReadProblem'])
+routing['description']='Uniform v2 framework routing failures. Unknown routes are NOT_FOUND; unsupported methods are METHOD_NOT_ALLOWED with Allow. Authentication and correlation are enforced before exposing routing results. Resource existence remains separately concealed by its capability.'
+routing['properties']['status']['enum'].append(405)
+routing['properties']['code']['enum'].append('METHOD_NOT_ALLOWED')
+routing['oneOf'].append({'type':'object','properties':{'status':{'const':405},'code':{'const':'METHOD_NOT_ALLOWED'},'title':{'const':'Method not allowed'},'type':{'const':'urn:wheelwright:problem:method_not_allowed'}}})
+method_response={'description':'The HTTP method is not supported for this route; this does not establish that a private instance exists. Allow identifies supported route methods. Unknown routes use the same Problem envelope with NOT_FOUND; unauthenticated requests remain UNAUTHENTICATED.',
+ 'headers':{'X-Request-Id':{'required':True,'schema':{'type':'string','format':'uuid'}},'Cache-Control':{'required':True,'schema':{'const':'private, no-store'}},'Allow':{'required':True,'schema':{'type':'string','minLength':1},'description':'Supported route methods; GET also permits HEAD and framework OPTIONS.'}},
+ 'content':{'application/problem+json':{'schema':{'allOf':[{'$ref':'#/components/schemas/RoutingProblem'},{'type':'object','properties':{'status':{'const':405},'code':{'const':'METHOD_NOT_ALLOWED'}}}]},'examples':{'syntheticMethodNotAllowed':{'summary':'Synthetic routing failure; no private resource existence asserted','value':{'type':'urn:wheelwright:problem:method_not_allowed','title':'Method not allowed','status':405,'code':'METHOD_NOT_ALLOWED','requestId':'11111111-1111-4111-8111-111111111111','detail':'Method is not supported for this v2 route'}}}}}}
+text=common_path.read_text()
+def add_yaml_component(section,name,value):
+ global text
+ existing=common['components'].get(section,{}).get(name)
+ if existing is not None:
+  if existing!=value:raise ValueError('Unexpected existing routing component '+name)
+  return
+ fragment=yaml.safe_dump({name:value},sort_keys=False,allow_unicode=True)
+ indented=''.join('    '+line+'\n' for line in fragment.splitlines())
+ marker='  '+section+':\n'
+ if len(re.findall('^'+re.escape(marker),text,re.M))!=1:raise ValueError('Expected one component section '+section)
+ text=re.sub('^'+re.escape(marker),lambda _:marker+indented,text,count=1,flags=re.M)
+add_yaml_component('schemas','RoutingProblem',routing)
+add_yaml_component('responses','MethodNotAllowed',method_response)
+# Preserve existing human-authored YAML layout; add only the common error reference.
+def annotate_yaml_operation(match):
+ block=match.group(0)
+ if not re.search(r'^        [\'\"]?405[\'\"]?:',block,re.M):
+  if '      responses:\n' not in block:raise ValueError('Missing response section')
+  block=block.replace('      responses:\n',"      responses:\n        '405':\n          $ref: '#/components/responses/MethodNotAllowed'\n",1)
+ if 'operationId: acquireDirectQuotes' in block and 'x-required-grants-when-force:' not in block:
+  block=block.replace('      operationId: acquireDirectQuotes\n','      operationId: acquireDirectQuotes\n      x-required-grants: [quote.acquire]\n      x-required-grants-when-force: [quote.force]\n')
+ return block
+text=re.sub(r'^    (?:get|post):\n.*?(?=^    (?:get|post):|^  /|^components:|\Z)',annotate_yaml_operation,text,flags=re.M|re.S)
+common_path.write_text(text)
+for name in ['api-v2-account-evidence.json','api-v2-market-evidence-subjects.json',NAME]:
+ path=CONTRACTS/name;document=json.loads(path.read_text())
+ for route,item in document['paths'].items():
+  for method,operation in item.items():
+   if method not in ['get','post']:continue
+   operation['responses']['405']={'$ref':COMMON+'#/components/responses/MethodNotAllowed'}
+   if route.startswith('/v2/market-observations'):
+    operation['x-required-grants-for-account-scope']=['account.market.read:{accountId}']
+   if route=='/v2/holdings':
+    for parameter in operation.get('parameters',[]):
+     if parameter.get('name')=='cursor':parameter['description']='Opaque continuation bound to caller scope, selection and projection. For default current holdings, a changed applicable Account snapshot set returns422; restart or select an explicit retained snapshot. No atomic cross-broker instant is asserted.'
+ path.write_text(json.dumps(document,indent=2)+'\n')

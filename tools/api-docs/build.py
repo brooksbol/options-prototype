@@ -48,7 +48,7 @@ def public_projection(value, property_names=False):
         return {'kind':'REDACTED','reason':'INSUFFICIENT_PERMISSION'}
     result = {}
     for key, item in value.items():
-        if not property_names and key in {'security', 'securitySchemes', 'x-required-grants'}:
+        if not property_names and (key in {'security', 'securitySchemes'} or key.startswith('x-required-grants')):
             continue
         if key == 'description' and isinstance(item, str) and not property_names:
             result[key] = public_description(item)

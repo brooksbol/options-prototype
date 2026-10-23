@@ -13,14 +13,22 @@ import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
 final class PortfolioContinuity {
  record Decision(Document previous,boolean withhold){}
  private final PortfolioRepository repo;
+ private String indexedAccount;
+ private final Map<String,Document> positions=new TreeMap<>();
+ private final Map<String,Map<String,ObjectNode>> leavesByPosition=new HashMap<>();
+ private final Map<String,Set<String>> positionsByInventory=new HashMap<>();
  PortfolioContinuity(PortfolioRepository repo){this.repo=repo;}
  Decision select(Connection connection,PositionSnapshot snapshot,List<ObjectNode> members)throws Exception{
   var incoming=index(members);if(incoming.isEmpty()||incoming.size()!=members.size())return new Decision(null,true);
   var compatible=new ArrayList<Document>();boolean activeScope=false,overlappingScope=false;
-  for(var position:repo.list(connection,Kind.POSITION,Set.of(snapshot.account()))){
+  if(indexedAccount==null){
+   indexedAccount=snapshot.account();for(var existing:repo.list(connection,Kind.POSITION,Set.of(indexedAccount)))if(!existing.value().path("state").asText().equals("CLOSED")&&!existing.value().at("/exposure/status").asText().equals("SUPERSEDED_INTERPRETATION"))observe(existing,PortfolioCurrentExposure.priorLeaves(repo,connection,existing));
+  }else if(!indexedAccount.equals(snapshot.account()))throw new IllegalArgumentException("Continuity index is Account-local");
+  var candidateIds=new TreeSet<String>();for(String key:incoming.keySet())candidateIds.addAll(positionsByInventory.getOrDefault(key,Set.of()));
+  for(String candidate:candidateIds){
+   var position=positions.get(candidate);
    if(!Objects.equals(position.account(),snapshot.account())||position.value().path("state").asText().equals("CLOSED")||position.value().at("/exposure/status").asText().equals("SUPERSEDED_INTERPRETATION"))continue;
-   var construction=repo.get(connection,position.value().at("/currentConstruction/href").asText());if(construction.isEmpty())continue;
-   var existing=index(PortfolioCurrentExposure.priorLeaves(repo,connection,position));if(Collections.disjoint(existing.keySet(),incoming.keySet()))continue;activeScope=true;if(!existing.keySet().equals(incoming.keySet())){overlappingScope=true;continue;}
+   var existing=leavesByPosition.get(position.uri());if(Collections.disjoint(existing.keySet(),incoming.keySet()))continue;activeScope=true;if(!existing.keySet().equals(incoming.keySet())){overlappingScope=true;continue;}
    if(!position.value().path("state").asText().equals("UNRESOLVED")||existing.size()!=members.size())continue;
    boolean same=true;for(String key:incoming.keySet())same&=compatible(existing.get(key),incoming.get(key));
    if(same)compatible.add(position);
@@ -34,6 +42,11 @@ final class PortfolioContinuity {
    }}
   }
   return new Decision(previous,false);
+ }
+ /** Update only this admission transaction's lookup, preserving the original candidate predicate. */
+ void observe(Document position,List<ObjectNode> members){
+  String uri=position.uri();var prior=leavesByPosition.getOrDefault(uri,Map.of());for(String key:prior.keySet()){var ids=positionsByInventory.get(key);if(ids!=null)ids.remove(uri);}
+  positions.put(uri,position);var indexed=index(members);leavesByPosition.put(uri,indexed);for(String key:indexed.keySet())positionsByInventory.computeIfAbsent(key,k->new TreeSet<>()).add(uri);
  }
  private static Map<String,ObjectNode> index(List<ObjectNode> leaves){var result=new LinkedHashMap<String,ObjectNode>();for(var leaf:leaves){String key=leaf.at("/allocation/inventory/key").asText();if(key.isBlank()||result.put(key,leaf)!=null)return Map.of();}return result;}
  private static boolean compatible(ObjectNode a,ObjectNode b){

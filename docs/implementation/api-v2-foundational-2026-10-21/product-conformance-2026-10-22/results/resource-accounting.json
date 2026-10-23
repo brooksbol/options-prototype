@@ -1,0 +1,10 @@
+{
+  "durableTaskStateCreatedUTC": "2026-10-22T20:00:45.287045+00:00",
+  "verificationRecordedUTC": "2026-10-22T21:16:54.247694+00:00",
+  "elapsedSecondsFromDurableTaskState": 4568.960649,
+  "bootstrapBeforeTaskStateDuration": "NOT_SEPARATELY_MEASURED",
+  "principalFollowupInterventions": 0,
+  "tokens": "NOT_EXPOSED",
+  "credits": "NOT_EXPOSED",
+  "fullRegressionDuration": "5m29s"
+}

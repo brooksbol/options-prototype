@@ -114,6 +114,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "parameters": [
@@ -212,6 +215,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "parameters": [
@@ -386,6 +392,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -509,6 +518,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -618,6 +630,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -723,6 +738,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -836,6 +854,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -938,6 +959,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -1048,6 +1072,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -1146,6 +1173,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -1261,6 +1291,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -1363,6 +1396,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "parameters": [
@@ -1606,6 +1642,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [
@@ -1794,6 +1833,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "tags": [

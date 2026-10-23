@@ -16,6 +16,7 @@ ERRORS = {
     401: ('UNAUTHENTICATED', 'Unauthenticated'),
     403: ('FORBIDDEN', 'Forbidden'),
     404: ('NOT_FOUND', 'Not found'),
+    405: ('METHOD_NOT_ALLOWED', 'Method not allowed'),
     415: ('UNSUPPORTED_MEDIA_TYPE', 'Unsupported media type'),
     422: ('INVALID_REQUEST', 'Invalid request'),
     500: ('INTERNAL_ERROR', 'Internal error'),

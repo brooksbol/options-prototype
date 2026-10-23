@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 class PortfolioHttpTest {
  @TempDir Path directory;
  @Configuration(proxyBeanMethods=false) @EnableAutoConfiguration
- @Import({PortfolioController.class,PortfolioRepository.class,PortfolioReadService.class,PortfolioSources.class})
+ @Import({PortfolioController.class,PortfolioRepository.class,PortfolioReadService.class,PortfolioSources.class,V2RoutingErrors.class})
  static class Fixture {
   @Bean SqliteEvidenceStore store(@Value("${probe.database}")String path)throws Exception{return new SqliteEvidenceStore(path);}
   @Bean AccountDirectory accounts(SqliteEvidenceStore store)throws Exception{var a=new AccountDirectory(store.getConnection().getMetaData().getURL());a.bind("fixture","A1");a.bind("other","B1");return a;}

@@ -15,16 +15,22 @@ import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
 /** Reuses admitted sources. No provider calls, inferred openings, fake executions or lost holdings. */
 @Component
 public final class PortfolioSources {
- private final PortfolioRepository repository;private final ObjectMapper mapper;private final AccountDirectory accounts;
- public PortfolioSources(PortfolioRepository repository,ObjectMapper mapper,AccountDirectory accounts){this.repository=repository;this.mapper=mapper;this.accounts=accounts;}
+ private final PortfolioRepository repository;private final ObjectMapper mapper;private final AccountDirectory accounts;private final byte[] catalogBytes;private final JsonNode catalog;
+ public PortfolioSources(PortfolioRepository repository,ObjectMapper mapper,AccountDirectory accounts){this.repository=repository;this.mapper=mapper;this.accounts=accounts;
+  try(var stream=getClass().getResourceAsStream("/portfolio/construction-models.json")){if(stream==null)throw new IllegalStateException("Model catalog absent");catalogBytes=stream.readAllBytes();catalog=mapper.readTree(catalogBytes);}catch(java.io.IOException e){throw new IllegalStateException("Model catalog unreadable",e);}
+ }
  public synchronized void refresh(Set<String> scope)throws Exception {
   try(var c=repository.connection()){
    c.setAutoCommit(false);
    try{
-    var source=getClass().getResourceAsStream("/portfolio/construction-models.json");if(source==null)throw new IllegalStateException("Model catalog absent");var catalog=mapper.readTree(source);
-    for(var n:catalog.path("families"))repository.put(c,new Document(Kind.MODEL,n.at("/self/href").asText(),null,(ObjectNode)n,null,null));
-    for(var n:catalog.path("versions"))repository.put(c,new Document(Kind.MODEL_VERSION,n.at("/self/href").asText(),null,(ObjectNode)n,null,null));
+    String catalogKey="catalog:v1:"+HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(catalogBytes));
+    if(!repository.admitted(c,"",catalogKey)){
+     for(var n:catalog.path("families"))repository.put(c,new Document(Kind.MODEL,n.at("/self/href").asText(),null,(ObjectNode)n,null,null));
+     for(var n:catalog.path("versions"))repository.put(c,new Document(Kind.MODEL_VERSION,n.at("/self/href").asText(),null,(ObjectNode)n,null,null));
+     repository.markAdmitted(c,"",catalogKey);
+    }
     for(String account:new TreeSet<>(scope)){
+     String revision=sourceRevision(c,account);if(repository.admitted(c,account,revision))continue;
      var sourceLeaves=new HashMap<String,Map<String,ObjectNode>>();
      var owner=accounts.get(account);if(owner.isEmpty())continue;
      try(var oq=c.prepareStatement("SELECT DISTINCT a.artifact_id,a.received_at FROM brokerage_artifact a JOIN brokerage_import i ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE a.account=? AND i.file_type='API_ORDERS' AND i.status='ACCEPTED' AND i.original_filename NOT LIKE 'tastytrade-complex-orders-%' ORDER BY a.received_at,a.artifact_id")){oq.setString(1,account);try(var orders=oq.executeQuery()){while(orders.next()){String artifact=orders.getString("artifact_id"),admission="orders:"+artifact;if(!repository.admitted(c,account,admission)){new PortfolioOrderSources(repository).admit(c,owner.get(),artifact,true);repository.markAdmitted(c,account,admission);}}}}
@@ -37,9 +43,29 @@ public final class PortfolioSources {
       }}
      }
      new PortfolioReferenceEnrichment(repository).apply(c,account,Instant.now());new PortfolioCurrentExposure(repository).reconcile(c,account,sourceLeaves,Instant.now());new PortfolioPackageEvidence(repository).reconcile(c,account,Instant.now());
+     repository.markAdmitted(c,account,sourceRevision(c,account));
     }new PortfolioMarketSources(repository).refresh(c);c.commit();
    }catch(Exception e){c.rollback();throw e;}
   }
+ }
+ /** Reuses existing admission markers. Only source/relationship inputs invalidate processing,
+  * never page size, response clocks or the mere arrival of a GET. Source rows are not erased.
+  * The same transaction reads the inputs and records the completed interpretation marker. */
+ private String sourceRevision(java.sql.Connection connection,String account)throws Exception {
+  var digest=java.security.MessageDigest.getInstance("SHA-256");
+  for(String sql:List.of(
+   "SELECT snapshot_id FROM account_position_snapshot WHERE account=? ORDER BY snapshot_id",
+   "SELECT import_id,artifact_id,file_type,status,result,original_filename FROM brokerage_import WHERE account=? AND file_type NOT IN ('API_MARKET_DATA','API_MARKET_SESSION') ORDER BY import_id",
+   "SELECT transaction_id,current_observation_id FROM account_transaction WHERE account=? ORDER BY transaction_id",
+   "SELECT uri,payload_json FROM portfolio_resource WHERE account_id=? AND kind='ORDER' ORDER BY uri")){
+   try(var query=connection.prepareStatement(sql)){query.setString(1,account);try(var rows=query.executeQuery()){while(rows.next())for(int column=1;column<=rows.getMetaData().getColumnCount();column++){var value=rows.getString(column);var bytes=(value==null?"<null>":value).getBytes(StandardCharsets.UTF_8);digest.update(java.nio.ByteBuffer.allocate(4).putInt(bytes.length).array());digest.update(bytes);}}}
+  }
+  // Shared option-definition changes can refine an otherwise unchanged source snapshot.
+  // No private Account provenance is copied into shared instruments or this opaque marker.
+  try(var query=connection.prepareStatement("SELECT uri,payload_json FROM portfolio_resource WHERE kind='INSTRUMENT' AND account_id IS NULL AND json_type(payload_json,'$.option')='object' ORDER BY uri");var rows=query.executeQuery()){
+   while(rows.next())for(int i=1;i<=2;i++){var bytes=rows.getString(i).getBytes(StandardCharsets.UTF_8);digest.update(java.nio.ByteBuffer.allocate(4).putInt(bytes.length).array());digest.update(bytes);}
+  }
+  return "source-interpretation:v2:"+HexFormat.of().formatHex(digest.digest());
  }
  private Map<String,ObjectNode> admit(java.sql.Connection c,PositionSnapshot snapshot,AccountDirectory.Account account)throws Exception {
   var holds=new LinkedHashMap<String,ObjectNode>();var leaves=new LinkedHashMap<String,ObjectNode>();var broker=account.brokerAssociation().broker();String now=Instant.now().toString();
@@ -74,27 +100,28 @@ public final class PortfolioSources {
    var econ=obj();econ.set("openingCashFlow",cash?na("MONEY",now):unknown("MONEY",now,"OPENING_FILLS_UNAVAILABLE"));econ.set("reportedMarketValue",holding.get("reportedMarketValue"));econ.set("reportedOpenPl",holding.get("reportedOpenPl"));econ.set("reportedCapitalRequirement",holding.get("reportedCapitalRequirement"));econ.set("fees",unknown("MONEY",now,"HISTORY_INCOMPLETE"));leaf.set("economics",econ);if(h.quantity().signum()!=0)leaves.put(h.holdingId(),leaf);
   }
   // Existing explicit snapshot associations are evidence of this composition only, never a Program or universal lifecycle rule.
-  var assigned=new HashSet<String>();
+  var assigned=new HashSet<String>();var continuity=new PortfolioContinuity(repository);
   for(var association:snapshot.associations()){
    var members=new ArrayList<ObjectNode>();for(String h:association.holdingIds()){var leaf=leaves.get(h);if(leaf==null||!assigned.add(h))throw new IllegalArgumentException("unsupported or duplicate association");members.add(leaf);}
-   position(c,snapshot,members,association.positionId(),now);
+   position(c,snapshot,members,association.positionId(),now,continuity);
   }
-  var available=new LinkedHashMap<String,ObjectNode>();leaves.forEach((key,value)->{if(!assigned.contains(key))available.put(key,value);});for(var packageMembers:new PortfolioPackageEvidence(repository).partition(c,snapshot,available)){for(var member:packageMembers)assigned.add(member.at("/allocation/inventory/key").asText());position(c,snapshot,packageMembers,"observed-package:"+packageMembers.stream().map(n->n.path("nodeId").asText()).sorted().toList(),now);}
-  for(var entry:leaves.entrySet())if(!assigned.contains(entry.getKey()))position(c,snapshot,List.of(entry.getValue()),entry.getKey(),now);
+  var available=new LinkedHashMap<String,ObjectNode>();leaves.forEach((key,value)->{if(!assigned.contains(key))available.put(key,value);});for(var packageMembers:new PortfolioPackageEvidence(repository).partition(c,snapshot,available)){for(var member:packageMembers)assigned.add(member.at("/allocation/inventory/key").asText());position(c,snapshot,packageMembers,"observed-package:"+packageMembers.stream().map(n->n.path("nodeId").asText()).sorted().toList(),now,continuity);}
+  for(var entry:leaves.entrySet())if(!assigned.contains(entry.getKey()))position(c,snapshot,List.of(entry.getValue()),entry.getKey(),now,continuity);
   return leaves;
  }
- void position(java.sql.Connection connection,PositionSnapshot snapshot,List<ObjectNode> members,String sourceKey,String now)throws Exception {
+ void position(java.sql.Connection connection,PositionSnapshot snapshot,List<ObjectNode> members,String sourceKey,String now)throws Exception {position(connection,snapshot,members,sourceKey,now,new PortfolioContinuity(repository));}
+ private void position(java.sql.Connection connection,PositionSnapshot snapshot,List<ObjectNode> members,String sourceKey,String now,PortfolioContinuity continuity)throws Exception {
   // Repeated observations are not events. A unique compatible unresolved inventory scope may
   // retain its independently generated GUID without proving uninterrupted economic continuity.
-  var decision=new PortfolioContinuity(repository).select(connection,snapshot,members);if(decision.withhold())return;var previous=decision.previous();
+  var decision=continuity.select(connection,snapshot,members);if(decision.withhold())return;var previous=decision.previous();
   String guid=previous==null?UUID.randomUUID().toString():previous.value().path("id").asText(),uri="/v2/positions/"+guid,cid=UUID.randomUUID().toString(),curi="/v2/constructions/"+cid;var es=array();for(var leaf:members)for(var ev:leaf.at("/allocation/inventory/evidence"))es.add(ev);
   var c=obj().put("id",cid).put("createdAt",now).put("changeKind",previous==null?"INITIAL":"EVIDENCE_REINTERPRETATION").put("predecessorStatus",previous==null?"NONE":"KNOWN");if(previous==null)c.putNull("predecessor");else c.set("predecessor",previous.value().path("currentConstruction"));c.set("self",link(curi));c.set("account",link("/v2/accounts/"+snapshot.account()));c.set("position",link(uri));var group=obj().put("kind","GROUP").put("nodeId","ROOT").putNull("modelVersion");var children=array();members.forEach(children::add);group.set("children",children);c.set("composition",group);
   var recognition=obj().put("status","UNCLASSIFIED").putNull("modelVersion");recognition.set("candidateModels",array());recognition.set("reasonCodes",array().add("UNCLASSIFIED_CONSTRUCTION"));recognition.set("evidence",es);recognition.set("authority",authority(snapshot.account(),cid,"BROKER_HOLDING_OBSERVATION","QUALIFIED",es,List.of(curi),"Unclassified constituent preservation; no broker package allocation or continuity asserted."));c.set("recognition",recognition);c.set("relationships",array());c.set("evidence",es);c.set("warnings",array().add(warning("UNCLASSIFIED_CONSTRUCTION","/recognition","Held constituents retained.","Named composition and authoritative occurrence continuity are not established.")));
-  var versions=mapper.readTree(getClass().getResourceAsStream("/portfolio/construction-models.json")).path("versions");var definitions=new LinkedHashMap<String,JsonNode>();for(var model:versions)definitions.put(model.at("/self/href").asText(),model);
+  var versions=catalog.path("versions");var definitions=new LinkedHashMap<String,JsonNode>();for(var model:versions)definitions.put(model.at("/self/href").asText(),model);
   if(members.size()==1&&!es.isEmpty())for(var model:versions)if(PortfolioRecognition.matches(c,model,new PortfolioRecognition.Admission(true,false,false),definitions)){recognition.put("status","VALIDATED");recognition.set("modelVersion",model.path("self"));recognition.set("reasonCodes",array());((ObjectNode)recognition.path("authority")).put("qualification","Single constituent sourced directly from the referenced custody observation; no multi-leg package, reservation, occurrence continuity or discretionary basis association asserted.");c.set("warnings",array());break;}
   repository.put(connection,new Document(Kind.CONSTRUCTION,curi,snapshot.account(),c,snapshot.snapshotId(),sourceKey));
   var p=obj().put("id",guid).put("state","UNRESOLVED");p.set("self",link(uri));p.set("account",link("/v2/accounts/"+snapshot.account()));p.set("currentConstruction",link(curi));var sourceIdentifiers=array();var sourceSeries=new TreeSet<String>();for(var member:members)for(var holding:snapshot.holdings())if(holding.holdingId().equals(member.path("nodeId").asText()))sourceSeries.add(holding.contract());for(String series:sourceSeries)sourceIdentifiers.add(obj().put("broker",snapshot.observation()==null?"FIDELITY":snapshot.observation().broker()).put("environment","PRODUCTION").put("identifier",series));p.set("sourceIdentifiers",sourceIdentifiers);p.putNull("orders");p.set("audit",link(uri+"/audit"));var state=obj().put("status","UNRESOLVED").putNull("establishedAt").put("completeness","UNKNOWN");state.set("evidence",es);p.set("stateEvidence",state);
-  var alloc=obj().put("status","UNKNOWN");alloc.set("reconciliation",link("/v2/accounts/"+snapshot.account()+"/inventory-reconciliation"));alloc.set("holdingSnapshotIds",array().add(snapshot.snapshotId()));alloc.set("affectedHoldingIds",array());alloc.set("evidence",es);p.set("allocation",alloc);p.set("exposure",PortfolioCurrentExposure.exposure(snapshot,"OBSERVED",es.deepCopy(),"Current observed quantities only; no opening, uninterrupted occurrence or original cost basis established."));p.set("evaluation",PortfolioMath.evaluate(c,Map.of(),Instant.parse(now)));if(previous!=null)for(String retained:List.of("historicalMarketValue","economicComparison"))if(previous.value().path("evaluation").path(retained).isObject())((ObjectNode)p.path("evaluation")).set(retained,previous.value().path("evaluation").path(retained).deepCopy());p.set("warnings",array().add(warning("ASSOCIATION_UNRESOLVED","/stateEvidence","Source custody, quantities and contractual terms remain inspectable under an independent Position GUID.","Compatible observations do not prove uninterrupted economic occurrence, opening date, original investment basis or roll history; unobserved close/reopen events may be indistinguishable.")));qualify(p);repository.put(connection,new Document(Kind.POSITION,uri,snapshot.account(),p,snapshot.snapshotId(),sourceKey));
+  var alloc=obj().put("status","UNKNOWN");alloc.set("reconciliation",link("/v2/accounts/"+snapshot.account()+"/inventory-reconciliation"));alloc.set("holdingSnapshotIds",array().add(snapshot.snapshotId()));alloc.set("affectedHoldingIds",array());alloc.set("evidence",es);p.set("allocation",alloc);p.set("exposure",PortfolioCurrentExposure.exposure(snapshot,"OBSERVED",es.deepCopy(),"Current observed quantities only; no opening, uninterrupted occurrence or original cost basis established."));p.set("evaluation",PortfolioMath.evaluate(c,Map.of(),Instant.parse(now)));if(previous!=null)for(String retained:List.of("historicalMarketValue","economicComparison"))if(previous.value().path("evaluation").path(retained).isObject())((ObjectNode)p.path("evaluation")).set(retained,previous.value().path("evaluation").path(retained).deepCopy());p.set("warnings",array().add(warning("ASSOCIATION_UNRESOLVED","/stateEvidence","Source custody, quantities and contractual terms remain inspectable under an independent Position GUID.","Compatible observations do not prove uninterrupted economic occurrence, opening date, original investment basis or roll history; unobserved close/reopen events may be indistinguishable.")));qualify(p);var document=new Document(Kind.POSITION,uri,snapshot.account(),p,snapshot.snapshotId(),sourceKey);repository.put(connection,document);continuity.observe(document,members);
  }
  public static void qualify(ObjectNode position){
   var targets=new TreeMap<String,Set<String>>();collect(position.path("evaluation"),"/evaluation",targets);var warnings=(ArrayNode)position.path("warnings");var present=new HashSet<String>();for(var warning:warnings)present.add(warning.path("code").asText());for(var entry:targets.entrySet())if(present.add(entry.getKey())){var w=warning(entry.getKey(),"/evaluation","Authorized source constituents and separately reported financial facts remain inspectable.","The identified result retains its evidence qualification.");var affected=array();entry.getValue().forEach(affected::add);w.set("affected",affected);var remediation=obj().put("action",switch(entry.getKey()){case "INVENTORY_OVERALLOCATED","HOLDING_RECONCILIATION_CONFLICT","COVERAGE_INSUFFICIENT"->"RECONCILE_ALLOCATIONS";case "ASSOCIATION_UNRESOLVED","AMBIGUOUS_ORDER_ASSOCIATION"->"REVIEW_ASSOCIATION";case "TERMS_UNAVAILABLE","INCOMPATIBLE_CONTRACT_TERMS"->"SUPPLY_TERMS";case "STALE_MARKET_OBSERVATION","MARKET_OBSERVATION_MISSING","SOURCE_CONFLICT"->"REFRESH_SOURCE";case "OPENING_FILLS_UNAVAILABLE","HISTORICAL_OPTION_QUOTE_MISSING","HISTORY_INCOMPLETE","BASIS_ATTRIBUTION_UNKNOWN"->"IMPORT_SOURCE";default->"NO_KNOWN_REMEDY";}).put("description",switch(entry.getKey()){case "HISTORICAL_OPTION_QUOTE_MISSING"->"Provide the required historical observation; a current quote cannot replace it.";case "OPENING_FILLS_UNAVAILABLE","HISTORY_INCOMPLETE","BASIS_ATTRIBUTION_UNKNOWN"->"Supply supported historical activity and documented cost attribution; holdings or current marks do not establish missing events.";case "ASSOCIATION_UNRESOLVED","AMBIGUOUS_ORDER_ASSOCIATION"->"Inspect existing brokerage evidence; structural similarity alone does not prove the relationship.";case "INVENTORY_OVERALLOCATED","HOLDING_RECONCILIATION_CONFLICT","COVERAGE_INSUFFICIENT"->"Inspect Account reconciliation and refresh source evidence. Agreement with source quantities may indicate a backend allocation defect.";case "TERMS_UNAVAILABLE","INCOMPATIBLE_CONTRACT_TERMS"->"Supply authoritative contract terms, including multiplier, currency and deliverable.";case "SOURCE_CONFLICT"->"Compare the identified original source records; refresh the relevant source or import corrected supported evidence. Current quotes cannot replace historical fills or prices.";case "STALE_MARKET_OBSERVATION","MARKET_OBSERVATION_MISSING"->"Obtain a newer authorized observation for this instrument; refresh cannot create historical evidence.";default->"No supported source or calculation remedy is currently established.";}).putNull("capability").putNull("requiredGrant");w.set("remediation",array().add(remediation));warnings.add(w);}

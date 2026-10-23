@@ -1,0 +1,66 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_SYNTHETIC_SOURCE_HTTP_WALK_NOT_KIRO_OR_LIVE_BROKER_PROBE",
+  "applicationBase": "5377610c004b35a0653011813068309eab42bf1e",
+  "applicationDelta": "PortfolioSnapshots SQL canonical Account URI prefix plus shared controller key helper",
+  "fullGeneratedCaptureSha256": "0ed3d2cf01f2870e40d39a84219ce5e0e75d78a2ecfb66560d2e0aac2929dd9b",
+  "expectedCount": 7,
+  "actualCount": 7,
+  "termination": "NEXT_NULL",
+  "reference": [
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:02f88168bc5dddabefed5c3a0373df061c63f3d1810c7f2e74bade652b27ffe2",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:8f2d12794190e0b156b93a7f4dba5c74b6653e3308b206f8d933d320c493d0b1",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:952ae53979b192df91402c3821bab46768dc3a850aeb5d1911686ac6c81b9c5c",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:9668ed8da5eaeb5c3e5d7938ba627d63f682b53a2b1c25c50b0f7545d95f5329",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:a6f17327f214f622cd91f1c84af5c23f6f9e2b6c3989df997fb3e43c6799e5b7",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:a88ee4ccadb92ea241397b40b0e9a9c67b3f934b8fbe5f865fc53fef0b813eee",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:d6cf69b167911e7b16d0495d004606ae202e203cc48d1c349f6c6b6036b208a4"
+  ],
+  "concatenated": [
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:02f88168bc5dddabefed5c3a0373df061c63f3d1810c7f2e74bade652b27ffe2",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:8f2d12794190e0b156b93a7f4dba5c74b6653e3308b206f8d933d320c493d0b1",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:952ae53979b192df91402c3821bab46768dc3a850aeb5d1911686ac6c81b9c5c",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:9668ed8da5eaeb5c3e5d7938ba627d63f682b53a2b1c25c50b0f7545d95f5329",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:a6f17327f214f622cd91f1c84af5c23f6f9e2b6c3989df997fb3e43c6799e5b7",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:a88ee4ccadb92ea241397b40b0e9a9c67b3f934b8fbe5f865fc53fef0b813eee",
+    "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:d6cf69b167911e7b16d0495d004606ae202e203cc48d1c349f6c6b6036b208a4"
+  ],
+  "pages": [
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86",
+      "keys": [
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:02f88168bc5dddabefed5c3a0373df061c63f3d1810c7f2e74bade652b27ffe2",
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:8f2d12794190e0b156b93a7f4dba5c74b6653e3308b206f8d933d320c493d0b1"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86&cursor=YzdmMTA4Yjc2MzA3OTM1YzNhMjEyMDJjZTQxMjczNGYwNThmYTBjYmExOTg0MWM3MzhjMTVlZDI2NGU0MmZhZgovdjIvYWNjb3VudHMvYWNjdF9kMjAyYWNkZDJkNGM0NjA3ODljZWNkNWZjNmU5ZmU4Njo4ZjJkMTI3OTQxOTBlMGIxNTZiOTNhN2Y0ZGJhNWM3NGI2NjUzZTMzMDhiMjA2ZjhkOTMzZDMyMGM0OTNkMGIx.VHbRnt1ixnqhsCwOK1zp263rEd4Em0OjhR285qBWR5o"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86&cursor=YzdmMTA4Yjc2MzA3OTM1YzNhMjEyMDJjZTQxMjczNGYwNThmYTBjYmExOTg0MWM3MzhjMTVlZDI2NGU0MmZhZgovdjIvYWNjb3VudHMvYWNjdF9kMjAyYWNkZDJkNGM0NjA3ODljZWNkNWZjNmU5ZmU4Njo4ZjJkMTI3OTQxOTBlMGIxNTZiOTNhN2Y0ZGJhNWM3NGI2NjUzZTMzMDhiMjA2ZjhkOTMzZDMyMGM0OTNkMGIx.VHbRnt1ixnqhsCwOK1zp263rEd4Em0OjhR285qBWR5o",
+      "keys": [
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:952ae53979b192df91402c3821bab46768dc3a850aeb5d1911686ac6c81b9c5c",
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:9668ed8da5eaeb5c3e5d7938ba627d63f682b53a2b1c25c50b0f7545d95f5329"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86&cursor=YzdmMTA4Yjc2MzA3OTM1YzNhMjEyMDJjZTQxMjczNGYwNThmYTBjYmExOTg0MWM3MzhjMTVlZDI2NGU0MmZhZgovdjIvYWNjb3VudHMvYWNjdF9kMjAyYWNkZDJkNGM0NjA3ODljZWNkNWZjNmU5ZmU4Njo5NjY4ZWQ4ZGE1ZWFlYjVjM2U1ZDc5MzhiYTYyN2Q2M2Y2ODJiNTNhMmIxYzI1YzUwYjBmNzU0NWQ5NWY1MzI5.FeNlBMKS88xNeBSxF31jgnfaKhOuEeHSL5ZIPLVy0KI"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86&cursor=YzdmMTA4Yjc2MzA3OTM1YzNhMjEyMDJjZTQxMjczNGYwNThmYTBjYmExOTg0MWM3MzhjMTVlZDI2NGU0MmZhZgovdjIvYWNjb3VudHMvYWNjdF9kMjAyYWNkZDJkNGM0NjA3ODljZWNkNWZjNmU5ZmU4Njo5NjY4ZWQ4ZGE1ZWFlYjVjM2U1ZDc5MzhiYTYyN2Q2M2Y2ODJiNTNhMmIxYzI1YzUwYjBmNzU0NWQ5NWY1MzI5.FeNlBMKS88xNeBSxF31jgnfaKhOuEeHSL5ZIPLVy0KI",
+      "keys": [
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:a6f17327f214f622cd91f1c84af5c23f6f9e2b6c3989df997fb3e43c6799e5b7",
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:a88ee4ccadb92ea241397b40b0e9a9c67b3f934b8fbe5f865fc53fef0b813eee"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86&cursor=YzdmMTA4Yjc2MzA3OTM1YzNhMjEyMDJjZTQxMjczNGYwNThmYTBjYmExOTg0MWM3MzhjMTVlZDI2NGU0MmZhZgovdjIvYWNjb3VudHMvYWNjdF9kMjAyYWNkZDJkNGM0NjA3ODljZWNkNWZjNmU5ZmU4NjphODhlZTRjY2FkYjkyZWEyNDEzOTdiNDBiMGU5YTljNjdiM2Y5MzRiOGZiZTVmODY1ZmM1M2ZlZjBiODEzZWVl.5nM1weMgz4StXJpVyxT7nP0lGjySeEh8igAD30ZJipc"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=2&accountId=acct_d202acdd2d4c460789cecd5fc6e9fe86&cursor=YzdmMTA4Yjc2MzA3OTM1YzNhMjEyMDJjZTQxMjczNGYwNThmYTBjYmExOTg0MWM3MzhjMTVlZDI2NGU0MmZhZgovdjIvYWNjb3VudHMvYWNjdF9kMjAyYWNkZDJkNGM0NjA3ODljZWNkNWZjNmU5ZmU4NjphODhlZTRjY2FkYjkyZWEyNDEzOTdiNDBiMGU5YTljNjdiM2Y5MzRiOGZiZTVmODY1ZmM1M2ZlZjBiODEzZWVl.5nM1weMgz4StXJpVyxT7nP0lGjySeEh8igAD30ZJipc",
+      "keys": [
+        "/v2/accounts/acct_d202acdd2d4c460789cecd5fc6e9fe86:d6cf69b167911e7b16d0495d004606ae202e203cc48d1c349f6c6b6036b208a4"
+      ],
+      "next": null
+    }
+  ]
+}

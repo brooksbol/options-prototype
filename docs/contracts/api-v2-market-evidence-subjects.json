@@ -321,6 +321,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
           }
         },
         "parameters": [

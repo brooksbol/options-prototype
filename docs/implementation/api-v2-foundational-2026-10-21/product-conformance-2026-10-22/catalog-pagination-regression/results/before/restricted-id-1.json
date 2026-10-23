@@ -1,0 +1,37 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_SYNTHETIC_SOURCE_HTTP_WALK_NOT_KIRO_OR_LIVE_BROKER_PROBE",
+  "applicationCommit": "5377610c004b35a0653011813068309eab42bf1e",
+  "fullGeneratedCaptureSha256": "647717cc65dc5e9868313b0497bbecbad92b50de512d252b9e1451c574356212",
+  "expectedCount": 5,
+  "actualCount": 2,
+  "termination": "NEXT_NULL",
+  "reference": [
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:351545a8ccb9e1fc7655da671c304a41049ab1a8585976af767907e7458d081f",
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:3897009fa8883b397b00eb2135fe22f829b1ba02403c8eca9ea0068df519a30b",
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:a4a7e61aeaa28ce5171bc304b94cbd27ea2fb39b79523d6ccb77c15e9bdbecc4",
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:f417719284772f01e580bbc9ac4b5feb738c7245f728ada71fd7cc8950b601f4",
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:f685298a3d109ac5fefa78efe66a6962bbaf21e2b0385eec191b6a37f76d440e"
+  ],
+  "concatenated": [
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:351545a8ccb9e1fc7655da671c304a41049ab1a8585976af767907e7458d081f",
+    "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:3897009fa8883b397b00eb2135fe22f829b1ba02403c8eca9ea0068df519a30b"
+  ],
+  "pages": [
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1",
+      "keys": [
+        "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:351545a8ccb9e1fc7655da671c304a41049ab1a8585976af767907e7458d081f"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=id&limit=1&cursor=N2MwNzZjNGZmZjIxMTBmZDM1YmRmNzQ4OTY4MGNkOTNkZWQ1ODgxN2U2YTEzMzhiZDgxNWI0ZDhiZGI0MzJjNQovdjIvYWNjb3VudHMvYWNjdF85YmE4MjdhNmYyNzY0MWQwODI2ZDEzYjk4Y2UxYmI2MjozNTE1NDVhOGNjYjllMWZjNzY1NWRhNjcxYzMwNGE0MTA0OWFiMWE4NTg1OTc2YWY3Njc5MDdlNzQ1OGQwODFm.oz3RlDlisO3VjqdlJBEL8c5t6PCx3T-QsCU8QysjjLY"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=id&limit=1&cursor=N2MwNzZjNGZmZjIxMTBmZDM1YmRmNzQ4OTY4MGNkOTNkZWQ1ODgxN2U2YTEzMzhiZDgxNWI0ZDhiZGI0MzJjNQovdjIvYWNjb3VudHMvYWNjdF85YmE4MjdhNmYyNzY0MWQwODI2ZDEzYjk4Y2UxYmI2MjozNTE1NDVhOGNjYjllMWZjNzY1NWRhNjcxYzMwNGE0MTA0OWFiMWE4NTg1OTc2YWY3Njc5MDdlNzQ1OGQwODFm.oz3RlDlisO3VjqdlJBEL8c5t6PCx3T-QsCU8QysjjLY",
+      "keys": [
+        "/v2/accounts/acct_9ba827a6f27641d0826d13b98ce1bb62:3897009fa8883b397b00eb2135fe22f829b1ba02403c8eca9ea0068df519a30b"
+      ],
+      "next": null
+    }
+  ]
+}

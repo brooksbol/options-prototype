@@ -19,6 +19,33 @@ from v2_oas import (COMMON, Contracts, implemented_v2_operations, normalized_rou
 from build import ALLOWLIST, SECURITY_PROSE, EXCLUDED_PUBLIC, component_refs, public_projection
 
 
+def without_authorized_f6_delta(current, baseline, name):
+    """Verify the exact Principal-authorized routing/grant additions, then compare all other wire fields.
+    This is not permission to refresh the preserved b48 baseline or ignore arbitrary contract changes.
+    """
+    import copy
+    value=copy.deepcopy(current)
+    common='api-v2-direct-quote-acquisition-proposal.yaml'
+    if name==common:
+        expected=copy.deepcopy(baseline['components']['schemas']['HeldQuoteReadProblem'])
+        expected['properties']['status']['enum'].append(405)
+        expected['properties']['code']['enum'].append('METHOD_NOT_ALLOWED')
+        expected['oneOf'].append({'type':'object','properties':{'status':{'const':405},'code':{'const':'METHOD_NOT_ALLOWED'},'title':{'const':'Method not allowed'},'type':{'const':'urn:wheelwright:problem:method_not_allowed'}}})
+        assert without_documentation(value['components']['schemas'].pop('RoutingProblem'))==without_documentation(expected)
+        expected_response={'headers':{'X-Request-Id':{'required':True,'schema':{'type':'string','format':'uuid'}},'Cache-Control':{'required':True,'schema':{'const':'private, no-store'}},'Allow':{'required':True,'schema':{'type':'string','minLength':1}}},'content':{'application/problem+json':{'schema':{'allOf':[{'$ref':'#/components/schemas/RoutingProblem'},{'type':'object','properties':{'status':{'const':405},'code':{'const':'METHOD_NOT_ALLOWED'}}}]}}}}
+        assert without_documentation(value['components']['responses'].pop('MethodNotAllowed'))==expected_response
+    for path,item in value['paths'].items():
+        for method,op in item.items():
+            if method not in {'get','post'}:continue
+            assert op['responses'].pop('405')=={'$ref':('' if name==common else common)+'#/components/responses/MethodNotAllowed'}
+            if name==common and path=='/v2/quotes' and method=='post':
+                assert op.pop('x-required-grants')==['quote.acquire']
+                assert op.pop('x-required-grants-when-force')==['quote.force']
+            if path.startswith('/v2/market-observations'):
+                assert op.pop('x-required-grants-for-account-scope')==['account.market.read:{accountId}']
+    return value
+
+
 def main():
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else TOOL / 'dist'
     contracts = Contracts(); contracts.validate_structure()
@@ -29,7 +56,7 @@ def main():
         raw = subprocess.check_output(['git', 'show', 'b48e3c6fc36f9a7feb6abbf97cbacff5934d477e:docs/contracts/' + name], cwd=ROOT, text=True)
         import yaml
         baseline = json.loads(raw) if name.endswith('.json') else yaml.safe_load(raw)
-        assert without_documentation(baseline) == without_documentation(current), 'Wire contract changed: ' + name
+        assert without_documentation(baseline) == without_documentation(without_authorized_f6_delta(current, baseline, name)), 'Wire contract changed: ' + name
     for (method, path), (op, item, name) in operations.items():
         assert op['operationId'] and op['tags'] and op['summary'] != op['operationId']
         assert op['security'] == [{'bearerAuth': []}]
@@ -76,6 +103,7 @@ def main():
                            source='docs/contracts/' + name, parameters=params,
                            requestBody=op.get('requestBody'), responses=responses,
                            security=op['security'], requiredGrants=op.get('x-required-grants', []),
+                           conditionalRequiredGrants={key:value for key,value in op.items() if key.startswith('x-required-grants-')},
                            domainContract=target, semantics=op['description']))
     identifiers = [op['operationId'] for op in report]
     assert len(identifiers) == len(set(identifiers))
@@ -176,9 +204,9 @@ def main():
         for method, op in item.items():
             if method not in {'get', 'post'}: continue
             public_ids.append(op['operationId'])
-            assert 'security' not in op and 'x-required-grants' not in op
+            assert 'security' not in op and not any(key.startswith('x-required-grants') for key in op)
             original = internal['paths'][path][method]
-            expected = {k: v for k, v in original.items() if k not in {'security', 'x-required-grants'}}
+            expected = {k: v for k, v in original.items() if k != 'security' and not k.startswith('x-required-grants')}
             assert without_documentation(expanded(expected, internal)) == without_documentation(expanded(op, public)), (method, path, 'public wire schema changed')
     assert sorted(public_ids) == sorted(internal['paths'][path][method]['operationId'] for method, path in public_ops)
     # Validate every remaining public example against the actual pruned/titled schema.

@@ -1,0 +1,92 @@
+[
+  {
+    "operation": "GET /v2/positions",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/positions'\n```",
+    "candidateDescription": "List independently identified economic Positions across the selected Accounts. Each Position has its own GUID and links to its currently applicable Construction. The default summary and optional expansions preserve financial qualifications. State and observed exposure are separate: UNRESOLVED can coexist with known held quantities. Source observations do not prove an opening date or uninterrupted occurrence. Selection, stable ID ordering and pagination precede per-item evaluation; Account-wide allocation and coverage checks still apply."
+  },
+  {
+    "operation": "GET /v2/positions/{positionId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/positions/b2fb05ea-ba93-430d-9f58-8e002cd14dfd'\n```",
+    "candidateDescription": "Read one independently identified economic Position, its current Construction link and evidence-qualified financial evaluation. Broker series identifiers are source attributes, so distinct occurrences may share them. CLOSED is terminal and a later established opening requires a different GUID; this rule does not prove a lifecycle transition from incomplete holdings history. Original, current and cumulative economics remain separate when available. Unavailable basis, market history or associations produce qualified values and warnings."
+  },
+  {
+    "operation": "GET /v2/constructions",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/constructions?projection=summary'\n```",
+    "candidateDescription": "List retained immutable Construction instances, with optional Position selection and component/model expansions. A Position links to its currently applicable instance; the collection can also contain predecessor history. Recursive constituents preserve cash, shares and option quantities even when no named model is admitted. Financial incompatibility prevents validated naming without erasing the inventory. Current Account-wide conflicts qualify affected allocation and coverage claims."
+  },
+  {
+    "operation": "GET /v2/constructions/{constructionId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/constructions/7dba7537-2870-4bc9-a683-c05aca6e7eda'\n```",
+    "candidateDescription": "Read a write-once Construction instance: exact constituents, source allocations, evidence-qualified recognition and the exact immutable Model version used. When known, predecessor links identify the immediate preceding instance rather than skipping intermediate rolls. Historical composition is not current exposure merely because it remains readable. An unclassified instance can still have supported mathematical economics; unsupported terms or horizons remain explicit."
+  },
+  {
+    "operation": "GET /v2/orders",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/orders?accountId=acct_31dafd6102c548819fc4daccd6659066'\n```",
+    "candidateDescription": "List retained read-only brokerage instructions, optionally selecting an Account, an evidenced Position association or a reported broker complex-order group. Instructions, reported fills and current held exposure are different facts. A working unfilled closing instruction does not reduce holdings, and holdings changes do not prove a fill. Unsupported or ambiguous associations remain qualified; group peer navigation does not guarantee current OCO/OTOCO completeness or execution behavior. Retained source times and incomplete scans remain explicit."
+  },
+  {
+    "operation": "GET /v2/orders/{orderId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/orders/0850b26c-cdca-36a6-80f9-33b6743f16d1'\n```",
+    "candidateDescription": "Read a retained brokerage Order instruction with source-qualified status, legs, price units, available fill evidence, related-group links and qualified Position or Construction associations. A reported working target, stop trigger and stop limit have distinct meanings. This API does not submit or modify trades. Unknown opening history, current working state or association authority remains unknown instead of being inferred from matching symbols."
+  },
+  {
+    "operation": "GET /v2/instruments",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/instruments'\n```",
+    "candidateDescription": "Discover shared reference Instruments and broker-qualified aliases, optionally selecting a symbol. Reference identity is distinct from Account inventory and Position identity. Option terms retain currency, multiplier, deliverable, adjustment and expiration qualifications where established. Shared references contain no private Account uploads; cross-broker equivalence is not assumed from a matching ticker."
+  },
+  {
+    "operation": "GET /v2/instruments/{instrumentId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/instruments/a0c92983-957e-3700-a66a-84eae8a53154'\n```",
+    "candidateDescription": "Read a shared Instrument reference and its broker-qualified identifiers and available contract terms. The resource does not assert that an Account holds it. Missing or incompatible option terms limit recognition and exact valuation; no standard multiplier or deliverable is invented. Private source evidence remains on separately scoped financial observations and constituents."
+  },
+  {
+    "operation": "GET /v2/market-observations",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/market-observations?accountId=acct_31dafd6102c548819fc4daccd6659066'\n```",
+    "candidateDescription": "List retained market observations, optionally selecting an Account or Instrument. Shared and Account-linked observations preserve their distinct source scope. Provider observation, receipt, session and freshness are separate facts; a successful read does not make an old quote current. Missing historical option prices cannot be replaced by current quotes. Evaluated Position values refer to the evidence used rather than requiring clients to recreate financial interpretation."
+  },
+  {
+    "operation": "GET /v2/market-observations/{observationId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/market-observations/f02abcd0-b7d2-3423-8205-5bda83587f85'\n```",
+    "candidateDescription": "Read one immutable market observation with provider/environment, source and receipt clocks, price units, session context and freshness qualification. Its age is evaluated at read time without rewriting the source record. A broker mark, a bid/ask midpoint and a supported package closing estimate are different values. Unavailable clocks or unsupported historical evidence remain explicit."
+  },
+  {
+    "operation": "GET /v2/constructions/models",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/constructions/models'\n```",
+    "candidateDescription": "Discover reusable declarative Construction Model families and their exact version links. Models describe financial composition and recognition constraints, not terminal glyphs, trading recommendations or evidence that a particular Account holds a package. Follow an immutable version for historical interpretation; a family definition alone is not a version-specific binding."
+  },
+  {
+    "operation": "GET /v2/constructions/models/{modelId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/constructions/models/CASH'\n```",
+    "candidateDescription": "Read a declarative Model family and discover its version-specific definitions. Family identity supports navigation; an actual Construction binds to an exact immutable version. Financial compatibility includes quantity, strike ordering, currency, multiplier, deliverable and expiration constraints. A familiar visual pattern alone does not validate a named structure."
+  },
+  {
+    "operation": "GET /v2/constructions/models/{modelId}/versions/{versionId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/constructions/models/CASH/versions/1'\n```",
+    "candidateDescription": "Read the exact write-once version of a Construction Model. The version URI is the binding used by a recognized Construction and remains reproducible through retained history. It describes permitted composition and constraints, not source membership, a broker reservation, Position lifecycle continuity or a trading action."
+  },
+  {
+    "operation": "GET /v2/positions/{positionId}/audit",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893/audit?projection=expanded'\n```",
+    "candidateDescription": "Navigate retained immutable Wheelwright Audit records for one Position in stable paginated ID order. These record tracked Wheelwright assertions and Construction-reference changes, with before/after links where available. They do not reconstruct missing brokerage events, prove lifecycle continuity or replace Construction predecessor navigation."
+  },
+  {
+    "operation": "GET /v2/positions/{positionId}/audit/{auditId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/positions/132f480c-f9d3-4fe7-8c8f-6a081e28b893/audit/1b6324c1-9024-4c9e-ad37-f3f9381bc662'\n```",
+    "candidateDescription": "Read one retained Wheelwright Audit record belonging to the selected Position, including its recorded assertion, source qualification and available historical links. Audit retention establishes Wheelwright history only; it cannot manufacture absent brokerage fills, opening dates or closure evidence."
+  },
+  {
+    "operation": "GET /v2/accounts/{accountId}/inventory-reconciliation",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority. This Account-wide custody/Position reconciliation requires both Position-read and holdings-read; it exposes independently protected retained inventory quantities and residuals.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/accounts/acct_705e2df2c20946c284a64bd3bf8562d0/inventory-reconciliation'\n```",
+    "candidateDescription": "Read Account-wide conservation and aggregate economic coverage at the applicable retained holdings cut. Allocations are compared with reported owned quantities across all current constructions, including those outside a requested Position page. Coverage conflicts propagate into affected Positions and current Constructions. Eligible fungible shares or cash provide economic coverage, not a specific tax lot, broker reservation, margin calculation or unrestricted buying power. Incomplete quantities and source coverage keep dependent conclusions unknown."
+  },
+  {
+    "operation": "GET /v2/holdings",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/holdings?view=observations'\n```",
+    "candidateDescription": "List broker custody observations independently of Position interpretation or Construction recognition. With snapshotId omitted, select the latest admitted snapshot independently for each selected Account; retained historical snapshots are not added to current custody. A partial latest snapshot retains its coverage qualification. A failed acquisition does not erase prior admitted evidence. An empty latest cut is empty, not a reason to substitute an older cut. Use accountId with snapshotId for an exact historical cut, or view=observations to discover retained cuts and follow their holdings links. Pagination follows stable canonical-ID ordering, not source chronology."
+  },
+  {
+    "operation": "GET /v2/holdings/{holdingId}",
+    "publishedDescription": "Evidence-qualified financial read. Collection projections retain financial qualifications. Resource identifiers confer no authority.\n\n### Synthetic cURL\n\n```text\ncurl --request GET 'https://api.example.invalid/v2/holdings/3f22ae06-17b6-316e-8533-6b9d8f64c2b3'\n```",
+    "candidateDescription": "Read one immutable Account-scoped broker holding observation, including its snapshot identity, quantities, source dates and receipt clock, reported monetary values and provenance. It may belong to an older retained snapshot; reading its canonical URI does not make it current. Broker-reported P/L and capital requirements retain their source meaning and do not establish Wheelwright opening economics, available buying power or broker-reserved collateral."
+  }
+]

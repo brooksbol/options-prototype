@@ -1,0 +1,38 @@
+{
+  "standing": "NEWLY_CONSTRUCTED_SYNTHETIC_SOURCE_HTTP_WALK_NOT_KIRO_OR_LIVE_BROKER_PROBE",
+  "applicationCommit": "5377610c004b35a0653011813068309eab42bf1e",
+  "fullGeneratedCaptureSha256": "f2721fd013c81b257d7a4a5a81915b5bc28ff17c8f13f603424c9389b135a4fd",
+  "expectedCount": 7,
+  "actualCount": 2,
+  "termination": "NEXT_NULL",
+  "reference": [
+    "/v2/accounts/acct_69c1a41961734f918600af116722fb6f:dedc44ba31251a8a516642491e97700a0567531ad91d1b54e191af8e04135aad",
+    "/v2/accounts/acct_69c1a41961734f918600af116722fb6f:6e1ba8f226884cb411e5003a7431a0b29101a05425cf90d177b98623b9dc6259",
+    "/v2/accounts/acct_55d09709030043fdbac174a4f6aaffb9:febd6b1d30eac993dd544b0765da1b90bcb6b49d8a14b69e04680ed20e113c02",
+    "/v2/accounts/acct_55d09709030043fdbac174a4f6aaffb9:f7063374d32d024eec913d4c89c460409637ef14b17f934d7033d1620bd622f7",
+    "/v2/accounts/acct_55d09709030043fdbac174a4f6aaffb9:df1dbf99756134fd71fc14ddb955c0eb9e5ad7adb3eb0e92568b555932557f7f",
+    "/v2/accounts/acct_55d09709030043fdbac174a4f6aaffb9:69086e48f88b0bb3193c0dad7fd3a048a377e434bf0e4bf27a31c05819d9b98f",
+    "/v2/accounts/acct_55d09709030043fdbac174a4f6aaffb9:06a00b125426d284a6a5054b00d52241abd28dfc66af7f9eca440d786f090fac"
+  ],
+  "concatenated": [
+    "/v2/accounts/acct_69c1a41961734f918600af116722fb6f:dedc44ba31251a8a516642491e97700a0567531ad91d1b54e191af8e04135aad",
+    "/v2/accounts/acct_69c1a41961734f918600af116722fb6f:6e1ba8f226884cb411e5003a7431a0b29101a05425cf90d177b98623b9dc6259"
+  ],
+  "pages": [
+    {
+      "request": "/v2/holdings?view=observations&sort=-id&limit=2",
+      "keys": [
+        "/v2/accounts/acct_69c1a41961734f918600af116722fb6f:dedc44ba31251a8a516642491e97700a0567531ad91d1b54e191af8e04135aad",
+        "/v2/accounts/acct_69c1a41961734f918600af116722fb6f:6e1ba8f226884cb411e5003a7431a0b29101a05425cf90d177b98623b9dc6259"
+      ],
+      "next": {
+        "href": "/v2/holdings?view=observations&sort=-id&limit=2&cursor=MjQ1YzcyZDZmNjQyMDA3MjlmMTYwN2NkMGUyZjI1ZmQ3ZDE2NzQ5OGM1OWZjOGY2Nzk1YzE2NDM5YjRlYzRjYQovdjIvYWNjb3VudHMvYWNjdF82OWMxYTQxOTYxNzM0ZjkxODYwMGFmMTE2NzIyZmI2Zjo2ZTFiYThmMjI2ODg0Y2I0MTFlNTAwM2E3NDMxYTBiMjkxMDFhMDU0MjVjZjkwZDE3N2I5ODYyM2I5ZGM2MjU5.euPPj492UTbw_BAnYuUXkn2uYge7LFa_OAsfzNamvFY"
+      }
+    },
+    {
+      "request": "/v2/holdings?view=observations&sort=-id&limit=2&cursor=MjQ1YzcyZDZmNjQyMDA3MjlmMTYwN2NkMGUyZjI1ZmQ3ZDE2NzQ5OGM1OWZjOGY2Nzk1YzE2NDM5YjRlYzRjYQovdjIvYWNjb3VudHMvYWNjdF82OWMxYTQxOTYxNzM0ZjkxODYwMGFmMTE2NzIyZmI2Zjo2ZTFiYThmMjI2ODg0Y2I0MTFlNTAwM2E3NDMxYTBiMjkxMDFhMDU0MjVjZjkwZDE3N2I5ODYyM2I5ZGM2MjU5.euPPj492UTbw_BAnYuUXkn2uYge7LFa_OAsfzNamvFY",
+      "keys": [],
+      "next": null
+    }
+  ]
+}

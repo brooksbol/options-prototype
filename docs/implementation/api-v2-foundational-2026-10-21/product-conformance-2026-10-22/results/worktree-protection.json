@@ -1,0 +1,136 @@
+[
+  {
+    "worktree": "/Users/bollich/kiro/options",
+    "head": "8bd75f5700a2cee39b7a9edb5e685c2d5a365312",
+    "statusEntryCount": 1,
+    "role": "PROTECTED_ROOT_IN_FLIGHT_MUSE"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-api-step1",
+    "status": "PRUNABLE_OR_MISSING_UNTOUCHED_NOT_VERIFIED"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-api-step2",
+    "status": "PRUNABLE_OR_MISSING_UNTOUCHED_NOT_VERIFIED"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-ar-date-fix",
+    "head": "2ceab575cbd5cefe24e04c05f54931a65033a6ff",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-doc-review-1841525",
+    "head": "1841525ccf853f49e2835987e1f7105e5e54b289",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-doc-review-baseline-2ceab57",
+    "head": "2ceab575cbd5cefe24e04c05f54931a65033a6ff",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-publication-review-240f227",
+    "head": "240f2272408c4dcb8408a7f1c53638fc6b78a1f3",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-publication-review-baseline",
+    "head": "01efa326464a4f09062a87eef003d86bb60fd390",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/wheelwright-thinking-review-3547721",
+    "head": "354772114ab9be0e0fa3d22c23e581cbfd546b38",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/ww-api-v2-pacing-baseline-20261021",
+    "head": "76bdb903458a4226f73ef5ead591e7d1cdaa0916",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/private/tmp/ww-docs-independent-3695c56",
+    "head": "3347f1ecb3636c72105411354c9c13f984b356a1",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-final-correction-2026-10-21",
+    "head": "a32c7c79a059cc58d5262cf3e30c520d2e087825",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-foundational-contract-2026-10-20",
+    "head": "847315f1b2bf2964db20f417c9936e961eb5f750",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-foundational-correction-2026-10-21",
+    "head": "c8ddbffc28e68dcd4c198ee10a5516603783eb8f",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-full-implementation-2026-10-21",
+    "head": "a2ed63062edce5af65c1ea635ddfce97b520c475",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-implementation-corrections-2026-10-21",
+    "head": "b27971d80a0cd3e4a8db371763acbffb3e1acd30",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-implementation-review-2026-10-21",
+    "head": "a2ed63062edce5af65c1ea635ddfce97b520c475",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-integration-deployment-2026-10-22",
+    "head": "4efd3a9f657a017ecac280582e74f2c0e38fb373",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-product-conformance-correction-2026-10-22",
+    "head": "8bd75f5700a2cee39b7a9edb5e685c2d5a365312",
+    "statusEntryCount": 34,
+    "role": "CORRECTION_CANDIDATE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/api-v2-r1-r2-correction-2026-10-22",
+    "head": "b48e3c6fc36f9a7feb6abbf97cbacff5934d477e",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/options-candidates/construction-geometry-2026-10-20",
+    "head": "5bab2195504a0d49b2d3ff37743aa7afe7dd100f",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/kiro/ww-positions-command",
+    "head": "798b3073fa5b8a455679ab95cf9a25beab42606d",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  },
+  {
+    "worktree": "/Users/bollich/tt-live-economic-review",
+    "head": "c2bf81c26ebeb00d0f9390de66dd28d9157947ce",
+    "statusEntryCount": 0,
+    "role": "PRESERVED_WORKTREE"
+  }
+]

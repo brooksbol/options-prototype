@@ -1,0 +1,133 @@
+[ {
+  "population" : 10,
+  "pageSize" : 5,
+  "projection" : "summary",
+  "expandedItems" : 5,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 39,
+  "repositoryRowsRead" : 58,
+  "millis" : 19
+}, {
+  "population" : 10,
+  "pageSize" : 20,
+  "projection" : "summary",
+  "expandedItems" : 10,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 44,
+  "repositoryRowsRead" : 71,
+  "millis" : 23
+}, {
+  "population" : 10,
+  "pageSize" : 5,
+  "projection" : "expanded",
+  "expandedItems" : 5,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 49,
+  "repositoryRowsRead" : 68,
+  "millis" : 23
+}, {
+  "population" : 10,
+  "pageSize" : 20,
+  "projection" : "expanded",
+  "expandedItems" : 10,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 64,
+  "repositoryRowsRead" : 91,
+  "millis" : 34
+}, {
+  "population" : 100,
+  "pageSize" : 5,
+  "projection" : "summary",
+  "expandedItems" : 5,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 39,
+  "repositoryRowsRead" : 342,
+  "millis" : 30
+}, {
+  "population" : 100,
+  "pageSize" : 20,
+  "projection" : "summary",
+  "expandedItems" : 20,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 54,
+  "repositoryRowsRead" : 387,
+  "millis" : 46
+}, {
+  "population" : 100,
+  "pageSize" : 5,
+  "projection" : "expanded",
+  "expandedItems" : 5,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 49,
+  "repositoryRowsRead" : 352,
+  "millis" : 46
+}, {
+  "population" : 100,
+  "pageSize" : 20,
+  "projection" : "expanded",
+  "expandedItems" : 20,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 94,
+  "repositoryRowsRead" : 427,
+  "millis" : 81
+}, {
+  "population" : 1000,
+  "pageSize" : 5,
+  "projection" : "summary",
+  "expandedItems" : 5,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 39,
+  "repositoryRowsRead" : 3146,
+  "millis" : 257
+}, {
+  "population" : 1000,
+  "pageSize" : 20,
+  "projection" : "summary",
+  "expandedItems" : 20,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 54,
+  "repositoryRowsRead" : 3191,
+  "millis" : 263
+}, {
+  "population" : 1000,
+  "pageSize" : 5,
+  "projection" : "expanded",
+  "expandedItems" : 5,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 49,
+  "repositoryRowsRead" : 3156,
+  "millis" : 235
+}, {
+  "population" : 1000,
+  "pageSize" : 20,
+  "projection" : "expanded",
+  "expandedItems" : 20,
+  "reconciliations" : 1,
+  "sourceNormalizationChecks" : 2,
+  "fullPositionReads" : 1,
+  "repositorySelects" : 94,
+  "repositoryRowsRead" : 3231,
+  "millis" : 1309
+} ]
