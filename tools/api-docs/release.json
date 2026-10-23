@@ -1,22 +1,22 @@
 {
   "previewDate": "2026-10-22",
   "publicationDate": "2026-10-22",
-  "acceptedSource": "8dcee81203c91e10bdec94a6ed24e307a8729b54",
-  "acceptedPreviewSha256": "a98fe6605b79eae2e65c625a947087deb5d8a9da2a5f98f4122ed9da1a4fa6cb",
+  "acceptedSource": "c48e6062ebb806a83bdb86611bdc22500e67e4d3",
+  "acceptedPreviewSha256": "caab89ce5e35f1c9c6c2ae38b759099a3933d5cc1e647966b4590b6cc011e75c",
   "acceptedLicensesSha256": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
   "acceptedContractInputs": {
-    "docs/contracts/api-v2-account-evidence.json": "a58329fd257fe515007651c7d196bb5cb86954ccfb97472328f852f4be3b3df5",
+    "docs/contracts/api-v2-account-evidence.json": "dcd92667b45a00c6ad203d3d8ab4d8797da7c56332d2ee4ce0ab53f2d1542b07",
     "docs/contracts/api-v2-direct-quote-acquisition-proposal.md": "00139acd118c46e886152814e6334ff8c7946080b3ab5a7efeb949dda9788ebb",
-    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml": "b8da14c1ab92f3bd9e56913fb717e6c473bab5bf79e3b8b13825c657ec6f095d",
-    "docs/contracts/api-v2-foundational-portfolio.json": "b69407fafb1af3f8d7d4042b0180c80953ea434c14b22b0d2279ffe269e1ffe3",
+    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml": "36267fa7f84e8d512a05eb2c3f254a1e59cb6f095d2a442a80b94b97dc5b3987",
+    "docs/contracts/api-v2-foundational-portfolio.json": "d6b58572e931d58faa2556680ce3009d8815dd8e1d3e37950c8c37016bf3eea8",
     "docs/contracts/api-v2-held-quotes-read.md": "47b43d5d6bda50fb956e6ae981b9041ab624aa7183646f71e5ff4089c44ece75",
-    "docs/contracts/api-v2-market-evidence-subjects.json": "07dfbcb802c14c1bd6de84885eb95b4f65d400dc4cbff1f1b7488193c90cabf5",
+    "docs/contracts/api-v2-market-evidence-subjects.json": "159f00f23a5329b7319a275326c466e9ec8f7dd884f7215a9c27c2f36d4d6537",
     "docs/contracts/api-v2-subject-show-held-quote.md": "c99dd498b1148f40f1a9891629bc99de5d47ea84bc1dad856546cb9b39b993e2",
-    "docs/api-v2/README.md": "a80b8a107312c1fb6c678ed960ff59b1912799121439d12b1c95a5261e206c21",
+    "docs/api-v2/README.md": "7b9075acbf2beb94b04a97c7c17bed814ebdabb546f94ad12bad6c2d805faed4",
     "docs/cli/ww-account-evidence.md": "32179d19a8c868d68378edf6ed1e376e819e4ba63ce6d6d812fb8757f6efbf25"
   },
   "principalCleanupSource": "docs/reviews/pl-api-02-principal-live-site-review-2026-10-15.md",
-  "principalIntegrationSource": "docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md",
+  "principalIntegrationSource": "docs/implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md",
   "independentReviewSource": "docs/implementation/api-v2-foundational-2026-10-21/documentation-release-review-2026-10-22.md",
   "reviewedContentSource": "ac3ca73b8b8ec6f3f1091bcfb40cb731ee63bbce"
 }
