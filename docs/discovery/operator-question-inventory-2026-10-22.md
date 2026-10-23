@@ -135,3 +135,12 @@ Suggested selection lenses for later review (not assigned scores): genuine opera
 **Exact Principal wording:** “Any reference to \"Herbie\" is either a reference to theory of constraints or Hancock. And I never talk about Herbie Hancock.”
 
 **Recovered meaning:** When the Principal says **Herbie** in Wheelwright discussions, interpret it as a **Theory of Constraints** reference (the constraint/bottleneck metaphor), never as the jazz musician Herbie Hancock. Do not create or infer a new Wheelwright entity, question category, backlog status, or Herbie ID from the word. The earlier speculation that each question “might be a herbie” means that a question might reveal a constraint, **not** that all questions inherently are constraints. This clarification supersedes any open-ended “what does Herbie mean?” exploration above, without promoting a new Product Principle.
+
+
+## H. Newly captured Principal utterances — October 23, 2026
+
+| # | Exact operator-language question | Type | Source |
+|---|---|---|---|
+| Q63 | **“Good morning!  Whatta we got today?”** | U/T | Principal, October 23 conversation; new open-ended daily portfolio orientation question |
+
+**Discovery note:** Q63 requests conversational daily situational awareness without specifying Account, Position, metric or date cut. Candidate answer ingredients include authorized portfolio orientation, existing alerts/exceptions, upcoming expirations, observed changes and missing/stale evidence. Those are possibilities to discover using accepted backend semantics, **not** an approved automatic briefing schema, recommendation engine, freshness claim, scheduled task or Product requirement. Treat Current State Understanding distinctly from Decision Support, and establish actual temporal/source evidence before claiming what is happening “today.” Preserve the Principal's exact informal wording. H-005 “What's in Sawdust?” remains the selected next thin slice; this addition does not change implementation sequencing.
