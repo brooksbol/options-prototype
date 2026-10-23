@@ -1923,3 +1923,8 @@ implementation change or operational restart is part of integration. The origina
 mixed tree stays frozen. r2 tool visibility remains uninstalled pending Kiro's
 narrow review. BUG-049 status and artifacts confidentiality finding are unchanged;
 no broader financial capability authorized. **PL-MCP-01 remains INTAKE.**
+
+
+### PL-MCP-01 / H-005 — October 23 checkpoint: real Holdings and ZDR/MAM inquiry
+
+[H-005 / provider-retention checkpoint](discovery/wwt-h005-provider-retention-checkpoint-2026-10-23.md) preserves the Principal's accelerated question-first direction, H-004 acceptance, the H-005 frozen author-tested candidate and still-pending Sawdust grant/independent review, and the October 23 OpenAI Sales correspondence. Sales **cannot sponsor a Sales-led ZDR review for this personal prototype**; MAM eligibility remains unconfirmed, and neither control is approved. Principal explicitly treats ZDR/MAM as optional rather than a blocker for controlled, authorized portfolio data under standard API retention and `store:false`, with question-specific privacy handling. H-005 real Holdings observation is not yet confirmed. PL-MCP-01 remains INTAKE.
