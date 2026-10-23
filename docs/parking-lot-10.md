@@ -1933,3 +1933,8 @@ no broader financial capability authorized. **PL-MCP-01 remains INTAKE.**
 ### Product/environment knowledge — EA on a Page crosswalk idea (October 23)
 
 The Principal wants **a map, not a migration**: an optional many-to-many navigational [crosswalk of in-place Wheelwright knowledge to Kotusev's EA on a Page reference taxonomy](discovery/ea-on-a-page-product-environment-crosswalk-intake-2026-10-23.md). Adapt artifact purposes to Wheelwright's Product and environment; preserve ontology, roadmap, PLs, LVT, authority, subjects, file locations and provenance without shoehorning, duplicate documents or enterprise-architecture bureaucracy. Idea intake only; no implementation assignment or slowdown of question-first delivery.
+
+
+### Wheelwright Talk — simple questions, hard answers that read simply (Oct 23)
+
+Principal's directional Product feedback: **TT Live's extremely dense color/Unicode/typography/structure and the tastytrade position-analysis story** are design north stars, *not* an all-at-once feature request. “simple questions. hard answers that seem simple when you read them.” Grow from inventory into recognized constructions, actual economics, comparable change and tactical attention. Avoid prompt-only polishing and caveat-heavy technically-correct brokerage narration; preserve grounded evidence and authority. Full specimen, exact wording, qualifiers and scope: [2026-10-23 position-analysis Product direction](discovery/wwt-position-analysis-product-direction-2026-10-23.md). Directional idea intake; no mandate to migrate, implement a broad architecture, or bypass Product acceptance.
