@@ -128,3 +128,10 @@ Suggested selection lenses for later review (not assigned scores): genuine opera
 5. If this recurring question inventory becomes maintained current Product knowledge, route it via the existing 4AM assimilation/owner mechanism; do not turn this historical discovery file into a new unratified owner by accident.
 
 **Disposition:** Collected for inspection, not H-004 selection or implementation authorization. PL-MCP-01 remains INTAKE.
+
+
+## Principal disambiguation — “Herbie” (October 22, 2026)
+
+**Exact Principal wording:** “Any reference to \"Herbie\" is either a reference to theory of constraints or Hancock. And I never talk about Herbie Hancock.”
+
+**Recovered meaning:** When the Principal says **Herbie** in Wheelwright discussions, interpret it as a **Theory of Constraints** reference (the constraint/bottleneck metaphor), never as the jazz musician Herbie Hancock. Do not create or infer a new Wheelwright entity, question category, backlog status, or Herbie ID from the word. The earlier speculation that each question “might be a herbie” means that a question might reveal a constraint, **not** that all questions inherently are constraints. This clarification supersedes any open-ended “what does Herbie mean?” exploration above, without promoting a new Product Principle.
