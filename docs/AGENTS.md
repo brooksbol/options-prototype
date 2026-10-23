@@ -77,6 +77,10 @@ Gate Experiment 001 is staged until its durable state establishes otherwise; do 
 
 A request such as “Bootstrap yourself for Wheelwright from GitHub” starts at root `AGENTS.md`, continues here and through `docs/README.md` for authority, and then follows the appropriate actor bootstrap.
 
+### Herbie terminology — Theory of Constraints (October 22, 2026)
+
+The Principal states: **“Any reference to \"Herbie\" is either a reference to theory of constraints or Hancock. And I never talk about Herbie Hancock.”** In this project's discourse, read **Herbie** as a Theory of Constraints bottleneck/constraint reference, **not** a jazz-person referent or an automatic Wheelwright question type. See the [question inventory disambiguation](discovery/operator-question-inventory-2026-10-22.md#principal-disambiguation--herbie-october-22-2026). Do not label every question a Herbie: a question may reveal a constraint, which requires evidence.
+
 ### Cross-cutting smallest-slice guidance — October 22, 2026
 
 The Principal states **“the simplest thin slice is a hello world.”** This is Wheelwright-wide engineering guidance, **not a PL-MCP-01-only instruction**. Recover its scope, meaning and authority limits in [the Product-first engineering mandate](mandates/product-first-continuous-engineering-2026-10-13.md#principal-clarification--smallest-thin-slice-october-22-2026). A minimal runnable hello world demonstrates the first end-to-end wiring; it does not itself demonstrate domain semantics, privacy, or release fitness, and does not authorize implementation.
