@@ -1879,3 +1879,10 @@ The Principal instructed a **persisted snapshot → 4AM consensus prompt → Cod
 ### PL-MCP-01 / H-004 — October 22 collision and consensus reset
 
 The Principal corrected the actor sequencing: **damage control first, then read-only 4AM consensus presented for Principal agreement, and only after that a separate Codex implementation assignment**. The earlier combined consensus/implementation prompt was used by both Codex and Kiro in one mutable worktree, resulting in an unverified, uncommitted mixed H-004 candidate. [Recovery and stopping-point record](discovery/h004-4am-collision-recovery-stopping-point-2026-10-22.md) preserves actor-reported evidence and a safe read-only inventory-first procedure. **No H-004 code should be modified or built during the recovery inventory; no actor consensus alone authorizes proceeding to implementation.** PL-MCP-01 remains INTAKE.
+
+
+### PL-MCP-01 / H-004 — October 23 privacy and model-safety snapshot
+
+The Principal identified full brokerage-account-number disclosure in ordinary API v2 Account discovery as **BUG-049**. Codex reported an isolated author-verified correction awaiting independent acceptance, integration and deployment. The Principal's sequence is: fix BUG-049; audit other API PII/sensitive disclosures and correct verified defects; assess actual hosted-model/project and `wwt` privacy, inference egress and financial-answer integrity; then pursue the first selected Account question with **real authorized data** only after appropriate safety gates. Synthetic fixtures remain useful for testing but are not a substitute for the Product's real operator experience.
+
+The [H-004 privacy/model-safety stopping point](discovery/h004-privacy-and-model-safety-snapshot-2026-10-23.md) preserves Principal intent, the frozen collision, current actor assignments, explicit nonclaims and next gates. Muse's [complete independent external-provider research Markdown](research/hosted-llm-api-financial-data-privacy-20261022.md) is preserved verbatim as external evidence, not Product authority or clearance of the actual API project. **PL-MCP-01 remains INTAKE.**
