@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-22T19:25:35.581Z",
+    "generatedAt": "2026-10-23T00:19:25.039Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -4471,6 +4471,48 @@
           "heading": "PL-CLI-01 / PL-API-03 — October22 accepted backend release",
           "level": 3,
           "content": "The Principal reports independent Kiro ACCEPT ofb48e3c6 (982 Java tests/125 reported Python checks/36 operations) and explicitly authorizes main integration, local backend deployment and API Pages publication. [Actual deployment record](implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md) separates source acceptance, author combined-source checks (982 Java/120 observed Python plus Node parity), local runtime verification, independent Codex documentation review and actual Pages state. Local v2 installation on3101 passed evidence/grant preservation; v1/BUG-043 and existing CLI remain protected. Separate documentation review first REJECTED an obsolete Position definition, then ACCEPTED corrected content and publication packaging. Expanded Position collection performance is a measured limitation; no unreviewed backend optimization or scope exception is introduced. No ww live, CLI/MCP migration, trading, unauthorized broker acquisition or closure of unresolved ontology/ASSIM-0002. Pages observation follows only on actual successful deployment.\n\n\n**October22 subsequent observed release:** source4c659a7 pushed to main; Pages workflow39839265856 build/deploy succeeded, exact live bytes and32-operation browser/desktop/mobile checks passed. Local v2 backend remains separately verified on3101 with v1/CLI protected. [Durable release evidence](implementation/api-v2-foundational-2026-10-21/deployment-results-2026-10-22.json) and deployment record carry source/JAR/run/hash/test identities and measured latency/source limitations. No broader PL-CLI-01 completion, ww live authorization or unresolved-ontology ratification is implied.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 — October 22 cross-cutting first-slice clarification and 4AM stopping point",
+          "level": 3,
+          "content": "**Principal exact words:** “the simplest thin slice is a hello world.” **Explicit correction:** “the simplest thin slice is a hello world is not limited to the MCP PL”.\n\n**Authority placement:** Wheelwright-wide engineering guidance is maintained in [the Product-first mandate](mandates/product-first-continuous-engineering-2026-10-13.md#principal-clarification--smallest-thin-slice-october-22-2026) and routed from `docs/AGENTS.md`. This parking-lot entry is **one application**, not the rule's owner. A minimal hello world demonstrates basic wiring, not user isolation, financial semantics or deployment fitness.\n\n**4AM continuation:** [October 22 independent-actor stopping-point snapshot](discovery/4am-pl-mcp-01-stopping-point-2026-10-22.md) preserves Kiro's pinned report summary, pending Muse/Codex reports, API v2 concurrent-revision caveats, actor independence, open `ASSIM-0002`, and resumption conditions. **Standing unchanged:** INTAKE / DISCOVERY, no Reconciliation Completion Record, no implementation authorization.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 — October 22 Muse external research receipt and independent assessment",
+          "level": 3,
+          "content": "**New evidence received:** Principal supplied Muse's independent public-source report *Prospective Cross-User Isolation in MCP-Compatible Agent Runtimes* (2026-10-22). [Research digest and analysis](research/muse-mcp-agent-runtime-cross-user-isolation-2026-10-22.md) preserves major findings, external citations, evidentiary standing, attached-source fingerprint, source-fidelity limitation, and a critical 2026 protocol correction. The complete 62,220-byte original remains a supplied conversation attachment; **the repository currently holds a researched digest, not verbatim full-report archival**.\n\n**Reconciliation:** Muse identifies context construction, User-bound state/retrieval, derived artifacts and provider trust as distinct security boundaries. Its findings are compatible with Kiro's HTTP-boundary versus pre-inference-gap diagnosis but do not constitute an approved architecture. **Important external verification:** MCP `2026-07-28` is officially released; Muse's unverified-version caveat and 2025 session-specific material must not be treated as current normative protocol design. No framework selection or implementation authorized.\n\n**4AM state:** Muse research **received**; Kiro's 4AM investigation and bounded delta check received; Codex's independent PL-MCP-01 architectural reconciliation not yet received into this thread; API v2 conformance review remains parallel and material only if it falsifies a depended-on foundation. PL-MCP-01 remains **INTAKE / DISCOVERY**, reconciliation pending.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 — October 22 Codex 4AM independent report received; cross-actor research comparison",
+          "level": 3,
+          "content": "[Codex independent report receipt and bounded reconciliation](discovery/4am-pl-mcp-01-codex-independent-review-receipt-2026-10-22.md) records Codex's read-only review pinned to `5081a39583e95486e55a3735a25c0a568baf43b0`, its independent source recovery, accepted API v2 reuse, candidate CLI parity concern, separate agent context/answer-integrity gaps, project-wide hello-world interpretation, and Position/realization knowledge-assimilation gaps. The original 281-line Codex report remains supplied in the Principal conversation; repository receipt is **attributed summary, not verbatim archive**.\n\n**Actor evidence status:** Kiro 4AM investigation and bounded API delta **received**, Muse independent external research **received**, Codex PL-MCP-01 4AM review **received**. Their conclusions broadly align on existing backend foundations and unimplemented agent context/answer controls, but agreement is not an architecture decision or a formal reconciliation result. Muse's report has a material MCP 2026-07-28 currency correction noted in its [research digest](research/muse-mcp-agent-runtime-cross-user-isolation-2026-10-22.md). The parallel API Product-conformance investigation matters only for materially relevant contradictions. **PL-MCP-01 remains INTAKE**; strategy/architecture reconciliation and its Reconciliation Completion Record are still pending. No experiment or implementation authorization follows.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 — October 22 bounded three-actor 4AM reconciliation and hello-world candidate",
+          "level": 3,
+          "content": "[Reconciliation and candidate authorization surface](discovery/4am-pl-mcp-01-bounded-evidence-reconciliation-2026-10-22.md) compares Kiro's repository investigation/delta, Muse's public external research, and Codex's independent 4AM assessment against current authority. **Principal scope correction:** “we don't care about ww cli compatibility issues in this thread.” CLI parity/migration is not a dependency in this MCP conversation. **Bounded conclusion:** a wholly inert, data-free, local MCP “Hello, world” tool invocation is ready to be *proposed for separately scoped authorization* without selecting a production agent host, adding financial-domain capabilities, or asserting isolation. The Principal's Wheelwright-wide first-slice guidance is applied, not re-owned here. Any financial data, persistent memory, multiple Users, hosted deployment, model-output financial claims or broader privacy assurance is excluded from that specimen. **PL-MCP-01 remains INTAKE**; the official strategic/architectural reconciliation and Reconciliation Completion Record are not complete; no implementation is authorized by the evidence review.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 — October 22 H-001 local hello-world authorization",
+          "level": 3,
+          "content": "**Principal explicit choice:** “A. have codex build it. gen the prompt first , then persist a snapshot.” This authorizes **Codex** to implement only the inert, local, data-free MCP **H-001 Hello World** specimen as bounded by the preceding three-actor reconciliation and [H-001 authorization/stopping-point snapshot](discovery/4am-pl-mcp-01-h001-authorization-stopping-point-2026-10-22.md). Required result: a real local MCP server/client tool-discovery and invocation producing `Hello, world!` with repeatable evidence. No LLM, private finance data, User/Account grants, memory, hosted deployment, production host selection, broader tool abstraction, or CLI compatibility work. Codex must respect current repository gate, worktree, mutation and independent-review constraints; Principal outcome authorization does not bypass those controls.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 — H-001 Principal acceptance and actual integration — October 22, 2026",
+          "level": 3,
+          "content": "The Principal supplied Kiro's independent **ACCEPT** of the frozen five-file H-001 candidate (including real MCP reproduction and 11 mutation checks), followed by exact Principal acceptance and commit/integration authorization. Codex verified archive SHA-256 and byte-identical local files, committed exactly the five accepted files at **3173f8649ab52a63b7c6874d5b8a8c4fd4f0736b**, pushed through the current direct-main workflow and remotely verified that SHA and tracked paths. [Dated acceptance/integration receipt](discovery/4am-pl-mcp-01-h001-authorization-stopping-point-2026-10-22.md#h-001-accepted-candidate-integration-receipt--october-22-2026) preserves attribution, exact authorization, unchanged-candidate semantics and the nonblocking SDK version-enforcement anomaly for later investigation. The original specimen README's pending text is historical; no accepted candidate bytes were edited. H-001 is accepted/integrated; this creates no broader MCP security or Product acceptance. H-002 resumes only as the separately commissioned local Codex conversational connection. PL-MCP-01 remains **INTAKE**, no Reconciliation Completion Record; H-003/H-004, finance, private data, production hosting and autonomous activity are excluded.",
           "truncated": false,
           "tables": []
         }
@@ -10741,7 +10783,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 673
+      "sourceOrder": 679
     },
     {
       "plId": null,
@@ -10884,7 +10926,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 645
+      "sourceOrder": 651
     },
     {
       "plId": null,
@@ -10897,7 +10939,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 646
+      "sourceOrder": 652
     },
     {
       "plId": null,
@@ -10910,7 +10952,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 647
+      "sourceOrder": 653
     },
     {
       "plId": null,
@@ -10923,7 +10965,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 650
+      "sourceOrder": 656
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -10949,7 +10991,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 648
+      "sourceOrder": 654
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -11131,7 +11173,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 628
+      "sourceOrder": 634
     },
     {
       "plId": null,
@@ -11144,7 +11186,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 629
+      "sourceOrder": 635
     },
     {
       "plId": null,
@@ -11157,7 +11199,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 630
+      "sourceOrder": 636
     },
     {
       "plId": null,
@@ -11170,7 +11212,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 631
+      "sourceOrder": 637
     },
     {
       "plId": null,
@@ -11183,7 +11225,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 632
+      "sourceOrder": 638
     },
     {
       "plId": null,
@@ -11196,7 +11238,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 633
+      "sourceOrder": 639
     },
     {
       "plId": null,
@@ -11209,7 +11251,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 634
+      "sourceOrder": 640
     },
     {
       "plId": null,
@@ -11222,7 +11264,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 635
+      "sourceOrder": 641
     },
     {
       "plId": null,
@@ -11235,7 +11277,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 636
+      "sourceOrder": 642
     },
     {
       "plId": null,
@@ -11248,7 +11290,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 637
+      "sourceOrder": 643
     },
     {
       "plId": null,
@@ -11261,7 +11303,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 638
+      "sourceOrder": 644
     },
     {
       "plId": null,
@@ -11274,7 +11316,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 639
+      "sourceOrder": 645
     },
     {
       "plId": null,
@@ -11287,7 +11329,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 640
+      "sourceOrder": 646
     },
     {
       "plId": null,
@@ -11300,7 +11342,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 641
+      "sourceOrder": 647
     },
     {
       "plId": null,
@@ -11313,7 +11355,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 642
+      "sourceOrder": 648
     },
     {
       "plId": null,
@@ -11326,7 +11368,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 643
+      "sourceOrder": 649
     },
     {
       "plId": null,
@@ -11339,7 +11381,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 644
+      "sourceOrder": 650
     },
     {
       "plId": null,
@@ -11352,7 +11394,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 649
+      "sourceOrder": 655
     },
     {
       "plId": null,
@@ -11365,7 +11407,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 672
+      "sourceOrder": 678
     },
     {
       "plId": "PL-SEM-01",
@@ -11534,7 +11576,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 651
+      "sourceOrder": 657
     },
     {
       "plId": null,
@@ -11547,7 +11589,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 652
+      "sourceOrder": 658
     },
     {
       "plId": "PL-SETUP-01",
@@ -11755,7 +11797,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 653
+      "sourceOrder": 659
     },
     {
       "plId": null,
@@ -11768,7 +11810,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 654
+      "sourceOrder": 660
     },
     {
       "plId": null,
@@ -11781,85 +11823,85 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 655
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 656
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 657
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 658
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 659
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 660
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
       "sourceOrder": 661
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 662
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 663
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 664
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 665
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 666
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 667
     },
     {
       "plId": null,
@@ -11872,7 +11914,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 662
+      "sourceOrder": 668
     },
     {
       "plId": null,
@@ -11885,7 +11927,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 663
+      "sourceOrder": 669
     },
     {
       "plId": null,
@@ -11898,7 +11940,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 664
+      "sourceOrder": 670
     },
     {
       "plId": "PL-STRAT-01",
@@ -11976,7 +12018,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 665
+      "sourceOrder": 671
     },
     {
       "plId": null,
@@ -11989,7 +12031,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 666
+      "sourceOrder": 672
     },
     {
       "plId": null,
@@ -12002,7 +12044,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 667
+      "sourceOrder": 673
     },
     {
       "plId": null,
@@ -12015,7 +12057,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 668
+      "sourceOrder": 674
     },
     {
       "plId": null,
@@ -12028,7 +12070,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 669
+      "sourceOrder": 675
     },
     {
       "plId": "PL-EVID-04",
@@ -12080,7 +12122,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
-      "sourceOrder": 670
+      "sourceOrder": 676
     },
     {
       "plId": null,
@@ -12093,7 +12135,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md",
-      "sourceOrder": 671
+      "sourceOrder": 677
     }
   ],
   "intakeDateUnknown": [
