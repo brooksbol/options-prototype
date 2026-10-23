@@ -39,3 +39,19 @@ Only then resume H-004 against **real authorized Account metadata**, with a veri
 The collided H-004 local candidate is frozen and unaccepted. Installed `wwt` points at the mixed launcher, and an earlier build rewrote classes within the running v1 backend's classpath. No build, runtime restart, mixed-tree cleanup or H-004 implementation is authorized by this filing. Remediation engineering must work in an isolated environment with explicit candidate and independent review controls.
 
 **Current state:** BUG filed; no fix, audit or deployed correction claimed.
+
+## Additional Principal requirement — October 22, 2026: model safety gate
+
+The Principal added: **“oh, and figure out if the model is actually safe to use”**. This is a separate, explicit prerequisite to allowing actual authorized financial data into `wwt` inference. API disclosure repair or absence of conventional PII is **not** sufficient proof of model safety.
+
+Before Step 4 real-data operator use, conduct a bounded, independently reviewed **provider-plus-application assessment** of the exact `wwt` model, API endpoint/features, API account/project settings, and host implementation. Document at least:
+
+1. Provider terms applicable to this API use: default training/data-sharing policy, abuse-monitoring/application-state retention, available zero/modified-retention eligibility and actual enrollment, provider personnel access, subprocessors and transport controls. Distinguish documented generic policy from actual account-specific settings; do not assert ZDR is enabled without proof.
+2. Effective `wwt` runtime: model identifier, Responses API storage configuration, tool transcript/history re-submission, logging, telemetry, secrets, process environment, output retention, external destination and error paths. Trace exactly which prompts, tool results and metadata leave the host; synthetic canary probes are allowed only in an isolated review environment.
+3. Threats: prompt injection in broker/market metadata; unauthorized request expansion; cross-user Account/context mixing; leaking sensitive fields through answers, logs, model tool arguments or provider state; hallucinated claims and replay of stale observations.
+4. Minimum enforceable controls: backend-authoritative grants; explicit allowlisted field projection and destination; credential non-egress; bounded model tool privileges; separation of User context; response grounding and failure behavior; observability/falsifiers and independent verification.
+5. Residual risk and an explicit **GO / CONDITIONAL GO / NO-GO** for *the specific Account-metadata interaction*, separating technical safety from Principal risk acceptance. If the documented/provider settings and host code cannot establish the needed guarantees, do not send live Accounts to inference; the trusted local host can render authoritative Account discovery while the question-routing model sees no Account details pending resolution.
+
+OpenAI currently publicly states API inputs/outputs are **not used for model training by default**, subject to explicit opt-in, but normal API abuse-monitoring retention may apply (generally up to 30 days with exceptions), and ZDR is **eligibility/configuration-dependent**. These general commitments must not be substituted for inspection of this actual deployment. References: https://openai.com/enterprise-privacy/ and https://openai.com/index/offering-zero-data-retention-for-frontier-models/ (2026 updates). This record does not claim that the local API project is ZDR-enabled, that host egress is verified, or that the model is cleared for real financial information.
+
+**Revised sequence:** BUG-049 fix → API v2 PII/sensitive disclosure audit and necessary fixes → model/provider/host safety gate → real-data H-004 `wwt` interaction, conditional on verified authorization and Principal acceptance. The mixed H-004 candidate stays frozen until separately handled.
