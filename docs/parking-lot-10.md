@@ -1874,3 +1874,8 @@ Codex verified all six archive/file bytes and modes unchanged, integrated them a
 ### PL-MCP-01 / H-004 — October 22 first-answer same-evening stopping point
 
 The Principal instructed a **persisted snapshot → 4AM consensus prompt → Codex implementation of the agreed first question → personal answer in `wwt` tonight**. [H-004 stopping point](discovery/h004-4am-tonight-stopping-point-2026-10-22.md) captures the question-family evidence, Herbie combinatorics as a Theory of Constraints learning metaphor, EWY graph and production-withdrawal questions as *future* discovery rather than immediate work, and the shared first-question direction **“What accounts do I have?”** interpreted by authenticated authorized Account visibility. No live financial data, new domain logic, implementation success or Reconciliation Completion Record is claimed by this snapshot. Any first implementation must remain synthetic-only and pass a bounded actor consensus/authorization check.
+
+
+### PL-MCP-01 / H-004 — October 22 collision and consensus reset
+
+The Principal corrected the actor sequencing: **damage control first, then read-only 4AM consensus presented for Principal agreement, and only after that a separate Codex implementation assignment**. The earlier combined consensus/implementation prompt was used by both Codex and Kiro in one mutable worktree, resulting in an unverified, uncommitted mixed H-004 candidate. [Recovery and stopping-point record](discovery/h004-4am-collision-recovery-stopping-point-2026-10-22.md) preserves actor-reported evidence and a safe read-only inventory-first procedure. **No H-004 code should be modified or built during the recovery inventory; no actor consensus alone authorizes proceeding to implementation.** PL-MCP-01 remains INTAKE.
