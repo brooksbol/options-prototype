@@ -1,6 +1,6 @@
 # BUG-044 — Default holdings unions historical snapshots
 
-- **Status:** Open — isolated correction candidate; independent Kiro verification pending.
+- **Status:** Resolved — independently accepted correction integrated and deployed October 22, 2026.
 - **Severity:** S2
 - **Area:** Foundational Holdings API v2
 - **Provenance:** Principal-supplied Kiro Product-conformance finding F1, October22,2026. Original independent probe artifacts unavailable; author constructed new probes against frozen base8bd75f5. No original-probe reproduction claim.
@@ -42,3 +42,7 @@ The Principal reports independent Kiro verification resolved the original F1/F2/
 New source-admission/HTTP walks independently reproduce the failure: seven cuts at ascending limits1/2/3 yield2/3/4, reverse limit1 yields1; one Account/fivecuts/limit2 yields3. SQL compared `account||':'||snapshot_id` against the signed controller continuation `/v2/accounts/{account}:{snapshotId}`. Catalog summary generation, sorting and serialization therefore disagreed with persistence selection.
 
 The isolated successor uses the existing canonical Account URI plus snapshot ID consistently in SQL and the controller's shared PortfolioSnapshots.orderingKey. Public cursor encoding, signature, grants, filters and resource identities remain unchanged. New19-check catalog suite covers one/two Accounts, limits1/2/3/default50, both directions, same-date distinct cuts, page boundaries, history/latest selection and restricted visibility; targeted31 checks including existing F1/F2 pass. Full regression and exact before/after traces are recorded in [the successor evidence/handoff](../implementation/api-v2-foundational-2026-10-21/product-conformance-2026-10-22/catalog-pagination-regression/README.md). Status remains Open pending targeted independent Kiro re-verification and later controlled acceptance. No F3 lifecycle or recognition policy change.
+
+## Release disposition — October 22, 2026
+
+Principal reports independent Kiro ACCEPT of successor65d57e91471cb2b04b69e6351bc04c57952881bb and explicitly authorized integration/deployment. Combined-source1,016 Java tests (0 failures,2 optional skips), schema/financial/security and corrected catalog-walk checks passed. Integrated publication81094d8a is installed on port3101 (same executable tree) and documentation LIVE_VERIFIED through successful workflow39885184660, artifact/live hash identity and desktop/mobile checks. See [release receipt](../implementation/api-v2-foundational-2026-10-21/product-conformance-release-2026-10-22.md). Historical candidate-pending statements above describe the earlier phase, not current status. Separate pre-existing BUG-048 remains Open. F3 is unchanged.
