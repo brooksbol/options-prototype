@@ -1928,3 +1928,8 @@ no broader financial capability authorized. **PL-MCP-01 remains INTAKE.**
 ### PL-MCP-01 / H-005 — October 23 checkpoint: real Holdings and ZDR/MAM inquiry
 
 [H-005 / provider-retention checkpoint](discovery/wwt-h005-provider-retention-checkpoint-2026-10-23.md) preserves the Principal's accelerated question-first direction, H-004 acceptance, the H-005 frozen author-tested candidate and still-pending Sawdust grant/independent review, and the October 23 OpenAI Sales correspondence. Sales **cannot sponsor a Sales-led ZDR review for this personal prototype**; MAM eligibility remains unconfirmed, and neither control is approved. Principal explicitly treats ZDR/MAM as optional rather than a blocker for controlled, authorized portfolio data under standard API retention and `store:false`, with question-specific privacy handling. H-005 real Holdings observation is not yet confirmed. PL-MCP-01 remains INTAKE.
+
+
+### Product/environment knowledge — EA on a Page crosswalk idea (October 23)
+
+The Principal wants **a map, not a migration**: an optional many-to-many navigational [crosswalk of in-place Wheelwright knowledge to Kotusev's EA on a Page reference taxonomy](discovery/ea-on-a-page-product-environment-crosswalk-intake-2026-10-23.md). Adapt artifact purposes to Wheelwright's Product and environment; preserve ontology, roadmap, PLs, LVT, authority, subjects, file locations and provenance without shoehorning, duplicate documents or enterprise-architecture bureaucracy. Idea intake only; no implementation assignment or slowdown of question-first delivery.
