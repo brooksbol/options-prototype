@@ -54,6 +54,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-046 | Holdings public reference loses operation semantics and source qualifications | Holdings API v2 | S3 | Open | [record](BUG-046-holdings-public-documentation-fidelity.md) | Kiro-reported F4/F5; independently constructed author falsifiers, October22 |
 | BUG-047 | V2 routing errors and declarative grant metadata are incomplete | Holdings API v2 | S3 | Open | [record](BUG-047-v2-framework-errors-and-grant-metadata.md) | Kiro-reported F6; independently constructed author falsifiers, October22 |
 
+| BUG-048 | Empty-composition zero reference violates Metric evidence constraint | Holdings API v2 | S3 | Open | [record](BUG-048-empty-composition-zero-reference-schema.md) | Pre-existing installed-data schema failure; prior-JAR replay confirmed, October22 |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:
