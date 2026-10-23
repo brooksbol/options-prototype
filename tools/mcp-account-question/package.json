@@ -1,0 +1,13 @@
+{
+  "name": "wheelwright-h004-account-question",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22", "npm": ">=10" },
+  "scripts": { "test": "node --test account-question.test.mjs" },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/server": "2.3.1",
+    "openai": "7.43.0"
+  }
+}
