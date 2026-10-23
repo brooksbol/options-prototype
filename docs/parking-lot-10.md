@@ -1906,3 +1906,20 @@ pair, awaiting Principal operator acceptance. Isolated Codex H-004 implementatio
 has nine new tests plus15 H-003 tests passing; independent H-004 acceptance,
 actual-data conversation and installation remain pending. No real Account metadata
 sent to inference, no general model-safety GO, and PL-MCP-01 remains INTAKE.
+
+### PL-MCP-01 / H-004 — October 23 r1 Principal acceptance and exact-byte integration
+
+The Principal explicitly accepted installed H-004 r1 and authorized integration of
+the exact independently reviewed eight-file candidate. [Acceptance/integration
+receipt](discovery/h004-r1-authorization-acceptance-integration-2026-10-23.md)
+records accepted archive SHA-2568bf0b6d5…a80175, Kiro15/9/37 test/probe evidence,
+actual authorized Account author verification, installed release and exact source
+commit02e4f45. Account discovery truthfully means authenticated authorized
+visibility, not legal ownership or brokerage completeness; only nickname, broker
+and count are disclosed to the model under the Principal's bounded retention
+choice. **H-004 r1 is implemented, independently accepted, installed and
+Principal-accepted; source integrated through normal main controls.** No new
+implementation change or operational restart is part of integration. The original
+mixed tree stays frozen. r2 tool visibility remains uninstalled pending Kiro's
+narrow review. BUG-049 status and artifacts confidentiality finding are unchanged;
+no broader financial capability authorized. **PL-MCP-01 remains INTAKE.**

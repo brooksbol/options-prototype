@@ -72,3 +72,15 @@ unchanged. Frozen archive SHA-256
 `8bf0b6d5a6a46b6988af84ce8c7f8a32dddf3e9bff0fdd2287a41d6707a80175`.
 This is author-tested, not independent acceptance, installation or a real Account
 conversation. The original collided H-004 tree stays frozen and untouched.
+
+## H-004 r1 — Principal acceptance and exact-byte integration
+
+The Principal explicitly declared **“H-004 r1 — PRINCIPAL ACCEPTED”**, covering
+installed natural-language discovery of authorized nicknames/brokers, model answer
+grounded in API v2, and no brokerage-number disclosure, and authorized exact-byte
+main integration. [Dated acceptance/integration receipt](h004-r1-authorization-acceptance-integration-2026-10-23.md)
+preserves immutable identity, Kiro acceptance, real-data author evidence,
+installation, source commit02e4f45 and privacy/operational boundaries. Prior
+pending-state paragraphs retain their historical standing. Tool-call visibility
+r2 remains separate and uninstalled pending narrow review; artifacts and broader
+financial disclosure remain excluded. No additional Product decision is inferred.
