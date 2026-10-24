@@ -1969,3 +1969,12 @@ Principal explores “show me the best put spread for SPY” as **construction s
 
 
 **Principal interaction refinement (Oct 24):** “could be conversational or could be a button like ‘save this conversation as question and answer’.” The unified *My Questions* capability should be explorable through either a natural-language request to Talk or an explicit save affordance in the conversation UI. Both represent the same operator intent: distill a successful conversation into a reusable question and preferred answer form, not preserve the full transcript as an automatically authoritative answer. Exact extraction/confirmation UX, editing and versioning remain open. Deferred idea only; no implementation authorization.
+
+
+### Wheelwright Talk — Ambient Capability Discovery during natural processing waits (Oct 24)
+
+**Standing:** Principal-requested deferred Product UX idea under existing PL-MCP-01; distinct from *My Questions*. Inspiration: Codex occasionally displays concise capability hints while processing. The Principal likes that the hints “don't get in the way,” “don't distract from what you're doing,” and “only display while codex is clanking and you're waiting anyway.”
+
+**Candidate behavior:** While Talk is already processing an operator request, unobtrusively display at most one brief, useful tip about a genuinely supported capability or a conversational way to ask a question. Tips occupy otherwise idle waiting attention, never interrupt active conversation or compete with the answer, and disappear when the answer arrives. Do not introduce artificial latency or display tips merely to prolong attention; instantaneous answers need no tip. Prefer practical concrete examples and avoid repetitive, marketing-style guidance. Relevance and repetition controls are future design questions, not established behavior.
+
+**Intake/reconciliation:** Refines PL-MCP-01 question-first discoverability and early user learning; no new strategic Bet or architecture direction is asserted. Remains separate from the unified *My Questions* saved-question-and-answer-form concept. No implementation, UI contract, scheduling behavior, model change, or operational permission is authorized. Revisit upon Principal direction.
