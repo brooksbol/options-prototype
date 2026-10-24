@@ -1938,3 +1938,8 @@ The Principal wants **a map, not a migration**: an optional many-to-many navigat
 ### Wheelwright Talk — simple questions, hard answers that read simply (Oct 23)
 
 Principal's directional Product feedback: **TT Live's extremely dense color/Unicode/typography/structure and the tastytrade position-analysis story** are design north stars, *not* an all-at-once feature request. “simple questions. hard answers that seem simple when you read them.” Grow from inventory into recognized constructions, actual economics, comparable change and tactical attention. Avoid prompt-only polishing and caveat-heavy technically-correct brokerage narration; preserve grounded evidence and authority. Full specimen, exact wording, qualifiers and scope: [2026-10-23 position-analysis Product direction](discovery/wwt-position-analysis-product-direction-2026-10-23.md). Directional idea intake; no mandate to migrate, implement a broad architecture, or bypass Product acceptance.
+
+
+### Wheelwright Talk — conversational freedom reveals capability gaps (Oct 23)
+
+Principal asks for freedom to ask questions naturally, with **deterministic financial behavior**: conversational intent should compose existing authorized capabilities; missing Product capabilities emerge from attempted useful answers, not from a predefined question whitelist. Preserve validated evidence when LLM explanation fails, offer evidence-grounded partial assessments, and distinguish observed gaps from implementation authorization. See [full Product-direction refinement](discovery/wwt-conversational-capability-discovery-2026-10-23.md). Idea/discovery standing; no implementation authorized by this note.
