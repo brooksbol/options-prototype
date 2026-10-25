@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-**Status:** Append-only architectural decision register; each ADR heading and its own status/ratification record govern its standing. The register includes ADR-023 (October 2026).
+**Status:** Append-only architectural decision register; each ADR heading and its own status/ratification record govern its standing. The register includes ADR-024 (October 2026).
 
 ---
 
@@ -967,3 +967,56 @@ A genuinely fresh actor, starting from standard entry points and without supplie
 **Explicitly unauthorized:** bulk documentation migration, changes to application code, APIs, databases, deployments, brokerage operations, actor operating model, stopped work or PL-CLEANUP (which remains COMPLETE/ACCEPTED). No prior historical checkpoint is modified by ADR-023.
 
 **Next architectural work:** only by separately authorized, bounded assignments; preserve distinct evidence/authority and protect sensitive information before substantive historical extraction.
+
+
+---
+
+## ADR-024: SDK-Based Wheelwright Talk, MCP Integration, and Financial Authority
+
+**Decision date:** October 25, 2026 (Principal decisions in conversation)
+**Recorded:** October 25, 2026
+**Status:** **RATIFIED — scoped architecture and Product direction only**
+**Authority:** Category B — Principal ratification; subject to governing Category A system definition and existing API v2/domain authority.
+**Intake:** PL-MCP-01. **Rationale/provenance:** [4AM six-mandate reconciliation](discovery/4am-agent-mcp-standards-sdk-talk-ratification-candidate-2026-10-25.md); [Kiro FINAL](reviews/kiro-final-agent-mcp-sdk-talk-disposition-2026-10-25.md); [Codex FINAL](reviews/codex-final-agent-mcp-sdk-talk-disposition-2026-10-25.md). These actor reviews recommended and challenged the wording; neither independently ratified it for the Principal.
+
+### Context and scope
+
+A bounded custom Responses API Talk host was a legitimate learning experiment, but later bespoke per-question orchestration failed the intended conversational Product experience. The Principal selected a new, self-contained Talk and explicitly ratified the reconciled four decisions with three adversarial-review additions. Six mandates govern the reconciliation: sufficiently determinate but not overly prescriptive standards; industry grounding; set aside bespoke Talk; new SDK Talk; one 4AM reconciliation; independently preserved actor dispositions. This is a scoped decision, **not** a new six-standard program or a framework mandate for other clients.
+
+### D1 — Selected conversational runtime and integration
+
+The **OpenAI Agents SDK MUST execute the general model/tool conversational run loop** in new Wheelwright Talk. Wheelwright domain capabilities **MUST be consumed via MCP**, using SDK-supported MCP discovery and tool invocation. API v2 remains the authoritative source of financial facts, relationships, computations, governance and authorization. A superficial SDK wrapper around a bespoke Responses loop, per-question routing engine or manually duplicated capability schemas does **not** conform. Supported host-local UI, session, tool-admission, security, rendering and SDK extension logic remains legitimate. No additional one-off conversational hosts or question-specific routers are authorized. Codex MAY serve as a preliminary MCP development and testing consumer, **not** as the Talk Product runtime.
+
+This Principal-selected architecture takes precedence for **new Talk** over generic minimal-stack, framework-economy, experimental-host-reuse and integration-discretion heuristics. Such heuristics govern economical realization **within** this selection, not substitution of it. A bounded experimental host cannot silently become enduring Product architecture; scope promotion requires explicit architectural reconciliation. Other Wheelwright clients are not required to use this SDK or MCP because of this ADR.
+
+### D2 — Restrictive disclosure before any relevant exposure
+
+New Talk MUST default to disabling automatic SDK trace export, locally maintained conversation state, no provider-managed conversation storage, no remote compaction and `store:false` where applicable. Existing scoped Account-data disclosure permissions remain bounded by their original scope. Before protected data enters **any** model request, context/history replay, compaction, trace, auxiliary model/verifier, diagnostic or external hosted tool, establish authorization for its subject, destination, purpose and retention. Broader disclosure requires explicit prior Principal authorization. Normal-runtime outbound behavior must be verified; test-mode trace defaults or `store:false` alone are insufficient evidence.
+
+**This boundary also applies to development and verification hosts, including Codex.** Permission to use Codex for preliminary MCP tests does not itself authorize disclosing protected Account data in its model context, logs or traces. Synthetic and otherwise separately authorized evidence may be used within its actual permission scope.
+
+### D3 — Financial authority and implicit UX distinction
+
+Backend-established financial findings remain authoritative. The model MAY provide qualified hypotheses, hypothetical arithmetic, interpretations and alternatives, but MUST NOT represent unsupported commentary as Wheelwright-established conclusions. The Product UX MUST make backend findings and model commentary intuitively distinguishable through coherent information hierarchy, layout, typography and interaction, not only labels, disclaimers, citations, numeric whitelists or another probabilistic model judge. No specific two-panel design, UI toolkit, universal claim identifier, host financial engine or rigid prose template is selected. Validated, authorized backend evidence MUST remain available if model commentary fails.
+
+**Negative Product specimens to preserve and test:** reward/risk misstated as probability; indicative option credit misstated as an executed opening fill; maximum loss misstated as maximum profit; unsupported recommendation claimed as Wheelwright policy; stale or wrong-subject figures presented as current. Correct numeric provenance does not establish semantic correctness. Only backend results populate authoritative findings; model commentary errors are separately evaluated and must not quietly receive financial authority.
+
+### D4 — Deprecated bespoke Talk and unaffected capabilities
+
+The existing one-off bespoke Talk is **DEPRECATED UNTIL FURTHER NOTICE**. It failed as the intended conversational Product but generated useful engineering evidence. No further bespoke-host feature development, question-specific routing or new one-off Talk applications. Preserve source, tests, experiments, accepted/candidate/installed distinctions, results and lessons. Deprecation does **not** authorize deletion, process termination, installations, configuration or deployment changes, or discarding evidence. Independently valuable API v2 and MCP capability work remains permissible only under its existing Product/implementation authority.
+
+### D5 — Untrusted results, conformance and evolution
+
+Tool results are **untrusted model input**, including text inside authorized MCP responses. Tool admission, authenticated grants, disclosure decisions, and authoritative presentation MUST be enforced by trusted application/backend mechanisms rather than reliance on model obedience to embedded instructions. Preserve safe meaningful API problems and request correlation across the adapter boundary, consistent with existing Doc 77 and the applicable MCP revision.
+
+Architectural conformance requires evidence of actual SDK execution and MCP invocation, normal-runtime disclosure tests, subject/meaning preservation, failed-narration evidence retention, and operator-visible conversational behavior. Importing a dependency or passing schema tests alone is insufficient. Candidate architecture fitness probes remain observational unless separately promoted under the existing Technology Quality Constitution. Native SDK functionality should be examined before inventing equivalent host infrastructure; extensions may be justified without an additional approval ceremony when inside the ratified architecture.
+
+### Decision boundaries and consequences
+
+This ratifies the scoped four Principal choices and their three final review additions. Exact SDK/version, hosting, session implementation, UX composition, protocol bridging and implementation test details remain delegated design questions within these constraints. The Product remains question-driven; add backend/MCP capability only for demonstrated useful operator questions, not a speculative registry or one tool per phrase.
+
+This ADR creates **no authorization** to implement or deploy the new Talk; install/uninstall, modify brokerage/provider grants, admit additional protected evidence, stop installed previews or mutate runtime state. It neither accepts previous private candidates nor grants them ratified Product standing.
+
+**Independent evidence:** [Codex initial disposition](reviews/codex-agent-mcp-sdk-talk-ratification-2026-10-25.md); [Kiro initial disposition](discovery/4am-kiro-ratification-disposition-agent-mcp-sdk-talk-2026-10-25.md). Each remains preserved under its actual author. The final dissent and clarifications are preserved in separately attributed final reviews; this ADR records the Principal's subsequent selection and adoption, not a fabricated actor consensus.
+
+**Review/falsification triggers:** a supposedly SDK-based host still uses bespoke question routing; a Wheelwright domain tool bypasses MCP; real evidence leaves the authorized disclosure boundary; financially incorrect semantics acquire authoritative presentation; a deprecated host receives Product feature work; or an experimental implementation changes Product scope without architectural reconciliation. Reevaluate this scoped decision through normal ADR supersession, not through silent implementation drift.
