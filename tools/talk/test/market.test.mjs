@@ -17,11 +17,11 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   const backend = await marketFixture();
   t.after(() => backend.close());
   const servers = await connectSyntheticMcp(backend, [{ name: 'synthetic-market',
-    script: '../mcp-market-evidence/server.mjs', admitted: ['inspect_market_quotes'] }]);
+    script: '../mcp-v2-evidence/server.mjs', admitted: ['inspect_market_quotes', 'inspect_account_positions'] }]);
   t.after(() => servers[0].close());
   const tools = await servers[0].listTools();
-  assert.deepEqual(tools.map(t => t.name), ['inspect_market_quotes']);
-  assert.ok(tools[0].inputSchema.properties.symbol);
+  assert.deepEqual(tools.map(t => t.name).sort(), ['inspect_account_positions', 'inspect_market_quotes']);
+  assert.ok(tools.find(t => t.name === 'inspect_market_quotes').inputSchema.properties.symbol);
   const list = await servers[0].callToolResult('inspect_market_quotes', {});
   assert.equal(list.isError, undefined);
   assert.match(list.content[0].text, /SPY/); assert.match(list.content[0].text, /QQQ/);
@@ -40,7 +40,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.match(untrusted.content[0].text, /EQUITY/);
   assert.equal((await fetch(backend.base + '/v2/quotes')).status, 401);
   const deniedServers = await connectSyntheticMcp({ ...backend, token: backend.deniedToken }, [{
-    name: 'ungranted-market', script: '../mcp-market-evidence/server.mjs', admitted: ['inspect_market_quotes'] }]);
+    name: 'ungranted-market', script: '../mcp-v2-evidence/server.mjs', admitted: ['inspect_market_quotes'] }]);
   t.after(() => deniedServers[0].close());
   const denied = await deniedServers[0].callToolResult('inspect_market_quotes', { symbol: 'SPY' });
   assert.equal(denied.isError, true);
@@ -48,8 +48,13 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.doesNotMatch(denied.content[0].text, /100.04/);
   assert.equal((await fetch(backend.base + '/v2/quotes', { method: 'POST', headers: {
     Authorization: `Bearer ${backend.token}` } })).status, 405);
-  assert.equal((await fetch(backend.base + '/v2/accounts', { headers: {
-    Authorization: `Bearer ${backend.token}` } })).status, 404);
+  const positions = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor' });
+  assert.notEqual(positions.isError, true);
+  assert.match(positions.content[0].text, /7500/);
+  assert.match(positions.content[0].text, /125/);
+  const forbidden = await servers[0].callToolResult('inspect_account_positions', { account: 'orchard' });
+  assert.equal(forbidden.isError, true); assert.match(forbidden.content[0].text, /FORBIDDEN/);
+  assert.doesNotMatch(forbidden.content[0].text, /7500/);
   const chat = createConversation({ servers, model: { getResponse() { throw new Error('not used'); } } });
-  assert.deepEqual((await chat.agent.getAllTools(new RunContext({}))).map(t => t.name), ['inspect_market_quotes']);
+  assert.deepEqual((await chat.agent.getAllTools(new RunContext({}))).map(t => t.name).sort(), ['inspect_account_positions', 'inspect_market_quotes']);
 });

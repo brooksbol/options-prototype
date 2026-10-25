@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { inspectQuotes } from './quotes.mjs';
+import { inspectPositions } from './positions.mjs';
 
 const requestId = '22222222-2222-4222-8222-222222222222';
 const observation = { observationId: requestId, subject: { symbol: '^SPX', securityType: 'INDEX' },
@@ -56,4 +57,15 @@ test('discovery projects its public contract; omitted facts are not asserted abs
   item.subject = { symbol: '../accounts', securityType: 'ETF' };
   await assert.rejects(inspectQuotes({}, { ...config,
     fetchImpl: async () => response(JSON.stringify({ requestId, items: [item] })) }));
+});
+
+test('unknown nickname returns authorized recovery metadata without reading or guessing a Position scope', async () => {
+  const paths = [];
+  const result = await inspectPositions({ account: 'synthetic harbor' }, { ...config,
+    fetchImpl: async url => { paths.push(url.pathname); return response(JSON.stringify({ requestId, accounts: [{
+      id: 'acct_' + '1'.repeat(32), alias: 'harbor', displayName: 'Synthetic Harbor',
+      brokerAssociation: { broker: 'FIDELITY', accountNumber: 'PRIVATE-ACCOUNT-CANARY' } }] })); } });
+  assert.deepEqual(paths, ['/v2/accounts']); assert.equal(result.isError, true);
+  assert.match(result.content[0].text, /"nickname":"harbor"/);
+  assert.doesNotMatch(result.content[0].text, /PRIVATE-ACCOUNT|acct_/);
 });

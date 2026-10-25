@@ -52,7 +52,8 @@ $('composer').addEventListener('submit', async event => {
     const answer = await post('/api/chat', { message: text });
     const article = message('assistant', answer.text || answer.error);
     for (const tool of answer.tools ?? []) {
-      const details = document.createElement('details'); details.open = true;
+      const details = document.createElement('details');
+      details.open = !!answer.error || (tool.result?.length ?? 0) < 2000;
       const summary = document.createElement('summary'); summary.textContent = `${tool.isError ? 'Backend problem' : 'Backend result'} · synthetic · ${tool.name}`;
       const pre = document.createElement('pre');
       pre.textContent = resultText(tool.result);

@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 
-// Isolated test configuration imports only the existing read controller, SQLite and auth.
+// Isolated test configuration imports the current v2 quote/portfolio reads, SQLite and auth.
 // No operational Spring configuration, provider beans, credentials or real evidence.
 export async function marketFixture() {
   const directory = await mkdtemp(join(tmpdir(), 'ww-talk-market-'));
@@ -33,7 +33,10 @@ export async function marketFixture() {
         const config = JSON.parse(await readFile(ready, 'utf8'));
         if (!/^http:\/\/127\.0\.0\.1:\d+$/.test(config.base) || !config.syntheticOnly || config.providerBeans !== false)
           throw new Error('Invalid synthetic backend.');
-        return { ...config, close };
+        return { ...config, close, async reads() {
+          try { return (await readFile(join(directory, 'requests.jsonl'), 'utf8')).trim().split('\n').filter(Boolean).map(JSON.parse); }
+          catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+        } };
       } catch (error) { if (error.code !== 'ENOENT' && !(error instanceof SyntaxError)) throw error; }
       await delay(100);
     }

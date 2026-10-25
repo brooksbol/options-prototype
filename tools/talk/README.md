@@ -24,17 +24,21 @@ preview and its process-owned synthetic fixture/MCP children.
 For the authorized retained-market experiment (JDK 21 required):
 
 ```sh
-npm ci --prefix tools/mcp-market-evidence --ignore-scripts
+npm ci --prefix tools/mcp-v2-evidence --ignore-scripts
 node tools/talk/server.mjs --market --port=8811
 ```
 
-This launches the same app with the actual Java `HeldQuotesController`, SQLite
-and backend authentication, isolated in a disposable directory. It imports no
+This launches the same app with the actual Java `HeldQuotesController`, current
+`PortfolioController`, Account discovery, SQLite and backend authentication,
+isolated in a disposable directory. It imports no
 provider beans or operational configuration. Its quote records are invented,
 historical sandbox fixtures, not downloaded market data. It enables only existing
-GET `/v2/quotes` and GET `/v2/quotes/{symbol}` reads; no provider acquisition or
-Account-detail route exists. A fresh ungranted fixture User supports denial tests;
-no existing grants are modified. Stop only a preview started for this experiment.
+GET quote and Position/Account reads. Invented Fidelity CSV observations are
+admitted through the existing backend import path; no real files are used.
+Harbor has synthetic Position/holding/source-read grants; Orchard has metadata
+access but no Position-read grant. A separate ungranted fixture User supports
+quote denial tests. No existing User/grant is modified. No acquisition service or
+write HTTP controller is imported. Stop only a preview started for this experiment.
 
 The launcher uses the existing `OPENAI_API_KEY`, or reads only that key from the
 existing primary checkout's ignored `.env` through Git's common-directory locator.
@@ -54,10 +58,20 @@ The SDK discovers the tools and parameter schemas. Trusted admission lives in
 can be admitted in configuration without a new conversation handler. No other MCP
 servers, operational backend addresses, provider access or arbitrary tool execution
 API are exposed by the default W1 runtime. The explicit `--market` profile admits
-`inspect_market_quotes` from `tools/mcp-market-evidence/` against the owned Java
-fixture. Parameters come from MCP discovery. The adapter reuses the existing CLI
+`inspect_market_quotes` and `inspect_account_positions` from `tools/mcp-v2-evidence/`
+against the owned Java fixture; Account discovery also uses that coherent backend.
+Parameters come from MCP discovery. The adapter reuses the existing CLI
 canonical-symbol codec, lossless parser and public-observation validator; it adds
 no financial calculation, scoring or question routing.
+
+The Position tool consumes the current foundational portfolio contract, with its
+backend-owned financial qualifications and construction/holding expansions. It
+does not use the incompatible legacy Position CLI representation or the old
+test-profile controller. Unknown nicknames return authorized discovery metadata
+for model-driven correction, rather than a host-side phrase matcher. Safe GET
+transport is shared only because both implemented capabilities need it. The
+backend may materialize retained-source interpretations; this fixture registers
+no optional order/market acquisition services and performs no provider contact.
 
 Discovery intentionally omits quote facts. Individual reads establish which
 fields are present. Source event clocks differ from receipt/commit clocks, missing
@@ -77,7 +91,7 @@ The first repeats the Principal seed and maintained-inventory questions; the
 second uses actual model/tool execution with an injected narration transport
 failure. These are author experiments, not automated Product acceptance. Output
 contains invented evidence only. `npm test --prefix tools/talk` now includes the
-real isolated Java/MCP contract fixture; `npm test --prefix tools/mcp-market-evidence`
+real isolated Java/MCP contract fixture; `npm test --prefix tools/mcp-v2-evidence`
 checks transport failure, correlation, privacy and precision cases independently.
 
 `conversation.mjs` uses SDK `Agent`, `Runner` and `MemorySession`. There is no custom

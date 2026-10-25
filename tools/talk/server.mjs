@@ -23,9 +23,10 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
   let http;
   try {
     if (marketFixture) market = await (await import('./market-fixture.mjs')).marketFixture();
-    servers = await connectSyntheticMcp(backend, [...syntheticCapabilities, ...(market ? [{
-      name: 'wheelwright-synthetic-market', script: '../mcp-market-evidence/server.mjs',
-      admitted: ['inspect_market_quotes'], backend: market
+    servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.map(config =>
+      market && config.admitted.includes('list_authorized_accounts') ? { ...config, backend: market } : config), ...(market ? [{
+      name: 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
+      admitted: ['inspect_market_quotes', 'inspect_account_positions'], backend: market
     }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: await server.listTools()
@@ -44,7 +45,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
       const json = (status, value) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(value)); };
       if (req.headers.host !== new URL(origin).host) return json(403, { error: 'Invalid local host.' });
       if (req.method === 'GET' && req.url === '/api/status') return json(200, {
-        profile: market ? 'Synthetic retained-market evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
+        profile: market ? 'Synthetic retained evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
         privacy: { traceExport: false, state: 'local-memory', providerStorage: false, remoteCompaction: false }
       });
       if (req.method === 'GET' && assets[req.url]) {
