@@ -127,4 +127,4 @@ Each is wording within the settled decisions, not a new decision.
 
 ## 12. Limits and cost
 
-Documentation-only review. No code, tests, SDK execution, model calls or egress capture. SDK facts are from current unversioned JS documentation; `@openai/agents` 0.21.0 was the npm version observed earlier on October 25. Elapsed about 10 minutes (12:52–13:02 MDT); token and monetary cost unavailable to Kiro. Principal interventions: one prompt correction (actor-addressing). External content was rephrased for licensing compliance.
+Documentation-only review. No code, tests, SDK execution, model calls or egress capture. SDK facts are from current unversioned JS documentation; `@openai/agents` 0.21.0 was the npm version observed earlier on October 25. Elapsed about 4 minutes (12:52–12:56 MDT, start to first push); token and monetary cost unavailable to Kiro. Principal interventions: one prompt correction (actor-addressing). External content was rephrased for licensing compliance.
