@@ -109,3 +109,8 @@ Question → Learning → Knowledge → Specification → Working Software → E
 ```
 
 Working software is the mechanism by which architectural hypotheses are tested and organizational learning is accelerated.
+
+
+## New Talk architecture: ADR-024
+
+For Talk or MCP engineering, retrieve ADR-024 from `docs/07c-adrs.md`. For the new Talk Product, the Principal selected OpenAI Agents SDK execution and MCP for Wheelwright domain access. This overrides generic minimal-dependency and reusable-experiment preferences only for this scoped choice; the bespoke Talk is deprecated. Development and testing actors have no implicit permission to disclose protected Account data. This is guidance routing, not implementation authorization.
