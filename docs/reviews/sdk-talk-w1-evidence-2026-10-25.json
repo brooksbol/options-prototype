@@ -1,0 +1,529 @@
+{
+  "profile": "synthetic-only",
+  "nodeEnv": "unset (normal Node runtime)",
+  "model": "gpt-5.6-luna",
+  "sdk": "0.21.0",
+  "sdkMcpClient": "2.3.1",
+  "mcpServer": "2.3.1",
+  "observedProtocol": [
+    {
+      "server": "wheelwright-greeting",
+      "protocol": "2026-07-28"
+    },
+    {
+      "server": "wheelwright-synthetic-accounts",
+      "protocol": "2026-07-28"
+    }
+  ],
+  "tools": [
+    {
+      "server": "wheelwright-greeting",
+      "tools": [
+        {
+          "name": "hello_world",
+          "description": "Return a constant greeting.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ]
+    },
+    {
+      "server": "wheelwright-synthetic-accounts",
+      "tools": [
+        {
+          "name": "list_authorized_accounts",
+          "description": "Read the authenticated User’s authorized Wheelwright Account nicknames, broker labels and count. Does not establish ownership or complete brokerage coverage.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ],
+  "transcript": [
+    {
+      "message": "Hello.",
+      "text": "Hello! How can I help today?",
+      "tools": [],
+      "usage": {
+        "requests": 1,
+        "inputTokens": 384,
+        "outputTokens": 12,
+        "totalTokens": 396,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 384,
+            "outputTokens": 12,
+            "totalTokens": 396,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Use the connected capabilities to tell me which synthetic accounts I can access.",
+      "text": "You can access 2 synthetic accounts:\n\n- **harbor** — Fidelity\n- **orchard** — tastytrade",
+      "tools": [
+        {
+          "name": "list_authorized_accounts",
+          "arguments": "{}",
+          "result": "{\"type\":\"text\",\"text\":\"{\\\"accounts\\\":[{\\\"nickname\\\":\\\"harbor\\\",\\\"broker\\\":\\\"Fidelity\\\"},{\\\"nickname\\\":\\\"orchard\\\",\\\"broker\\\":\\\"tastytrade\\\"}],\\\"count\\\":2}\"}"
+        }
+      ],
+      "usage": {
+        "requests": 2,
+        "inputTokens": 891,
+        "outputTokens": 44,
+        "totalTokens": 935,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          },
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 416,
+            "outputTokens": 16,
+            "totalTokens": 432,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          },
+          {
+            "inputTokens": 475,
+            "outputTokens": 28,
+            "totalTokens": 503,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Which broker does harbor use?",
+      "text": "The **harbor** synthetic account uses **Fidelity**.",
+      "tools": [],
+      "usage": {
+        "requests": 1,
+        "inputTokens": 515,
+        "outputTokens": 17,
+        "totalTokens": 532,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 515,
+            "outputTokens": 17,
+            "totalTokens": 532,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Use the other connected tool to give me its constant greeting.",
+      "text": "Hello, world!",
+      "tools": [
+        {
+          "name": "hello_world",
+          "arguments": "{}",
+          "result": "{\"type\":\"text\",\"text\":\"Hello, world!\"}"
+        }
+      ],
+      "usage": {
+        "requests": 2,
+        "inputTokens": 1131,
+        "outputTokens": 23,
+        "totalTokens": 1154,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          },
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 550,
+            "outputTokens": 15,
+            "totalTokens": 565,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          },
+          {
+            "inputTokens": 581,
+            "outputTokens": 8,
+            "totalTokens": 589,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Show the balances and positions for orchard.",
+      "text": "I can’t show balances or positions for **orchard**: the connected capabilities only establish authorized account nicknames and broker labels, not financial data.",
+      "tools": [],
+      "usage": {
+        "requests": 1,
+        "inputTokens": 603,
+        "outputTokens": 34,
+        "totalTokens": 637,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 603,
+            "outputTokens": 34,
+            "totalTokens": 637,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Which broker is that account with?",
+      "text": "The **orchard** synthetic account is with **tastytrade**.",
+      "tools": [],
+      "usage": {
+        "requests": 1,
+        "inputTokens": 650,
+        "outputTokens": 19,
+        "totalTokens": 669,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 650,
+            "outputTokens": 19,
+            "totalTokens": 669,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Switch to harbor. Read the account inventory again using the connected tool, even though an earlier read worked.",
+      "text": "The account-inventory read failed this time, so I can’t verify **harbor**’s current broker from this request. The latest successful read identified **harbor** as Fidelity, but I won’t treat that earlier result as a new read.",
+      "tools": [
+        {
+          "name": "list_authorized_accounts",
+          "arguments": "{}",
+          "result": "{\"type\":\"text\",\"text\":\"Authorized Account discovery failed.\"}"
+        }
+      ],
+      "usage": {
+        "requests": 2,
+        "inputTokens": 1426,
+        "outputTokens": 71,
+        "totalTokens": 1497,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          },
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 696,
+            "outputTokens": 16,
+            "totalTokens": 712,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          },
+          {
+            "inputTokens": 730,
+            "outputTokens": 55,
+            "totalTokens": 785,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    },
+    {
+      "message": "Which account did I just switch to?",
+      "text": "You just switched to **harbor**.",
+      "tools": [],
+      "usage": {
+        "requests": 1,
+        "inputTokens": 799,
+        "outputTokens": 13,
+        "totalTokens": 812,
+        "inputTokensDetails": [
+          {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          }
+        ],
+        "outputTokensDetails": [
+          {
+            "reasoning_tokens": 0
+          }
+        ],
+        "requestUsageEntries": [
+          {
+            "inputTokens": 799,
+            "outputTokens": 13,
+            "totalTokens": 812,
+            "inputTokensDetails": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "outputTokensDetails": {
+              "reasoning_tokens": 0
+            },
+            "endpoint": "responses.create"
+          }
+        ]
+      }
+    }
+  ],
+  "outbound": [
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    },
+    {
+      "url": "https://api.openai.com/v1/responses",
+      "method": "POST",
+      "allowed": true,
+      "store": false,
+      "conversation": false,
+      "previousResponse": false
+    }
+  ],
+  "backendReads": [
+    {
+      "path": "/v2/accounts",
+      "authorized": true,
+      "mode": "ok"
+    },
+    {
+      "path": "/v2/accounts",
+      "authorized": true,
+      "mode": "unavailable"
+    }
+  ],
+  "modelRequests": 11,
+  "inputTokens": 6399,
+  "outputTokens": 233,
+  "elapsedSeconds": 13,
+  "limits": "Live model semantic usefulness requires independent/operator judgment; fixtures prove no general financial capability."
+}
