@@ -11,15 +11,17 @@ serveStdio(() => {
     inputSchema: z.object({ symbol: z.string().optional().describe('Canonical underlying symbol, e.g. SPY or ^SPX. Omit for discovery.') }),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
   }, async args => {
-    try { return await inspectQuotes(args, { base: process.env.WW_BASE_URL, token: process.env.WW_API_TOKEN }); }
+    try { return await inspectQuotes(args, { base: process.env.WW_BASE_URL, token: process.env.WW_API_TOKEN,
+      syntheticFixture: process.env.WW_SYNTHETIC_FIXTURE === '1' }); }
     catch { return { isError: true, content: [{ type: 'text', text: 'Market-evidence read failed; no new finding established.' }] }; }
   });
   server.registerTool('inspect_account_positions', {
-    description: 'Inspect backend-established Positions for an authenticated, authorized Wheelwright Account nickname. Reuses Account discovery and the current API v2 portfolio contract. Preserve returned source dates, financial statuses and qualifications: retained holdings do not establish opening cash flow, continuous ownership, live prices, realized earnings or executed fills. Does not acquire broker data, modify policy or submit orders.',
+    description: 'Inspect backend-established Positions for an authenticated, authorized Wheelwright Account nickname. Reuses Account discovery and the current API v2 portfolio contract. This selected Account evaluation graph is not an inventory of independent held market quotes or all history. Preserve returned source dates, financial statuses and qualifications: retained holdings do not establish opening cash flow, continuous ownership, live prices, realized earnings or executed fills. Does not directly acquire broker data, modify policy or submit orders.',
     inputSchema: z.object({ account: z.string().describe('Exact Account nickname from authorized discovery, without descriptive adjectives or broker labels.') }),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
   }, async args => {
-    try { return await inspectPositions(args, { base: process.env.WW_BASE_URL, token: process.env.WW_API_TOKEN }); }
+    try { return await inspectPositions(args, { base: process.env.WW_BASE_URL, token: process.env.WW_API_TOKEN,
+      syntheticFixture: process.env.WW_SYNTHETIC_FIXTURE === '1' }); }
     catch { return { isError: true, content: [{ type: 'text', text: 'Position-evidence read failed; no new finding established.' }] }; }
   });
   return server;

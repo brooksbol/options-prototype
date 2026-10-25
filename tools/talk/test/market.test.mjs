@@ -52,6 +52,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.notEqual(positions.isError, true);
   assert.match(positions.content[0].text, /7500/);
   assert.match(positions.content[0].text, /125/);
+  assert.match(positions.content[0].text, /SYNTHETIC_FIXTURE/);
   const forbidden = await servers[0].callToolResult('inspect_account_positions', { account: 'orchard' });
   assert.equal(forbidden.isError, true); assert.match(forbidden.content[0].text, /FORBIDDEN/);
   assert.doesNotMatch(forbidden.content[0].text, /7500/);

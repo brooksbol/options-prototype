@@ -65,7 +65,7 @@ canonical-symbol codec, lossless parser and public-observation validator; it add
 no financial calculation, scoring or question routing.
 
 The Position tool consumes the current foundational portfolio contract, with its
-backend-owned financial qualifications and construction/holding expansions. It
+backend-owned financial qualifications and native holding expansion. It
 does not use the incompatible legacy Position CLI representation or the old
 test-profile controller. Unknown nicknames return authorized discovery metadata
 for model-driven correction, rather than a host-side phrase matcher. Safe GET

@@ -83,6 +83,10 @@ const journeys = [
     'Hello.', "What's in harbor?", 'How is that position doing?',
     'Now switch to orchard and inspect its positions.',
     'Which Account are we discussing? Does the Harbor evidence apply?'
+  ] },
+  { id: 'cross-source-scope', source: 'Q08/Q10/Q30/Q34; actual over-broad missing-market claim', questions: [
+    'Read harbor positions and the independent retained SPY quote. Does an unavailable current valuation mean Wheelwright has no retained SPY quote at all?',
+    'Can that quote establish what the position is worth now? Keep the backend valuation status and the separate quote source dates distinct.'
   ] }
 ];
 try {

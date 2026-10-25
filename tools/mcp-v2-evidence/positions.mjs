@@ -15,12 +15,14 @@ export async function inspectPositions({ account }, config) {
   const selected = matches[0];
   if (!canonicalAccountId(selected.id)) throw new Error('Invalid canonical Account ID.');
   const result = await readBackend('/v2/positions?accountId=' + encodeURIComponent(selected.id) +
-    '&include=currentConstruction,holdingSummaries', config);
+    '&include=holdingSummaries', config);
   if (result.error) return problemResult(result.error);
   if (!Array.isArray(result.data?.items) || result.data.items.some(item => !UUID.test(item.id ?? '') ||
       item.account?.href !== '/v2/accounts/' + selected.id)) throw new Error('Invalid Position scope.');
   return { content: [{ type: 'text', text: JSON.stringify({ requestId: result.requestId,
+    ...(config.syntheticFixture ? { dataClassification: 'SYNTHETIC_FIXTURE',
+      sourceQualification: 'Invented development records, not real brokerage holdings or live provider data. Broker environment labels describe the simulated source.' } : {}),
     account: { nickname: selected.alias, broker: selected.brokerAssociation?.broker },
-    qualification: 'Backend Position read from retained source evidence, not a complete history inventory. Missing historical fields in this selected read do not prove that no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If next is non-null this page is incomplete.',
+    qualification: 'Backend Position read from its selected Account evaluation graph, not an inventory of all history or independent held market quotes. Missing linked market evidence does not prove that no separate retained quote exists. Missing historical fields do not prove no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If next is non-null this page is incomplete.',
     evidence: result.data }) }] };
 }

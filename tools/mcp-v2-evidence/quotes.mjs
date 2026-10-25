@@ -25,6 +25,7 @@ export async function inspectQuotes({ symbol } = {}, config) {
     }) };
   }
   return { content: [{ type: 'text', text: JSON.stringify({ requestId,
+    ...(config.syntheticFixture ? { dataClassification: 'SYNTHETIC_FIXTURE' } : {}),
     scope: 'Retained underlying quotes only; not options chains, executable depth, or a live ranking.',
     operation: symbol === undefined ? 'discovery' : 'observation',
     ...(symbol === undefined ? { qualification: 'Discovery lists identity and receipt/commit provenance only. It omits quote facts by design; inspect individual subjects before concluding whether facts are available.' } : {}),
