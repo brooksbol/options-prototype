@@ -17,7 +17,7 @@ test('expired UI session stops submissions, preserves visible evidence and requi
   globalThis.fetch = async (_path, options) => options ? (posts++, new Response('PRIVATE-ERROR-CANARY', { status: 403 })) :
     new Response(JSON.stringify({ csrf: 'synthetic-session', tools: [] }));
   try {
-    await import('../public/app.js?expired-session');
+    await import('../ui/app.js?expired-session');
     const evidence = element(); document.getElementById('messages').children.push(evidence);
     elements.get('message').value = 'Hello.';
     await elements.get('composer').listeners.submit({ preventDefault() {} });

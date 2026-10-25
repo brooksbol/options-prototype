@@ -1,12 +1,19 @@
 import { encodePathSymbol, validateShowObservation } from '../../scripts/ww-show.mjs';
 import { UUID, readBackend, problemResult } from './backend.mjs';
 // Transport and public-contract projection only. No acquisition, ranking or financial calculation.
-export async function inspectQuotes({ symbol } = {}, config) {
-  const path = '/v2/quotes' + (symbol === undefined ? '' : '/' + encodePathSymbol(symbol));
+export async function inspectQuotes({ symbol, measurement = false } = {}, config) {
+  if (measurement && !symbol) throw new Error('Measurement requires a canonical subject.');
+  const path = '/v2/quotes' + (symbol === undefined ? '' : '/' + encodePathSymbol(symbol)) + (measurement ? '/liquidity' : '');
   const { requestId, data, error } = await readBackend(path, config);
   if (error) return problemResult(error, symbol);
   let evidence;
-  if (symbol !== undefined) evidence = validateShowObservation(data, symbol);
+  if (measurement) {
+    validateShowObservation(data.source, symbol);
+    if (data.requestId !== requestId || data.scope !== 'RETAINED_UNDERLYING_QUOTED_MARKET_ONLY' || !data.measurements)
+      throw new Error('Invalid backend measurement representation.');
+    evidence = data;
+  }
+  else if (symbol !== undefined) evidence = validateShowObservation(data, symbol);
   else {
     if (data?.requestId !== requestId || !Array.isArray(data.items) || data.items.length > 1000)
       throw new Error('Invalid quote discovery.');

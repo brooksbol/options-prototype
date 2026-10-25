@@ -5,7 +5,7 @@ import { RunContext } from '@openai/agents';
 import { marketFixture } from '../market-fixture.mjs';
 import { connectSyntheticMcp } from '../synthetic.mjs';
 import { createConversation } from '../conversation.mjs';
-import { resultText } from '../public/app.js';
+import { resultText } from '../ui/app.js';
 
 test('evidence presentation retains source decimal/count lexemes and treats text only as text', () => {
   const source = '{"volume":9007199254740993,"bid":{"price":100.00},"description":"<script>bad()</script>"}';
@@ -28,6 +28,11 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   const quote = await servers[0].callToolResult('inspect_market_quotes', { symbol: 'SPY' });
   assert.match(quote.content[0].text, /2001-01-01/); assert.match(quote.content[0].text, /SANDBOX/);
   assert.match(quote.content[0].text, /100.04/);
+  const measurement = await servers[0].callToolResult('inspect_market_quotes', { symbol: 'SPY', measurement: true });
+  assert.notEqual(measurement.isError,true);
+  assert.match(measurement.content[0].text,/BACKEND_CALCULATED/);
+  assert.match(measurement.content[0].text,/SOURCE_PRICE_UNIT/);
+  assert.match(measurement.content[0].text,/NOT_ESTABLISHED/);
   const missing = await servers[0].callToolResult('inspect_market_quotes', { symbol: 'XLU' });
   assert.equal(missing.isError, true); assert.match(missing.content[0].text, /NOT_FOUND/);
   assert.match(missing.content[0].text, /requestId/);
@@ -53,6 +58,9 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.match(positions.content[0].text, /7500/);
   assert.match(positions.content[0].text, /125/);
   assert.match(positions.content[0].text, /SYNTHETIC_FIXTURE/);
+  const open = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor', state: 'OPEN' });
+  assert.notEqual(open.isError,true);
+  assert.match(open.content[0].text,/nextCursor/);
   const forbidden = await servers[0].callToolResult('inspect_account_positions', { account: 'orchard' });
   assert.equal(forbidden.isError, true); assert.match(forbidden.content[0].text, /FORBIDDEN/);
   assert.doesNotMatch(forbidden.content[0].text, /7500/);

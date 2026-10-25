@@ -119,3 +119,10 @@ tasks.register<JavaExec>("talkMarketPreview") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("previewReady") as? String)
 }
+
+tasks.register<JavaExec>("retainedCoverageAudit") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.RetainedCoverageAudit")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("retainedDb") as? String)
+}

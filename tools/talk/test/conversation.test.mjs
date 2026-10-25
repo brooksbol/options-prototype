@@ -146,3 +146,16 @@ test('egress boundary refuses trace, conversation, compaction, redirects and sto
   await boundary.fetch('https://api.openai.com/v1/responses', { method: 'POST', body: JSON.stringify({ store: false }) });
   assert.equal(sent, 1);
 });
+
+test('restricted metadata disclosure does not replay an earlier turn to the provider', async t => {
+  const backend = await syntheticBackend();
+  const servers = await connectSyntheticMcp(backend);
+  t.after(async () => { await Promise.all(servers.map(s => s.close())); await backend.close(); });
+  const model = script([[text('Allowed metadata reply.')], [text('No earlier financial context is available.')]]);
+  const chat = createConversation({ servers, model, accountMetadataOnly: true });
+  await chat.send('PRIOR-TURN-DISCLOSURE-CANARY');
+  await chat.send('What is available on this turn?');
+  assert.match(JSON.stringify(model.requests[0]), /PRIOR-TURN-DISCLOSURE-CANARY/);
+  assert.doesNotMatch(JSON.stringify(model.requests[1]), /PRIOR-TURN-DISCLOSURE-CANARY|Allowed metadata reply/);
+  assert.match(JSON.stringify(model.requests[1]), /What is available on this turn/);
+});

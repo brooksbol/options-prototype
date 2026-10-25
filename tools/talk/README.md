@@ -2,8 +2,9 @@
 
 The one SDK-based Talk successor under ADR-024. W1 is a synthetic-only development
 slice, not Product acceptance, production installation or permission for real Account
-data. The subsequent Principal assignment authorizes continuous synthetic,
-question-driven API v2/MCP capability experiments in this same application.
+data. Subsequent Principal assignments authorize question-driven API v2/MCP
+engineering and local real-retained-evidence assessment in this same application,
+within existing explicit disclosure permissions. Synthetic tests are not Product coverage.
 
 ## Run the isolated development preview
 
@@ -50,8 +51,9 @@ data or credentials in this W1 preview.
 
 - Unchanged `tools/mcp-hello-world/server.mjs`: `hello_world`.
 - Unchanged `tools/mcp-account-question/server.mjs`: `list_authorized_accounts`,
-  pointed exclusively at the same app's loopback synthetic fixture, never an
-  operational backend. Invented `harbor` and `orchard` records are not real Accounts.
+  pointed at the owned synthetic fixture by default. Invented `harbor` and
+  `orchard` records are not real Accounts. The explicit metadata profile below
+  reuses only its existing approved nickname/broker/count projection.
 
 The SDK discovers the tools and parameter schemas. Trusted admission lives in
 `syntheticCapabilities` in `synthetic.mjs`, not in question routing. A capability
@@ -141,3 +143,42 @@ admission still blocks an unavailable tool. These tests do not prove universal
 injection resistance or arbitrary narration correctness. Existing H-004 generic
 error flattening remains a known adapter limitation; W1 does not repair deprecated
 source or complete W4's error/correlation work.
+
+## Real retained assessment and restricted metadata preview
+
+The engineer can start the same app against the existing authorized local backend:
+
+```sh
+node tools/talk/server.mjs --account-metadata --backend=http://127.0.0.1:55834 --port=8812
+```
+
+This imports only the existing approved model key and backend token from their
+existing location. It does not bootstrap grants, migrate credentials, start/stop
+that backend or connect financial MCP tools. H-004's existing field/destination
+permission covers authorized Account nicknames, broker labels and count only.
+Each turn starts a fresh local SDK session to preserve the scoped no-replay
+permission. This profile therefore does **not** prove financial multi-turn Product
+capability. Do not enter protected financial records. No synthetic fixture is
+started or used as Product evidence in this profile.
+
+Canonical UI source is now `ui/`. `public/` is a preserved compatibility snapshot
+for an already-running preview that reads those paths dynamically; do not evolve
+it. New starts serve a startup snapshot of `ui/` from this same application.
+Compact source cards preserve exact source number lexemes, units, status and clocks;
+detailed originals remain collapsed and inspectable. Commentary follows separately.
+This is presentation, not a host financial calculator or universal claim verifier.
+
+`test/real-metadata.mjs` runs actual model calls within that existing narrow scope,
+redacts nicknames in its output, and records safe egress/usage evidence.
+`test/real-market.mjs` reads existing retained market evidence through MCP locally,
+with zero model calls. Both are manual real-data diagnostics, not automatic test
+fixtures or a claim of broader disclosure authorization. The JVM
+`retainedCoverageAudit` task requires an explicit existing database path, reads it
+using SQLite `mode=ro`, and exports only coverage/status aggregates. It bypasses
+source synchronization/provider services and never runs a grant bootstrap.
+
+The candidate adds GET `/v2/quotes/{symbol}/liquidity` for backend-owned retained
+side-price arithmetic, exposed by the existing market tool's `measurement` option.
+It is not installed in the operational backend. This does not establish a live
+ranking, options liquidity or executable depth. The existing Position tool now
+accepts backend lifecycle selection and opaque continuation without host changes.

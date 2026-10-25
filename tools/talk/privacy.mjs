@@ -17,7 +17,8 @@ export function egressBoundary(networkFetch = globalThis.fetch) {
       conversation: !!body?.conversation, previousResponse: !!body?.previous_response_id };
     events.push(event);
     if (!allowed) throw new Error('Outbound request refused by W1 disclosure policy.');
-    // Only synthetic model bodies, never headers/credentials, are retained for this local specimen.
+    // Bounded local-memory inspection only; never persist model bodies or headers/credentials.
+    // Real metadata mode admits only the previously authorized nickname/broker/count projection.
     requests.push(structuredClone(body));
     if (requests.length > 200) requests.shift();
     if (events.length > 200) events.shift();

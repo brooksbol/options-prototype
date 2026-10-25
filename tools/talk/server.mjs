@@ -8,14 +8,19 @@ import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 
-export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false } = {}) {
+export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false, retainedMetadataBackend } = {}) {
+  if (retainedMetadataBackend) {
+    const url = new URL(retainedMetadataBackend.base);
+    if (marketFixture || url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || url.pathname !== '/' || url.search || url.hash || url.username || url.password || !retainedMetadataBackend.token)
+      throw new Error('Invalid trusted metadata backend.');
+  }
   const boundary = egressBoundary(networkFetch);
   // Cover SDK-owned network paths too, rather than assuming store:false disables tracing.
   const originalFetch = globalThis.fetch;
   globalThis.fetch = boundary.fetch;
   const { syntheticBackend, connectSyntheticMcp, syntheticCapabilities } = await import('./synthetic.mjs');
   const { createConversation, MODEL } = await import('./conversation.mjs');
-  const backend = await syntheticBackend();
+  const backend = retainedMetadataBackend ? { ...retainedMetadataBackend, reads: [], async close() {} } : await syntheticBackend();
   let servers = [];
   let conversation;
   let market;
@@ -31,12 +36,12 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: await server.listTools()
     }))));
-    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch });
+    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend });
     // Freeze this preview's UI bytes at startup; later candidate edits must not
     // silently change an already-running preview or introduce mismatched assets.
     const assets = Object.fromEntries([
-      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css']
-    ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./public/${name}`, import.meta.url)) }]));
+      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript']
+    ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./ui/${name}`, import.meta.url)) }]));
     http = createServer(async (req, res) => {
       const origin = `http://127.0.0.1:${http.address().port}`;
       res.setHeader('Cache-Control', 'no-store');
@@ -45,7 +50,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
       const json = (status, value) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(value)); };
       if (req.headers.host !== new URL(origin).host) return json(403, { error: 'Invalid local host.' });
       if (req.method === 'GET' && req.url === '/api/status') return json(200, {
-        profile: market ? 'Synthetic retained evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
+        profile: retainedMetadataBackend ? 'Authorized real Account metadata only' : market ? 'Synthetic retained evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
         privacy: { traceExport: false, state: 'local-memory', providerStorage: false, remoteCompaction: false }
       });
       if (req.method === 'GET' && assets[req.url]) {
@@ -85,14 +90,16 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
   }
 }
 
-export function existingKey() {
-  if (process.env.OPENAI_API_KEY?.trim()) return process.env.OPENAI_API_KEY.trim();
+function existingValue(name) {
+  if (process.env[name]?.trim()) return process.env[name].trim();
   // Read only the existing credential, without migrating it or importing unrelated environment values.
   const common = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'],
     { cwd: fileURLToPath(new URL('.', import.meta.url)), encoding: 'utf8' }).trim();
-  try { return parseEnv(readFileSync(resolve(common, '..', '.env'), 'utf8')).OPENAI_API_KEY?.trim(); }
+  try { return parseEnv(readFileSync(resolve(common, '..', '.env'), 'utf8'))[name]?.trim(); }
   catch { return undefined; }
 }
+export function existingKey() { return existingValue('OPENAI_API_KEY'); }
+export function existingBackendToken() { return existingValue('WW_API_TOKEN'); }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const apiKey = existingKey();
@@ -102,8 +109,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
       const portOption = process.argv.find(arg => arg.startsWith('--port='));
       const port = portOption ? Number(portOption.split('=')[1]) : 8810;
       if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid development port.');
-      const preview = await startPreview({ apiKey, port, marketFixture: process.argv.includes('--market') });
-      console.log(`Wheelwright Talk — ${preview.url} — synthetic data only`);
+      const metadataOnly = process.argv.includes('--account-metadata');
+      const base = process.argv.find(arg => arg.startsWith('--backend='))?.slice('--backend='.length);
+      const preview = await startPreview({ apiKey, port, marketFixture: process.argv.includes('--market'),
+        ...(metadataOnly ? { retainedMetadataBackend: { base, token: existingBackendToken() } } : {}) });
+      console.log(`Wheelwright Talk — ${preview.url} — ${metadataOnly ? 'authorized Account metadata only' : 'synthetic data only'}`);
       for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, async () => { await preview.close(); process.exit(0); });
     } catch { console.error('Talk preview startup failed; existing services were not changed.'); process.exitCode = 1; }
   }

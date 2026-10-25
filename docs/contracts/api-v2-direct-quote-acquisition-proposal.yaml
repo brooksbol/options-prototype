@@ -713,6 +713,107 @@ paths:
       - lang: curl
         label: Synthetic cURL
         source: "curl --request GET 'https://api.example.invalid/v2/quotes/SPY' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+  /v2/quotes/{symbol}/liquidity:
+    get:
+      operationId: measureHeldUnderlyingQuote
+      summary: Calculate qualified side-price differences from one retained underlying quote
+      description: >-
+        Candidate PL-MCP-01 extension, not an installed capability or a liquidity ranking.
+        Reuses the held detail read's authentication, quote.read authorization, canonical
+        symbol codec, strict stored-observation validation, query/body rejection and
+        safe correlated problems. No acquisition, provider contact or evidence mutation.
+        observedSideDifference is exact ASK-BID in unspecified source price units.
+        relativeSideDifference is 100*(ASK-BID)/((ASK+BID)/2), in percent,
+        rounded DECIMAL128 (34 significant digits, HALF_EVEN). Both require numeric,
+        nonnegative, non-crossed sides; relative additionally requires a positive midpoint.
+        Unavailable values are null, never zero substitutions. QUALIFIED denotes arithmetic
+        inputs only, not simultaneous sides, fresh evidence or executable spreads.
+        Source is preserved completely. Equal recorded side clocks are reported separately;
+        unequal/missing clocks do not establish alignment. No currency, size unit, currentness,
+        options liquidity, depth, weighting or cross-subject comparability is inferred.
+      security:
+      - bearerAuth: []
+      x-required-grants: [quote.read]
+      parameters:
+      - name: symbol
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/EncodedQuoteSymbol'
+      - name: X-Request-Id
+        in: header
+        required: false
+        description: Optional request correlation, validated and echoed using the held-quote rules.
+        schema:
+          type: string
+          pattern: ^\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\s*$
+      responses:
+        '200':
+          description: Backend calculations with original observation and explicit qualifications
+          headers:
+            X-Request-Id:
+              required: true
+              schema: {type: string, format: uuid}
+            Cache-Control:
+              required: true
+              schema: {type: string, const: 'private, no-store'}
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [requestId, scope, source, currentness, measurements, sideTimeBasis, qualifications]
+                properties:
+                  requestId: {type: string, format: uuid}
+                  scope: {const: RETAINED_UNDERLYING_QUOTED_MARKET_ONLY}
+                  source:
+                    $ref: '#/components/schemas/QuoteObservation'
+                  currentness: {const: NOT_ESTABLISHED}
+                  sideTimeBasis:
+                    enum: [SAME_RECORDED_SOURCE_INSTANT, ALIGNMENT_NOT_ESTABLISHED]
+                  qualifications:
+                    type: array
+                    items: {type: string}
+                  measurements:
+                    type: object
+                    required: [observedSideDifference, relativeSideDifference]
+                    additionalProperties:
+                      type: object
+                      required: [value, unit, status, origin, method]
+                      properties:
+                        value: {type: [number, 'null']}
+                        unit: {enum: [SOURCE_PRICE_UNIT, PERCENT]}
+                        status: {enum: [QUALIFIED, UNAVAILABLE]}
+                        origin: {const: BACKEND_CALCULATED}
+                        method: {type: string}
+                        rounding: {type: string}
+        '401':
+          $ref: '#/components/responses/Problem401'
+        '403':
+          $ref: '#/components/responses/Problem403'
+        '404':
+          description: Correlated NOT_FOUND problem; no retained subject
+          headers:
+            X-Request-Id:
+              required: true
+              schema: {type: string, format: uuid}
+            Cache-Control:
+              required: true
+              schema: {type: string, const: 'private, no-store'}
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/HeldQuoteReadProblem'
+                - type: object
+                  properties:
+                    status: {const: 404}
+                    code: {const: NOT_FOUND}
+        '422':
+          $ref: '#/components/responses/Problem422'
+        '500':
+          $ref: '#/components/responses/Problem500'
+        '503':
+          $ref: '#/components/responses/Problem503'
 components:
   securitySchemes:
     bearerAuth:
