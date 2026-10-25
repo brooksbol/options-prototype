@@ -104,3 +104,7 @@ The Principal's explicit rule is **“muse must never be given internal informat
 ## Authority boundary
 
 `docs/README.md` continues to define document classification, precedence, and documentation navigation. `principles.md`, the applicable governing/ratified documents, and canonical task state retain their existing authority. This file is a **routing instruction**, not a replacement for them. No ratified rule, permission, execution gate, or Product meaning changes through this relocation.
+
+### Ratified Talk architecture — ADR-024 (October 25, 2026)
+
+For any Wheelwright Talk, MCP/agent-host, conversational-client, or PL-MCP-01 task, retrieve [ADR-024](07c-adrs.md#adr-024-sdk-based-wheelwright-talk-mcp-integration-and-financial-authority) from the ratified ADR register before design or implementation. New Talk uses the OpenAI Agents SDK for general conversational execution and MCP for Wheelwright domain access; old bespoke Talk is deprecated. ADR-024 governs over generic dependency-minimization or reusable-experiment heuristics for this scoped decision. Preserve its restrictive disclosure requirements for both Product and development/testing hosts. This paragraph routes to authority; it does not repeat, replace, or grant implementation permission.
