@@ -46,7 +46,7 @@ export async function connectSyntheticMcp(backend, capabilities = syntheticCapab
     for (const config of capabilities) {
       const server = new MCPServerStdio({ name: config.name, command: process.execPath,
         args: [fileURLToPath(new URL(config.script, import.meta.url))],
-        env: { PATH: process.env.PATH ?? '', WW_BASE_URL: backend.base, WW_API_TOKEN: backend.token },
+        env: { PATH: process.env.PATH ?? '', WW_BASE_URL: (config.backend ?? backend).base, WW_API_TOKEN: (config.backend ?? backend).token },
         cacheToolsList: true, timeout: 10000, clientSessionTimeoutSeconds: 10,
         toolFilter: (_context, tool) => config.admitted.includes(tool.name) });
       servers.push(server);

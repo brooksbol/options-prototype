@@ -1,7 +1,24 @@
+// Preserve backend number lexemes; unwrap only the SDK/MCP text envelope.
+export function resultText(result) {
+  if (typeof result !== 'string') return String(result ?? '');
+  try {
+    const envelope = JSON.parse(result);
+    if (envelope?.type === 'text' && typeof envelope.text === 'string') return envelope.text;
+  } catch {}
+  return result;
+}
+
+if (typeof document !== 'undefined') {
 const $ = id => document.getElementById(id);
 let csrf;
 async function post(path, body) {
   const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Talk-CSRF': csrf }, body: JSON.stringify(body) });
+  if ([401, 403].includes(response.status)) {
+    csrf = undefined;
+    for (const id of ['message', 'send', 'new']) $(id).disabled = true;
+    $('reload')?.removeAttribute('hidden');
+    throw new Error('This preview session changed or expired. Reload to start a new conversation.');
+  }
   const result = await response.json();
   if (!response.ok) throw new Error(result.error);
   return result;
@@ -36,19 +53,14 @@ $('composer').addEventListener('submit', async event => {
     const article = message('assistant', answer.text || answer.error);
     for (const tool of answer.tools ?? []) {
       const details = document.createElement('details'); details.open = true;
-      const summary = document.createElement('summary'); summary.textContent = `Fixture result · ${tool.name}`;
+      const summary = document.createElement('summary'); summary.textContent = `${tool.isError ? 'Backend problem' : 'Backend result'} · synthetic · ${tool.name}`;
       const pre = document.createElement('pre');
-      let value = tool.result;
-      for (let i = 0; i < 3; i++) {
-        try { value = JSON.parse(typeof value === 'string' ? value : value.type === 'text' ? value.text : ''); }
-        catch { break; }
-      }
-      pre.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
-      details.append(summary, pre); article.append(details);
+      pre.textContent = resultText(tool.result);
+      details.append(summary, pre); article.insertBefore(details, article.querySelector('.text'));
     }
     $('status').textContent = answer.error ? 'Commentary failed · completed results retained' : 'Ready · local context retained';
   } catch (error) { message('assistant', error.message); $('status').textContent = 'Request failed'; }
-  finally { $('send').disabled = false; $('new').disabled = false; $('message').focus(); }
+  finally { $('send').disabled = !csrf; $('new').disabled = !csrf; if (csrf) $('message').focus(); }
 });
 $('message').addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); $('composer').requestSubmit(); }
@@ -57,3 +69,5 @@ $('new').addEventListener('click', async () => {
   try { await post('/api/reset', {}); $('messages').replaceChildren(); $('status').textContent = 'New conversation · local history cleared'; $('message').focus(); }
   catch (error) { $('status').textContent = error.message; }
 });
+$('reload')?.addEventListener('click', () => location.reload());
+}

@@ -111,3 +111,11 @@ tasks.register<JavaExec>("integratedUpdateFixture") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("fixtureReady") as? String)
 }
+
+// Talk experiment: actual retained-quote API only, synthetic state, no provider beans.
+tasks.register<JavaExec>("talkMarketPreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.TalkMarketPreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewReady") as? String)
+}

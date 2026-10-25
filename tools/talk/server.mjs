@@ -8,24 +8,34 @@ import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 
-export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch } = {}) {
+export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false } = {}) {
   const boundary = egressBoundary(networkFetch);
   // Cover SDK-owned network paths too, rather than assuming store:false disables tracing.
   const originalFetch = globalThis.fetch;
   globalThis.fetch = boundary.fetch;
-  const { syntheticBackend, connectSyntheticMcp } = await import('./synthetic.mjs');
+  const { syntheticBackend, connectSyntheticMcp, syntheticCapabilities } = await import('./synthetic.mjs');
   const { createConversation, MODEL } = await import('./conversation.mjs');
   const backend = await syntheticBackend();
   let servers = [];
   let conversation;
+  let market;
   const csrf = randomUUID();
   let http;
   try {
-    servers = await connectSyntheticMcp(backend);
+    if (marketFixture) market = await (await import('./market-fixture.mjs')).marketFixture();
+    servers = await connectSyntheticMcp(backend, [...syntheticCapabilities, ...(market ? [{
+      name: 'wheelwright-synthetic-market', script: '../mcp-market-evidence/server.mjs',
+      admitted: ['inspect_market_quotes'], backend: market
+    }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: await server.listTools()
     }))));
     conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch });
+    // Freeze this preview's UI bytes at startup; later candidate edits must not
+    // silently change an already-running preview or introduce mismatched assets.
+    const assets = Object.fromEntries([
+      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css']
+    ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./public/${name}`, import.meta.url)) }]));
     http = createServer(async (req, res) => {
       const origin = `http://127.0.0.1:${http.address().port}`;
       res.setHeader('Cache-Control', 'no-store');
@@ -34,14 +44,12 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
       const json = (status, value) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(value)); };
       if (req.headers.host !== new URL(origin).host) return json(403, { error: 'Invalid local host.' });
       if (req.method === 'GET' && req.url === '/api/status') return json(200, {
-        profile: 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
+        profile: market ? 'Synthetic retained-market evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
         privacy: { traceExport: false, state: 'local-memory', providerStorage: false, remoteCompaction: false }
       });
-      const assets = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'] };
       if (req.method === 'GET' && assets[req.url]) {
-        const [name, type] = assets[req.url];
-        res.writeHead(200, { 'Content-Type': type });
-        return res.end(readFileSync(new URL(`./public/${name}`, import.meta.url)));
+        res.writeHead(200, { 'Content-Type': assets[req.url].type });
+        return res.end(assets[req.url].bytes);
       }
       if (req.method !== 'POST' || !['/api/chat', '/api/reset'].includes(req.url)) return json(404, { error: 'Not found.' });
       if (req.headers.origin !== origin || req.headers['x-talk-csrf'] !== csrf)
@@ -61,15 +69,17 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
       } catch { return json(400, { error: 'Request unavailable. Check the message or wait for the active turn.' }); }
     });
     http.listen(port, '127.0.0.1'); await once(http, 'listening');
-    return { url: `http://127.0.0.1:${http.address().port}`, boundary, backend, servers, conversation,
+    return { url: `http://127.0.0.1:${http.address().port}`, boundary, backend, market, servers, conversation,
       async close() {
         http.closeAllConnections(); await new Promise(resolve => http.close(resolve));
         await conversation.close();
         await Promise.allSettled(servers.map(server => server.close())); await backend.close();
+        await market?.close();
         globalThis.fetch = originalFetch;
       } };
   } catch (error) {
     await Promise.allSettled(servers.map(server => server.close())); await backend.close();
+    await market?.close();
     globalThis.fetch = originalFetch; throw error;
   }
 }
@@ -88,8 +98,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   if (!apiKey) { console.error('Existing approved model access is unavailable. No model request made.'); process.exitCode = 1; }
   else {
     try {
-      const preview = await startPreview({ apiKey });
-      console.log(`Wheelwright Talk W1 — ${preview.url} — synthetic data only`);
+      const portOption = process.argv.find(arg => arg.startsWith('--port='));
+      const port = portOption ? Number(portOption.split('=')[1]) : 8810;
+      if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid development port.');
+      const preview = await startPreview({ apiKey, port, marketFixture: process.argv.includes('--market') });
+      console.log(`Wheelwright Talk — ${preview.url} — synthetic data only`);
       for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, async () => { await preview.close(); process.exit(0); });
     } catch { console.error('Talk preview startup failed; existing services were not changed.'); process.exitCode = 1; }
   }

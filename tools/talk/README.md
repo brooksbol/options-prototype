@@ -2,7 +2,8 @@
 
 The one SDK-based Talk successor under ADR-024. W1 is a synthetic-only development
 slice, not Product acceptance, production installation or permission for real Account
-data. Future authorized work continues in this application.
+data. The subsequent Principal assignment authorizes continuous synthetic,
+question-driven API v2/MCP capability experiments in this same application.
 
 ## Run the isolated development preview
 
@@ -20,6 +21,21 @@ the operator does not configure services, credentials or backend URLs. If 8810 i
 use, startup fails rather than replacing an existing process. Ctrl-C stops only this
 preview and its process-owned synthetic fixture/MCP children.
 
+For the authorized retained-market experiment (JDK 21 required):
+
+```sh
+npm ci --prefix tools/mcp-market-evidence --ignore-scripts
+node tools/talk/server.mjs --market --port=8811
+```
+
+This launches the same app with the actual Java `HeldQuotesController`, SQLite
+and backend authentication, isolated in a disposable directory. It imports no
+provider beans or operational configuration. Its quote records are invented,
+historical sandbox fixtures, not downloaded market data. It enables only existing
+GET `/v2/quotes` and GET `/v2/quotes/{symbol}` reads; no provider acquisition or
+Account-detail route exists. A fresh ungranted fixture User supports denial tests;
+no existing grants are modified. Stop only a preview started for this experiment.
+
 The launcher uses the existing `OPENAI_API_KEY`, or reads only that key from the
 existing primary checkout's ignored `.env` through Git's common-directory locator.
 It does not migrate credentials, populate unrelated environment values, use a
@@ -36,8 +52,33 @@ data or credentials in this W1 preview.
 The SDK discovers the tools and parameter schemas. Trusted admission lives in
 `syntheticCapabilities` in `synthetic.mjs`, not in question routing. A capability
 can be admitted in configuration without a new conversation handler. No other MCP
-servers, backend addresses, provider access or arbitrary tool execution API are
-exposed by this W1 runtime.
+servers, operational backend addresses, provider access or arbitrary tool execution
+API are exposed by the default W1 runtime. The explicit `--market` profile admits
+`inspect_market_quotes` from `tools/mcp-market-evidence/` against the owned Java
+fixture. Parameters come from MCP discovery. The adapter reuses the existing CLI
+canonical-symbol codec, lossless parser and public-observation validator; it adds
+no financial calculation, scoring or question routing.
+
+Discovery intentionally omits quote facts. Individual reads establish which
+fields are present. Source event clocks differ from receipt/commit clocks, missing
+values differ from zero, and underlying ETF/equity/index observations do not prove
+listed-options liquidity. Safe error code/title/status/requestId survive the new
+adapter; arbitrary internal problem detail is withheld. Exact source text is
+rendered separately from model commentary without binary-number reserialization.
+
+Run the actual model/SDK/application question loop (existing model access):
+
+```sh
+node tools/talk/test/question-loop.mjs /tmp/talk-questions.json --market
+node tools/talk/test/live-failure.mjs /tmp/talk-failure.json
+```
+
+The first repeats the Principal seed and maintained-inventory questions; the
+second uses actual model/tool execution with an injected narration transport
+failure. These are author experiments, not automated Product acceptance. Output
+contains invented evidence only. `npm test --prefix tools/talk` now includes the
+real isolated Java/MCP contract fixture; `npm test --prefix tools/mcp-market-evidence`
+checks transport failure, correlation, privacy and precision cases independently.
 
 `conversation.mjs` uses SDK `Agent`, `Runner` and `MemorySession`. There is no custom
 model/tool loop. One small recovery extension preserves the latest user turn through

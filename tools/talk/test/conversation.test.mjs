@@ -62,6 +62,24 @@ test('trusted admission blocks a model-requested unavailable tool; fixture rejec
   assert.equal(denied.status, 403);
 });
 
+test('failed local history is replayable through the native OpenAI Responses serializer', async t => {
+  const bodies = [];
+  const chat = createConversation({ servers: [], apiKey: 'synthetic-test-key', fetchImpl: async (_input, init) => {
+    bodies.push(JSON.parse(init.body));
+    if (bodies.length === 1) throw new Error('synthetic transport failure');
+    return new Response(JSON.stringify({ id: 'resp_fixture', object: 'response', created_at: 0,
+      status: 'completed', model: 'synthetic', output: [{ id: 'msg_fixture', type: 'message',
+        role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: 'Latest subject: QQQ.', annotations: [] }] }],
+      usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 } }), { headers: { 'Content-Type': 'application/json' } });
+  } });
+  t.after(() => chat.close());
+  assert.ok((await chat.send('Switch to QQQ.')).error);
+  assert.equal((await chat.send('Which subject?')).text, 'Latest subject: QQQ.');
+  assert.equal(bodies.length, 2, 'second turn must reach fetch, not fail in the SDK serializer');
+  assert.match(JSON.stringify(bodies[1].input), /Switch to QQQ/);
+  assert.equal(bodies[1].store, false);
+});
+
 test('source injection is projected away; a failed MCP read stays an error, not empty evidence', async t => {
   const backend = await syntheticBackend();
   const servers = await connectSyntheticMcp(backend);
@@ -85,6 +103,14 @@ test('completed MCP evidence remains available after narration failure', async t
   assert.ok(response.error);
   assert.match(response.tools[0].result, /harbor/);
   assert.doesNotMatch(JSON.stringify(response), /PRIVATE-NARRATION/);
+  assert.equal(response.tools[0].isError, false);
+  backend.setMode('unavailable');
+  const failed = createConversation({ servers, model: script([
+    [call('list_authorized_accounts')], new Error('PRIVATE-NARRATION-CANARY')
+  ]) });
+  const withProblem = await failed.send('Read accounts again.');
+  assert.ok(withProblem.error);
+  assert.equal(withProblem.tools[0].isError, true);
 });
 
 test('instructions reaching the model in a tool result cannot grant an unadmitted capability', async t => {

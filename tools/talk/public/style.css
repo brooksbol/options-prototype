@@ -176,7 +176,7 @@ article h3 {
   overflow-wrap:anywhere
 }
 details {
-  margin-top:16px;
+  margin:16px 0 20px;
   padding:14px;
   border-left:3px solid #869e6b;
   background:#f0f3eb
