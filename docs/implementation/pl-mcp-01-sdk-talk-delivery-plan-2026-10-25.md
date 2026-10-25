@@ -108,13 +108,50 @@ No fixed Kiro/Codex implementation ownership is assigned here. Select the implem
 |---|---|
 | ADR-024 architecture and four Principal choices | **RATIFIED** |
 | Deprecated bespoke Talk preserved | **PRODUCT DEPRECATED**; installed/process state not reverified by this planning update |
-| W0 baseline / successor workstream identification | **NOT VERIFIED COMPLETE** |
-| W1 SDK conversational walking skeleton | **NOT VERIFIED COMPLETE** |
+| W0 baseline / successor workstream identification | **AUTHOR-VERIFIED** against `265ecedf`; protected W1 workstream and synthetic-only boundaries established; see W1 execution entry below |
+| W1 SDK conversational walking skeleton | **IMPLEMENTED / AUTHOR-VERIFIED CANDIDATE**; isolated preview available; independent review and Principal observation pending |
 | W2–W6 operator acceptance and delivery | **NOT STARTED / NO ACCEPTANCE EVIDENCE PROVIDED** |
-| Software implementation / deployment authority | **NOT CREATED BY THIS PLAN** |
+| Software implementation / deployment authority | **W1 ONLY explicitly assigned to Codex by the subsequent Principal implementation instruction**; no W2, existing-runtime mutation or production deployment authority |
 
 **Next execution handoff when separately authorized:** Recover current main/worktree/install/task state; confirm the W0 successor location and allowed synthetic fixture; then implement **W1 within that single successor** and immediately expose its multi-turn SDK/MCP conversation to Principal observation. Do not undertake fresh broad architectural research, speculative tool catalog work, or a new isolated Talk product.
 
 ### Plan update discipline
 
 At each real learning checkpoint, update **this plan** with: package, observed result and source revision, current active workstream, acceptance status, unresolved blocker (if any), and next legitimate action. Replace obsolete assumptions rather than appending competing plans. Keep architecture ratification in ADR-024, Product capability questions in existing PL-MCP-01, defects in `docs/bugs/`, and actor receipts under their own provenance. If a roadmap projection input changes, use its established regeneration/check process; do not hand-edit derived files.
+
+## W1 execution entry — October 25, 2026
+
+**Authority source:** Principal's subsequent “Codex — Wheelwright Talk Implementing
+Engineer” assignment: “The Principal authorizes the bounded W1 implementation
+described here.” This supersedes the earlier unassigned planning state only for W1.
+Codex is the implementer; independent review remains separate. Authorization includes
+source, tests, minimal documentation, existing approved model access with synthetic
+data, an isolated preview and submission for review. It excludes W2, real-data
+expansion, provider acquisition, changes to grants/credentials, existing installations
+or previews, dirty worktrees and production deployment.
+
+**One successor:** `tools/talk/`, protected branch `codex/sdk-talk-w1-20261025` in
+`options-candidates/sdk-talk-w1-20261025`, based on remote main `265ecedf`. Future
+authorized development evolves this same application. No deprecated host source was
+changed. The 21-entry dirty feedback candidate and pre-existing preview listeners
+were preserved. WW-GATE-001 remains staged; it is not this task's execution control.
+
+**Observed:** native SDK 0.21.0 Runner/MemorySession conversation; two unchanged
+existing MCP servers discovered/invoked against greeting and invented Account fixtures;
+SDK MCP client 2.3.1 negotiated protocol 2026-07-28. Six automated checks pass. An
+eight-turn real-model synthetic specimen passed, including both tools, a capability
+miss, broker referents and an actual failed inventory read followed by the correct
+newest subject. Normal-runtime capture recorded only 11 nonstored Responses POSTs;
+no conversation, compaction or trace request was observed. SDK rollback on provider
+failure required a small public-session-API recovery extension, protected by a
+negative test.
+
+**Demonstration:** http://127.0.0.1:8810 — synthetic-only isolated preview. The operator
+only opens the link; no backend/credential configuration is required. Browser visual
+acceptance has not been claimed. SDK execution, MCP invocation, HTTP availability,
+independent review and Principal Product acceptance are separate evidence.
+
+**Receipt:** [W1 implementation and review evidence](../reviews/sdk-talk-w1-implementation-2026-10-25.md).
+W1 code is submitted as a candidate, not silently promoted to accepted Product.
+W2–W6 remain unauthorized/not started. Next step is independent W1 review and
+Principal observation of the running specimen, not another implementation or plan.
