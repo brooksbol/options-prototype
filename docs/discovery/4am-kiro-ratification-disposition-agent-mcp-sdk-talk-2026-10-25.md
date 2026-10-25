@@ -122,4 +122,4 @@ Justified candidate checks (observational; none is a gate; promotion under fitne
 
 ## 11. Limits
 
-No code, tests, model calls or services were run. SDK/MCP protocol compatibility, guardrail scope in the JS SDK, and actual SDK egress were verified from documentation only. Cost: approximately 25 minutes wall clock; token and monetary cost not available to Kiro. External content was rephrased for licensing compliance.
+No code, tests, model calls or services were run. SDK/MCP protocol compatibility, guardrail scope in the JS SDK, and actual SDK egress were verified from documentation only. Cost: approximately 6 minutes wall clock (12:16–12:22 MDT); token and monetary cost not available to Kiro. External content was rephrased for licensing compliance.
