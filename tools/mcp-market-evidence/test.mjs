@@ -45,3 +45,15 @@ test('unexpected secrets, oversized bodies and invalid correlation fail closed',
     await assert.rejects(inspectQuotes({}, { ...config, fetchImpl: async () => response(body) }));
   await assert.rejects(inspectQuotes({}, { ...config, fetchImpl: async () => new Response('{}') }));
 });
+
+test('discovery projects its public contract; omitted facts are not asserted absent', async () => {
+  const item = { observationId: requestId, subject: observation.subject,
+    provenance: observation.provenance, internalState: 'PRIVATE-DISCOVERY-CANARY' };
+  const result = await inspectQuotes({}, { ...config,
+    fetchImpl: async () => response(JSON.stringify({ requestId, items: [item], privateField: 'PRIVATE-TOP-CANARY' })) });
+  assert.doesNotMatch(JSON.stringify(result), /PRIVATE-|authorityEpoch/);
+  assert.match(result.content[0].text, /omits quote facts by design/);
+  item.subject = { symbol: '../accounts', securityType: 'ETF' };
+  await assert.rejects(inspectQuotes({}, { ...config,
+    fetchImpl: async () => response(JSON.stringify({ requestId, items: [item] })) }));
+});

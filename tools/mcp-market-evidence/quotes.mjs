@@ -1,4 +1,5 @@
 import { encodePathSymbol, parseShowJson, validateShowObservation } from '../../scripts/ww-show.mjs';
+const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 
 // Transport and public-contract projection only. No acquisition, ranking or financial calculation.
 export async function inspectQuotes({ symbol } = {}, { base, token, fetchImpl = fetch }) {
@@ -10,7 +11,7 @@ export async function inspectQuotes({ symbol } = {}, { base, token, fetchImpl = 
   const response = await fetchImpl(new URL(path, origin), { method: 'GET', redirect: 'error',
     signal: AbortSignal.timeout(5000), headers: { Authorization: `Bearer ${token}` } });
   const requestId = response.headers.get('x-request-id');
-  if (!/^[a-f0-9-]{36}$/i.test(requestId ?? '')) throw new Error('Invalid backend correlation.');
+  if (!UUID.test(requestId ?? '')) throw new Error('Invalid backend correlation.');
   if (!/^application\/(?:json|problem\+json)(?:;|$)/i.test(response.headers.get('content-type') ?? ''))
     throw new Error('Invalid backend media type.');
   let body = '';
@@ -41,7 +42,19 @@ export async function inspectQuotes({ symbol } = {}, { base, token, fetchImpl = 
   else {
     if (data?.requestId !== requestId || !Array.isArray(data.items) || data.items.length > 1000)
       throw new Error('Invalid quote discovery.');
-    evidence = data;
+    evidence = { requestId, items: data.items.map(item => {
+      const p = item?.provenance;
+      if (!UUID.test(item?.observationId ?? '') || !item.subject ||
+          !['ETF', 'EQUITY', 'INDEX', 'OTHER_UNDERLYING'].includes(item.subject.securityType) ||
+          typeof p?.provider !== 'string' || !p.provider || !['PRODUCTION', 'SANDBOX'].includes(p.environment) ||
+          ![p.receivedAt, p.committedAt].every(time => typeof time === 'string' &&
+            /^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(time) && Number.isFinite(Date.parse(time))))
+        throw new Error('Invalid quote discovery item.');
+      encodePathSymbol(item.subject.symbol);
+      return { observationId: item.observationId,
+        subject: { symbol: item.subject.symbol, securityType: item.subject.securityType },
+        provenance: { provider: p.provider, environment: p.environment, receivedAt: p.receivedAt, committedAt: p.committedAt } };
+    }) };
   }
   return { content: [{ type: 'text', text: JSON.stringify({ requestId,
     scope: 'Retained underlying quotes only; not options chains, executable depth, or a live ranking.',
