@@ -65,3 +65,40 @@ Codex and Kiro independently challenge this candidate **as a proposal**, recover
 - **Existing one-off Talk:** pause further feature expansion pending disposition; no deletion or deployment changes.
 
 **Recommended 4AM question:** Which subset of these operational expectations is both warranted and sufficiently precise for autonomous development without forbidding justified alternatives, and how should the explicit Principal SDK direction be made transmissible and verifiable?
+
+
+---
+
+## October 25 reconciliation update — six Principal mandates and final-pass actor status
+
+**Standing:** Dated Principal direction and 4AM reconciliation evidence, **not** a newly ratified ADR or implementation authorization. This section preserves the six mandates and the four subsequent decisions. Earlier provisional/open language above is historical at its recording time, and is superseded for these subjects by this dated direction. Do not silently overwrite either actor's own records.
+
+### Six Principal mandates (governing the purpose of this exercise)
+
+| Principal mandate | Reconciled outcome and current standing |
+|---|---|
+| **M1. Clear but non-prescriptive standards** | Use existing Technology Quality Constitution, backend/API v2 principles and actor governance; add only operational precision at consequential decision boundaries (SDK-washing, runtime selection, disclosure-before-exposure, question-routing, semantic authority). Do not standardize incidental UI, packaging or every extension point. Candidate wording pending accepted ADR assimilation. |
+| **M2. Industry architectural basis** | Applicable MCP 2026-07-28 specification, OpenAI Agents SDK JS mechanisms, Anthropic tool-engineering advice, AWS Agentic AI Lens and Azure AI architecture. Keep normative specification distinct from vendor guidance and independent Muse evidence; corrections to Muse are preserved in Codex/Kiro records. |
+| **M3. Set aside the one-off Talk** | The existing bespoke Talk is **DEPRECATED UNTIL FURTHER NOTICE** as a Product failure and valuable engineering experiment. Stop bespoke host/handler feature expansion; preserve code, tests, accepted-versus-candidate-versus-installed histories and learning. No deletion, process stoppage or deployment change implied. Independently authorized backend/MCP improvements are not paused by this decision. |
+| **M4. New SDK-based Talk** | Principal selected a **new self-contained Talk with OpenAI Agents SDK owning general agent execution**, and **MCP required for Wheelwright domain capabilities**. API v2 is authoritative. Codex can be an MCP verification consumer only; no more bespoke conversational hosts or question-specific routers. This scoped choice prevails over generic no-new-dependencies or experimental-precedent heuristics. |
+| **M5. 4AM reconciliation document** | This existing candidate, augmented by this dated update, is the shared reconciliation evidence. It must not self-promote to Category B. The current ADR register and normal bootstrap routing must eventually carry the accepted architectural decision, with version/status/provenance. |
+| **M6. Persist each actor's ratification** | Independently persisted original and subsequent Codex/Kiro reviews remain attributed to their actual authors. **Codex FINAL exists**; **Kiro FINAL is not established by Kiro's refusal to execute a Codex-addressed prompt**. Never forge a second actor's record or infer consensus. An eventual Principal ratification is separate. |
+
+### Four subsequent settled Principal decisions (details under mandates 3–4)
+
+1. **SDK + MCP:** The OpenAI Agents SDK, not the raw Responses API loop, executes the general conversation/tool cycle for new Talk. Wheelwright domain tool access is through the SDK's supported MCP integration, using discovered tool contracts and trusted admission controls; ordinary UI and security adapters are allowed. Dependency presence alone is insufficient proof.
+2. **Restrictive disclosure:** Automatic trace export disabled; local conversation state; no provider-managed conversation storage or remote compaction; `store:false` where applicable; existing scoped real Account-data permissions respected. Broader exposure needs explicit Principal approval **before** data enters model requests, trace/session storage, compaction or other external processing. Configuration and egress must eventually be verified.
+3. **Authoritative facts plus commentary:** Backend-established financial facts and conclusions remain authoritative; model may provide clearly qualified hypothetical arithmetic, analysis and alternatives without transforming commentary into established findings. UX must make the distinction **implicitly understandable by information hierarchy and visual design**; exact UX design is deferred. A numerical whitelist or probabilistic judge alone cannot guarantee semantic integrity. Validated evidence survives commentary failure.
+4. **Deprecated bespoke Talk:** Indefinitely paused Product branch, preserved as valuable learning, not a target for further conversational feature additions. No cleanup or runtime action is implicit.
+
+### Final-pass reports and process correction
+
+- [Kiro's earlier independent ratification disposition](4am-kiro-ratification-disposition-agent-mcp-sdk-talk-2026-10-25.md): **AMEND before ratification**, particularly standards transmission, conformance, disclosure ordering and determinacy.
+- [Codex's earlier independent ratification disposition](../reviews/codex-agent-mcp-sdk-talk-ratification-2026-10-25.md): **AMEND before ratification**.
+- [Codex's final independent review](../reviews/codex-final-agent-mcp-sdk-talk-disposition-2026-10-25.md): supports all four now-settled decisions, calls for ADR/actor-context routing and no new parallel standards package.
+- **Kiro's supposed final pass was not performed.** Kiro received a prompt expressly assigning Codex-owned authorship; it correctly refused to publish a false Codex disposition. That response verifies neither independent Kiro ratification nor a completed four-actor-decision integration.
+- Muse supplied external research, not a Wheelwright actor ratification.
+
+**4AM status at this checkpoint:** the six mandates are accounted for; the four Principal choices are settled as direction; actor evidence is incomplete at final-pass stage; this record is still Category D reconciliation. No new SDK Talk implementation, change to production/installed state, or release acceptance has occurred. Actor-owned final review cannot be backfilled by an assistant or the other actor.
+
+**Next documentary transition:** obtain Kiro's properly addressed independent final disposition if required by M6, then reconcile without inventing consensus; on Principal ratification, record the scoped architecture in the existing ADR register and route it via bootstrap and `PL-MCP-01`. Do not create a new standards register or Kotusev artifact set.
