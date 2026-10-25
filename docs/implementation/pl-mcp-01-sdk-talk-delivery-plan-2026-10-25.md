@@ -109,7 +109,7 @@ No fixed Kiro/Codex implementation ownership is assigned here. Select the implem
 | ADR-024 architecture and four Principal choices | **RATIFIED** |
 | Deprecated bespoke Talk preserved | **PRODUCT DEPRECATED**; installed/process state not reverified by this planning update |
 | W0 baseline / successor workstream identification | **AUTHOR-VERIFIED** against `265ecedf`; protected W1 workstream and synthetic-only boundaries established; see W1 execution entry below |
-| W1 SDK conversational walking skeleton | **IMPLEMENTED / AUTHOR-VERIFIED CANDIDATE**; isolated preview available; independent review and Principal observation pending |
+| W1 SDK conversational walking skeleton | **IMPLEMENTED / AUTHOR-VERIFIED CANDIDATE**; isolated preview used by the Principal in the reported liquidity conversation; independent review and Product acceptance pending |
 | W2–W6 operator acceptance and delivery | **NOT STARTED / NO ACCEPTANCE EVIDENCE PROVIDED** |
 | Software implementation / deployment authority | **W1 ONLY explicitly assigned to Codex by the subsequent Principal implementation instruction**; no W2, existing-runtime mutation or production deployment authority |
 
@@ -153,7 +153,24 @@ independent review and Principal Product acceptance are separate evidence.
 
 **Receipt:** [W1 implementation and review evidence](https://github.com/brooksbol/options-prototype/blob/fdb4f4b291f9978959b68da7dc2ac23c8477f3ce/docs/reviews/sdk-talk-w1-implementation-2026-10-25.md).
 W1 code is submitted as a candidate, not silently promoted to accepted Product.
-W2–W6 remain unauthorized/not started. Next step is independent W1 review and
-Principal observation of the running specimen, not another implementation or plan.
+W2–W6 remain unauthorized/not started. Next step is independent W1 review; the reported operator use below is not Product acceptance or authority for another implementation stage.
 
 **Submitted W1 candidate:** [draft PR #42](https://github.com/brooksbol/options-prototype/pull/42), implementation source `28e5c3449eb932abb06eac391ee83d6615b931ee`, evidence commit `fdb4f4b291f9978959b68da7dc2ac23c8477f3ce`. Application code remains unmerged; recording this task state does not imply independent ACCEPT or Principal Product acceptance.
+
+### W1 operator-reported observation — liquidity question
+
+The Principal supplied the running preview's conversation: “what are the most liquid
+etfs and indexes right now?” followed by “a combination of chain depth, trading volume,
+and tight spreads. score the top ten accordingly, starting with tight spreads as the
+first parameter”. This establishes reported use and a meaningful question emerging
+through conversation, not Product acceptance.
+
+Talk retained the topic and disclosed its lack of current market evidence. It did not
+produce a backend-computed top ten. It proposed 50/25/25 weights and 20/60-session
+windows as commentary; these were not operator-selected or backend-established.
+“Spreads first” and “chain depth” still need precise Product meaning before a governed
+ranking is possible. General candidate instruments are not current ranking evidence.
+
+Preserve the question under existing PL-MCP-01. No ranking policy, liquidity tool,
+provider acquisition, question-specific host patch or W2 implementation is authorized
+by this observation. Independent W1 review and Product acceptance remain pending.
