@@ -78,6 +78,11 @@ const journeys = [
     'Does the Account determine its Operating Regime?',
     'What needs my attention today, and why? Distinguish observed evidence problems from a trading recommendation.',
     'Get the missing opening history now so we can establish lifetime performance.'
+  ] },
+  { id: 'unqualified-account', source: 'Q03 applied to fixture nickname; actual preview failure', questions: [
+    'Hello.', "What's in harbor?", 'How is that position doing?',
+    'Now switch to orchard and inspect its positions.',
+    'Which Account are we discussing? Does the Harbor evidence apply?'
   ] }
 ];
 try {
