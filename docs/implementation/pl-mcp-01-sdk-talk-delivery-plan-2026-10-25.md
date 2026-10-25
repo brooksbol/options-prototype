@@ -111,7 +111,7 @@ No fixed Kiro/Codex implementation ownership is assigned here. Select the implem
 | W0 baseline / successor workstream identification | **AUTHOR-VERIFIED** against `265ecedf`; protected W1 workstream and synthetic-only boundaries established; see W1 execution entry below |
 | W1 SDK conversational walking skeleton | **IMPLEMENTED / AUTHOR-VERIFIED CANDIDATE**; isolated preview used by the Principal in the reported liquidity conversation; independent review and Product acceptance pending |
 | W2–W6 operator acceptance and delivery | **NOT STARTED / NO ACCEPTANCE EVIDENCE PROVIDED** |
-| Software implementation / deployment authority | **W1 ONLY explicitly assigned to Codex by the subsequent Principal implementation instruction**; no W2, existing-runtime mutation or production deployment authority |
+| Software implementation / deployment authority | Initial W1 grant followed by the **bounded autonomous question-driven experiment below**. No merge, deployment, real-data expansion or unrelated Product implementation |
 
 **Next execution handoff when separately authorized:** Recover current main/worktree/install/task state; confirm the W0 successor location and allowed synthetic fixture; then implement **W1 within that single successor** and immediately expose its multi-turn SDK/MCP conversation to Principal observation. Do not undertake fresh broad architectural research, speculative tool catalog work, or a new isolated Talk product.
 
@@ -153,7 +153,7 @@ independent review and Principal Product acceptance are separate evidence.
 
 **Receipt:** [W1 implementation and review evidence](https://github.com/brooksbol/options-prototype/blob/fdb4f4b291f9978959b68da7dc2ac23c8477f3ce/docs/reviews/sdk-talk-w1-implementation-2026-10-25.md).
 W1 code is submitted as a candidate, not silently promoted to accepted Product.
-W2–W6 remain unauthorized/not started. Next step is independent W1 review; the reported operator use below is not Product acceptance or authority for another implementation stage.
+At W1 submission, W2–W6 remained unauthorized/not started. The later autonomous experiment below is a separate bounded Principal authorization, not automatic stage progression or Product acceptance.
 
 **Submitted W1 candidate:** [draft PR #42](https://github.com/brooksbol/options-prototype/pull/42), implementation source `28e5c3449eb932abb06eac391ee83d6615b931ee`, evidence commit `fdb4f4b291f9978959b68da7dc2ac23c8477f3ce`. Application code remains unmerged; recording this task state does not imply independent ACCEPT or Principal Product acceptance.
 
@@ -174,3 +174,43 @@ ranking is possible. General candidate instruments are not current ranking evide
 Preserve the question under existing PL-MCP-01. No ranking policy, liquidity tool,
 provider acquisition, question-specific host patch or W2 implementation is authorized
 by this observation. Independent W1 review and Product acceptance remain pending.
+
+### Authorized continuous question-driven experiment — October 25, 2026
+
+**Authority:** subsequent Principal “Autonomous Wheelwright Talk Product Engineer”
+assignment: “including reusable backend/MCP changes that existing Product authority
+supports.” Codex owns actual application/model conversations, diagnosis, ordinary
+corrections and original-question retests without routine Principal intervention.
+Continue in `tools/talk/`, branch `codex/sdk-talk-w1-20261025`, draft PR #42; do not
+revive deprecated hosts. This candidate-plan update does not alter accepted main.
+
+Boundaries remain synthetic/otherwise explicitly permitted evidence, existing
+approved model access, local isolated preview and tests. No new provider access,
+real Account disclosure, existing credential/grant changes, installed-service
+changes, merge or deployment. Defer affected questions at genuine authority/data
+boundaries and continue other productive authorized questions; neither a passing
+test nor a checkpoint ends the assignment by itself.
+
+**Candidate result:** added two reusable MCP reads over existing API v2 retained
+quotes and current portfolio Positions; actual Java controllers/SQLite/backend
+authorization exercised against invented records. Account discovery uses the same
+coherent fixture. Existing greeting remains. The one successor is still `tools/talk/`;
+reusable adapters are in `tools/mcp-v2-evidence/`.
+Corrected discovery-vs-observation qualifications, source/storage clock handling,
+lossless source presentation, native SDK history replay after narration failure,
+workspace subject discovery and completion of requested reads. MCP error disposition
+survives narration failure. Native backend projection reduces redundant context.
+No scoring policy, live feed, host financial engine or question router.
+
+**Open observed narration risk:** final preview prose still inferred quote currency/size
+units and offered rough cross-source arithmetic despite source qualifications.
+Trusted source results remain exact and separate; broad financial claim integrity
+and the W3 UX are not established. Do not treat synthetic author verification as
+permission for protected financial evidence or Product acceptance.
+
+Current top-ten liquidity remains unavailable: no authorized current comparable
+options universe, depth evidence or selected ranking semantics. Fifty/twenty-five/
+twenty-five was a model suggestion, not policy. [Closed-loop implementation receipt](../reviews/sdk-talk-closed-loop-2026-10-25.md)
+records before/after questions, counterexamples, costs, exact source and remaining
+boundaries. Author verification is separate from independent review and Principal
+Product acceptance. W2–W6 are not declared complete.
