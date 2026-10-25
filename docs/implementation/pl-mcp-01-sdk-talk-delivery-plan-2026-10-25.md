@@ -110,8 +110,8 @@ No fixed Kiro/Codex implementation ownership is assigned here. Select the implem
 | Deprecated bespoke Talk preserved | **PRODUCT DEPRECATED**; installed/process state not reverified by this planning update |
 | W0 baseline / successor workstream identification | **AUTHOR-VERIFIED** against `265ecedf`; protected W1 workstream and synthetic-only boundaries established; see W1 execution entry below |
 | W1 SDK conversational walking skeleton | **IMPLEMENTED / AUTHOR-VERIFIED CANDIDATE**; isolated preview used by the Principal in the reported liquidity conversation; independent review and Product acceptance pending |
-| W2–W6 operator acceptance and delivery | **NOT STARTED / NO ACCEPTANCE EVIDENCE PROVIDED** |
-| Software implementation / deployment authority | Initial W1 grant followed by the **bounded autonomous question-driven experiment below**. No merge, deployment, real-data expansion or unrelated Product implementation |
+| W2–W6 operator acceptance and delivery | **NO STAGE ACCEPTANCE**; later bounded experiments include evidence-access/UX work, not completion, installation or delivery |
+| Software implementation / deployment authority | Initial W1 grant followed by the **bounded question-driven assignments below**, including local retained-evidence assessment. No merge, deployment, broadened model disclosure or unrelated Product implementation |
 
 **Next execution handoff when separately authorized:** Recover current main/worktree/install/task state; confirm the W0 successor location and allowed synthetic fixture; then implement **W1 within that single successor** and immediately expose its multi-turn SDK/MCP conversation to Principal observation. Do not undertake fresh broad architectural research, speculative tool catalog work, or a new isolated Talk product.
 
@@ -214,3 +214,38 @@ twenty-five was a model suggestion, not policy. [Closed-loop implementation rece
 records before/after questions, counterexamples, costs, exact source and remaining
 boundaries. Author verification is separate from independent review and Principal
 Product acceptance. W2–W6 are not declared complete.
+
+### Real retained evidence and API v2 capability engineering — October 25
+
+**Authority:** Principal's subsequent “Wheelwright API v2 Capability Engineer and
+Talk Integration Engineer” assignment. Assess Q01–Q63 and the liquidity seed against
+actual retained evidence; implement bounded reusable backend/MCP improvements.
+Synthetic records remain tests, not Product coverage. The assignment does not
+broaden protected Account/Position model disclosure, provider access, grants,
+installed services or integration authority.
+
+**Author-verified candidate source:** `8ee880ca72110eaa03984731c6ad80546dd94091`
+in the same protected SDK successor/PR #42. Candidate additions: backend retained
+quote-side measurement, existing MCP quote measurement/Position continuation and
+lifecycle selection, compact exact source cards, and real Account metadata profile
+within the existing nickname/broker/count permission. No new MCP tool, question
+router, host financial engine or general agent loop.
+
+**Coverage:** all 63 assessed, not 63 runtime passes: 4 bounded answers (one actual
+SDK metadata answer plus three conceptual authority answers), 30 partial, 10
+evidence-blocked, 11 unresolved-semantic and 8 not verified. Protected financial
+model testing remains blocked; full financial answers are not established.
+Readonly backend evaluation covers 155 retained Positions, all lifecycle UNRESOLVED;
+reported open P/L is not lifetime earnings. Real retained chains exist, but do not
+establish a current comparable liquidity ranking.
+
+Actual SDK Q01/Q02/Q63 and local real API/MCP checks are separate from synthetic
+contract tests. The new quote measurement HTTP route is **not installed** in the
+operational backend. The same application is observable at http://127.0.0.1:8812
+with approved real metadata only and fresh local sessions per turn. Existing
+previews/dirty candidates remain protected. No Product acceptance is asserted.
+
+[Coverage, source inventory, blockers and review receipt](../reviews/sdk-talk-real-evidence-2026-10-25.md)
+links the complete exact-wording matrix and safe machine evidence. Remaining
+financial work needs applicable evidence/meaning or disclosure authority; do not
+substitute synthetic demonstrations or infer a merge/deploy grant from this result.
