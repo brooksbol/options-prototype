@@ -151,7 +151,9 @@ only opens the link; no backend/credential configuration is required. Browser vi
 acceptance has not been claimed. SDK execution, MCP invocation, HTTP availability,
 independent review and Principal Product acceptance are separate evidence.
 
-**Receipt:** [W1 implementation and review evidence](../reviews/sdk-talk-w1-implementation-2026-10-25.md).
+**Receipt:** [W1 implementation and review evidence](https://github.com/brooksbol/options-prototype/blob/fdb4f4b291f9978959b68da7dc2ac23c8477f3ce/docs/reviews/sdk-talk-w1-implementation-2026-10-25.md).
 W1 code is submitted as a candidate, not silently promoted to accepted Product.
 W2–W6 remain unauthorized/not started. Next step is independent W1 review and
 Principal observation of the running specimen, not another implementation or plan.
+
+**Submitted W1 candidate:** [draft PR #42](https://github.com/brooksbol/options-prototype/pull/42), implementation source `28e5c3449eb932abb06eac391ee83d6615b931ee`, evidence commit `fdb4f4b291f9978959b68da7dc2ac23c8477f3ce`. Application code remains unmerged; recording this task state does not imply independent ACCEPT or Principal Product acceptance.
