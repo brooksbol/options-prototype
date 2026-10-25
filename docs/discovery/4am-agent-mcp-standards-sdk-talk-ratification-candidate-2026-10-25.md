@@ -102,3 +102,8 @@ Codex and Kiro independently challenge this candidate **as a proposal**, recover
 **4AM status at this checkpoint:** the six mandates are accounted for; the four Principal choices are settled as direction; actor evidence is incomplete at final-pass stage; this record is still Category D reconciliation. No new SDK Talk implementation, change to production/installed state, or release acceptance has occurred. Actor-owned final review cannot be backfilled by an assistant or the other actor.
 
 **Next documentary transition:** obtain Kiro's properly addressed independent final disposition if required by M6, then reconcile without inventing consensus; on Principal ratification, record the scoped architecture in the existing ADR register and route it via bootstrap and `PL-MCP-01`. Do not create a new standards register or Kotusev artifact set.
+
+
+## October 25 final ratification status
+
+The Principal ratified the four scoped architectural decisions and three final review additions. ADR-024 in `docs/07c-adrs.md` now governs. This historical reconciliation remains Category D; earlier pending-decision language is dated provenance, not current authority. Both Codex and Kiro FINAL reviews are independently preserved in `docs/reviews/`. No code, installed runtime, permissions or deployment were authorized by ratification.
