@@ -62,3 +62,59 @@ Choose a **small** first specimen with the Principal from this inventory, not th
 - Current strategic direction belongs to the existing LVT; this plan should not create a new Bet by itself.
 - Changing canonical roadmap inputs requires deterministic projection regeneration/check; do not hand-edit generated outputs.
 - Update this one plan as work is authorized and evidence arrives. Avoid separate plan per question or worktree; track actual task/candidate/installed state in existing canonical authorities.
+
+
+---
+
+## Delivery management update — October 25, 2026
+
+**Purpose:** Make the existing seven-stage plan actionable for a continuous Product workstream. This is a plan refinement under ADR-024, not new architectural authority or implementation permission. The stages above remain the source of scope; the milestones below are observable exit evidence, not a serial approval bureaucracy. No actor assignment, deadline or completion claim is implied.
+
+### Working-product rule
+
+**One successor application, incrementally matured.** From Stage 1 onward, continue evolving the *same* self-contained SDK-based Talk codebase into the Product candidate. A test harness, fixture, private preview, immutable review snapshot or protected worktree may support validation, but it is not another independently evolving Talk implementation. Merge accepted improvements into the authorized primary successor workstream instead of repeatedly recreating experimental hosts. Do not extend deprecated bespoke Talk.
+
+**Early usability first.** Show the Principal an actual working conversational slice at Stage 1 and an actual useful answer at Stage 2. Do not wait for complete domain coverage, full tool-suite hardening or a large architectural review. Enforce the minimum data/security restrictions before each relevant exposure; defer unrelated speculative concerns.
+
+### Work packages, dependencies and demonstration receipts
+
+| Package / existing stage | Concrete deliverable in the single successor | Evidence to preserve in the existing work item or plan | Practical dependency |
+|---|---|---|---|
+| **W0 — Baseline / Stage 0** | Identified primary successor location, protected source state, deprecated-host inventory and scoped synthetic/authorized evidence set | Remote revision; accepted/candidate/installed distinction; SDK/MCP compatibility assumptions; authorization and no-touch boundaries | Before modifying application code |
+| **W1 — SDK foundation / Stage 1** | Usable text chat with multiple turns; SDK executes the loop and discovers authorized MCP tools; non-tool replies and second-tool selection work | Actual execution path, pinned package/protocol versions, captured tool calls/arguments and normal-runtime trace-egress result | W0; synthetic fixture; no private-data expansion |
+| **W2 — First useful answer / Stage 2** | One Principal-chosen authentic operator question answered from governed v2 facts, plus a natural follow-up in the same Talk | Operator-visible capture, v2/MCP request/evidence links, explicit unknowns, correctness of tool subject after failed requests | W1; an existing supported read capability; authorized data profile |
+| **W3 — Financial answer UX / Stage 3** | Repeatable interface treatment separating backend-backed financial findings from model commentary without disclaimer overload; evidence still visible on model failure | Principal UX observation; successful and negative semantic specimens; proof commentary cannot populate authoritative fact fields | W2; trusted backend facts available |
+| **W4 — Safety / contract reliability / Stage 4** | Safe useful error recovery, no protected egress, preserved request correlation and robust follow-up/error behavior | Controlled 401/403/422/500 + private-canary fixtures; tool-result injection; disclosure capture in normal Node runtime, not only tests; narration-failure test | Appropriate protection before each live-data step; deepen after W2/W3 as appropriate |
+| **W5 — Evolution without one-offs / Stage 5** | A second *operator-justified* question/capability works in the same host without question-specific conversational code changes | Before/after host diff; semantic tool-discovery/use result; original question rerun; latency/tokens/effort observation where measurable | W2; real need and an existing-or-justified backend capability |
+| **W6 — Product decision / Stage 6** | Operator-usable successor with evidence-based acceptance/rollback proposal, distinct from deprecated Talk | Accepted specimens, open limitations, independent architecture review, realization/install evidence and explicit Principal acceptance | Relevant W1–W5 outcomes verified; separate install/deploy grant |
+
+**Practical critical path:** W0 → W1 → W2 → early Principal observation → W3 and focused W4 → W5 → W6. Security and disclosure checks needed for a specific experiment precede that experiment; other W4 checks may run alongside usability refinement rather than gate first observation.
+
+### Responsibilities and interfaces (roles, not unsolicited actor assignments)
+
+| Responsibility | Accountable authority | Engineering contribution / review |
+|---|---|---|
+| Operator questions, Product usefulness, financial-commentary UX acceptance | **Principal** | Implementing actor prepares earliest useful specimen and records the observed outcome |
+| SDK Talk application, local sessions, authorized MCP admission and UX integration | **Authorized implementing actor, within the active workstream** | Independent reviewer verifies SDK execution, absence of bespoke routing, privacy/evidence boundaries and maintainability |
+| Financial facts, policies, entitlement and evidence admission | **Wheelwright API v2 and existing Product/domain authorities** | MCP and Talk transport/project established claims; never reimplement authoritative math in the host |
+| MCP contract discoverability and safe result/error semantics | **MCP capability owner under existing repo authority** | Codex may independently exercise approved synthetic/authorized MCP specimens as a preliminary host; this is not a second Talk Product |
+| Architecture and fitness-control disposition | **Existing ADR/Technology Quality authorities; Principal for ratification** | Kiro/Codex contribute independently attributable evidence when commissioned; review does not create implementation permission |
+
+No fixed Kiro/Codex implementation ownership is assigned here. Select the implementing actor/workstream using current task authority and repository state, not a stale historical assignment. Ordinary integration corrections inside an authorized workstream should not spawn a new plan or repeated actor approval loops.
+
+### Delivery status and first authorized planning handoff
+
+| Milestone | Current status as of this plan update |
+|---|---|
+| ADR-024 architecture and four Principal choices | **RATIFIED** |
+| Deprecated bespoke Talk preserved | **PRODUCT DEPRECATED**; installed/process state not reverified by this planning update |
+| W0 baseline / successor workstream identification | **NOT VERIFIED COMPLETE** |
+| W1 SDK conversational walking skeleton | **NOT VERIFIED COMPLETE** |
+| W2–W6 operator acceptance and delivery | **NOT STARTED / NO ACCEPTANCE EVIDENCE PROVIDED** |
+| Software implementation / deployment authority | **NOT CREATED BY THIS PLAN** |
+
+**Next execution handoff when separately authorized:** Recover current main/worktree/install/task state; confirm the W0 successor location and allowed synthetic fixture; then implement **W1 within that single successor** and immediately expose its multi-turn SDK/MCP conversation to Principal observation. Do not undertake fresh broad architectural research, speculative tool catalog work, or a new isolated Talk product.
+
+### Plan update discipline
+
+At each real learning checkpoint, update **this plan** with: package, observed result and source revision, current active workstream, acceptance status, unresolved blocker (if any), and next legitimate action. Replace obsolete assumptions rather than appending competing plans. Keep architecture ratification in ADR-024, Product capability questions in existing PL-MCP-01, defects in `docs/bugs/`, and actor receipts under their own provenance. If a roadmap projection input changes, use its established regeneration/check process; do not hand-edit derived files.
