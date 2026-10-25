@@ -166,7 +166,8 @@ The preview was provided early, before the full negative-test/evidence pass.
 The browser connector was unavailable and Safari was in active use, so automated
 visual inspection was not completed. Existing browser work was left alone. Actual
 HTTP/API operation was exercised; the Principal can observe the running interface.
-Do not call this visual acceptance or claim the Principal has used it.
+That initial check did not establish visual acceptance or Principal use. The subsequent
+operator-reported observation below establishes actual use separately from acceptance.
 
 An independent reviewer can check out the frozen source, install locked dependencies
 inside a protected workspace as described in the app README, run six deterministic
@@ -181,6 +182,41 @@ the app README. The **existing** delivery plan records W0/W1 state and this auth
 no competing plan was created. This receipt and JSON preserve evidence. No old MCP/host
 source, dependency locks, service, credential, grant or installation was changed.
 
+## Subsequent operator observation — liquidity question
+
+**Source:** Principal supplied the W1 screen/conversation text in this session after
+the preview was delivered. This is operator-reported observation, not an independently
+captured model/network trace or a statement of Product acceptance.
+
+Exact operator questions:
+
+> what are the most liquid etfs and indexes right now?
+
+> a combination of chain depth, trading volume, and tight spreads. score the top ten
+> accordingly, starting with tight spreads as the first parameter
+
+Talk provided general candidate instruments, disclosed that no live market-data feed
+was connected, and declined to claim a defensible current scored top ten. It retained
+the topic across turns. Its proposed framework assigned 50% to tight spreads, 25% to
+volume and 25% to depth, and suggested 20/60-session windows. No such weights, windows
+or scoring policy had been selected by the operator or established by a connected
+backend capability. The transcript did not contain a backend-computed liquidity score.
+
+**Assessment:** conversational continuity and acknowledgment of the capability gap
+are useful W1 evidence. The proposed weights were framed as commentary, which ADR-024
+permits; that is not proof of a financial-authority breach. However, “spreads first”
+does not establish those weights. Chain-depth meaning, ETF versus index-option scope,
+available evidence/session, normalization and spread-first ordering versus weighted
+scoring need Product clarification before an authoritative ranking can exist. The
+speculative candidate list is not evidence of today's top ten.
+
+**Disposition:** preserve this as an important operator question emerging through
+conversation under PL-MCP-01. Do not add a liquidity tool, market/provider connection,
+question handler, ranking formula or prompt-specific patch under W1. Any later selected
+capability must recover existing backend evidence/composition first, clarify the actual
+question/metric meaning, and obtain the relevant later-stage authority. This observation
+does not accept W1, select W2, authorize data acquisition or ratify a scoring policy.
+
 ## Limits and stopping point
 
 W1 is a synthetic, single-operator, ephemeral-local-session implementation. Both
@@ -194,7 +230,8 @@ Model prose remains fallible and separate from displayed raw fixture results. Th
 not arbitrary financial-claim enforcement, multi-user security, durable session storage,
 full injection protection, final visual acceptance, W2, installation or deployment.
 No broad quality gate or new framework was introduced. Independent review and Principal
-observation are pending. Do not advance automatically to W2 or merge as accepted code.
+Product acceptance remain pending; operator use has now been reported above. Do not
+advance automatically to W2 or merge as accepted code.
 
 CURRENT STATE: W1 author-verified candidate and running synthetic preview prepared for
 independent review; Product acceptance and W2 are not claimed.
