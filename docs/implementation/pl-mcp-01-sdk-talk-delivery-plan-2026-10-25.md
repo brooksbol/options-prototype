@@ -174,3 +174,10 @@ ranking is possible. General candidate instruments are not current ranking evide
 Preserve the question under existing PL-MCP-01. No ranking policy, liquidity tool,
 provider acquisition, question-specific host patch or W2 implementation is authorized
 by this observation. Independent W1 review and Product acceptance remain pending.
+
+
+## Real-world Product learning — October 26 Income Wheel deployment
+
+[October 26, 2026 real-money Income Wheel deployment case study](../discovery/2026-10-26-income-wheel-real-world-product-learning.md) is a **Principal-observed, human-executed** reference journey spanning market/WAIT assessment, current Account cash and held shares, option candidate comparison (hold/write vs liquidate vs hybrid), evolving constraints, share sales, covered calls, put and buy-write deployment, actual fills and post-trade balance reconciliation. The session recorded **$4,071 gross option premium sold** against a **$4,000** target; it does **not** demonstrate automated Talk execution or trading profit.
+
+Use the **full dated journey and negative specimens** as a high-value question-driven Product benchmark alongside Q01–Q63, not as preselected strategy policy or implementation authorization. Recover existing v1 and v2 capabilities before engineering API v2/MCP gaps. The WW backend, not the MCP adapter or agent, owns local-file access and provider ingestion. Protected financial payload disclosure remains governed by ADR-024.
