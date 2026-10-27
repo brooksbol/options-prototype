@@ -16,3 +16,10 @@ test('broker open P\/L retains its identity and incomplete backend earnings stay
   assert.ok(view.rows.some(([key,value]) => key === 'realizedNetPl' && value === 'Unavailable · USD · INCOMPLETE'));
   assert.doesNotMatch(JSON.stringify(view), /lifetime|earned|profit target|probability/);
 });
+
+test('inventory source cards display exact custody and per-Account403 instead of empty placeholders',()=>{
+ const view=evidenceView('{"outcome":"PARTIAL","accounts":[{"nickname":"allowed","broker":"FIDELITY","complete":true,"holdings":[{"sourceInstrument":{"identifier":"FIXTURE"},"quantity":9007199254740993,"unit":"SHARE","side":"LONG","observationDate":"2001-01-01"}]},{"nickname":"denied","broker":"TASTYTRADE","complete":false,"holdings":[],"problems":[{"code":"FORBIDDEN"}]}]}');
+ assert.ok(view.rows.some(([k,v])=>k==='allowed · FIXTURE'&&v.startsWith('9007199254740993')));
+ assert.ok(view.rows.some(([k,v])=>k==='denied access'&&v==='Holdings access denied'));
+ assert.ok(!view.rows.some(([k])=>k==='Authorized Account count'));
+});

@@ -1,0 +1,139 @@
+{
+  "question": "show me all of my positions",
+  "httpStatus": 200,
+  "toolNames": [
+    "hello_world",
+    "list_authorized_accounts",
+    "inspect_account_positions",
+    "inspect_account_balances",
+    "inspect_account_holdings",
+    "inspect_market_quotes"
+  ],
+  "sidebarNamesUnique": true,
+  "calls": [
+    {
+      "tool": "inspect_account_holdings",
+      "arguments": {},
+      "isError": false
+    }
+  ],
+  "summary": {
+    "outcome": "PARTIAL",
+    "accounts": [
+      {
+        "nickname": "pts",
+        "complete": false,
+        "returnedHoldings": 0,
+        "problemCodes": [
+          "FORBIDDEN"
+        ]
+      },
+      {
+        "nickname": "sawdust",
+        "complete": true,
+        "returnedHoldings": 7,
+        "problemCodes": []
+      },
+      {
+        "nickname": "tt1",
+        "complete": false,
+        "returnedHoldings": 0,
+        "problemCodes": [
+          "FORBIDDEN"
+        ]
+      }
+    ]
+  },
+  "renderedHoldingRows": 7,
+  "commentaryAvailable": true,
+  "commentaryAcknowledgesAccessLimit": true,
+  "followupCommentaryAvailable": true,
+  "followupRejectsEmptyInference": true,
+  "usage": {
+    "requests": 2,
+    "inputTokens": 7135,
+    "outputTokens": 245,
+    "totalTokens": 7380,
+    "inputTokensDetails": [
+      {
+        "cache_write_tokens": 1602,
+        "cached_tokens": 0
+      },
+      {
+        "cache_write_tokens": 3925,
+        "cached_tokens": 1602
+      }
+    ],
+    "outputTokensDetails": [
+      {
+        "reasoning_tokens": 0
+      },
+      {
+        "reasoning_tokens": 0
+      }
+    ],
+    "requestUsageEntries": [
+      {
+        "inputTokens": 1605,
+        "outputTokens": 16,
+        "totalTokens": 1621,
+        "inputTokensDetails": {
+          "cache_write_tokens": 1602,
+          "cached_tokens": 0
+        },
+        "outputTokensDetails": {
+          "reasoning_tokens": 0
+        },
+        "endpoint": "responses.create"
+      },
+      {
+        "inputTokens": 5530,
+        "outputTokens": 229,
+        "totalTokens": 5759,
+        "inputTokensDetails": {
+          "cache_write_tokens": 3925,
+          "cached_tokens": 1602
+        },
+        "outputTokensDetails": {
+          "reasoning_tokens": 0
+        },
+        "endpoint": "responses.create"
+      }
+    ]
+  },
+  "followupUsage": {
+    "requests": 1,
+    "inputTokens": 5778,
+    "outputTokens": 97,
+    "totalTokens": 5875,
+    "inputTokensDetails": [
+      {
+        "cache_write_tokens": 248,
+        "cached_tokens": 5527
+      }
+    ],
+    "outputTokensDetails": [
+      {
+        "reasoning_tokens": 0
+      }
+    ],
+    "requestUsageEntries": [
+      {
+        "inputTokens": 5778,
+        "outputTokens": 97,
+        "totalTokens": 5875,
+        "inputTokensDetails": {
+          "cache_write_tokens": 248,
+          "cached_tokens": 5527
+        },
+        "outputTokensDetails": {
+          "reasoning_tokens": 0
+        },
+        "endpoint": "responses.create"
+      }
+    ]
+  },
+  "protectedFinancialValuesExported": false,
+  "grantsChanged": false,
+  "providerAcquisition": false
+}

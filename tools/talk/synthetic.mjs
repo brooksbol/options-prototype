@@ -50,6 +50,7 @@ export async function connectSyntheticMcp(backend, capabilities = syntheticCapab
           WW_SYNTHETIC_FIXTURE: (config.backend ?? backend).syntheticOnly === true ? '1' : '0' },
         cacheToolsList: true, timeout: 10000, clientSessionTimeoutSeconds: 10,
         toolFilter: (_context, tool) => config.admitted.includes(tool.name) });
+      server.admittedToolNames = Object.freeze([...config.admitted]);
       servers.push(server);
       await server.connect();
     }

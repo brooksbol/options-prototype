@@ -39,11 +39,11 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.map(config =>
       market && config.admitted.includes('list_authorized_accounts') ? { ...config, backend: market } : config), ...(market ? [{
       name: authorizedRetainedBackend ? 'wheelwright-retained-accounts' : 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
-      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances'], backend: market
+      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings'], backend: market
     }] : []), ...(authorizedMarketBackend ? [{ name: 'wheelwright-retained-market', script: '../mcp-v2-evidence/server.mjs',
       admitted: ['inspect_market_quotes'], backend: authorizedMarketBackend }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
-      server: server.name, tools: await server.listTools()
+      server: server.name, tools: (await server.listTools()).filter(tool => server.admittedToolNames.includes(tool.name))
     }))));
     conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend, authorizedRetainedReads: !!authorizedRetainedBackend });
     // Freeze this preview's UI bytes at startup; later candidate edits must not

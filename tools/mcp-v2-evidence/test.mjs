@@ -85,3 +85,27 @@ test('balance discovery, exact subject/provenance preservation and lossless deci
   const denied=await inspectBalances({account:'orchard'}, {...config,fetchImpl:async url=>url.pathname==='/v2/accounts'?response(JSON.stringify(inventory)):response(JSON.stringify({requestId,status:403,title:'Forbidden',code:'FORBIDDEN',detail:'PRIVATE-CANARY'}),403)});
   assert.equal(denied.isError,true);assert.doesNotMatch(denied.content[0].text,/PRIVATE-CANARY/);
 });
+
+const { inspectHoldings } = await import('./holdings.mjs');
+test('holdings inventory includes unresolved custody and denied Accounts without an OPEN filter', async () => {
+ const id='acct_'+'a'.repeat(32), other='acct_'+'b'.repeat(32);const paths=[];
+ const inventory={requestId,accounts:[{id,alias:'allowed',brokerAssociation:{broker:'FIDELITY'}},{id:other,alias:'denied',brokerAssociation:{broker:'TASTYTRADE'}}]};
+ const result=await inspectHoldings({}, {...config,fetchImpl:async url=>{
+  paths.push(url);if(url.pathname==='/v2/accounts')return response(JSON.stringify(inventory));
+  assert.equal(url.pathname,'/v2/holdings');assert.equal(url.searchParams.has('state'),false);
+  if(url.searchParams.get('accountId')===other)return response(JSON.stringify({requestId,status:403,code:'FORBIDDEN',title:'Forbidden'}),403);
+  return response(JSON.stringify({items:[{id:requestId,account:{href:'/v2/accounts/'+id},sourceInstrument:{identifier:'FIXTURE'},quantity:1,side:'LONG',unit:'SHARE',snapshotId:requestId,snapshotCoverage:'COMPLETE_REPORTED',observationDate:'2001-01-01',evidence:[],warnings:[]}],next:null}));
+ }});
+ const data=JSON.parse(result.content[0].text);assert.equal(data.outcome,'PARTIAL');assert.equal(data.accounts[0].holdings.length,1);assert.equal(data.accounts[1].complete,false);assert.equal(data.accounts[1].problems[0].code,'FORBIDDEN');
+ assert.equal(data.accounts[0].holdings[0].sourceInstrument.identifier,'FIXTURE');
+});
+test('holdings continuation rejects foreign origin and retains explicit known page failure',async()=>{
+ const id='acct_'+'a'.repeat(32);const inventory={requestId,accounts:[{id,alias:'allowed',brokerAssociation:{broker:'FIDELITY'}}]};
+ for(const href of ['https://untrusted.example/v2/holdings?accountId='+id+'&limit=25&cursor=x','/v2/holdings?accountId=foreign&limit=25&cursor=x'])
+  await assert.rejects(inspectHoldings({}, {...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?inventory:{items:[],next:{href}}))}),/continuation scope/);
+ let pages=0;const result=await inspectHoldings({}, {...config,fetchImpl:async url=>{
+  if(url.pathname==='/v2/accounts')return response(JSON.stringify(inventory));
+  if(++pages===1)return response(JSON.stringify({items:[],next:{href:'/v2/holdings?accountId='+id+'&limit=25&cursor=opaque'}}));
+  return response(JSON.stringify({requestId,status:503,code:'CAPABILITY_UNAVAILABLE',title:'Capability unavailable'}),503);
+ }});const data=JSON.parse(result.content[0].text);assert.equal(data.outcome,'PARTIAL');assert.equal(data.accounts[0].complete,false);assert.equal(data.accounts[0].problems[0].code,'CAPABILITY_UNAVAILABLE');
+});

@@ -9,10 +9,24 @@ export function evidenceView(raw) {
   const rows = [], qualifications = [];
   const add = (label, item, unit) => rows.push([label, text(item) + (unit ? ` · ${unit}` : '')]);
   if (Array.isArray(value.accounts)) {
-    for (const account of value.accounts) add(account.nickname, account.broker);
-    add('Authorized Account count', value.count);
+    for (const account of value.accounts) {
+      add(account.nickname, account.broker);
+      if (Array.isArray(account.holdings)) {
+        add(`${account.nickname} inventory read`, account.complete ? 'Complete retained read' : 'Incomplete or restricted');
+        qualifications.push(...(account.warnings ?? []).map(w => w.code));
+        for (const problem of account.problems ?? []) add(`${account.nickname} access`, problem.code === 'FORBIDDEN' ? 'Holdings access denied' : problem.title ?? problem.code);
+        for (const holding of account.holdings) {
+          add(`${account.nickname} · ${holding.sourceInstrument?.identifier ?? 'Instrument unavailable'}`, holding.quantity,
+            [holding.unit, holding.side].filter(Boolean).join(' · '));
+          add('Source date', holding.observedAt ?? holding.observationDate);
+        }
+        if (account.complete && !account.holdings.length) add(`${account.nickname} holdings`, 'No retained rows returned; live custody not established');
+      }
+    }
+    if (value.count !== undefined) add('Authorized Account count', value.count);
     qualifications.push('Authorized visibility; not proof of ownership or complete brokerage coverage.');
   }
+  if (value.outcome) add('Read outcome', value.outcome);
   if (value.code) { add('Problem', value.code); add('Status', value.status); }
   const source = value.evidence?.source ?? value.evidence;
   if (source?.subject) {
