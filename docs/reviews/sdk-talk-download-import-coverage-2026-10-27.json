@@ -1,0 +1,117 @@
+{
+  "standing": "Read-only filesystem and retained-artifact hash comparison; not an admission registry",
+  "observedAt": "2026-10-27T18:56:53.119202+00:00",
+  "scope": "Top-level ~/Downloads CSVs; filesystem birth time since October19 inclusive, America/Denver",
+  "strictlyAfterOctober19": 61,
+  "downloadInventory": [
+    {
+      "directory": "/Users/bollich/Downloads",
+      "sinceInclusive": "2026-10-19T00:00:00-06:00",
+      "addedByFilesystemBirthTime": 81,
+      "modifiedSinceCutoff": 81,
+      "birthTimeAvailable": true
+    },
+    {
+      "family": "FIDELITY_ACTIVITY",
+      "files": 19,
+      "uniqueContents": 19,
+      "filesRetainedInTalkSource": 5,
+      "filesAcceptedInTalkSource": 5,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 4,
+        "2026-10-23": 2,
+        "2026-10-26": 4,
+        "2026-10-27": 3
+      }
+    },
+    {
+      "family": "FIDELITY_BALANCES",
+      "files": 19,
+      "uniqueContents": 19,
+      "filesRetainedInTalkSource": 5,
+      "filesAcceptedInTalkSource": 5,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 3,
+        "2026-10-23": 2,
+        "2026-10-26": 4,
+        "2026-10-27": 4
+      }
+    },
+    {
+      "family": "FIDELITY_OPTION_SUMMARY",
+      "files": 16,
+      "uniqueContents": 16,
+      "filesRetainedInTalkSource": 5,
+      "filesAcceptedInTalkSource": 5,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 3,
+        "2026-10-23": 2,
+        "2026-10-26": 2,
+        "2026-10-27": 3
+      }
+    },
+    {
+      "family": "FIDELITY_POSITIONS",
+      "files": 17,
+      "uniqueContents": 17,
+      "filesRetainedInTalkSource": 6,
+      "filesAcceptedInTalkSource": 6,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 3,
+        "2026-10-23": 2,
+        "2026-10-26": 2,
+        "2026-10-27": 4
+      }
+    },
+    {
+      "family": "OTHER_CSV",
+      "files": 1,
+      "uniqueContents": 1,
+      "filesRetainedInTalkSource": 0,
+      "filesAcceptedInTalkSource": 0,
+      "addedByDay": {
+        "2026-10-24": 1
+      }
+    },
+    {
+      "family": "WHEELWRIGHT_EXPORT",
+      "files": 9,
+      "uniqueContents": 9,
+      "filesRetainedInTalkSource": 0,
+      "filesAcceptedInTalkSource": 0,
+      "addedByDay": {
+        "2026-10-22": 3,
+        "2026-10-26": 4,
+        "2026-10-27": 2
+      }
+    },
+    {
+      "totalFiles": 81,
+      "uniqueContents": 81,
+      "retainedFiles": 21,
+      "acceptedFiles": 21
+    }
+  ],
+  "installedBackendMatchingFiles": 0,
+  "talkSourceMatchingFilesAfterSuppliedImport": 21,
+  "recognizableFidelityFiles": 71,
+  "recognizableFidelityFilesNotRetainedInTalkSource": 50,
+  "suppliedSawdustImportIncluded": true,
+  "bulkImportPerformed": false,
+  "protectedFinancialValuesExported": false,
+  "mechanismFindings": {
+    "existingCli": "scripts/ww-sync.mjs: syncAccount discovers local Fidelity exports only when invoked; submits to backend artifacts API",
+    "existingUpdate": "scripts/ww-update.mjs: syncAccounts invokes that account update flow",
+    "talk": "tools/talk/real-preview.mjs and TalkRetainedPreview use retained evidence and a private portfolio backup; no Downloads scan or ingestion tool",
+    "backend": "Existing POST /v2/artifacts accepts supplied files; no Downloads discovery endpoint identified in inspected v2 controllers",
+    "scopeLimit": "Two relevant running stores inspected; not a claim about every historical backup or v1 browser storage"
+  }
+}

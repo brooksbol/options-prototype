@@ -53,3 +53,12 @@ test('sequential oldest first, stop on failure, retained retry without upload, t
     assert.match(output,/COVERAGE UNKNOWN/);assert.equal(artifacts.length,3);
   }finally{await rm(dir,{recursive:true,force:true});}
 });
+
+test('combined Fidelity history discovery is Account scoped and defers admission to backend',()=>{
+ const csv='Run Date,Account,Account Number,Action,Symbol,Amount ($)\n10/27/2026,First,A1,YOU SOLD,TEST,100\n10/27/2026,Second,B2,YOU BOUGHT,OTHER,-100\n';
+ assert.equal(classifyExport('Accounts_History.csv',csv,'A1'),'ACTIVITY');
+ assert.equal(classifyExport('Accounts_History.csv',csv,'B2'),'ACTIVITY');
+ assert.equal(classifyExport('Accounts_History.csv','\n\n'+csv,'A1'),'ACTIVITY');
+ assert.equal(classifyExport('Accounts_History.csv',csv,'A11'),null);
+ assert.equal(classifyExport('Accounts_History.csv',csv,'C3'),null);
+});

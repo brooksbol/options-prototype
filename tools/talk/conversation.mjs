@@ -54,7 +54,7 @@ export function createConversation({ servers, apiKey, fetchImpl, model, onTool =
       'Only authorized real Account nicknames, broker labels and count are available. This establishes visibility, not legal ownership or complete brokerage coverage. No financial records are admitted. Resolve named Accounts using admitted discovery before calling them unresolved, even when a requested financial capability is unavailable. Each turn starts a fresh local session under the existing narrow disclosure permission.') : instructions;
   const agent = new Agent({ name: 'Wheelwright Talk', instructions: activeInstructions, mcpServers: servers,
     ...(model ? { model } : { model: MODEL }),
-    modelSettings: { store: false, reasoning: { effort: 'none' }, maxTokens: 700, parallelToolCalls: false } });
+    modelSettings: { store: false, reasoning: { effort: 'none' }, maxTokens: 4096, parallelToolCalls: false } });
   const runner = new Runner({ ...(provider ? { modelProvider: provider } : {}),
     tracingDisabled: true, traceIncludeSensitiveData: false });
   let session = new MemorySession({ sessionId: randomUUID() });
@@ -74,7 +74,7 @@ export function createConversation({ servers, apiKey, fetchImpl, model, onTool =
       if (busy) throw new Error('A turn is already running.');
       if (typeof message !== 'string' || !message.trim() || message.length > 4000)
         throw new Error('Enter a message of 1–4000 characters.');
-      if (turns >= 30) throw new Error('Start a new conversation to continue this bounded W1 session.');
+      if (turns >= 30) throw new Error('Start a new conversation to continue.');
       if (accountMetadataOnly) session = new MemorySession({ sessionId: randomUUID() });
       busy = true; currentTools = []; outcomes.clear(); turns++;
       const previousItems = await session.getItems();
@@ -92,7 +92,7 @@ export function createConversation({ servers, apiKey, fetchImpl, model, onTool =
             assistant('That request did not complete. Tool outputs, if any, remain available in the workspace.')]);
         }
         // Do not render provider error bodies or erase already completed, authorized tool results.
-        return { text: '', tools: [...currentTools], error: 'Commentary unavailable. Completed fixture results remain below.' };
+        return { text: '', tools: [...currentTools], error: 'Commentary unavailable. Completed source results remain available below.' };
       } finally { busy = false; }
     },
     reset() {

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Installed operator entry point for the SDK conversational workspace.
+set -eu
+case ${1-} in
+  '') exec open 'http://localhost:8787/' ;;
+  --help|-h) printf 'Usage: wwt [--help]\nOpen installed Wheelwright Talk at http://localhost:8787/.\n' ;;
+  *) printf 'Usage: wwt [--help]\n' >&2; exit 2 ;;
+esac

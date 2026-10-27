@@ -62,6 +62,29 @@ class BrokerageArtifactsTest {
         try (var q = store.getConnection().createStatement(); var rs = q.executeQuery("SELECT COUNT(*) FROM brokerage_ledger_observation")) { assertThat(rs.getInt(1)).isEqualTo(4); }
         assertThat(artifacts.inventory(pts, "id").artifacts()).hasSize(4);
     }
+    @Test void combinedActivityScopesRowsPreservesOriginalAndReusesLegacyRowEquivalence() throws Exception {
+        String legacy="Run Date,Action,Symbol,Amount ($)\n10/01/2026,YOU BOUGHT,SPY,-100\n10/01/2026,YOU BOUGHT,SPY,-100\n";
+        assertThat(artifacts.ingest(pts,"History_for_Account_A1.csv","ACTIVITY",bytes(legacy),"r").status()).isEqualTo("ACCEPTED");
+        String combined="Run Date,Account,Account Number,Action,Symbol,Amount ($)\n10/01/2026,First,A1,YOU BOUGHT,SPY,-100\n10/01/2026,Other,B2,YOU SOLD,QQQ,200\n10/01/2026,First,A1,YOU BOUGHT,SPY,-100\n10/02/2026,First,A1,YOU SOLD,SPY,110\n";
+        assertThat(artifacts.sourceScopes(pts,"Accounts_History.csv",bytes(combined)).accountIds()).containsExactlyInAnyOrder(pts,sawdust);
+        var imported=artifacts.ingest(pts,"Accounts_History.csv","ACTIVITY",bytes(combined),"r");
+        assertThat(imported.status()).isEqualTo("ACCEPTED");assertThat(imported.result()).contains("added=1", "matches=2", "explicit per-row");
+        assertThat(artifacts.content(pts,imported.artifactId()).orElseThrow()).containsExactly(bytes(combined));
+        assertThat(artifacts.ingest(sawdust,"Accounts_History.csv","ACTIVITY",bytes(combined),"r").status()).isEqualTo("ACCEPTED");
+        try(var q=store.getConnection().createStatement();var r=q.executeQuery("select account,count(*) from brokerage_ledger_observation group by account")) {
+            var counts=new HashMap<String,Integer>();while(r.next())counts.put(r.getString(1),r.getInt(2));assertThat(counts).containsEntry(pts,3).containsEntry(sawdust,1);
+        }
+        var mvc=MockMvcBuilders.standaloneSetup(new ArtifactsController(artifacts,auth("one=reader:account.artifacts.read:pts,both=reader2:account.artifacts.read:pts|account.artifacts.read:sawdust"),mapper)).build();
+        String path="/v2/artifacts/"+imported.artifactId()+"/content";
+        assertThat(mvc.perform(get(path).header("Authorization","Bearer one")).andReturn().getResponse().getStatus()).isEqualTo(403);
+        assertThat(mvc.perform(get(path).header("Authorization","Bearer both")).andReturn().getResponse().getStatus()).isEqualTo(200);
+        var unknown=combined.replace(",B2,",",UNBOUND,");var unknownImport=artifacts.ingest(pts,"Accounts_History.csv","ACTIVITY",bytes(unknown),"r");
+        assertThat(unknownImport.status()).isEqualTo("ACCEPTED");
+        assertThat(artifacts.sourceScopes(pts,"Accounts_History.csv",bytes(unknown)).established()).isFalse();
+        assertThat(mvc.perform(get("/v2/artifacts/"+unknownImport.artifactId()+"/content").header("Authorization","Bearer both")).andReturn().getResponse().getStatus()).isEqualTo(403);
+        assertThat(artifacts.ingest(pts,"Accounts_History.csv","ACTIVITY",bytes(combined.replace(",B2,",",,")),"r").status()).isEqualTo("REJECTED");
+        assertThat(artifacts.sourceScopes(pts,"Accounts_History.csv",bytes(combined+"The data is provided for informational purposes only.\n10/03/2026,Hidden,B2,YOU SOLD,QQQ,3\n")).established()).isFalse();
+    }
     @Test void collectionAuthorizationPrecedesEvidenceStorage() throws Exception {
         var mock=mock(BrokerageArtifacts.class);
         var mvc=MockMvcBuilders.standaloneSetup(new ArtifactsController(mock,auth("read=reader:account.artifacts.read:pts,write=writer:account.artifacts.write:pts"),mapper)).build();

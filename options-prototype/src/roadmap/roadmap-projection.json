@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-27T18:45:15.128Z",
+    "generatedAt": "2026-10-27T19:13:08.822Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 50,
+      "bugTotal": 51,
       "logTotal": 121,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -11274,6 +11274,88 @@
           "level": 3,
           "content": "Principal: “there's a rendering failure. I still see a large green box of noise and i see raw, unrendered md in the answer”. Inspection of the requested latest Desktop screenshot confirms that the remaining expanded card is the **holdings** result, not the bounded balance card. The answer contains literal heading/table/list markup. Protected screenshot pixels and holdings are not copied into repository evidence.\n\nThe prior candidate's presentation correction was incomplete: only balances received a compact view; all other tools still eagerly displayed every typed source row and qualification. The conversation renderer recognized bold text alone. Passing balance tests did not establish general conversational rendering coverage.",
           "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-053",
+      "title": "Talk operational Account evidence is disconnected from imports and read grants",
+      "area": "SDK Talk / v2 evidence / Fidelity admission",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-053-talk-operational-account-evidence-disconnect.md",
+      "provenance": "Principal real-data trials and production direction 2026-10-27",
+      "recordTitle": "BUG-053 — Talk operational Account evidence is disconnected from imports and read grants",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Talk reported old Sawdust custody despite newer Downloads exports. PTS/tt1 holdings and tt1 balances were denied because corresponding backend read grants were absent. After authorized holdings access, a successful inventory tool result still failed conversational narration.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The real-data Product must use legitimate backend read permissions and qualified source observations. A current operator question must not silently use a disconnected October19 store when newer supplied evidence can be admitted through an existing backend path.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[Existing runtime receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md), [Downloads comparison](../reviews/sdk-talk-download-import-coverage-2026-10-27.json), [Sawdust original reconciliation](../reviews/sdk-talk-sawdust-import-reconciliation-2026-10-27.json), [CSV submissions](../reviews/sdk-talk-fidelity-csv-reconciliation-2026-10-27.json), [actual SDK read with narration failure](../reviews/sdk-talk-authorized-inventory-retest-2026-10-27.json). Private originals and grants are not copied here.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Incomplete/outdated operator answers despite available recent files; denials and model output failures can be mistaken for absent brokerage evidence. Severity is not ratified.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The preview used a separate retained store and private portfolio copy; no update flow connected new downloads. Existing CLI discovery was not invoked. Combined Accounts_History envelopes lacked row-attributed Activity admission. Distinct per-Account grants were absent. A700-token SDK output cap truncated a full inventory answer after successful reads.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Principal authorized the specified read grants, supplied-file/catch-up imports and production installation. Reuse existing backend financial meaning, original retention, explicit Account boundaries and SDK/MCP architecture. No trades, foreign Account grants, inferred ownership, universal financial semantics or automatic background Downloads ingestion policy.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- PTS/tt1 holdings and tt1 balance reads enforce approved live grants without other permission changes.\n- Current supplied Sawdust security quantities/sides match backend output and retain source dates/unknowns.\n- All eligible discovered Fidelity files are accounted for; unsupported/foreign scope remains explicit.\n- Combined histories admit only bound Account rows, preserve originals, deny insufficiently authorized original reads and avoid new row-equivalence identities merely from envelope Account columns.\n- SDK finishes the operator question with bounded adequate output capacity and truthful qualifications.\n- Main source and installed runtime use operational evidence directly; v1 remains intact; no acceptance/reviewer approval invented.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Ordinary corrections and operational data/grant changes authorized October27. Production delivery in progress; final revision/verification is recorded in the existing runtime receipt.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Targeted admission/security/row-equivalence checks pass at development source. Actual grant reads and Sawdust reconciliation pass. Output-cap diagnosis and real-model correction pass. Combined/main/installed checks pending; record remains Open.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "PL-MCP-01; ADR-024; BUG-052 covers source/Markdown presentation separately.",
+          "truncated": false,
           "tables": []
         }
       ]

@@ -140,8 +140,9 @@ public class BrokerageArtifacts {
         boolean summary = summaryAccount(initial) != null;
         var named = NAMED_ACCOUNT.matcher(filename);
         boolean activity = initial.containsAll(ACTIVITY_COLUMNS);
+        boolean accountActivity = activity && initial.containsAll(List.of("Account", "Account Number"));
         boolean balances = initial.containsAll(BALANCE_COLUMNS);
-        if (!positions && !summary) {
+        if (!positions && !summary && !accountActivity) {
             if (initial.contains("Account number") || !named.matches() || !(activity && named.group(1).equals("History") || balances && named.group(1).equals("Balances")))
                 return Set.of();
             ids.add(named.group(2));
@@ -174,8 +175,8 @@ public class BrokerageArtifacts {
             }
             if (header == null || row.size() < header.size()
                     || row.subList(header.size(), row.size()).stream().anyMatch(v -> !v.isBlank())) return Set.of();
-            if (positions) {
-                String account = row.get(header.indexOf("Account number")).trim();
+            if (positions || accountActivity) {
+                String account = row.get(header.indexOf(positions ? "Account number" : "Account Number")).trim();
                 if (!account.matches("[A-Z0-9]+")) return Set.of();
                 ids.add(account);
             }
@@ -254,11 +255,20 @@ public class BrokerageArtifacts {
                 positions.admit(s);
                 result = "Position snapshot admitted: " + s.snapshotId() + "; source date " + s.evidenceDate() + "; " + s.holdings().size() + " holdings; ledger unchanged";
             } else {
-                // Only Positions currently has row-level multi-account attribution.
-                // Preserve other mixed originals, but never admit unscoped rows.
-                var scope = sourceScopes(account, filename, content(account, id).orElseThrow());
-                if (!scope.established() || !scope.accountIds().equals(Set.of(account)))
-                    throw new IllegalArgumentException("unsupported mixed-account row attribution");
+                // Like Positions, combined activity may admit only the target's explicit
+                // rows even when foreign Accounts are unregistered. Original-byte disclosure
+                // still requires established grants for every represented source Account.
+                var parsed = FidelityPositions.csv(text.replaceFirst("^\\uFEFF", ""));
+                var initial = parsed.stream().filter(r -> r.stream().anyMatch(v -> !v.isBlank())).findFirst().orElse(List.of());
+                boolean rowActivity = type.equals("ACTIVITY") && initial.containsAll(List.of("Account", "Account Number"));
+                if (rowActivity) {
+                    if (!sourceBrokerIds(filename, parsed).contains(brokerAccount(account)))
+                        throw new IllegalArgumentException("unsupported Account row attribution");
+                } else {
+                    var scope = sourceScopes(account, filename, content(account, id).orElseThrow());
+                    if (!scope.established() || !scope.accountIds().equals(Set.of(account)))
+                        throw new IllegalArgumentException("unsupported mixed-account row attribution");
+                }
                 result = admitRows(account, id, filename, type, text);
             }
         } catch (Exception e) {
@@ -282,11 +292,13 @@ public class BrokerageArtifacts {
                 type.equals("OPTION_SUMMARY") && row.containsAll(List.of("Symbol", "Strategy", "Expiration & Strike", "Quantity"))) { header = i; break; }
         }
         if (header < 0) throw new IllegalArgumentException("unsupported export shape");
-        // Some Fidelity exports omit account identity in content. Preserve the filename attribution explicitly.
-        if (type.equals("OPTION_SUMMARY") ? !text.contains("Option Summary " + broker) :
-                !filename.matches("(?:History|Balances)_for_Account_" + broker + "(?:[- (].*)?\\.csv"))
+        var headers = rows.get(header);
+        boolean rowActivity = type.equals("ACTIVITY") && headers.containsAll(List.of("Account", "Account Number"));
+        // Combined activity uses explicit row identity; legacy exports retain filename attribution.
+        if (!rowActivity && (type.equals("OPTION_SUMMARY") ? !text.contains("Option Summary " + broker) :
+                !filename.matches("(?:History|Balances)_for_Account_" + broker + "(?:[- (].*)?\\.csv")))
             throw new IllegalArgumentException("account attribution mismatch");
-        var headers = rows.get(header); var occurrences = new HashMap<String, Integer>();
+        var occurrences = new HashMap<String, Integer>();
         int count = 0, newRows = 0, matches = 0;
         try (var c = DriverManager.getConnection(url)) {
             c.setAutoCommit(false);
@@ -299,6 +311,12 @@ public class BrokerageArtifacts {
                     if (row.size() < headers.size()) throw new IllegalArgumentException("truncated source row");
                     var observed = new TreeMap<String, String>();
                     for (int col = 0; col < headers.size(); col++) observed.put(headers.get(col), row.get(col).trim());
+                    if (rowActivity) {
+                        if (!broker.equals(observed.get("Account Number"))) continue;
+                        // Account identity is scoped separately. Preserve existing row-equivalence
+                        // fingerprints across single-Account and combined export envelopes.
+                        observed.remove("Account"); observed.remove("Account Number");
+                    }
                     String json = mapper.writeValueAsString(observed);
                     if (type.equals("ACTIVITY")) {
                         java.time.LocalDate.parse(observed.get("Run Date").replace('-', '/'), java.time.format.DateTimeFormatter.ofPattern("M/d/uuuu")
@@ -319,6 +337,7 @@ public class BrokerageArtifacts {
         return count + " broker evidence rows admitted; ledger observations added=" + newRows + ", exact matches=" + matches +
                 ". History coverage UNKNOWN; corrections and lifecycle reconciliation not established." +
                 (type.equals("OPTION_SUMMARY") ? " Broker strategy presentation is not Position identity or share-ownership authority." :
+                        rowActivity ? " Account attribution uses explicit per-row Account Number; foreign rows are not admitted." :
                         " Account attribution uses original filename (content omits account identifier).");
     }
     public Inventory inventory(String account, String requestId) throws Exception {

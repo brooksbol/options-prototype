@@ -57,6 +57,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-048 | Empty-composition zero reference violates Metric evidence constraint | Holdings API v2 | S3 | Open | [record](BUG-048-empty-composition-zero-reference-schema.md) | Pre-existing installed-data schema failure; prior-JAR replay confirmed, October22 |
 | BUG-049 | Account metadata exposes full brokerage account numbers | API v2 Account discovery | Not established | Open | [record](BUG-049-api-v2-account-discovery-full-number-disclosure.md) | Independently accepted; matching backend/client installed; Principal operator acceptance pending |
 | BUG-052 | Talk balance answer retrieves and displays retained history | API v2 / MCP / SDK Talk | Not established | Open | [record](BUG-052-talk-balance-history-overretrieval.md) | Principal report 2026-10-27; bounded candidate retest |
+| BUG-053 | Talk operational Account evidence is disconnected from imports and read grants | SDK Talk / v2 evidence / Fidelity admission | Not established | Open | [record](BUG-053-talk-operational-account-evidence-disconnect.md) | Principal real-data trials and production direction 2026-10-27 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
