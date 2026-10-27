@@ -1339,6 +1339,63 @@ Muse tier F currently also contains unresolved observation failures: the preserv
 
 Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.
 
+### `PL-EVID-OBS` Refinement — Operator symbol-level options-liquidity question
+
+**Date:** October 27, 2026
+**State:** INTAKE refinement — no new `PL-*` identity created; documentation-only intake authorized by the Principal ("principal authrorizes", Option A). Not RECONCILED; no implementation, Product policy, ranking rule or measurement methodology is ratified.
+
+**What was discovered.** The operator wants to know which symbols have the most liquid options markets right now. That is a different question from the accepted v1 contract-level Liquidity grade, which answers whether one particular contract is liquid. This refinement preserves the problem definition. It deliberately does not commit to a measurement method.
+
+**Trigger and provenance:**
+- **Original operator question:** in the SDK Talk W1 preview, the Principal asked "what are the most liquid etfs and indexes right now?" and then "a combination of chain depth, trading volume, and tight spreads. score the top ten accordingly, starting with tight spreads as the first parameter". This is recorded in the [SDK Talk delivery plan](implementation/pl-mcp-01-sdk-talk-delivery-plan-2026-10-25.md#w1-operator-reported-observation--liquidity-question) under `PL-MCP-01`.
+- **v1 precedent:** the Principal-accepted contract Liquidity grade (`17b0e60b`, sort corrected by BUG-051 at `8ec2d5fb`). It is a weakest-link grade between spread % and open interest on Deployment rows, for display and sorting only, with provisional cutoffs. It stays in that role unchanged.
+- **Reviewer framing:** Principal-relayed reviewer feedback (apparently ChatGPT, judging by its citation links) proposed a two-level model, symbol and contract. Kiro's review supplied two of the measurement boundaries below. The reviewer then proposed preserving three distinct questions. The Principal authorized recording all of this as documentation only.
+
+**Three questions, not to be collapsed into one score:**
+
+| Question | Scope |
+|---|---|
+| Is this contract liquid? | Individual contract (v1 grade exists) |
+| How liquid is this symbol's observable options market? | Symbol, within observed coverage |
+| How many executable opportunities does this market offer for my strategy? | Symbol × strategy × regime |
+
+Symbol-level liquidity is **not** the same as the number of executable, strategy-compatible opportunities. That distinction matters once Talk answers questions about selecting underlyings. A highly liquid symbol may be unproductive for the Income Wheel, and a structurally thinner one may still offer usable local surfaces. This is consistent with H2b above and with the 84-symbol contradiction.
+
+**Measurement boundaries already established (Kiro, source-confirmed October 27, 2026):**
+1. **Acquisition window.** The appliance acquires chains only for expirations from 7 to 45 days out (`SqliteEvidenceStore.getEligibleExpirations`, `MIN_DTE = 7`, `MAX_DTE = 45`). Any symbol-level measure describes that observed window, not the symbol's whole options market. Widening it would be a separate acquisition decision.
+2. **No historical options-volume series.** Only the latest chain payload is retained, and the only appended time series is underlying spot (`spot_history`). Current-session option volume exists, but historical average option volume does not. Underlying share volume or AUM must not stand in for it (synthesis red flag 6).
+3. **Comparable freshness.** Cross-symbol comparisons from chains of different ages are not comparable. Each measure needs its own observation time and must disclose whether it came from refreshed or retained evidence.
+4. **v2 placement.** API v2 has no chain or option-surface read capability today. Any v2 symbol-liquidity capability would be backend-owned (Doc 77) and designed holistically (`PRIN-ARCH-HOLISTIC-DOMAIN-API`).
+
+**Unresolved (Principal Product meaning required):**
+- What "spreads first" and "chain depth" mean precisely.
+- Which days-to-expiration and moneyness ranges count as comparable.
+- What counts as a tight spread, adequate open interest and meaningful volume.
+- Whether component measurements alone are enough, or whether a composite is ever warranted. The guardrail above against a scalar structural-liquidity score still applies.
+- Whether the observation window should widen.
+- Whether option-volume history should be retained (`PL-EVID-01`, `AR8`).
+
+**Related, not double-booked:**
+- `PL-MCP-01`: owns the Talk question and its answer form.
+- `PL-EVID-01`: historical observation substrate.
+- `PL-EVID-AGE`: freshness and provenance.
+- `PL-ARCH-06`: browser-local v1 engines.
+- `AR5`: separating eligibility, acceptability and comparative fitness.
+- Roadmap North Star (question-driven design) and the Trade Finder CSP specimen, which names underlying selection and liquidity.
+
+Proposed strategic disposition: no roadmap change. Proposed architectural disposition: no architecture-roadmap change; pressure is noted under `AR5`/`AR8`. Both remain proposals until reconciliation.
+
+**Explicitly not authorized:**
+- Any implementation, including v1 Deployment symbol-coverage columns. That option was deliberately deferred so a provisional metric does not look authoritative just because it appears in the application.
+- Any v2 API or MCP capability.
+- Any ranking, threshold or composite score.
+- Any change to acquisition scope or retention.
+- Any universe, servicing or suitability policy.
+
+**Why-state:** this record, the linked Talk plan entry, the October 27, 2026 journal entries on the contract Liquidity grade (`docs/journal/project-journal-5.md`), and the synthesis document above. No additional record required.
+
+**Next mode:** Principal Product definition of the open questions, then design. No work is authorized now.
+
 
 ---
 

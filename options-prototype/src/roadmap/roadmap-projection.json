@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-27T18:29:48.619Z",
+    "generatedAt": "2026-10-27T18:45:01.346Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -34,7 +34,7 @@
       },
       "arTotal": 10,
       "plTotal": 76,
-      "plWithExplicitRelationship": 9,
+      "plWithExplicitRelationship": 10,
       "graduatedTotal": 29,
       "adrTotal": 24,
       "priorityTotal": 10,
@@ -42,7 +42,7 @@
       "principleTotal": 11,
       "domainEntryTotal": 36,
       "bugTotal": 51,
-      "logTotal": 121,
+      "logTotal": 122,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 62
@@ -3384,7 +3384,10 @@
       "state": "INTAKE / ACTIVE RESEARCH — evidence-preserving investigation only; no universe, servicing, suitability, scheduler, or Product policy change authorized",
       "sourceFile": "parking-lot-9.md",
       "relatedLvtIds": [],
-      "relatedArIds": [],
+      "relatedArIds": [
+        "AR5",
+        "AR8"
+      ],
       "sections": [
         {
           "heading": "",
@@ -3472,9 +3475,37 @@
         {
           "heading": "Next authorized research action",
           "level": 3,
-          "content": "Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.\n\n\n---",
+          "content": "Continue bounded research by receiving and preserving the blind Muse 84-symbol follow-on, then build the longitudinal 2×2 derived crosswalk from Wheelwright historical observations plus the mirror strong-structure/little-or-no-usefulness cohort. Preserve usefulness frequency, recency, strategy provenance, acquisition cost, contemporaneous executability, temporal structural quality, and evidence quality separately. Do not promote findings to universe, servicing, suitability, scheduler, or Product policy without a later governed decision.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "`PL-EVID-OBS` Refinement — Operator symbol-level options-liquidity question",
+          "level": 3,
+          "content": "**What was discovered.** The operator wants to know which symbols have the most liquid options markets right now. That is a different question from the accepted v1 contract-level Liquidity grade, which answers whether one particular contract is liquid. This refinement preserves the problem definition. It deliberately does not commit to a measurement method.\n\n**Trigger and provenance:**\n- **Original operator question:** in the SDK Talk W1 preview, the Principal asked \"what are the most liquid etfs and indexes right now?\" and then \"a combination of chain depth, trading volume, and tight spreads. score the top ten accordingly, starting with tight spreads as the first parameter\". This is recorded in the [SDK Talk delivery plan](implementation/pl-mcp-01-sdk-talk-delivery-plan-2026-10-25.md#w1-operator-reported-observation--liquidity-question) under `PL-MCP-01`.\n- **v1 precedent:** the Principal-accepted contract Liquidity grade (`17b0e60b`, sort corrected by BUG-051 at `8ec2d5fb`). It is a weakest-link grade between spread % and open interest on Deployment rows, for display and sorting only, with provisional cutoffs. It stays in that role unchanged.\n- **Reviewer framing:** Principal-relayed reviewer feedback (apparently ChatGPT, judging by its citation links) proposed a two-level model, symbol and contract. Kiro's review supplied two of the measurement boundaries below. The reviewer then proposed preserving three distinct questions. The Principal authorized recording all of this as documentation only.\n\n**Three questions, not to be collapsed into one score:**\n\n\nSymbol-level liquidity is **not** the same as the number of executable, strategy-compatible opportunities. That distinction matters once Talk answers questions about selecting underlyings. A highly liquid symbol may be unproductive for the Income Wheel, and a structurally thinner one may still offer usable local surfaces. This is consistent with H2b above and with the 84-symbol contradiction.\n\n**Measurement boundaries already established (Kiro, source-confirmed October 27, 2026):**\n1. **Acquisition window.** The appliance acquires chains only for expirations from 7 to 45 days out (`SqliteEvidenceStore.getEligibleExpirations`, `MIN_DTE = 7`, `MAX_DTE = 45`). Any symbol-level measure describes that observed window, not the symbol's whole options market. Widening it would be a separate acquisition decision.\n2. **No historical options-volume series.** Only the latest chain payload is retained, and the only appended time series is underlying spot (`spot_history`). Current-session option volume exists, but historical average option volume does not. Underlying share volume or AUM must not stand in for it (synthesis red flag 6).\n3. **Comparable freshness.** Cross-symbol comparisons from chains of different ages are not comparable. Each measure needs its own observation time and must disclose whether it came from refreshed or retained evidence.\n4. **v2 placement.** API v2 has no chain or option-surface read capability today. Any v2 symbol-liquidity capability would be backend-owned (Doc 77) and designed holistically (`PRIN-ARCH-HOLISTIC-DOMAIN-API`).\n\n**Unresolved (Principal Product meaning required):**\n- What \"spreads first\" and \"chain depth\" mean precisely.\n- Which days-to-expiration and moneyness ranges count as comparable.\n- What counts as a tight spread, adequate open interest and meaningful volume.\n- Whether component measurements alone are enough, or whether a composite is ever warranted. The guardrail above against a scalar structural-liquidity score still applies.\n- Whether the observation window should widen.\n- Whether option-volume history should be retained (`PL-EVID-01`, `AR8`).\n\n**Related, not double-booked:**\n- `PL-MCP-01`: owns the Talk question and its answer form.\n- `PL-EVID-01`: historical observation substrate.\n- `PL-EVID-AGE`: freshness and provenance.\n- `PL-ARCH-06`: browser-local v1 engines.\n- `AR5`: separating eligibility, acceptability and comparative fitness.\n- Roadmap North Star (question-driven design) and the Trade Finder CSP specimen, which names underlying selection and liquidity.\n\nProposed strategic disposition: no roadmap change. Proposed architectural disposition: no architecture-roadmap change; pressure is noted under `AR5`/`AR8`. Both remain proposals until reconciliation.\n\n**Explicitly not authorized:**\n- Any implementation, including v1 Deployment symbol-coverage columns. That option was deliberately deferred so a provisional metric does not look authoritative just because it appears in the application.\n- Any v2 API or MCP capability.\n- Any ranking, threshold or composite score.\n- Any change to acquisition scope or retention.\n- Any universe, servicing or suitability policy.\n\n**Why-state:** this record, the linked Talk plan entry, the October 27, 2026 journal entries on the contract Liquidity grade (`docs/journal/project-journal-5.md`), and the synthesis document above. No additional record required.\n\n**Next mode:** Principal Product definition of the open questions, then design. No work is authorized now.\n\n\n---",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Question",
+                "Scope"
+              ],
+              "rows": [
+                [
+                  "Is this contract liquid?",
+                  "Individual contract (v1 grade exists)"
+                ],
+                [
+                  "How liquid is this symbol's observable options market?",
+                  "Symbol, within observed coverage"
+                ],
+                [
+                  "How many executable opportunities does this market offer for my strategy?",
+                  "Symbol × strategy × regime"
+                ]
+              ]
+            }
+          ]
         }
       ]
     },
@@ -11614,7 +11645,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 697
+      "sourceOrder": 698
     },
     {
       "plId": null,
@@ -11757,7 +11788,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 669
+      "sourceOrder": 670
     },
     {
       "plId": null,
@@ -11770,7 +11801,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 670
+      "sourceOrder": 671
     },
     {
       "plId": null,
@@ -11783,7 +11814,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 671
+      "sourceOrder": 672
     },
     {
       "plId": null,
@@ -11796,7 +11827,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 674
+      "sourceOrder": 675
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -11822,7 +11853,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 672
+      "sourceOrder": 673
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -12004,7 +12035,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 652
+      "sourceOrder": 653
     },
     {
       "plId": null,
@@ -12017,7 +12048,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 653
+      "sourceOrder": 654
     },
     {
       "plId": null,
@@ -12030,7 +12061,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 654
+      "sourceOrder": 655
     },
     {
       "plId": null,
@@ -12043,7 +12074,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 655
+      "sourceOrder": 656
     },
     {
       "plId": null,
@@ -12056,7 +12087,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 656
+      "sourceOrder": 657
     },
     {
       "plId": null,
@@ -12069,7 +12100,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 657
+      "sourceOrder": 658
     },
     {
       "plId": null,
@@ -12082,7 +12113,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 658
+      "sourceOrder": 659
     },
     {
       "plId": null,
@@ -12095,7 +12126,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 659
+      "sourceOrder": 660
     },
     {
       "plId": null,
@@ -12108,7 +12139,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 660
+      "sourceOrder": 661
     },
     {
       "plId": null,
@@ -12121,7 +12152,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 661
+      "sourceOrder": 662
     },
     {
       "plId": null,
@@ -12134,7 +12165,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 662
+      "sourceOrder": 663
     },
     {
       "plId": null,
@@ -12147,7 +12178,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 663
+      "sourceOrder": 664
     },
     {
       "plId": null,
@@ -12160,7 +12191,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 664
+      "sourceOrder": 665
     },
     {
       "plId": null,
@@ -12173,7 +12204,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 665
+      "sourceOrder": 666
     },
     {
       "plId": null,
@@ -12186,7 +12217,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 666
+      "sourceOrder": 667
     },
     {
       "plId": null,
@@ -12199,7 +12230,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 667
+      "sourceOrder": 668
     },
     {
       "plId": null,
@@ -12212,7 +12243,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 668
+      "sourceOrder": 669
     },
     {
       "plId": null,
@@ -12225,7 +12256,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 673
+      "sourceOrder": 674
     },
     {
       "plId": null,
@@ -12238,7 +12269,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 696
+      "sourceOrder": 697
     },
     {
       "plId": "PL-SEM-01",
@@ -12329,7 +12360,7 @@
       "state": "INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 440
+      "sourceOrder": 441
     },
     {
       "plId": "PL-SEM-01",
@@ -12368,7 +12399,7 @@
       "state": "REFINEMENT — Principal-directed thread capture and intake reconciliation completed; no new PL identity, no new LVT identity, no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 449
+      "sourceOrder": 450
     },
     {
       "plId": "PL-BETA-01",
@@ -12381,7 +12412,7 @@
       "state": "RECONCILED intake — Principal-directed durable capture of the trusted-evaluator operating model; no private-beta agreement is yet lawyer-reviewed and no multi-user implementation is authorized by this record",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 465
+      "sourceOrder": 466
     },
     {
       "plId": "PL-OPS-CSV-01",
@@ -12394,7 +12425,7 @@
       "state": "RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 475
+      "sourceOrder": 476
     },
     {
       "plId": null,
@@ -12407,7 +12438,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 675
+      "sourceOrder": 676
     },
     {
       "plId": null,
@@ -12420,7 +12451,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 676
+      "sourceOrder": 677
     },
     {
       "plId": "PL-SETUP-01",
@@ -12433,7 +12464,7 @@
       "state": "RECONCILED intake — original September 26 setup/configuration discovery. See the explicitly dated September 27 and September 28 continuations below for the later Program, ATTACH implementation, rejected identity claim, bounded continuity ratification, and rejected technical design. No setup wizard or broader governance semantics are authorized by this item.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 482
+      "sourceOrder": 483
     },
     {
       "plId": "PL-DEC-RES-01",
@@ -12446,7 +12477,7 @@
       "state": "RECONCILED / ARCHITECTURE RATIFIED — ADR-021 and Doc 67 establish the bounded semantic contract; implementation remains held pending a separate bounded handoff",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 488
+      "sourceOrder": 489
     },
     {
       "plId": null,
@@ -12459,7 +12490,7 @@
       "state": "INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 496
+      "sourceOrder": 497
     },
     {
       "plId": "PL-CLI-01",
@@ -12472,7 +12503,7 @@
       "state": "Bounded first slice authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 507
+      "sourceOrder": 508
     },
     {
       "plId": "PL-CLI-01",
@@ -12485,7 +12516,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 508
+      "sourceOrder": 509
     },
     {
       "plId": "PL-CLI-01",
@@ -12498,7 +12529,7 @@
       "state": "Bounded bare-fetch experiment authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 518
+      "sourceOrder": 519
     },
     {
       "plId": "PL-OPS-10",
@@ -12511,7 +12542,7 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 528
+      "sourceOrder": 529
     },
     {
       "plId": "PL-CLI-01",
@@ -12524,7 +12555,7 @@
       "state": "Principal-authorized bounded CLI migration; implemented locally with deterministic verification, not independent Product acceptance or remote-main promotion.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 522
+      "sourceOrder": 523
     },
     {
       "plId": "PL-CLI-01",
@@ -12537,7 +12568,7 @@
       "state": "RECONCILED — Principal-ratified bounded Product contract; specification/OAS complete; no runtime implementation or push authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 523
+      "sourceOrder": 524
     },
     {
       "plId": "PL-CLI-01",
@@ -12550,7 +12581,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 524
+      "sourceOrder": 525
     },
     {
       "plId": "PL-API-02",
@@ -12563,7 +12594,7 @@
       "state": "PARTIALLY RESOLVED — bounded API v2 documentation Product accepted; Steps 1–5 complete and verified October 15, 2026. Original broader HTTP-boundary/domain reconciliation remains DEFERRED; no backend/domain redesign authorized.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 529
+      "sourceOrder": 530
     },
     {
       "plId": "PL-API-03",
@@ -12576,7 +12607,7 @@
       "state": "First POST direct-quote contract ratified and implemented on accepted main; bounded GET held-discovery Product contract ratified and specified, not implemented. Broader API capability work remains INTAKE; no runtime work authorized by this specification.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 538
+      "sourceOrder": 539
     },
     {
       "plId": "PL-API-03",
@@ -12589,7 +12620,7 @@
       "state": "RECONCILED — Principal-selected GET /v2/quotes contract specified; Doc 78 bounded ambiguity self-review complete; no Kiro/runtime implementation begun.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 539
+      "sourceOrder": 540
     },
     {
       "plId": "PL-CLI-01",
@@ -12602,7 +12633,7 @@
       "state": "IMPLEMENTABLE — Principal accepted bounded collection inspection, horizontal all-fields tables, explicit formats, public-field sorting/absolute/direction/limit, truthful partial ranking and human formatting, and authorized exact generic filter grammar design plus implementation/verification/documentation/commit/push.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 541
+      "sourceOrder": 542
     },
     {
       "plId": "PL-CLI-01",
@@ -12615,7 +12646,7 @@
       "state": "IMPLEMENTED / VERIFIED / PRINCIPAL ACCEPTED — current bounded CLI/table presentation through `506fd0a23a2d192950f9d15c0a81ab76365e6741` was manually accepted after screenshot review; independent review is separate.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 542
+      "sourceOrder": 543
     },
     {
       "plId": null,
@@ -12628,7 +12659,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 677
+      "sourceOrder": 678
     },
     {
       "plId": null,
@@ -12641,7 +12672,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 678
+      "sourceOrder": 679
     },
     {
       "plId": null,
@@ -12654,26 +12685,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 679
+      "sourceOrder": 680
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 680
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -12685,6 +12703,19 @@
     {
       "plId": null,
       "bugId": "BUG-031",
+      "title": "Post-resolution validation — 2026-10-05",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 682
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
       "title": "Principal acceptance and closure — 2026-10-05",
       "eventKind": "remediation",
       "establishesIntake": false,
@@ -12693,7 +12724,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 682
+      "sourceOrder": 683
     },
     {
       "plId": null,
@@ -12706,7 +12737,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 683
+      "sourceOrder": 684
     },
     {
       "plId": null,
@@ -12719,7 +12750,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 684
+      "sourceOrder": 685
     },
     {
       "plId": null,
@@ -12732,7 +12763,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 685
+      "sourceOrder": 686
     },
     {
       "plId": null,
@@ -12745,7 +12776,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 686
+      "sourceOrder": 687
     },
     {
       "plId": null,
@@ -12758,7 +12789,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 687
+      "sourceOrder": 688
     },
     {
       "plId": null,
@@ -12771,7 +12802,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 688
+      "sourceOrder": 689
     },
     {
       "plId": "PL-STRAT-01",
@@ -12784,7 +12815,7 @@
       "state": "RECONCILED — authorized bounded research experiment; no strategy admission, live trading policy, or options implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 549
+      "sourceOrder": 550
     },
     {
       "plId": "PL-STRAT-01",
@@ -12797,7 +12828,7 @@
       "state": "IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 550
+      "sourceOrder": 551
     },
     {
       "plId": "PL-STRAT-01",
@@ -12810,7 +12841,7 @@
       "state": "RECONCILED — Principal accepts FAIL for the tested tactical candidate; broader strategy remains unproven; no further implementation or Test 2 authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 551
+      "sourceOrder": 552
     },
     {
       "plId": null,
@@ -12823,7 +12854,7 @@
       "state": "ACCEPTED — Principal explicitly reported acceptance PASSED for the bounded Account discovery, CSV synchronization and Position inspection slice.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 554
+      "sourceOrder": 555
     },
     {
       "plId": "PL-CONV-01",
@@ -12836,7 +12867,7 @@
       "state": "IMPLEMENTED — R2 independently verified, deployed and Principal functionally/visually accepted; Step 6 unstarted and unauthorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 592
+      "sourceOrder": 593
     },
     {
       "plId": null,
@@ -12849,7 +12880,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 689
+      "sourceOrder": 690
     },
     {
       "plId": null,
@@ -12862,7 +12893,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 690
+      "sourceOrder": 691
     },
     {
       "plId": null,
@@ -12875,7 +12906,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 691
+      "sourceOrder": 692
     },
     {
       "plId": null,
@@ -12888,7 +12919,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 692
+      "sourceOrder": 693
     },
     {
       "plId": null,
@@ -12901,7 +12932,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 693
+      "sourceOrder": 694
     },
     {
       "plId": "PL-EVID-04",
@@ -12914,7 +12945,7 @@
       "state": "bounded audit completed; protocol DRAFT; data feasibility UNRESOLVED; Muse research PENDING. EVA-001 is an experimental research identity under existing Market-Priced Risk, not a new Product subsystem or parallel backlog. The physical-expectancy extension is an unaccepted research hypothesis, not promotion of the original exploratory foundation into architecture.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 601
+      "sourceOrder": 602
     },
     {
       "plId": "PL-EVID-04",
@@ -12927,7 +12958,7 @@
       "state": "first Muse report received (report dated October 15 UTC); remaining research pending; protocol unchanged. Codex directly checked the published Goyal–Saretto paper/linked appendix, Option Alpha study/methodology and Bliss–Panigirtzoglou working paper. [Round-one verification](research/eva-001/ROUND-1-VERIFICATION.md) records scope limits, an incorrect transformation direction and evidence-grade corrections. Net returns versus factor alpha and empirical calibration versus pricing consistency remain distinct. The current experiment draft tests entry forecasts under fixed exits; lifecycle action comparison is a separate unresolved scope. No economic run or independent collective conclusion follows from this first report. Continue reconciliation of the remaining Muse evidence; no backtest or production authority changes.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 602
+      "sourceOrder": 603
     },
     {
       "plId": "PL-EVID-04",
@@ -12940,7 +12971,7 @@
       "state": "two reports received/partially checked; data feasibility UNRESOLVED; protocol DRAFT 0.2. [Second-report verification](research/eva-001/ROUND-2-VERIFICATION.md) records directly located primary counterexamples/assumption checks and distinguishes search non-discovery from absence. The draft adds an RV-only baseline, matched forecast populations and explicit separation of forecast failure, economic failure and tail uncertainty. It does not adopt borrowed spread discounts, arbitrary event-count thresholds or an automatic SPX switch. SPY iron condors remain the candidate; actual historical-option access is unverified. No complete literature certification, model implementation, outcome computation, empirical run, Product policy or new roadmap/architecture direction is established. The empirical dependency is a bounded historical quote/contract specimen within an established retrieval envelope, not another broad literature prerequisite.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 603
+      "sourceOrder": 604
     },
     {
       "plId": null,
@@ -12953,7 +12984,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
-      "sourceOrder": 694
+      "sourceOrder": 695
     },
     {
       "plId": null,
@@ -12966,7 +12997,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md",
-      "sourceOrder": 695
+      "sourceOrder": 696
     },
     {
       "plId": null,
@@ -12979,7 +13010,20 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "parking-lot-11.md",
-      "sourceOrder": 651
+      "sourceOrder": 652
+    },
+    {
+      "plId": "PL-EVID-OBS",
+      "bugId": null,
+      "title": "PL-EVID-OBS Refinement — Operator symbol-level options-liquidity question",
+      "eventKind": "refinement",
+      "establishesIntake": false,
+      "eventDateText": "October 27, 2026",
+      "eventDateIso": "2026-10-27",
+      "state": "INTAKE refinement — no new `PL-*` identity created; documentation-only intake authorized by the Principal (\"principal authrorizes\", Option A). Not RECONCILED; no implementation, Product policy, ranking rule or measurement methodology is ratified.",
+      "headingLevel": 3,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 440
     }
   ],
   "intakeDateUnknown": [
