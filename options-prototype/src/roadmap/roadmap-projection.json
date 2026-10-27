@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-23T17:09:21.508Z",
+    "generatedAt": "2026-10-27T16:30:16.358Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -19,7 +19,8 @@
       "docs/parking-lot-7.md",
       "docs/parking-lot-8.md",
       "docs/parking-lot-9.md",
-      "docs/parking-lot-10.md"
+      "docs/parking-lot-10.md",
+      "docs/parking-lot-11.md"
     ],
     "counts": {
       "lvtTotal": 114,
@@ -35,13 +36,13 @@
       "plTotal": 76,
       "plWithExplicitRelationship": 9,
       "graduatedTotal": 29,
-      "adrTotal": 23,
+      "adrTotal": 24,
       "priorityTotal": 10,
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
       "bugTotal": 49,
-      "logTotal": 120,
+      "logTotal": 121,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 62
@@ -4585,6 +4586,55 @@
           "content": "The Principal explicitly accepted installed H-004 r1 and authorized integration of\nthe exact independently reviewed eight-file candidate. [Acceptance/integration\nreceipt](discovery/h004-r1-authorization-acceptance-integration-2026-10-23.md)\nrecords accepted archive SHA-2568bf0b6d5…a80175, Kiro15/9/37 test/probe evidence,\nactual authorized Account author verification, installed release and exact source\ncommit02e4f45. Account discovery truthfully means authenticated authorized\nvisibility, not legal ownership or brokerage completeness; only nickname, broker\nand count are disclosed to the model under the Principal's bounded retention\nchoice. **H-004 r1 is implemented, independently accepted, installed and\nPrincipal-accepted; source integrated through normal main controls.** No new\nimplementation change or operational restart is part of integration. The original\nmixed tree stays frozen. r2 tool visibility remains uninstalled pending Kiro's\nnarrow review. BUG-049 status and artifacts confidentiality finding are unchanged;\nno broader financial capability authorized. **PL-MCP-01 remains INTAKE.**",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "PL-MCP-01 / H-005 — October 23 checkpoint: real Holdings and ZDR/MAM inquiry",
+          "level": 3,
+          "content": "[H-005 / provider-retention checkpoint](discovery/wwt-h005-provider-retention-checkpoint-2026-10-23.md) preserves the Principal's accelerated question-first direction, H-004 acceptance, the H-005 frozen author-tested candidate and still-pending Sawdust grant/independent review, and the October 23 OpenAI Sales correspondence. Sales **cannot sponsor a Sales-led ZDR review for this personal prototype**; MAM eligibility remains unconfirmed, and neither control is approved. Principal explicitly treats ZDR/MAM as optional rather than a blocker for controlled, authorized portfolio data under standard API retention and `store:false`, with question-specific privacy handling. H-005 real Holdings observation is not yet confirmed. PL-MCP-01 remains INTAKE.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Product/environment knowledge — EA on a Page crosswalk idea (October 23)",
+          "level": 3,
+          "content": "The Principal wants **a map, not a migration**: an optional many-to-many navigational [crosswalk of in-place Wheelwright knowledge to Kotusev's EA on a Page reference taxonomy](discovery/ea-on-a-page-product-environment-crosswalk-intake-2026-10-23.md). Adapt artifact purposes to Wheelwright's Product and environment; preserve ontology, roadmap, PLs, LVT, authority, subjects, file locations and provenance without shoehorning, duplicate documents or enterprise-architecture bureaucracy. Idea intake only; no implementation assignment or slowdown of question-first delivery.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Wheelwright Talk — simple questions, hard answers that read simply (Oct 23)",
+          "level": 3,
+          "content": "Principal's directional Product feedback: **TT Live's extremely dense color/Unicode/typography/structure and the tastytrade position-analysis story** are design north stars, *not* an all-at-once feature request. “simple questions. hard answers that seem simple when you read them.” Grow from inventory into recognized constructions, actual economics, comparable change and tactical attention. Avoid prompt-only polishing and caveat-heavy technically-correct brokerage narration; preserve grounded evidence and authority. Full specimen, exact wording, qualifiers and scope: [2026-10-23 position-analysis Product direction](discovery/wwt-position-analysis-product-direction-2026-10-23.md). Directional idea intake; no mandate to migrate, implement a broad architecture, or bypass Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Wheelwright Talk — conversational freedom reveals capability gaps (Oct 23)",
+          "level": 3,
+          "content": "Principal asks for freedom to ask questions naturally, with **deterministic financial behavior**: conversational intent should compose existing authorized capabilities; missing Product capabilities emerge from attempted useful answers, not from a predefined question whitelist. Preserve validated evidence when LLM explanation fails, offer evidence-grounded partial assessments, and distinguish observed gaps from implementation authorization. See [full Product-direction refinement](discovery/wwt-conversational-capability-discovery-2026-10-23.md). Idea/discovery standing; no implementation authorized by this note.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Prospective bull-put spread search: what counts as best? (Oct 24)",
+          "level": 3,
+          "content": "Principal explores “show me the best put spread for SPY” as **construction selection** (easier than assessing whether selling spreads is a good strategy). Best is multi-dimensional—premium, risk/reward, execution quality/probability, POP, Pxx hit probability, volatility and time—potentially with **multiple regime-relative leaders**, not one mandated winner; no implicit 45 DTE. Later multi-underlying top-ten liquid ETF/index search is explicitly deferred. Codex read-only review finds reusable chain/recognition/payoff machinery but missing prospective pair enumeration and verified POP/target-hit models; Trade Finder's broker-handoff boundary remains in effect pending a deliberate experiment decision. Full exact Principal direction, references, and proposed bounded falsifiable experiment: [bull-put spread construction-search checkpoint](discovery/wwt-bull-put-spread-search-checkpoint-2026-10-24.md). Idea intake only; no implementation authorization through this note.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Wheelwright Talk left panel — Frequently Asked Questions and Saved Answer Forms (Oct 24)",
+          "level": 3,
+          "content": "**Principal-requested feature-idea preservation; deferred.** Exact Principal framing: “it'd be nice to have these features in talk in the left panel: 1 frequently asked questions 2 once i get to a certain answer i like, be it data, formatting, the right answer, be able to save that as an answer form or something so that i don't have to go through the same steps every time to reproduce the answer i like.” Principal subsequently directed: “save these as feature ideas. we'll revisit them at some point.”\n\n**Two related, distinct candidate capabilities:**\n1. **Frequently Asked Questions:** a left-panel way to find and reuse frequently recurring operator questions. Re-running a question should seek a new answer from then-applicable authorized evidence, rather than presenting an old answer as current. Whether FAQ entries are pinned manually, derived from usage, or both remains open.\n2. **Saved Answer Forms (working name):** when an operator has iteratively reached a satisfying answer—correct underlying data, calculations, output shape, formatting and explanation—save a reusable answer specification so the operator can reproduce that kind of answer later without repeating the conversational refinement. Candidate retained facets include question intent, parameters, data/quality requirements, presentation and explanation choices, plus references to governed computation. Do not confuse saving the answer form with freezing its historic answer or financial evidence.\n\n**Product distinction:** conversation history records what was said; FAQ recalls questions; Answer Forms reproduce the operator-approved shape of an answer with suitably current or explicitly historical evidence. Example candidates include a daily portfolio review, position-attention assessment, or put-spread construction comparison; examples are not approved requirements.\n\n**Reconciliation / standing:** This refines the existing **PL-MCP-01 Wheelwright Talk** question-first conversational Product intake rather than creating a separate feature backlog or new strategic Bet. No roadmap, architecture roadmap, or domain authority change is established. Architectural considerations for later exploration: backend-governed financial logic and authorization remain authoritative; client presentation preferences and saved query/answer configuration cannot silently become a separate business-rule authority. The exact persistence model, schema, naming, scope/sharing, promotion of FAQ entries, evaluation behavior, versioning and UX are unresolved, not designed here.\n\n**Disposition:** **DEFERRED IDEA INTAKE** under PL-MCP-01. No implementation, API change, new service, migration, or interruption of the running Codex spread-search investigation is authorized. Revisit only when selected by the Principal. Why-state is the October 24 conversation and this record.\n\n\n**Principal refinement — one unified feature (Oct 24):** “and really, the two things could actually be one thing. these are the questions i as a lot and talk knows how i like to see the answers.” Interpret as a **single operator-facing collection of familiar questions with remembered preferred answer forms**, not two unrelated left-panel features. The operator revisits a familiar question and Talk knows the accepted answer presentation and relevant parameters; it still obtains appropriately current/qualified evidence and uses backend-governed calculations. This supersedes the earlier proposed UI separation between FAQ and Saved Answer Forms, without deleting their historical provenance. Naming, automatic learning versus explicit save, and details remain unratified. Deferred under PL-MCP-01; no implementation authorization.\n\n\n**Principal interaction refinement (Oct 24):** “could be conversational or could be a button like ‘save this conversation as question and answer’.” The unified *My Questions* capability should be explorable through either a natural-language request to Talk or an explicit save affordance in the conversation UI. Both represent the same operator intent: distill a successful conversation into a reusable question and preferred answer form, not preserve the full transcript as an automatically authoritative answer. Exact extraction/confirmation UX, editing and versioning remain open. Deferred idea only; no implementation authorization.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Wheelwright Talk — Ambient Capability Discovery during natural processing waits (Oct 24)",
+          "level": 3,
+          "content": "**Standing:** Principal-requested deferred Product UX idea under existing PL-MCP-01; distinct from *My Questions*. Inspiration: Codex occasionally displays concise capability hints while processing. The Principal likes that the hints “don't get in the way,” “don't distract from what you're doing,” and “only display while codex is clanking and you're waiting anyway.”\n\n**Candidate behavior:** While Talk is already processing an operator request, unobtrusively display at most one brief, useful tip about a genuinely supported capability or a conversational way to ask a question. Tips occupy otherwise idle waiting attention, never interrupt active conversation or compete with the answer, and disappear when the answer arrives. Do not introduce artificial latency or display tips merely to prolong attention; instantaneous answers need no tip. Prefer practical concrete examples and avoid repetitive, marketing-style guidance. Relevance and repetition controls are future design questions, not established behavior.\n\n**Intake/reconciliation:** Refines PL-MCP-01 question-first discoverability and early user learning; no new strategic Bet or architecture direction is asserted. Remains separate from the unified *My Questions* saved-question-and-answer-form concept. No implementation, UI contract, scheduling behavior, model change, or operational permission is authorized. Revisit upon Principal direction.",
+          "truncated": false,
+          "tables": []
         }
       ]
     }
@@ -4969,6 +5019,15 @@
       "title": "Successor Knowledge Architecture — Maintained Learning, Product Realization and Context",
       "date": "October 18, 2026",
       "status": "**Principal-ratified architectural foundation (D1–D5)**; design and implementation details below remain unratified unless explicitly covered here.",
+      "context": null,
+      "decision": null,
+      "consequences": null
+    },
+    {
+      "id": "ADR-024",
+      "title": "SDK-Based Wheelwright Talk, MCP Integration, and Financial Authority",
+      "date": null,
+      "status": "**RATIFIED — scoped architecture and Product direction only**",
       "context": null,
       "decision": null,
       "consequences": null
@@ -11338,7 +11397,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 689
+      "sourceOrder": 697
     },
     {
       "plId": null,
@@ -11481,7 +11540,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 661
+      "sourceOrder": 669
     },
     {
       "plId": null,
@@ -11494,7 +11553,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 662
+      "sourceOrder": 670
     },
     {
       "plId": null,
@@ -11507,7 +11566,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 663
+      "sourceOrder": 671
     },
     {
       "plId": null,
@@ -11520,7 +11579,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 666
+      "sourceOrder": 674
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -11546,7 +11605,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 664
+      "sourceOrder": 672
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -11728,7 +11787,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 644
+      "sourceOrder": 652
     },
     {
       "plId": null,
@@ -11741,7 +11800,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 645
+      "sourceOrder": 653
     },
     {
       "plId": null,
@@ -11754,7 +11813,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 646
+      "sourceOrder": 654
     },
     {
       "plId": null,
@@ -11767,7 +11826,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 647
+      "sourceOrder": 655
     },
     {
       "plId": null,
@@ -11780,7 +11839,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 648
+      "sourceOrder": 656
     },
     {
       "plId": null,
@@ -11793,7 +11852,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 649
+      "sourceOrder": 657
     },
     {
       "plId": null,
@@ -11806,7 +11865,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 650
+      "sourceOrder": 658
     },
     {
       "plId": null,
@@ -11819,7 +11878,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 651
+      "sourceOrder": 659
     },
     {
       "plId": null,
@@ -11832,7 +11891,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 652
+      "sourceOrder": 660
     },
     {
       "plId": null,
@@ -11845,7 +11904,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 653
+      "sourceOrder": 661
     },
     {
       "plId": null,
@@ -11858,7 +11917,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 654
+      "sourceOrder": 662
     },
     {
       "plId": null,
@@ -11871,7 +11930,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 655
+      "sourceOrder": 663
     },
     {
       "plId": null,
@@ -11884,7 +11943,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 656
+      "sourceOrder": 664
     },
     {
       "plId": null,
@@ -11897,7 +11956,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 657
+      "sourceOrder": 665
     },
     {
       "plId": null,
@@ -11910,7 +11969,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 658
+      "sourceOrder": 666
     },
     {
       "plId": null,
@@ -11923,7 +11982,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 659
+      "sourceOrder": 667
     },
     {
       "plId": null,
@@ -11936,7 +11995,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 660
+      "sourceOrder": 668
     },
     {
       "plId": null,
@@ -11949,7 +12008,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 665
+      "sourceOrder": 673
     },
     {
       "plId": null,
@@ -11962,7 +12021,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 688
+      "sourceOrder": 696
     },
     {
       "plId": "PL-SEM-01",
@@ -12131,7 +12190,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 667
+      "sourceOrder": 675
     },
     {
       "plId": null,
@@ -12144,7 +12203,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 668
+      "sourceOrder": 676
     },
     {
       "plId": "PL-SETUP-01",
@@ -12352,7 +12411,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 669
+      "sourceOrder": 677
     },
     {
       "plId": null,
@@ -12365,7 +12424,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 670
+      "sourceOrder": 678
     },
     {
       "plId": null,
@@ -12378,7 +12437,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 671
+      "sourceOrder": 679
     },
     {
       "plId": null,
@@ -12391,7 +12450,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 672
+      "sourceOrder": 680
     },
     {
       "plId": null,
@@ -12404,7 +12463,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 673
+      "sourceOrder": 681
     },
     {
       "plId": null,
@@ -12417,7 +12476,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 674
+      "sourceOrder": 682
     },
     {
       "plId": null,
@@ -12430,7 +12489,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 675
+      "sourceOrder": 683
     },
     {
       "plId": null,
@@ -12443,7 +12502,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 676
+      "sourceOrder": 684
     },
     {
       "plId": null,
@@ -12456,7 +12515,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 677
+      "sourceOrder": 685
     },
     {
       "plId": null,
@@ -12469,7 +12528,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 678
+      "sourceOrder": 686
     },
     {
       "plId": null,
@@ -12482,7 +12541,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 679
+      "sourceOrder": 687
     },
     {
       "plId": null,
@@ -12495,7 +12554,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 680
+      "sourceOrder": 688
     },
     {
       "plId": "PL-STRAT-01",
@@ -12573,7 +12632,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 681
+      "sourceOrder": 689
     },
     {
       "plId": null,
@@ -12586,7 +12645,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 682
+      "sourceOrder": 690
     },
     {
       "plId": null,
@@ -12599,7 +12658,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 683
+      "sourceOrder": 691
     },
     {
       "plId": null,
@@ -12612,7 +12671,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 684
+      "sourceOrder": 692
     },
     {
       "plId": null,
@@ -12625,7 +12684,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 685
+      "sourceOrder": 693
     },
     {
       "plId": "PL-EVID-04",
@@ -12677,7 +12736,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
-      "sourceOrder": 686
+      "sourceOrder": 694
     },
     {
       "plId": null,
@@ -12690,7 +12749,20 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md",
-      "sourceOrder": 687
+      "sourceOrder": 695
+    },
+    {
+      "plId": null,
+      "bugId": null,
+      "title": "PL-MCP-01 — Agent/MCP Well-Architected standards reconciliation",
+      "eventKind": "unclassified",
+      "establishesIntake": false,
+      "eventDateText": "October 25, 2026. **Disposition:** DEFERRED IDEA INTAKE, not ratified or authorized implementation.",
+      "eventDateIso": "2026-10-25",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "parking-lot-11.md",
+      "sourceOrder": 651
     }
   ],
   "intakeDateUnknown": [

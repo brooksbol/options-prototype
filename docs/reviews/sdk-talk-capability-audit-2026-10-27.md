@@ -97,7 +97,7 @@ The October26 journey is actual Principal-observed, human-executed Product learn
 9. Zero solely-D blockers proven; six original questions have reduced balance-related D/E/F gaps with I/H/time limitations intact.
 10. Implemented reusable retained broker-balance API/MCP and native source presentation, verified by author contract/runtime/SDK checks and actual backend aggregates. **Not independently verified yet.** Independent review of the frozen candidate is the next action.
 
-Defer only affected operations: actual tastytrade balance acquisition; any real financial model demonstration; brokerage options-level/trading-status and margin-group ingestion; universal debt/collateral or governed-availability semantics; full October26 replay/daily gross-premium composition; source-time completeness and production installation. Continue those only within applicable later evidence and authority. No main merge, PR42 merge, service change, new provider request, credential/grant change or trade occurred.
+Defer only affected operations: actual tastytrade balance acquisition; any real financial model demonstration; brokerage options-level/trading-status and margin-group ingestion; universal debt/collateral or governed-availability semantics; full October26 replay/daily gross-premium composition; source-time completeness and production installation. Continue those only within applicable later evidence and authority. No merge into main or PR42, service change, new provider request, credential/grant change or trade occurred.
 
 ## Reproduction and measurement
 

@@ -113,7 +113,7 @@ No fixed Kiro/Codex implementation ownership is assigned here. Select the implem
 | W2–W6 operator acceptance and delivery | **NO STAGE ACCEPTANCE**; later bounded experiments include evidence-access/UX work, not completion, installation or delivery |
 | Software implementation / deployment authority | Initial W1 grant followed by the **bounded question-driven assignments below**, including local retained-evidence assessment. No merge, deployment, broadened model disclosure or unrelated Product implementation |
 
-**Next execution handoff when separately authorized:** Recover current main/worktree/install/task state; confirm the W0 successor location and allowed synthetic fixture; then implement **W1 within that single successor** and immediately expose its multi-turn SDK/MCP conversation to Principal observation. Do not undertake fresh broad architectural research, speculative tool catalog work, or a new isolated Talk product.
+**Current execution handoff:** Independently review the frozen October27 audit/correction candidate linked below. W1 implementation and subsequent bounded candidate engineering are recorded; no second host, speculative catalog, installation or disclosure expansion follows from review readiness.
 
 ### Plan update discipline
 
