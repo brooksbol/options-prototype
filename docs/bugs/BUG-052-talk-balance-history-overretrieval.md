@@ -39,3 +39,15 @@ Author evidence: 11 Java balance tests; 8 MCP tests; 8 OAS contract groups (38 o
 
 ## Related
 ADR-024; PL-MCP-01; October 26 real-world case study; BUG-022 governs a separate Regime/capital issue. BUG-051 belongs to concurrent v1 work and is untouched.
+
+### Principal rendering rejection — October 27, 12:39 screenshot
+
+Principal: “there's a rendering failure. I still see a large green box of noise and i see raw, unrendered md in the answer”. Inspection of the requested latest Desktop screenshot confirms that the remaining expanded card is the **holdings** result, not the bounded balance card. The answer contains literal heading/table/list markup. Protected screenshot pixels and holdings are not copied into repository evidence.
+
+The prior candidate's presentation correction was incomplete: only balances received a compact view; all other tools still eagerly displayed every typed source row and qualification. The conversation renderer recognized bold text alone. Passing balance tests did not establish general conversational rendering coverage.
+
+Bounded successor correction: non-balance sources become neutral, closed, lazily populated disclosures **after** the answer. Account access denials remain visible outside the disclosure. Additional qualifications and typed facts are available on expansion; raw JSON requires a second deliberate disclosure. Balance summary behavior is preserved. A pinned local markdown-it browser bundle renders answer headings, tables, lists, code and emphasis; HTML, images and active links are disabled. No prompt suppression, question routing, backend semantics or retrieval change is used for this presentation correction.
+
+Additional acceptance specimens: headings/tables/lists render semantically; a 60-row invented holdings source produces zero source-row DOM nodes before expansion; denials remain visible; expansion preserves all rows and qualifications; raw response remains deferred. Injection text must not introduce active HTML, scripts, images or links.
+
+Author verification: 22 Talk tests pass, including Java/MCP integration and the new renderer/security/lazy-DOM specimens. npm production audit reports zero known vulnerabilities for the pinned dependency set at verification time. Native Chrome was available despite no browser connector being registered: the synthetic specimen's accessibility tree confirms heading/table/list elements and a closed Holdings sources disclosure; expanding exposes FIXTURE59 and Raw source response, collapsing removes them from the accessible view. The native screenshot API returned stale welcome pixels, so this is verified browser interaction/accessibility evidence, not a claimed pixel-perfect screenshot review. No new model requests, protected-data disclosure or grants were required. Open pending Principal observation of the updated preview; no independent review or Principal acceptance claimed.

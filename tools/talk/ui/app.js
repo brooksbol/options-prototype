@@ -1,4 +1,5 @@
 import { evidenceView } from './evidence-view.js';
+import { renderMarkdown } from './markdown.js';
 // Preserve backend number lexemes; unwrap only the SDK/MCP text envelope.
 export function resultText(result) {
   if (typeof result !== 'string') return String(result ?? '');
@@ -29,11 +30,8 @@ function message(role, text) {
   const article = document.createElement('article'); article.className = role;
   const label = document.createElement('h3'); label.textContent = role === 'user' ? 'YOU' : 'TALK';
   const content = document.createElement('div'); content.className = 'text';
-  for (const part of text.split(/(\*\*[^*]+\*\*)/g)) {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      const strong = document.createElement('strong'); strong.textContent = part.slice(2, -2); content.append(strong);
-    } else content.append(document.createTextNode(part));
-  }
+  if (role === 'assistant') content.innerHTML = renderMarkdown(text);
+  else content.textContent = text;
   article.append(label, content); $('messages').append(article); article.scrollIntoView({ block: 'end' });
   return article;
 }
@@ -66,8 +64,8 @@ $('composer').addEventListener('submit', async event => {
     for (const tool of answer.tools ?? []) {
       const raw = resultText(tool.result);
       const view = evidenceView(raw);
-      const card = document.createElement('section'); card.className = 'evidence-card';
       if (view.balanceSummary) {
+        const card = document.createElement('section'); card.className = 'evidence-card';
         card.classList.add('balance-card');
         const balance = view.balanceSummary;
         const title = document.createElement('h3'); title.textContent = balance.title; card.append(title);
@@ -96,22 +94,41 @@ $('composer').addEventListener('submit', async event => {
           details.append(list);
         });
         card.append(details);
+        article.insertBefore(card, article.querySelector('.text'));
       } else {
-        const title = document.createElement('h4'); title.textContent = tool.isError ? 'Backend problem' : 'Backend findings'; card.append(title);
-        const table = document.createElement('dl');
-        for (const [label,value] of view.rows) {
-          const key = document.createElement('dt'); key.textContent = label;
-          const cell = document.createElement('dd'); cell.textContent = value; table.append(key,cell);
+        // Evidence supports the answer without duplicating it in the default view.
+        const details = document.createElement('details'); details.className = 'source-disclosure';
+        const summary = document.createElement('summary');
+        const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_account_positions:'Position sources',inspect_market_quotes:'Quote sources'};
+        const outcome = view.rows.find(([key]) => key === 'Read outcome' || key === 'Problem');
+        summary.textContent = `${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
+        details.append(summary);
+        const access = view.rows.filter(([key]) => key.endsWith(' access'));
+        if (access.length) {
+          const note = document.createElement('p'); note.className = 'source-access';
+          note.textContent = access.map(([key,value]) => `${key.replace(/ access$/,'')}: ${value}`).join(' · ');
+          // Access limitations remain visible even while source detail is closed.
+          article.append(note);
         }
-        card.append(table);
-        const notes = document.createElement('p'); notes.className = 'evidence-notes'; notes.textContent = view.qualifications.join(' · '); card.append(notes);
-        const details = document.createElement('details');
-        const summary = document.createElement('summary'); summary.textContent = 'Source details'; details.append(summary);
         let loaded = false;
-        details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const pre=document.createElement('pre');pre.textContent=raw;details.append(pre);}});
-        card.append(details);
+        details.addEventListener('toggle',()=>{
+          if (!details.open || loaded) return;
+          loaded = true;
+          const table = document.createElement('dl');
+          for (const [label,value] of view.rows) {
+            const key = document.createElement('dt'); key.textContent = label;
+            const cell = document.createElement('dd'); cell.textContent = value; table.append(key,cell);
+          }
+          details.append(table);
+          const notes = document.createElement('p'); notes.className = 'evidence-notes'; notes.textContent = view.qualifications.join(' · '); details.append(notes);
+          const rawDetails = document.createElement('details');
+          const rawSummary = document.createElement('summary'); rawSummary.textContent = 'Raw source response'; rawDetails.append(rawSummary);
+          let rawLoaded = false;
+          rawDetails.addEventListener('toggle',()=>{if(rawDetails.open&&!rawLoaded){rawLoaded=true;const pre=document.createElement('pre');pre.textContent=raw;rawDetails.append(pre);}});
+          details.append(rawDetails);
+        });
+        article.append(details);
       }
-      article.insertBefore(card, article.querySelector('.text'));
 
     }
     if (answer.tools?.length) {

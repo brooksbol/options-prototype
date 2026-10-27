@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-27T18:36:14.338Z",
+    "generatedAt": "2026-10-27T18:45:15.128Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11267,6 +11267,13 @@
           "level": 2,
           "content": "ADR-024; PL-MCP-01; October 26 real-world case study; BUG-022 governs a separate Regime/capital issue. BUG-051 belongs to concurrent v1 work and is untouched.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal rendering rejection — October 27, 12:39 screenshot",
+          "level": 3,
+          "content": "Principal: “there's a rendering failure. I still see a large green box of noise and i see raw, unrendered md in the answer”. Inspection of the requested latest Desktop screenshot confirms that the remaining expanded card is the **holdings** result, not the bounded balance card. The answer contains literal heading/table/list markup. Protected screenshot pixels and holdings are not copied into repository evidence.\n\nThe prior candidate's presentation correction was incomplete: only balances received a compact view; all other tools still eagerly displayed every typed source row and qualification. The conversation renderer recognized bold text alone. Passing balance tests did not establish general conversational rendering coverage.",
+          "truncated": true,
           "tables": []
         }
       ]

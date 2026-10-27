@@ -49,8 +49,9 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     // Freeze this preview's UI bytes at startup; later candidate edits must not
     // silently change an already-running preview or introduce mismatched assets.
     const assets = Object.fromEntries([
-      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript']
+      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript'], ['/markdown.js', 'markdown.js', 'text/javascript']
     ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./ui/${name}`, import.meta.url)) }]));
+    assets['/node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs'] = {type:'text/javascript',bytes:readFileSync(new URL('./node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs',import.meta.url))};
     http = createServer(async (req, res) => {
       const port = http.address().port;
       const allowedHosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
