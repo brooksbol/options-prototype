@@ -2,7 +2,7 @@ import { canonicalAccountId } from '../../scripts/ww-accounts.mjs';
 import { readBackend, UUID, problemResult } from './backend.mjs';
 
 /** Brokerage inventory is an existing backend resource, independent of Position lifecycle. */
-export async function inspectHoldings({ account, optionRight, side } = {}, config) {
+export async function inspectHoldings({ account, optionRight, side } = {}, config, optionInventory = false) {
   const discovery = await readBackend('/v2/accounts', config);
   if (discovery.error) return problemResult(discovery.error);
   if (discovery.data?.requestId !== discovery.requestId || !Array.isArray(discovery.data.accounts)) throw new Error('Invalid Account discovery.');
@@ -10,7 +10,7 @@ export async function inspectHoldings({ account, optionRight, side } = {}, confi
   if (account !== undefined && selected.length !== 1) return { isError: true, content: [{ type: 'text', text: JSON.stringify({
     outcome: 'unavailable', explanation: 'Exact authorized Account nickname required.',
     availableAccounts: discovery.data.accounts.map(a => ({ nickname: a.alias, broker: a.brokerAssociation?.broker })) }) }] };
-  if (optionRight !== undefined || side !== undefined) {
+  if (optionInventory || optionRight !== undefined || side !== undefined) {
     const query = new URLSearchParams();
     if (account !== undefined) query.set('accountId',selected[0].id);
     if (optionRight !== undefined) query.set('right',optionRight);

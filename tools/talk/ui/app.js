@@ -71,7 +71,7 @@ $('composer').addEventListener('submit', async event => {
         const scope=document.createElement('p');scope.textContent=`${inventory.filters} · ${inventory.complete?'Complete selected retained scope':'Incomplete selected scope'}`;card.append(scope);
         const count=document.createElement('p');count.textContent=`Reported short-put contracts in this selection: ${inventory.shortPutContracts}`;card.append(count);
         const table=document.createElement('table'),head=document.createElement('thead'),header=document.createElement('tr');
-        for(const label of ['Account','Underlying','Right','Side','Expiration','Strike','Contracts','Source day','Related long options · not membership']){const cell=document.createElement('th');cell.textContent=label;header.append(cell);}
+        for(const label of ['Account','Underlying','Right','Side','Expiration','Strike','Contracts','Source day','Source coverage','Related long options · not membership']){const cell=document.createElement('th');cell.textContent=label;header.append(cell);}
         head.append(header);table.append(head);const body=document.createElement('tbody');
         for(const row of inventory.rows){const tr=document.createElement('tr');for(const value of row){const cell=document.createElement('td');cell.textContent=value;tr.append(cell);}body.append(tr);}
         table.append(body);const scroll=document.createElement('div');scroll.className='inventory-table-scroll';scroll.append(table);card.append(scroll);
@@ -114,7 +114,7 @@ $('composer').addEventListener('submit', async event => {
         // Evidence supports the answer without duplicating it in the default view.
         const details = document.createElement('details'); details.className = 'source-disclosure';
         const summary = document.createElement('summary');
-        const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_account_positions:'Position sources',inspect_account_transactions:'Transaction sources',inspect_market_quotes:'Quote sources'};
+        const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_option_inventory:'Option inventory sources',inspect_account_positions:'Position sources',inspect_account_transactions:'Transaction sources',inspect_market_quotes:'Quote sources'};
         const outcome = view.rows.find(([key]) => key === 'Read outcome' || key === 'Problem');
         summary.textContent = `${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
         details.append(summary);

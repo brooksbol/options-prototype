@@ -82,7 +82,7 @@ export function evidenceView(raw) {
       rows:optionRead.accounts.flatMap(account=>[...(account.options??[]),...(account.unclassifiedOptions??[])].map(row=>[
         account.nickname,row.underlyingSymbol??row.sourceIdentifier,row.right,row.side,
         row.expiration??'Unknown',text(row.strike),text(row.quantity),
-        row.source?.observationDate??'Unknown · receipt only',
+        row.source?.observationDate??'Unknown · receipt only',account.snapshotCoverage??'UNKNOWN',
         (row.relatedLongOptions??[]).map(other=>other.sourceIdentifier).join(', ')||'None in selected cut'
       ])),
       access:optionRead.accounts.filter(a=>!a.readComplete).map(a=>`${a.nickname}: ${a.status}`),

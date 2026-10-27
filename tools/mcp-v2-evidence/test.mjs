@@ -137,3 +137,10 @@ test('transaction transport requests bounded retained evidence only and preserve
  const result=await inspectTransactions({account:'fixture',symbol:'FIXTURE',limit:1},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data));}});
  assert.equal(paths[1],'/v2/accounts/'+id+'/transactions?mode=retained&limit=1&symbol=FIXTURE');assert.deepEqual(JSON.parse(result.content[0].text).evidence.transactions,data);
 });
+
+
+test('portfolio inventory mode remains all-Account and uses the bounded option resource even without filters',async()=>{
+ const {inspectHoldings}=await import('./holdings.mjs');const id='acct_'+'a'.repeat(32);const paths=[];
+ await inspectHoldings({},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture',brokerAssociation:{broker:'FIDELITY'}}]}:{requestId,currentness:'NOT_ESTABLISHED',accounts:[{accountId:id,nickname:'fixture',broker:'FIDELITY',status:'READ',readComplete:true,options:[],unclassifiedOptions:[]}],counts:{cashSecuredPutContracts:null}}));}},true);
+ assert.deepEqual(paths,['/v2/accounts','/v2/option-inventory']);
+});
