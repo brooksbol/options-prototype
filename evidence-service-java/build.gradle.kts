@@ -124,5 +124,5 @@ tasks.register<JavaExec>("retainedCoverageAudit") {
     dependsOn(tasks.testClasses)
     mainClass.set("com.wheelwright.evidence.v2.RetainedCoverageAudit")
     classpath = sourceSets["test"].runtimeClasspath
-    args = listOfNotNull(project.findProperty("retainedDb") as? String)
+    args = listOfNotNull(project.findProperty("retainedDb") as? String, project.findProperty("retainedAuditMode") as? String)
 }

@@ -31,7 +31,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.map(config =>
       market && config.admitted.includes('list_authorized_accounts') ? { ...config, backend: market } : config), ...(market ? [{
       name: 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
-      admitted: ['inspect_market_quotes', 'inspect_account_positions'], backend: market
+      admitted: ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances'], backend: market
     }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: await server.listTools()

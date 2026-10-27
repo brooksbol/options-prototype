@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import { z } from 'zod';
 import { inspectQuotes } from './quotes.mjs';
+import { inspectBalances } from './balances.mjs';
 import { inspectPositions } from './positions.mjs';
 
 serveStdio(() => {
@@ -28,6 +29,16 @@ serveStdio(() => {
     try { return await inspectPositions(args, { base: process.env.WW_BASE_URL, token: process.env.WW_API_TOKEN,
       syntheticFixture: process.env.WW_SYNTHETIC_FIXTURE === '1' }); }
     catch { return { isError: true, content: [{ type: 'text', text: 'Position-evidence read failed; no new finding established.' }] }; }
+  });
+  server.registerTool('inspect_account_balances', {
+    description: 'Read retained backend-authorized Account balance observations by exact nickname. For tastytrade includes separate broker-reported options (derivative), equity and day-trading buying power, cash and margin requirements where reported. For Fidelity preserves native available-without-margin-impact, cash, buying-power and reserve labels. Retained observations are not guaranteed current after trades. Preserve field statuses, units, source identity and clocks; absent/invalid is unknown. Buying power is not cash; margin requirement is not debt; used options buying power is not per-put collateral. Does not establish strategy permissions, actual borrowing, governed capital allocation or deploy/WAIT recommendations. No acquisition or grant changes.',
+    inputSchema: z.object({ account: z.string().describe('Exact Account nickname from authorized discovery.'),
+      artifactId: z.string().uuid().optional().describe('Optional exact balance artifact from a prior observation; omit for bounded retained collection.') }),
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
+  }, async args => {
+    try { return await inspectBalances(args, { base: process.env.WW_BASE_URL, token: process.env.WW_API_TOKEN,
+      syntheticFixture: process.env.WW_SYNTHETIC_FIXTURE === '1' }); }
+    catch { return { isError: true, content: [{ type: 'text', text: 'Balance-evidence read failed; no new finding established.' }] }; }
   });
   return server;
 });

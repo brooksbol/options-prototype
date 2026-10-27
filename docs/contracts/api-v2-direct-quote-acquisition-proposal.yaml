@@ -33,6 +33,8 @@ tags:
 - name: Quotes
   description: Explicit acquisition and provider-free held-evidence reads.
 paths:
+  /v2/account-balance-observations:
+    $ref: 'api-v2-account-evidence.json#/paths/~1v2~1account-balance-observations'
   /v2/holdings/{holdingId}:
     $ref: 'api-v2-foundational-portfolio.json#/paths/~1v2~1holdings~1{holdingId}'
   /v2/holdings:

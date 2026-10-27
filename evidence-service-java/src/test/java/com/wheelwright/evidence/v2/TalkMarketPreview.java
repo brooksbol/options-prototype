@@ -20,7 +20,7 @@ public class TalkMarketPreview {
 
     @TestConfiguration
     @EnableAutoConfiguration
-    @Import({HeldQuotesController.class, QuoteLiquidityController.class, AccountsController.class, PortfolioController.class})
+    @Import({HeldQuotesController.class, QuoteLiquidityController.class, AccountsController.class, AccountBalancesController.class, PortfolioController.class})
     static class Preview {
         @Bean(destroyMethod = "close") SqliteEvidenceStore store() throws Exception {
             var store = new SqliteEvidenceStore(directory.resolve("synthetic-market.sqlite3").toString());
@@ -45,6 +45,8 @@ public class TalkMarketPreview {
             var accounts = new AccountDirectory(store, "");
             accounts.bind("harbor", "FIDELITY", "SYNTHETIC01");
             accounts.bind("orchard", "TASTYTRADE", "SYNTHETIC02");
+            AccountBalancesTest.retain(store, accounts.list().stream().filter(a -> a.alias().equals("orchard")).findFirst().orElseThrow().id(),
+                AccountBalancesTest.source("SYNTHETIC02"), "API_BALANCES", "tastytrade-balances.json");
             return accounts;
         }
         @Bean UserDirectory users(SqliteEvidenceStore store, AccountDirectory accounts) throws Exception {
@@ -54,6 +56,7 @@ public class TalkMarketPreview {
             var grants = new ArrayList<>(List.of("quote.read", "reference.read"));
             for (var account : accounts.list()) {
                 grants.add("account.read:" + account.id());
+                grants.add("account.artifacts.read:" + account.id());
                 if (account.alias().equals("harbor")) {
                     grants.add("account.positions.read:" + account.id());
                     grants.add("account.holdings.read:" + account.id());
@@ -71,6 +74,12 @@ public class TalkMarketPreview {
         }
         @Bean PortfolioReadService portfolio(PortfolioRepository repository, PortfolioSources sources) {
             return new PortfolioReadService(repository, sources);
+        }
+        @Bean BrokerageArtifacts artifacts(SqliteEvidenceStore store, ObjectMapper mapper, AccountDirectory accounts) throws Exception {
+            return new BrokerageArtifacts(store,mapper,new PositionReadService(store,mapper),accounts);
+        }
+        @Bean AccountBalanceObservations balances(SqliteEvidenceStore store, BrokerageArtifacts artifacts, AccountDirectory accounts) throws Exception {
+            return new AccountBalanceObservations(store,artifacts,accounts);
         }
         @Bean org.springframework.web.servlet.config.annotation.WebMvcConfigurer requestEvidence() {
             return new org.springframework.web.servlet.config.annotation.WebMvcConfigurer() {

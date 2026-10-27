@@ -20,6 +20,7 @@ public final class RetainedCoverageAudit {
     }
     public static void main(String[] args) {
         try {
+            if(args.length==2&&args[1].equals("balances-only")){balanceAudit(args[0]);return;}
             var result=obj();
             var quotes=get("http://127.0.0.1:3100","/v2/quotes");int read=0,qualified=0,unavailable=0;
             for(var item:quotes.path("items")) {
@@ -57,4 +58,28 @@ public final class RetainedCoverageAudit {
             System.exit(1);
         }
     }
+    static void balanceAudit(String path)throws Exception {
+        var me=get("http://127.0.0.1:55834","/v2/me");
+        String user=me.at("/user/id").asText(me.path("id").asText());
+        String url="jdbc:sqlite:file:"+path+"?mode=ro";
+        var grants=new UserDirectory(url).grants(user).orElseThrow();
+        var caller=new BearerAuthenticator.Principal(user,grants);
+        var accounts=new AccountDirectory(url);
+        var artifacts=new BrokerageArtifacts(url,JSON,new PositionReadService(url,JSON));
+        var service=new AccountBalanceObservations(url,artifacts,accounts);
+        int count=0,empty=0;var byBroker=new TreeMap<String,Integer>();
+        var statuses=new TreeMap<String,Map<String,Integer>>();var times=new TreeMap<String,Integer>();
+        for(String grant:new TreeSet<>(grants))if(grant.startsWith("account.artifacts.read:")) {
+            String account=grant.substring("account.artifacts.read:".length());
+            var read=service.read(account,null,"local-audit",caller);if(read.observations().isEmpty())empty++;
+            for(var observation:read.observations()) {
+                count++;byBroker.merge(observation.broker(),1,Integer::sum);times.merge(observation.source().timeStatus(),1,Integer::sum);
+                for(var field:observation.fields())statuses.computeIfAbsent(field.brokerField(),k->new TreeMap<>()).merge(field.status(),1,Integer::sum);
+            }
+        }
+        System.out.println(JSON.writeValueAsString(Map.of("realRetainedBackendRead",true,"observations",count,
+            "authorizedAccountsWithoutBalanceOriginals",empty,"byBroker",byBroker,"fieldStatuses",statuses,"timeStatuses",times,
+            "protectedValuesExported",false,"providerRequests",0,"sqliteMode","ro")));
+    }
+
 }

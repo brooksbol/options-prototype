@@ -45,6 +45,18 @@ export function evidenceView(raw) {
     }
     qualifications.push(...(position.warnings ?? []).map(warning => warning.code));
   }
+  for (const observation of value.evidence?.observations ?? []) {
+    if (!Array.isArray(observation.fields)) continue;
+    add('Balance Account', value.account?.nickname);
+    add('Balance broker', observation.broker);
+    add('Source environment', observation.environment);
+    add('Observed', observation.source?.observedAt);
+    add('Observation date', observation.source?.observationDate);
+    add('Exported', observation.source?.exportedAt);
+    add('Received', observation.source?.receivedAt);
+    for (const field of observation.fields)
+      add(field.brokerField, field.value, [observation.currency ?? observation.unit, field.status].filter(Boolean).join(' · '));
+  }
   qualifications.push(...(value.evidence?.qualifications ?? []));
   if (value.evidence?.measurements) for (const [name, metric] of Object.entries(value.evidence.measurements))
     add(name, metric.value, [metric.unit, metric.status].filter(Boolean).join(' · '));

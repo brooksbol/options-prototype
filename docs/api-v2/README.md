@@ -28,3 +28,6 @@ Only accepted `/v2` operations are in this documentation product. Legacy `/api` 
 ## Build and verification
 
 See [the pinned static-reference tooling](../../tools/api-docs/README.md), the [read-only agent specimen](../../tools/api-docs/agent-specimen.md) and [PL-API-02 requirements/plan](../design/pl-api-02-v2-documentation-requirements-plan-2026-10-15.md). Step 2 supplied author evidence for both consumption methods, and independent Step 3 review preceded the October 15, 2026 publication ([publication evidence](../reviews/pl-api-02-pages-publication-2026-10-15.md)). Later changes follow the [adopted update procedure](../bootstrap/api-v2-documentation-update-procedure.md), including its accepted-identity and independent-review gates.
+
+
+The October27 [capability audit correction candidate](../reviews/sdk-talk-capability-audit-2026-10-27.md) adds a provider-free retained broker-balance observation read in the existing Account/evidence OAS module. It preserves distinct broker-reported fields, unknowns, source/receipt/export clocks and original-source authorization. It does not establish current buying power after trades, actual debt, per-put collateral or governed availability. Candidate contract inclusion is not independent acceptance or publication; release manifest/live documentation remain unchanged pending review.

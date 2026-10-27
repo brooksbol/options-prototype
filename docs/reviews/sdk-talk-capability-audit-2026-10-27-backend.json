@@ -1,0 +1,47 @@
+{
+  "sqliteMode": "ro",
+  "providerRequests": 0,
+  "timeStatuses": {
+    "EXPORT_MINUTE": 105
+  },
+  "authorizedAccountsWithoutBalanceOriginals": 0,
+  "protectedValuesExported": false,
+  "realRetainedBackendRead": true,
+  "observations": 105,
+  "fieldStatuses": {
+    "Available to trade (all settled)": {
+      "REPORTED": 32
+    },
+    "Available without margin impact": {
+      "REPORTED": 46
+    },
+    "Cash reserved for options strategies": {
+      "REPORTED": 35
+    },
+    "Margin buying power": {
+      "REPORTED": 46
+    },
+    "Margin credit": {
+      "REPORTED": 3
+    },
+    "Margin credit/debit": {
+      "INVALID": 2,
+      "REPORTED": 20
+    },
+    "Margin debit": {
+      "REPORTED": 10
+    },
+    "Non-margin buying power": {
+      "REPORTED": 46
+    },
+    "Settled cash": {
+      "REPORTED": 73
+    },
+    "Total account value": {
+      "REPORTED": 105
+    }
+  },
+  "byBroker": {
+    "FIDELITY": 105
+  }
+}
