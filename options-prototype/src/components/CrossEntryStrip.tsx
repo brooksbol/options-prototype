@@ -28,6 +28,24 @@ import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evi
 import { CrossEntryRefreshButton } from "../write-desk/CrossEntryRefreshButton";
 import { RowRefreshButton } from "../write-desk/RowRefreshButton";
 import { selectRefreshTopSymbols, REFRESH_TOP_N } from "../write-desk/refresh-top-symbols";
+import { withLiquiditySortKeys, describeLiquidity, LIQUIDITY_GRADE_POLICY, type LiquidityGrade } from "../write-desk/liquidity-grade";
+
+// Liquidity header tooltip: states the provisional rule so the operator can see
+// exactly what the grade means without reading code.
+const LIQUIDITY_HEADER_TITLE = [
+  `Contract liquidity grade (${LIQUIDITY_GRADE_POLICY.version}; provisional cutoffs). Weakest link: the worse of spread % and open interest.`,
+  ...LIQUIDITY_GRADE_POLICY.tiers.map((t) => `L${t.tier} ${t.name}: spread ≤ ${t.maxSpreadPercent}% and OI ≥ ${t.minOpenInterest.toLocaleString()}`),
+  "L4 Illiquid: anything worse.",
+  "Sort: grade, then tightest spread, then largest OI. Volume is not graded (resets each session).",
+  "Buy-Write: option leg only; the stock-purchase spread is not included.",
+  "Display and sorting only — does not affect posture, ranking or Prod v0.",
+].join("\n");
+
+const LIMITED_BY_SHORT: Record<NonNullable<LiquidityGrade["limitedBy"]>, string> = {
+  spread: "spread",
+  openInterest: "OI",
+  both: "both",
+};
 
 // --- Sortable Table (delegates to shared multi-column hook) ---
 
@@ -130,8 +148,10 @@ export function CrossEntryStrip({
   // INTERIM v1: attach observational IV Rank (tastytrade /market-metrics) from each
   // row's originating candidate so it colocates with the volatility block, sorts via
   // the shared `ivRank` key, and exports. Never a recommendation input.
+  // Liquidity sort key (display-only) is attached over the full population so
+  // "sort by liquidity" orders by grade → spread → OI across every row.
   const allRows = useMemo(
-    () => buildCrossEntryRows(putCandidates, buyWriteCandidates).map((r) => ({
+    () => withLiquiditySortKeys(buildCrossEntryRows(putCandidates, buyWriteCandidates)).map((r) => ({
       ...r,
       marketMetrics: (r.originalPut ?? r.originalBuyWrite)?.marketMetrics,
     })),
@@ -311,6 +331,9 @@ export function CrossEntryStrip({
               { key: "dte", label: "DTE" }, { key: "spot", label: "Spot" }, { key: "strike", label: "Strike" },
               { key: "appreciationToStrikeDollars", label: "ApprToStrike$" }, { key: "appreciationToStrikePct", label: "ApprToStrike%" }, { key: "delta", label: "Delta" },
               { key: "bid", label: "Bid" }, { key: "mid", label: "Mid" }, { key: "ask", label: "Ask" },
+              { key: "liquidity", label: "Liquidity", format: (r) => (r.liquidity as LiquidityGrade | null)?.label ?? "" },
+              { key: "liquidityLimitedBy", label: "LiqLimitedBy", format: (r) => (r.liquidity as LiquidityGrade | null)?.limitedBy ?? "" },
+              { key: "spreadPercent", label: "Spread%" }, { key: "openInterest", label: "OI" }, { key: "volume", label: "Volume" },
               { key: "capitalRequired", label: "Capital" }, { key: "cashRemaining", label: "Remaining" },
               { key: "executionScore", label: "Exec" }, { key: "posture", label: "Posture" },
               { key: "age", label: "Age", format: (r) => formatAcquisitionAge(r.evidenceProvenance as EvidenceProvenance | undefined, csvNow) },
@@ -342,7 +365,7 @@ export function CrossEntryStrip({
       </div>
       {!isDefaultOrder && (
         <div className="wd-sort-notice">
-          Viewing sorted by: <strong>{sortKey === "productionV0" ? "Prod v0" : sortKey === "premiumYieldAnnualized" ? "Yield" : sortKey === "executionScore" ? "Exec" : sortKey === "capitalRequired" ? "Capital" : sortKey === "cashRemaining" ? "Remaining" : sortKey === "entryMechanism" ? "Entry" : sortKey}</strong>
+          Viewing sorted by: <strong>{sortKey === "productionV0" ? "Prod v0" : sortKey === "premiumYieldAnnualized" ? "Yield" : sortKey === "executionScore" ? "Exec" : sortKey === "capitalRequired" ? "Capital" : sortKey === "cashRemaining" ? "Remaining" : sortKey === "entryMechanism" ? "Entry" : sortKey === "liquiditySortKey" ? "Liquidity" : sortKey === "spreadPercent" ? "Spread" : sortKey === "openInterest" ? "OI" : sortKey === "volume" ? "Vol" : sortKey}</strong>
           {" · "}
           <button className="wd-sort-reset" onClick={(e) => handleSort("productionV0", e)}>Show Prod v0 order</button>
         </div>
@@ -364,6 +387,10 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("mid", e)}>Mid{indicator("mid")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("ask", e)}>Ask{indicator("ask")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("liquiditySortKey", e)} title={LIQUIDITY_HEADER_TITLE}>Liq{indicator("liquiditySortKey")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("spreadPercent", e)} title="Option bid-ask spread as % of mid: (ask − bid) / mid">Spread{indicator("spreadPercent")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("openInterest", e)} title="Option open interest (published once a day — prior-day figure)">OI{indicator("openInterest")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("volume", e)} title="Option contracts traded this session (resets daily; low early in the session). Not part of the liquidity grade.">Vol{indicator("volume")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("capitalRequired", e)}>Capital{indicator("capitalRequired")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("cashRemaining", e)}>Remaining{indicator("cashRemaining")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("executionScore", e)}>Exec{indicator("executionScore")}</th>
@@ -406,6 +433,16 @@ export function CrossEntryStrip({
               <td>${row.bid.toFixed(2)}</td>
               <td>${row.mid.toFixed(2)}</td>
               <td>${row.ask.toFixed(2)}</td>
+              <td
+                className={`wd-liquidity-cell${row.liquidity?.tier === 4 ? " wd-warn-value" : ""}`}
+                title={describeLiquidity(row.liquidity, row) + (row.entryMechanism === "buy-write" ? " (option leg only)" : "")}
+              >
+                {row.liquidity ? row.liquidity.label : "—"}
+                {row.liquidity?.limitedBy && <span className="wd-liquidity-limit"> {LIMITED_BY_SHORT[row.liquidity.limitedBy]}</span>}
+              </td>
+              <td className={row.spreadPercent > 15 ? "wd-warn-value" : ""}>{row.spreadPercent.toFixed(0)}%</td>
+              <td className={row.openInterest < 50 ? "wd-warn-value" : ""}>{row.openInterest.toLocaleString()}</td>
+              <td>{row.volume.toLocaleString()}</td>
               <td>${row.capitalRequired.toLocaleString()}</td>
               <td className={row.cashRemaining < 0 ? "wd-negative-value" : ""}>${row.cashRemaining.toLocaleString()}</td>
               <td>{row.executionScore}</td>

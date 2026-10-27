@@ -28,6 +28,7 @@
 
 import type { PutCandidate } from "./candidate-types";
 import type { BuyWriteCandidate } from "./recommend-buy-writes";
+import { gradeLiquidity, type LiquidityGrade } from "./liquidity-grade";
 
 // --- Production v0 Result ---
 
@@ -84,6 +85,14 @@ export interface CrossEntryRow {
   mid: number;
   /** Option ask */
   ask: number;
+  /** Option spread as % of mid, copied from the source candidate */
+  spreadPercent: number;
+  /** Option open interest, copied from the source candidate */
+  openInterest: number;
+  /** Option volume (current session), copied from the source candidate */
+  volume: number;
+  /** Contract liquidity grade — display/sort only, never a decision input */
+  liquidity: LiquidityGrade | null;
   /** Annualized premium yield (for sanity-check column) */
   premiumYieldAnnualized: number;
   /** Production v0 monthly rate */
@@ -218,6 +227,10 @@ export function buildCrossEntryRows(
       bid: c.bid,
       mid: c.mid,
       ask: c.ask,
+      spreadPercent: c.spreadPercent,
+      openInterest: c.openInterest,
+      volume: c.volume,
+      liquidity: gradeLiquidity(c),
       premiumYieldAnnualized: c.yieldAnnualized,
       productionV0: decomposition.productionV0,
       decomposition,
@@ -250,6 +263,10 @@ export function buildCrossEntryRows(
       bid: c.bid,
       mid: c.mid,
       ask: c.ask,
+      spreadPercent: c.spreadPercent,
+      openInterest: c.openInterest,
+      volume: c.volume,
+      liquidity: gradeLiquidity(c),
       premiumYieldAnnualized: c.premiumYieldAnnualized,
       productionV0: decomposition.productionV0,
       decomposition,

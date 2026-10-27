@@ -2336,3 +2336,33 @@ The bounded cleanup is recorded as closed in `docs/technology-quality-program-v1
 Learning: a derived public artifact can depend on Git history broader than its declared inputs. The identity gate caught this; the regression now derives expected history from the manifest rather than from the generator.
 
 Still open with their own owners: Class A 15 vs 25 min; Velvet Rope runtime admission; Constraint Identification continuation; `ASSIM-0002` PENDING (`ASSIM-0001` VERIFIED). `PL-COHERE-01` remains open.
+
+### October 27, 2026 — Deployment Cash Deployment table: BUG-050 filed; contract Liquidity grade accepted
+
+**Context.** v1 Deployment (Write Desk) Cash Deployment — Prod v0 table, Principal live-session review (Kiro).
+
+**BUG-050 (filed, open, no remediation).** Principal statements: "it's a bug even if i approved it… loss if called away is unacceptable." and "this does not apply to puts, just calls including BWs". The CSP side of the signed Appr→Strike column (`4177ee6f`) is therefore correct. The call-side defect is in the covered-call path: `recommendCalls` surfaces its target-delta pick without checking basis. An executable specimen (strike 60, basis 63) came back ACTIONABLE. The buy-write (`strike > spot`) and contingent-call (`strike > basis`) paths already comply. Three Product questions block a fix: no-basis behavior, whether premium is included, and exclude vs. demote. They are recorded in `docs/bugs/BUG-050-covered-call-below-basis-loss-if-called-away.md` (`60cb6c83`).
+
+**Learning — Exec cannot rank liquidity.** Exec is a weighted composite with very low saturation references (spread 15%, OI 50, volume 10). OI 51 and OI 50,000 both score 100, so many rows tie at 100. It answers "tradeable?", not "how liquid?". This was established from source (`execution-policy.ts`) and the Principal's export. Exec itself is unchanged.
+
+**Accepted — contract Liquidity grade (display/sort only).**
+- What: Principal approved Option A and authorized implementation. Principal browser acceptance: PASSED.
+- Columns added: Liq (L1–L4 with a "limited by" note), Spread, OI, Vol, plus their CSV columns.
+- Rule: weakest link (non-compensatory) between spread % of mid and open interest. Liquidity sort is grade → tighter spread → larger OI; ungraded rows sort last.
+- Deliberately excluded:
+  - volume, which resets each session and would bias the grade by time of day;
+  - the buy-write stock-leg spread, which is not observed on the row;
+  - ETF share liquidity, which is not in v1 Deployment evidence.
+- Boundary: the grade never feeds posture, ranking, Prod v0 or filters. A test enforces this.
+- If it ever gates or ranks decisions, it becomes Decision policy requiring `PL-*` intake. It is distinct from the `PL-EVID-OBS` universe-servicing guardrail against a structural-liquidity score.
+- Numeric authority: the cutoffs are Principal-ratified provisional parameters (`LIQUIDITY_GRADE_POLICY` `v0-provisional`, `src/write-desk/liquidity-grade.ts`): L1 ≤5% and ≥1,000 OI; L2 ≤10% and ≥250; L3 ≤20% and ≥50; else L4. They are a starting point for calibration against observed tier distribution, not ratified policy.
+
+**Related open question (not resolved).** The SDK Talk W1 "most liquid" question concerns underlying-level liquidity. This contract-level grade does not answer it.
+
+**Closeout.**
+- Tests: the frontend suite passed (2,217 tests) and the build passed.
+- API v2 docs: `NO_UPDATE_REQUIRED`. The last deployment was source `cc066b15`, run 39985542391, with a successful deploy job. No trigger-set paths changed between `cc066b15` and `60cb6c83`, and the session's pending v1 paths are not v2-relevant. A publication build at `60cb6c83` was byte-identical to live `index.html` (`10a2dbb7…f2b4`) and `LICENSES.txt` (`d49296fc…d5b8`). The live specimen check passed.
+- Still open, with their own owners:
+  - BUG-050 Product questions;
+  - unreconciled Codex Talk candidate state (PR #42 head beyond its recorded W1 source; October 27 worktrees);
+  - `ASSIM-0002` PENDING.

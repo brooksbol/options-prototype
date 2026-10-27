@@ -447,6 +447,16 @@
   color: var(--wd-accent-yellow);
 }
 
+/* Cash Deployment liquidity grade: muted "limited by" qualifier after L2–L4 */
+.wd-liquidity-cell {
+  white-space: nowrap;
+}
+
+.wd-liquidity-limit {
+  font-size: 0.85em;
+  color: var(--wd-text-tertiary);
+}
+
 /* No-trade result */
 .wd-no-trade {
   text-align: center;
