@@ -1868,7 +1868,7 @@
       "get": {
         "operationId": "readAccountBalanceObservations",
         "summary": "Read retained broker balance observations",
-        "description": "Pure provider-free projection of accepted retained TASTYTRADE API_BALANCES and FIDELITY BALANCES originals. Distinct brokerField and meaning preserve cash, equity/options/day-trading buying power, margin requirements and reserve dialects. No universal deployable-capital mapping, debt derivation, strategy permission, per-put collateral, governance allocation or order preview. No model arithmetic establishes financial findings. currentness is always NOT_ESTABLISHED and historyCoverage UNKNOWN. Empty observations means no selected accepted balance original, never zero buying power. Original bytes remain private; only allowlisted numeric fields are projected. Missing, invalid or duplicate fields never silently become zero. Exact decimal JSON numbers retain source precision; clients must parse losslessly. Tastytrade source updated-at and snapshot-date survive separately from first artifact receipt. Fidelity export minute (America/New_York) is separate from unknown source observation time; currency is unknown and unit SOURCE_MONETARY_UNIT. Receipt ordering does not establish source-time ordering or latest/current state after trades. Collection order receivedAt then artifactId ascending; content-deduplicated originals are not a complete observation-attempt history. Select optional artifactId to narrow to an exact original. Complete collection limit 200 artifacts /32 MiB; capacity/hash failure returns 503 without partial output. Unsupported brokerage is 422.\n\n<!-- internal-only:start -->\nCanonical accountId and existing account.artifacts.read for that exact Account required before storage. Nickname resolution additionally requires ordinary account.read; no new grants are introduced. Original scope must be positively established as the single requested Account; otherwise whole read is 403. Only one accountId and optional single artifactId allowed; unknown/repeated/blank query parameters, nonempty GET body and malformed correlation are 422 after authentication/applicable authorization. No provider calls, filesystem capability or change to acquisition permissions.\n<!-- internal-only:end -->",
+        "description": "Pure provider-free projection of accepted retained TASTYTRADE API_BALANCES and FIDELITY BALANCES originals. Distinct brokerField and meaning preserve cash, equity/options/day-trading buying power, margin requirements and reserve dialects. No universal deployable-capital mapping, debt derivation, strategy permission, per-put collateral, governance allocation or order preview. No model arithmetic establishes financial findings. currentness is always NOT_ESTABLISHED and historyCoverage UNKNOWN. Empty observations means no selected accepted balance original, never zero buying power. Original bytes remain private; only allowlisted numeric fields are projected. Missing, invalid or duplicate fields never silently become zero. Exact decimal JSON numbers retain source precision; clients must parse losslessly. Tastytrade source updated-at and snapshot-date survive separately from first artifact receipt. Fidelity export minute (America/New_York) is separate from unknown source observation time; currency is unknown and unit SOURCE_MONETARY_UNIT. Receipt ordering does not establish source-time ordering or latest/current state after trades. Collection order receivedAt then artifactId ascending; content-deduplicated originals are not a complete observation-attempt history. Select optional artifactId to narrow to an exact original. Complete collection limit 200 artifacts /32 MiB; capacity/hash failure returns 503 without partial output. Unsupported brokerage is 422.\n\n<!-- internal-only:start -->\nCanonical accountId and existing account.artifacts.read for that exact Account required before storage. Nickname resolution additionally requires ordinary account.read; no new grants are introduced. Original scope must be positively established as the single requested Account; otherwise whole read is 403. Only one accountId and optional single artifactId allowed; unknown/repeated/blank query parameters, nonempty GET body and malformed correlation are 422 after authentication/applicable authorization. No provider calls, filesystem capability or change to acquisition permissions.\n<!-- internal-only:end -->\n\nBounded selection: selection=latest-source scans and validates originals backend-side but returns at most one observation. Source ordering uses tastytrade updated-at or Fidelity export minute, never receipt. Tied maximal source times are AMBIGUOUS_SOURCE_TIME with zero observations; all unknown clocks produce NO_ORDERABLE_SOURCE_TIME. A sourceAtOrAfter miss returns NO_MATCHING_SOURCE_TIME and the latest known retained source time. Some unknown clocks permit only a qualified maximum among known times, not a complete chronology. Currentness remains NOT_ESTABLISHED. Default all and exact artifactId reads preserve prior semantics. Financial glyphs in reportedDisplay come from validated broker scalar text; a dollar glyph does not create an ISO currency determination.",
         "security": [
           {
             "bearerAuth": []
@@ -1940,6 +1940,56 @@
                         "Invented fixture, not a real brokerage Account. Retained observation; no currentness claim."
                       ]
                     }
+                  },
+                  "bounded": {
+                    "summary": "Invented bounded source-time selection; no currentness claim",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "currentness": "NOT_ESTABLISHED",
+                      "historyCoverage": "UNKNOWN",
+                      "observations": [
+                        {
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "broker": "TASTYTRADE",
+                          "environment": "PRODUCTION",
+                          "currency": "USD",
+                          "unit": "MONEY",
+                          "source": {
+                            "artifactId": "11111111-1111-4111-8111-111111111111",
+                            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "fileType": "API_BALANCES",
+                            "receivedAt": "2026-10-27T16:00:00Z",
+                            "observedAt": "2026-10-26T13:20:00Z",
+                            "observationDate": "2026-10-26",
+                            "exportedAt": null,
+                            "timeStatus": "SOURCE_INSTANT"
+                          },
+                          "fields": [
+                            {
+                              "brokerField": "derivative-buying-power",
+                              "meaning": "BROKER_REPORTED_OPTIONS_BUYING_POWER",
+                              "status": "REPORTED",
+                              "value": 1000.01,
+                              "sourceLocator": "/data/derivative-buying-power"
+                            }
+                          ]
+                        }
+                      ],
+                      "qualifications": [
+                        "Invented fixture, not a real brokerage Account. Retained observation; no currentness claim."
+                      ],
+                      "selection": {
+                        "mode": "latest-source",
+                        "status": "SELECTED",
+                        "retainedObservationCount": 82,
+                        "unknownSourceTimeCount": 0,
+                        "latestKnownSourceTime": "2026-10-26T13:20:00Z",
+                        "selectedSourceTime": "2026-10-26T13:20:00Z",
+                        "sourceAtOrAfter": null,
+                        "readAt": "2026-10-27T16:00:00Z"
+                      }
+                    }
                   }
                 }
               }
@@ -1987,6 +2037,28 @@
               "format": "uuid"
             },
             "example": "22222222-2222-4222-8222-222222222222"
+          },
+          {
+            "name": "selection",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "latest-source"
+              ],
+              "default": "all"
+            },
+            "description": "all preserves the retained collection. latest-source returns at most one unique maximal known source-time observation, never ordered by receipt. Unknown clocks remain explicitly counted; ties return no amounts."
+          },
+          {
+            "name": "sourceAtOrAfter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Optional earliest source instant, only with latest-source. A miss returns no amounts and latestKnownSourceTime; it does not trigger acquisition. Cannot combine latest-source with artifactId."
           }
         ],
         "tags": [
@@ -3944,6 +4016,13 @@
               "string",
               "null"
             ]
+          },
+          "reportedDisplay": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Validated source scalar display text. Null for unknown/invalid amounts. Presentation only; source glyphs do not establish a currency code."
           }
         },
         "allOf": [
@@ -4182,6 +4261,99 @@
             "items": {
               "type": "string"
             }
+          },
+          "selection": {
+            "$ref": "#/components/schemas/AccountBalanceSelection"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "selection"
+              ],
+              "properties": {
+                "selection": {
+                  "properties": {
+                    "mode": {
+                      "const": "latest-source"
+                    }
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "observations": {
+                  "maxItems": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AccountBalanceSelection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "status",
+          "retainedObservationCount",
+          "unknownSourceTimeCount",
+          "latestKnownSourceTime",
+          "selectedSourceTime",
+          "sourceAtOrAfter",
+          "readAt"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "all",
+              "latest-source"
+            ]
+          },
+          "status": {
+            "enum": [
+              "COLLECTION",
+              "SELECTED",
+              "EMPTY",
+              "NO_ORDERABLE_SOURCE_TIME",
+              "NO_MATCHING_SOURCE_TIME",
+              "AMBIGUOUS_SOURCE_TIME"
+            ]
+          },
+          "retainedObservationCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unknownSourceTimeCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "latestKnownSourceTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "selectedSourceTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "sourceAtOrAfter": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

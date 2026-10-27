@@ -19,6 +19,7 @@ public class AccountBalancesController {
     @GetMapping("/v2/account-balance-observations")
     public ResponseEntity<String> read(@RequestParam(required=false) String accountId,
             @RequestParam(required=false) String artifactId,
+            @RequestParam(defaultValue="all") String selection, @RequestParam(required=false) String sourceAtOrAfter,
             @RequestBody(required = false) byte[] body, HttpServletRequest request) throws Exception {
         var ids = Collections.list(request.getHeaders("X-Request-Id"));
         String supplied = ids.size() == 1 ? ids.getFirst().trim() : "";
@@ -33,10 +34,12 @@ public class AccountBalancesController {
         if (badId) invalid.add(new ProblemDetails.InvalidParam("X-Request-Id", "must be a single UUID"));
         if (accountId != null && !AccountDirectory.validId(accountId)) invalid.add(new ProblemDetails.InvalidParam("accountId", "canonical Account ID required"));
         if (artifactId != null && !HeldQuoteDiscoveryItem.validUuid(artifactId)) invalid.add(new ProblemDetails.InvalidParam("artifactId", "UUID required"));
+        if (!Set.of("all","latest-source").contains(selection) || artifactId!=null&&!selection.equals("all") || sourceAtOrAfter!=null&&!selection.equals("latest-source")) invalid.add(new ProblemDetails.InvalidParam("selection","all or latest-source; sourceAtOrAfter requires latest-source; artifactId requires all"));
+        if(sourceAtOrAfter!=null)try{java.time.Instant.parse(sourceAtOrAfter);}catch(java.time.DateTimeException e){invalid.add(new ProblemDetails.InvalidParam("sourceAtOrAfter","unambiguous ISO instant required"));}
         if (body != null && body.length > 0) invalid.add(new ProblemDetails.InvalidParam("body", "GET body unsupported"));
         if (accountId == null) invalid.add(new ProblemDetails.InvalidParam("accountId", "required"));
         for (String name : Collections.list(request.getParameterNames()))
-            if (!Set.of("accountId", "artifactId").contains(name) || request.getParameterValues(name).length != 1)
+            if (!Set.of("accountId", "artifactId", "selection", "sourceAtOrAfter").contains(name) || request.getParameterValues(name).length != 1)
                 invalid.add(new ProblemDetails.InvalidParam(name, "unknown or repeated query parameter"));
         if (!invalid.isEmpty()) return problem(ProblemCode.INVALID_REQUEST, id, "invalid read request", invalid);
         try {
@@ -44,7 +47,7 @@ public class AccountBalancesController {
             if(account.isEmpty())return problem(ProblemCode.NOT_FOUND,id,"Account not found",null);
             if(!Set.of("FIDELITY","TASTYTRADE").contains(account.get().brokerAssociation().broker()))
                 return problem(ProblemCode.INVALID_REQUEST,id,"unsupported balance dialect",List.of(new ProblemDetails.InvalidParam("accountId","supported brokerage required")));
-            return response(200,id,MediaType.APPLICATION_JSON,service.read(accountId,artifactId,id,caller.get()));
+            return response(200,id,MediaType.APPLICATION_JSON,service.read(accountId,artifactId,selection,sourceAtOrAfter,id,caller.get()));
         } catch (SecurityException e) {
             return problem(ProblemCode.FORBIDDEN,id,"source scope not authorized",null);
         } catch (java.sql.SQLException e) {

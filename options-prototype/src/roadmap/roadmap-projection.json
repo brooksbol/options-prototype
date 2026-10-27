@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-27T16:30:16.358Z",
+    "generatedAt": "2026-10-27T18:36:14.338Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 49,
+      "bugTotal": 50,
       "logTotal": 121,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -11185,6 +11185,88 @@
           "level": 2,
           "content": "The Principal supplied Kiro **ACCEPT** of revised 12-file archive SHA-256\n`1e27c1f6f1c374ca8cb6e850c4583568b91156b379e313cbe27817694a346366`\nand explicitly authorized final post-checks and coordinated integration/deployment.\nPost-test manifest hashes and operational isolation both passed. Exact accepted\nsource is integrated at `dbdd6ea037a8ed8d6be57da403e95d0f569a0300`.\nCorrected backend and matching ww client are installed together; ordinary installed\nAccount reads pass with no number fields and a nickname-first human table.\nCanonical identity, grants, bindings and retained evidence were preserved; v1 and\nfrozen H-004 remained untouched. [Delivery/verification receipt](../reviews/bug-049-integration-deployment-2026-10-23.md).",
           "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-052",
+      "title": "Talk balance answer retrieves and displays retained history",
+      "area": "API v2 / MCP / SDK Talk",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-052-talk-balance-history-overretrieval.md",
+      "provenance": "Principal report 2026-10-27; bounded candidate retest",
+      "recordTitle": "BUG-052 — Talk balance answer retrieves and displays retained history",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Principal reported nearly 2,000 lines of historical records/raw JSON preceding a short PTS margin answer. The persisted real SDK probe independently records 82 returned balance observations and 34,260 input tokens for the original question. The line count is operator-reported, not independently measured.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "ADR-024 leaves authoritative evidence selection in the backend and conversation in SDK Talk. Evidence must support a qualified operator answer without indiscriminate disclosure or source records dominating the answer. Latest retained evidence does not establish current buying power.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[Original real probe](../reviews/sdk-talk-real-read-profile-2026-10-27-probe.json), [bounded retest](../reviews/sdk-talk-bounded-balances-2026-10-27.json), and [implementation receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md). No protected financial amounts are included in this record.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Unnecessary private history crosses the model boundary, increases context consumption, and obscures the useful historical facts. Principal requested high-priority correction; that sequencing is distinct from severity, which has not been ratified.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The balance API's collection read was reused without a source-time selector. MCP forwarded all observations; Talk rendered all fields plus raw JSON. Collapsing the old JSON alone would not address model disclosure.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Authorized bounded candidate engineering under PL-MCP-01. No new Account grants, acquisition, trades, production installation, v1 changes, financial engine in MCP/Talk, or new Product capital-allocation policy.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- Backend selection returns at most one qualified source-time observation; receipt order never establishes source order or currentness. Ties and unorderable clocks are explicit.\n- MCP defaults to that selection and preserves source facts, missingness, authorization and chronology qualifications.\n- Original question reaches the model with no historical collection; demonstrate bounded bytes and observation count.\n- Compact card emphasizes relevant reported facts and historical date. Provenance requires deliberate interaction; balance raw JSON is not rendered.\n- A request for a missing later session returns no selected amount and explains known source coverage.\n- Principal can inspect the preview; author verification must not be labeled independent approval or Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "October 27 candidate adds API v2 `selection=latest-source`, optional `sourceAtOrAfter`, selection metadata and source display lexemes. MCP defaults to the bounded read. Talk renders a compact typed card and lazy provenance details. Existing API collection behavior remains compatible for explicit callers.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Author evidence: 11 Java balance tests; 8 MCP tests; 8 OAS contract groups (38 operations); 19 Talk tests including actual Java HTTP/MCP and lazy provenance DOM assertions. Real authorized SDK question selects one October 19 source, 2,882 bytes, 6,634 input tokens. Follow-up naturally selects the source-time bound and returns zero observations for October 26. Browser visual verification is unavailable because this session has no browser provider. Record remains Open pending that final presentation check; no Principal acceptance claimed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "ADR-024; PL-MCP-01; October 26 real-world case study; BUG-022 governs a separate Regime/capital issue. BUG-051 belongs to concurrent v1 work and is untouched.",
+          "truncated": false,
           "tables": []
         }
       ]

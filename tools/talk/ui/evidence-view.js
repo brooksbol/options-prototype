@@ -59,17 +59,50 @@ export function evidenceView(raw) {
     }
     qualifications.push(...(position.warnings ?? []).map(warning => warning.code));
   }
-  for (const observation of value.evidence?.observations ?? []) {
-    if (!Array.isArray(observation.fields)) continue;
-    add('Balance Account', value.account?.nickname);
-    add('Balance broker', observation.broker);
-    add('Source environment', observation.environment);
-    add('Observed', observation.source?.observedAt);
-    add('Observation date', observation.source?.observationDate);
-    add('Exported', observation.source?.exportedAt);
-    add('Received', observation.source?.receivedAt);
-    for (const field of observation.fields)
-      add(field.brokerField, field.value, [observation.currency ?? observation.unit, field.status].filter(Boolean).join(' · '));
+  let balanceSummary;
+  if (Array.isArray(value.evidence?.observations)) {
+    const evidence = value.evidence, selection = evidence.selection ?? {};
+    const observation = evidence.observations.length === 1 ? evidence.observations[0] : undefined;
+    const fields = observation?.fields ?? [];
+    const byName = key => fields.find(f => f.brokerField === key);
+    const money = field => {
+      if (!field || field.status !== 'REPORTED') return 'Unavailable';
+      if (field.reportedDisplay?.includes('$')) return field.reportedDisplay;
+      const exact = text(field.value);
+      const [whole,fraction] = exact.split('.');
+      return observation.currency === 'USD' ? '$' + whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (fraction === undefined ? '' : '.' + fraction) : exact;
+    };
+    const requested = observation?.broker === 'TASTYTRADE' ? [
+      ['Options buying power','derivative-buying-power'], ['Equity buying power','equity-buying-power'],
+      ['Settled cash','cash-balance'], ['Maintenance requirement','maintenance-requirement']
+    ] : [
+      ['Available without additional margin impact','Available without margin impact'],
+      ...([['Reported margin debit','Margin debit'], ['Reported margin credit','Margin credit'],
+        ['Margin credit/debit · reported','Margin credit/debit']].filter(([,key]) => byName(key))),
+      ['Options collateral reserved', byName('Cash reserved for options strategies') ? 'Cash reserved for options strategies' : 'Cash reserved for options'],
+      ['Settled cash','Settled cash']
+    ];
+    const source = observation?.source;
+    const at = source?.exportedAt ?? source?.observedAt;
+    const day = at?.slice(0,10);
+    const date = day ? new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z')) : 'Source time unavailable';
+    const historical = day && day < (selection.readAt ?? new Date().toISOString()).slice(0,10);
+    balanceSummary = {
+      title: `${value.account?.nickname ?? 'Account'} · Margin & buying power`,
+      subtitle: `${observation?.broker ?? value.account?.broker ?? ''} · Retained balance from ${date}`,
+      badge: historical ? 'Historical' : 'Retained · currentness unverified',
+      facts: observation ? requested.slice(0,6).map(([label,key]) => ({label,value:money(byName(key)),status:byName(key)?.status ?? 'MISSING'})) : [],
+      note: observation ? `This is retained evidence, not today's buying power. ${selection.mode === 'latest-source' ? 'Latest known source time' : 'Selected source time'}: ${date}. ${selection.mode !== 'latest-source' ? 'Exact artifact read; later Account sources were not compared.' : text(selection.unknownSourceTimeCount) !== '0' && selection.unknownSourceTimeCount != null ? 'Some retained source times are unknown; chronology is incomplete.' : 'No later source-dated balance is retained.'}` :
+        `No single qualified balance selected (${selection.status ?? 'unscoped history'}). No financial amount established.${selection.latestKnownSourceTime ? ' Latest known source time: ' + selection.latestKnownSourceTime + '.' : ''}`,
+      details: [
+        ['Selection',selection.status], ['Selected source time',selection.selectedSourceTime],
+        ['Latest known source time',selection.latestKnownSourceTime], ['Requested source at or after',selection.sourceAtOrAfter],
+        ['Unknown source clocks',selection.unknownSourceTimeCount], ['Read at',selection.readAt],
+        ['Observed',source?.observedAt], ['Exported',source?.exportedAt], ['Received',source?.receivedAt],
+        ['Source artifact',source?.artifactId], ['Source SHA-256',source?.sha256],
+        ...fields.map(field => [field.brokerField,`${money(field)} · ${field.status} · ${field.sourceLocator ?? 'source location unavailable'}`])
+      ].filter(([,item]) => item !== undefined && item !== null).map(([label,item]) => [label,text(item)])
+    };
   }
   qualifications.push(...(value.evidence?.qualifications ?? []));
   if (value.evidence?.measurements) for (const [name, metric] of Object.entries(value.evidence.measurements))
@@ -77,5 +110,5 @@ export function evidenceView(raw) {
   if (!rows.length) rows.push(['Evidence', 'Detailed source is available below.']);
   for (const field of ['qualification', 'sourceQualification', 'scope']) if (value[field]) qualifications.push(value[field]);
   if (value.dataClassification) qualifications.unshift(value.dataClassification);
-  return { rows, qualifications: [...new Set(qualifications)] };
+  return { rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}) };
 }

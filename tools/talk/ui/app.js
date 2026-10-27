@@ -67,24 +67,55 @@ $('composer').addEventListener('submit', async event => {
       const raw = resultText(tool.result);
       const view = evidenceView(raw);
       const card = document.createElement('section'); card.className = 'evidence-card';
-      const title = document.createElement('h4'); title.textContent = tool.isError ? 'Backend problem' : 'Backend findings'; card.append(title);
-      const table = document.createElement('dl');
-      for (const [label, value] of view.rows) {
-        const key = document.createElement('dt'); key.textContent = label;
-        const cell = document.createElement('dd'); cell.textContent = value; table.append(key, cell);
+      if (view.balanceSummary) {
+        card.classList.add('balance-card');
+        const balance = view.balanceSummary;
+        const title = document.createElement('h3'); title.textContent = balance.title; card.append(title);
+        const subtitle = document.createElement('p'); subtitle.className = 'balance-source'; subtitle.textContent = balance.subtitle; card.append(subtitle);
+        const badge = document.createElement('span'); badge.className = 'balance-badge'; badge.textContent = balance.badge; card.append(badge);
+        const facts = document.createElement('div'); facts.className = 'balance-facts';
+        for (const fact of balance.facts) {
+          const row = document.createElement('div');
+          const label = document.createElement('span'); label.textContent = fact.label;
+          const amount = document.createElement('strong'); amount.textContent = fact.value;
+          row.append(label,amount); facts.append(row);
+        }
+        card.append(facts);
+        const note = document.createElement('p'); note.className = 'evidence-notes'; note.textContent = balance.note; card.append(note);
+        const details = document.createElement('details');
+        const summary = document.createElement('summary'); summary.textContent = 'Historical source details'; details.append(summary);
+        let loaded = false;
+        details.addEventListener('toggle',()=>{
+          if (!details.open || loaded) return;
+          loaded = true;
+          const list = document.createElement('dl');
+          for (const [label,value] of balance.details) {
+            const key = document.createElement('dt'); key.textContent = label;
+            const cell = document.createElement('dd'); cell.textContent = value; list.append(key,cell);
+          }
+          details.append(list);
+        });
+        card.append(details);
+      } else {
+        const title = document.createElement('h4'); title.textContent = tool.isError ? 'Backend problem' : 'Backend findings'; card.append(title);
+        const table = document.createElement('dl');
+        for (const [label,value] of view.rows) {
+          const key = document.createElement('dt'); key.textContent = label;
+          const cell = document.createElement('dd'); cell.textContent = value; table.append(key,cell);
+        }
+        card.append(table);
+        const notes = document.createElement('p'); notes.className = 'evidence-notes'; notes.textContent = view.qualifications.join(' · '); card.append(notes);
+        const details = document.createElement('details');
+        const summary = document.createElement('summary'); summary.textContent = 'Source details'; details.append(summary);
+        let loaded = false;
+        details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const pre=document.createElement('pre');pre.textContent=raw;details.append(pre);}});
+        card.append(details);
       }
-      card.append(table);
-      const notes = document.createElement('p'); notes.className = 'evidence-notes'; notes.textContent = view.qualifications.join(' · '); card.append(notes);
       article.insertBefore(card, article.querySelector('.text'));
-      const details = document.createElement('details');
-      details.open = false;
-      const summary = document.createElement('summary'); summary.textContent = 'Inspect detailed source';
-      const pre = document.createElement('pre');
-      pre.textContent = raw;
-      details.append(summary, pre); card.append(details);
+
     }
     if (answer.tools?.length) {
-      const label = document.createElement('h4'); label.className = 'commentary-label'; label.textContent = 'Conversational analysis';
+      const label = document.createElement('h4'); label.className = 'commentary-label'; label.textContent = 'Talk’s analysis';
       article.insertBefore(label, article.querySelector('.text'));
     }
     $('status').textContent = answer.error ? 'Commentary failed · completed results retained' : (metadataOnly ? 'Ready · fresh local session each turn' : 'Ready · local context retained');

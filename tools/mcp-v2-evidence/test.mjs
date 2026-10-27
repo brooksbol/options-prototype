@@ -73,15 +73,16 @@ test('unknown nickname returns authorized recovery metadata without reading or g
 const { inspectBalances } = await import('./balances.mjs');
 test('balance discovery, exact subject/provenance preservation and lossless decimals', async () => {
   const id='acct_'+'a'.repeat(32);
-  const payload={requestId,accountId:id,currentness:'NOT_ESTABLISHED',historyCoverage:'UNKNOWN',observations:[{accountId:id,broker:'TASTYTRADE',source:{artifactId:requestId},fields:[{brokerField:'derivative-buying-power',value:1}]}]};
+  const payload={requestId,accountId:id,currentness:'NOT_ESTABLISHED',historyCoverage:'UNKNOWN',selection:{mode:'latest-source',status:'SELECTED'},observations:[{accountId:id,broker:'TASTYTRADE',source:{artifactId:requestId},fields:[{brokerField:'derivative-buying-power',value:1}]}]};
   const inventory={requestId,accounts:[{id,alias:'orchard',brokerAssociation:{broker:'TASTYTRADE'}}]};
   const result=await inspectBalances({account:'orchard'}, {...config,syntheticFixture:true,fetchImpl:async url=>{
     if(url.pathname==='/v2/accounts')return response(JSON.stringify(inventory));
-    assert.equal(url.pathname,'/v2/account-balance-observations');assert.equal(url.searchParams.get('accountId'),id);
+    assert.equal(url.pathname,'/v2/account-balance-observations');assert.equal(url.searchParams.get('selection'),'latest-source');assert.equal(url.searchParams.get('accountId'),id);
     return response(JSON.stringify(payload).replace('"value":1','"value":1000.123456789012'));
   }});
   assert.match(result.content[0].text,/1000.123456789012/);assert.match(result.content[0].text,/SYNTHETIC_FIXTURE/);
   await assert.rejects(inspectBalances({account:'orchard'}, {...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?inventory:{...payload,accountId:'foreign'}))}));
+  await assert.rejects(inspectBalances({account:'orchard'}, {...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?inventory:{...payload,observations:[...payload.observations,...payload.observations]}))}));
   const denied=await inspectBalances({account:'orchard'}, {...config,fetchImpl:async url=>url.pathname==='/v2/accounts'?response(JSON.stringify(inventory)):response(JSON.stringify({requestId,status:403,title:'Forbidden',code:'FORBIDDEN',detail:'PRIVATE-CANARY'}),403)});
   assert.equal(denied.isError,true);assert.doesNotMatch(denied.content[0].text,/PRIVATE-CANARY/);
 });

@@ -15,13 +15,15 @@ import java.util.regex.Pattern;
 /** Pure retained-source projection. Broker balance dialects remain distinct; no capacity policy. */
 @Component
 public class AccountBalanceObservations {
-    public record Field(String brokerField, String meaning, String status, BigDecimal value, String sourceLocator) {}
+    public record Field(String brokerField, String meaning, String status, BigDecimal value, String sourceLocator, String reportedDisplay) {}
     public record Source(String artifactId, String sha256, String fileType, String receivedAt,
                          String observedAt, String observationDate, String exportedAt, String timeStatus) {}
     public record Observation(String accountId, String broker, String environment, String currency,
                               String unit, Source source, List<Field> fields) {}
+    public record Selection(String mode, String status, int retainedObservationCount, int unknownSourceTimeCount,
+                            String latestKnownSourceTime, String selectedSourceTime, String sourceAtOrAfter, String readAt) {}
     public record Read(String requestId, String accountId, String currentness, String historyCoverage,
-                       List<Observation> observations, List<String> qualifications) {}
+                       List<Observation> observations, List<String> qualifications, Selection selection) {}
     private final String url;
     private final BrokerageArtifacts artifacts;
     private final AccountDirectory accounts;
@@ -53,6 +55,11 @@ public class AccountBalanceObservations {
         this.url=url; this.artifacts=artifacts; this.accounts=accounts;
     }
     public Read read(String account, String artifactId, String requestId, BearerAuthenticator.Principal caller) throws Exception {
+        return read(account,artifactId,"all",null,requestId,caller);
+    }
+    public Read read(String account, String artifactId, String selection, String sourceAtOrAfter, String requestId, BearerAuthenticator.Principal caller) throws Exception {
+        if(!Set.of("all","latest-source").contains(selection)||artifactId!=null&&!selection.equals("all")||sourceAtOrAfter!=null&&!selection.equals("latest-source"))throw new IllegalArgumentException("invalid balance selection");
+        Instant lower=sourceAtOrAfter==null?null:Instant.parse(sourceAtOrAfter);
         if(!caller.hasGrant("account.artifacts.read:"+account))throw new SecurityException();
         var owner=accounts.get(account).orElseThrow();
         var observations=new ArrayList<Observation>(); long bytes=0;
@@ -78,13 +85,33 @@ public class AccountBalanceObservations {
             }
             c.commit();
         }
-        return new Read(requestId,account,"NOT_ESTABLISHED","UNKNOWN",List.copyOf(observations),List.of(
-            "Retained accepted originals only; no provider acquisition or claim of current buying power after trades.",
-            "Broker-specific fields are independent reported quantities; missing or invalid is unknown, never zero.",
-            "Receipt order is not source-time order. No latest/current selection or atomic cut with holdings or fills.",
-            "Buying power is not cash, margin requirement is not debt, used buying power is not per-put collateral.",
-            "No strategy eligibility, actual margin borrowing, order preview, Operating Regime allocation or deploy recommendation established.",
-            "Up to 200 originals / 32 MiB; capacity failure returns no partial collection. artifactId selects one retained original."));
+        var selectionResult=select(observations,selection,lower);
+        return new Read(requestId,account,"NOT_ESTABLISHED","UNKNOWN",selectionResult.observations(),List.of(
+            "Retained broker balance evidence only; latest known source time is not current buying power.",
+            "Missing, invalid and duplicate fields are unknown, never zero. Buying power, cash, margin requirements and debt are distinct.",
+            "Source selection uses broker updated-at or Fidelity export-minute, never receipt order. Unknown clocks and tied latest sources remain explicit.",
+            "No post-fill/currentness, per-put collateral, strategy permission or Operating Regime allocation inferred.",
+            "History remains in the backend. Source coverage ends at latestKnownSourceTime; no later orderable balance has been retained."),
+            new Selection(selection,selectionResult.status(),observations.size(),selectionResult.unknown(),selectionResult.latest(),selectionResult.selected(),
+                lower==null?null:lower.toString(),Instant.now().toString()));
+    }
+    private record Selected(List<Observation> observations,String status,int unknown,String latest,String selected){}
+    private static Instant sourceTime(Observation o) {
+        try {if(o.source().observedAt()!=null)return Instant.parse(o.source().observedAt());
+            if(o.source().exportedAt()!=null)return OffsetDateTime.parse(o.source().exportedAt()).toInstant();
+        }catch(java.time.DateTimeException ignored){}return null;
+    }
+    private static Selected select(List<Observation> observations,String mode,Instant lower) {
+        int unknown=0;Instant latest=null;
+        for(var o:observations){var at=sourceTime(o);if(at==null)unknown++;else if(latest==null||at.isAfter(latest))latest=at;}
+        String latestText=latest==null?null:latest.toString();
+        if(mode.equals("all"))return new Selected(List.copyOf(observations),"COLLECTION",unknown,latestText,null);
+        if(observations.isEmpty())return new Selected(List.of(),"EMPTY",0,null,null);
+        if(latest==null)return new Selected(List.of(),"NO_ORDERABLE_SOURCE_TIME",unknown,null,null);
+        if(lower!=null&&latest.isBefore(lower))return new Selected(List.of(),"NO_MATCHING_SOURCE_TIME",unknown,latestText,null);
+        final Instant cut=latest;var matches=observations.stream().filter(o->cut.equals(sourceTime(o))).toList();
+        if(matches.size()!=1)return new Selected(List.of(),"AMBIGUOUS_SOURCE_TIME",unknown,latestText,null);
+        return new Selected(matches,"SELECTED",unknown,latestText,latestText);
     }
     static Observation tastytrade(String account,String brokerAccount,String id,String hash,String received,byte[] payload)throws Exception {
         if(!TastytradeCashBalance.sourceAccount(payload,brokerAccount))throw new SecurityException();
@@ -103,11 +130,11 @@ public class AccountBalanceObservations {
             new Source(id,hash,"API_BALANCES",received,observed,day,null,timeStatus),List.copyOf(fields));
     }
     private static Field field(String key,String meaning,JsonNode raw,String locator) {
-        if(raw==null||raw.isNull())return new Field(key,meaning,"MISSING",null,locator);
+        if(raw==null||raw.isNull())return new Field(key,meaning,"MISSING",null,locator,null);
         BigDecimal value=null;
         try {if(!raw.isTextual()&&!raw.isNumber())throw new IllegalArgumentException();value=decimal(raw.asText());}
-        catch(IllegalArgumentException invalid){return new Field(key,meaning,"INVALID",null,locator);}
-        return new Field(key,meaning,"REPORTED",value,locator);
+        catch(IllegalArgumentException invalid){return new Field(key,meaning,"INVALID",null,locator,null);}
+        return new Field(key,meaning,"REPORTED",value,locator,raw.asText());
     }
     private static BigDecimal decimal(String raw) {
         if(raw.length()>80||!DECIMAL.matcher(raw).matches())throw new IllegalArgumentException();
@@ -125,9 +152,9 @@ public class AccountBalanceObservations {
             try {if(row.size()<=balance)throw new IllegalArgumentException();
                 String raw=row.get(balance).trim().replace("$","").replace(",","");
                 if(raw.startsWith("(")&&raw.endsWith(")"))raw="-"+raw.substring(1,raw.length()-1);
-                value=new Field(key,"FIDELITY_REPORTED_BALANCE","REPORTED",decimal(raw),locator);
-            }catch(IllegalArgumentException invalid){value=new Field(key,"FIDELITY_REPORTED_BALANCE","INVALID",null,locator);}
-            if(fields.containsKey(key))value=new Field(key,"FIDELITY_REPORTED_BALANCE","AMBIGUOUS",null,null);
+                value=new Field(key,"FIDELITY_REPORTED_BALANCE","REPORTED",decimal(raw),locator,row.get(balance).trim());
+            }catch(IllegalArgumentException invalid){value=new Field(key,"FIDELITY_REPORTED_BALANCE","INVALID",null,locator,null);}
+            if(fields.containsKey(key))value=new Field(key,"FIDELITY_REPORTED_BALANCE","AMBIGUOUS",null,null,null);
             fields.put(key,value);
         }
         String exported=null,timeStatus="UNKNOWN";

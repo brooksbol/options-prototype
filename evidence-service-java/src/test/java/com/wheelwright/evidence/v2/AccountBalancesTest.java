@@ -43,7 +43,7 @@ class AccountBalancesTest {
    assertThat(o.source().artifactId()).isEqualTo(id);assertThat(o.source().observedAt()).isEqualTo("2026-10-26T13:20:00Z");assertThat(o.source().receivedAt()).isEqualTo(RECEIVED);
    var fields=new HashMap<String,AccountBalanceObservations.Field>();o.fields().forEach(x->fields.put(x.brokerField(),x));
    assertThat(fields.get("cash-balance").value()).isEqualByComparingTo("101.230000000001");assertThat(fields.get("derivative-buying-power").value()).isEqualByComparingTo("1000.01");assertThat(fields.get("equity-buying-power").value()).isEqualByComparingTo("2000.02");assertThat(fields.get("reg-t-margin-requirement").status()).isEqualTo("MISSING");assertThat(fields.get("pending-margin-interest").value()).isEqualByComparingTo("0");
-   assertThat(result.currentness()).isEqualTo("NOT_ESTABLISHED");assertThat(new ObjectMapper().writeValueAsString(result)).doesNotContain("SYNTHETIC02","PRIVATE-CANARY");assertThat(f.read(f.tt)).isEqualTo(result);
+   assertThat(result.currentness()).isEqualTo("NOT_ESTABLISHED");assertThat(new ObjectMapper().writeValueAsString(result)).doesNotContain("SYNTHETIC02","PRIVATE-CANARY");assertThat(f.read(f.tt).observations()).isEqualTo(result.observations());
    var response=f.mvc.perform(get("/v2/account-balance-observations").param("accountId",f.tt).header("Authorization","Bearer reader").header("X-Request-Id","11111111-1111-4111-8111-111111111111")).andReturn().getResponse();
    assertThat(response.getStatus()).isEqualTo(200);
    java.nio.file.Files.createDirectories(Path.of("build/reports/balances"));
@@ -98,4 +98,35 @@ class AccountBalancesTest {
  @Test void artifactSelectorCannotCrossAccountAndRejectedImportsAreNotObservations()throws Exception {
   try(var f=new Fixture()){String id=retain(f.store,f.tt,source("SYNTHETIC02"),"API_BALANCES","tastytrade-balances.json");assertThat(f.service.read(f.fid,id,"r",f.auth.authenticate("Bearer reader").orElseThrow()).observations()).isEmpty();try(var q=f.store.getConnection().createStatement()){q.executeUpdate("UPDATE brokerage_import SET status='REJECTED'");}assertThat(f.read(f.tt).observations()).isEmpty();}
  }
+ @Test void latestSourceTimeIsBoundedIgnoresReceiptOrderAndTiesRefuseSelection()throws Exception {
+  try(var f=new Fixture()) {
+   retain(f.store,f.tt,source("SYNTHETIC02").replace("2026-10-26T13:20:00Z","2026-10-10T13:20:00Z"),"API_BALANCES","tastytrade-balances.json");
+   String newest=retain(f.store,f.tt,source("SYNTHETIC02"),"API_BALANCES","tastytrade-balances.json");
+   try(var q=f.store.getConnection().prepareStatement("UPDATE brokerage_artifact SET received_at='2026-10-26T14:00:00Z' WHERE artifact_id=?")){q.setString(1,newest);q.executeUpdate();}
+   var caller=f.auth.authenticate("Bearer reader").orElseThrow();var r=f.service.read(f.tt,null,"latest-source",null,"r",caller);
+   assertThat(r.observations()).hasSize(1);assertThat(r.observations().getFirst().source().artifactId()).isEqualTo(newest);assertThat(r.selection().retainedObservationCount()).isEqualTo(2);assertThat(r.selection().status()).isEqualTo("SELECTED");assertThat(r.currentness()).isEqualTo("NOT_ESTABLISHED");
+   retain(f.store,f.tt,source("SYNTHETIC02").replace("1000.01","999.99"),"API_BALANCES","tastytrade-balances.json");
+   var tied=f.service.read(f.tt,null,"latest-source",null,"r",caller);assertThat(tied.observations()).isEmpty();assertThat(tied.selection().status()).isEqualTo("AMBIGUOUS_SOURCE_TIME");
+  }
+ }
+ @Test void dateMissAndUnknownTimeNeverInventARecentObservation()throws Exception {
+  try(var f=new Fixture()) {
+   var caller=f.auth.authenticate("Bearer reader").orElseThrow();
+   retain(f.store,f.tt,source("SYNTHETIC02").replace("2026-10-26T13:20:00Z","invalid"),"API_BALANCES","tastytrade-balances.json");
+   var unknown=f.service.read(f.tt,null,"latest-source",null,"r",caller);assertThat(unknown.observations()).isEmpty();assertThat(unknown.selection().status()).isEqualTo("NO_ORDERABLE_SOURCE_TIME");
+   retain(f.store,f.tt,source("SYNTHETIC02"),"API_BALANCES","tastytrade-balances.json");
+   var miss=f.service.read(f.tt,null,"latest-source","2026-10-27T00:00:00Z","r",caller);assertThat(miss.observations()).isEmpty();assertThat(miss.selection().status()).isEqualTo("NO_MATCHING_SOURCE_TIME");assertThat(miss.selection().unknownSourceTimeCount()).isEqualTo(1);assertThat(miss.selection().latestKnownSourceTime()).isEqualTo("2026-10-26T13:20:00Z");
+   var selected=f.service.read(f.tt,null,"latest-source",null,"r",caller);assertThat(selected.observations()).hasSize(1);assertThat(selected.selection().unknownSourceTimeCount()).isEqualTo(1);
+  }
+ }
+ @Test void latestHttpQueryPreservesSourceMoneyGlyphAndRejectsConflictingSelectors()throws Exception {
+  try(var f=new Fixture()) {
+   retain(f.store,f.fid,"Name,Balance,Day change\nAvailable without margin impact,\"$1,800.25\",0\nMargin debit,\"$2,100.75\",0\nCash reserved for options strategies,\"$23,000.00\",0\nSettled cash,$40.50,0\n\nDate downloaded 10/19/2026 4:00 PM ET\n","BALANCES","Balances_for_Account_SYNTHETIC01.csv");
+   var r=f.mvc.perform(get("/v2/account-balance-observations").param("accountId",f.fid).param("selection","latest-source").header("Authorization","Bearer reader")).andReturn().getResponse();assertThat(r.getStatus()).isEqualTo(200);assertThat(r.getContentAsString()).contains("$1,800.25","SELECTED");assertThat(r.getContentAsString().length()).isLessThan(8192);
+   java.nio.file.Files.writeString(Path.of("build/reports/balances/latest-fidelity.json"),r.getContentAsString());
+   for(String query:List.of("&selection=wrong","&selection=latest-source&sourceAtOrAfter=bad","&selection=latest-source&artifactId="+UUID.randomUUID()))
+    assertThat(f.mvc.perform(get("/v2/account-balance-observations?accountId="+f.fid+query).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(422);
+  }
+ }
+
 }

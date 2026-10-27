@@ -23,3 +23,14 @@ test('inventory source cards display exact custody and per-Account403 instead of
  assert.ok(view.rows.some(([k,v])=>k==='denied access'&&v==='Holdings access denied'));
  assert.ok(!view.rows.some(([k])=>k==='Authorized Account count'));
 });
+
+test('bounded balance card has four prominent facts and source details, never an expanded history dump',()=>{
+ const value={account:{nickname:'fixture',broker:'FIDELITY'},evidence:{selection:{mode:'latest-source',status:'SELECTED',readAt:'2026-10-27T12:00:00Z',unknownSourceTimeCount:0,selectedSourceTime:'2026-10-19T20:00:00Z'},observations:[{broker:'FIDELITY',currency:null,unit:'SOURCE_MONETARY_UNIT',source:{exportedAt:'2026-10-19T16:00-04:00',receivedAt:'2026-10-20T00:00:00Z',artifactId:'fixture'},fields:[
+  {brokerField:'Available without margin impact',value:1800.25,status:'REPORTED',reportedDisplay:'$1,800.25'},
+  {brokerField:'Margin debit',value:2100.75,status:'REPORTED',reportedDisplay:'$2,100.75'},
+  {brokerField:'Cash reserved for options strategies',value:23000,status:'REPORTED',reportedDisplay:'$23,000.00'},
+  {brokerField:'Settled cash',value:40.50,status:'REPORTED',reportedDisplay:'$40.50'}]}]}};
+ const view=evidenceView(JSON.stringify(value));assert.equal(view.balanceSummary.badge,'Historical');assert.equal(view.balanceSummary.facts.length,4);assert.equal(view.balanceSummary.facts[1].label,'Reported margin debit');assert.equal(view.balanceSummary.facts[1].value,'$2,100.75');assert.match(view.balanceSummary.note,/No later source-dated balance/);assert.ok(view.balanceSummary.details.some(([k])=>k==='Received'));
+ value.evidence.selection.mode='all';assert.match(evidenceView(JSON.stringify(value)).balanceSummary.note,/later Account sources were not compared/);
+ value.evidence.observations.push(value.evidence.observations[0]);const history=evidenceView(JSON.stringify(value));assert.equal(history.balanceSummary.facts.length,0);assert.match(history.balanceSummary.note,/No single qualified/);
+});
