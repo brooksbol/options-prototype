@@ -192,6 +192,8 @@ class TransactionHistoryTest {
             var empty=h.retained(account,"r",null,null,null,3,null);assertThat(tx(empty)).isEmpty();assertThat(requests.get()).isZero();
             h.read(account,"r");int acquired=requests.get();
             var first=h.retained(account,"r",null,null,null,3,null);assertThat(tx(first)).hasSize(3);assertThat(first.get("pageComplete")).isEqualTo(false);assertThat(first.get("matchedRecordCount")).isEqualTo(21);
+            var newest=h.retained(account,"r",null,null,null,3,null,true);assertThat(tx(newest).getFirst().get("transactionDate")).isEqualTo("2026-10-15");
+            assertThatThrownBy(()->h.retained(account,"r",null,null,null,3,(String)first.get("nextCursor"),true)).isInstanceOf(IllegalArgumentException.class);
             var second=h.retained(account,"r",null,null,null,3,(String)first.get("nextCursor"));assertThat(tx(second)).hasSize(3);assertThat(tx(first).stream().map(r->r.get("transactionId"))).doesNotContainAnyElementsOf(tx(second).stream().map(r->r.get("transactionId")).toList());
             assertThatThrownBy(()->h.retained(account,"r",null,null,null,4,(String)first.get("nextCursor"))).isInstanceOf(IllegalArgumentException.class);
             String symbol=(String)tx(first).stream().filter(r->r.get("symbol")!=null).findFirst().orElseThrow().get("symbol");

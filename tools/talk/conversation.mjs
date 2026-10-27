@@ -85,7 +85,11 @@ export function createConversation({ servers, apiKey, fetchImpl, model, onTool =
           session, maxTurns: 8, signal: AbortSignal.timeout(60000)
         });
         return { text: result.finalOutput, tools: [...currentTools], usage: result.state.usage };
-      } catch {
+      } catch (failure) {
+        // Finite diagnostic codes only: never expose exception bodies, source data or credentials.
+        const category=['ModelBehaviorError','MaxTurnsExceededError','ModelRefusalError','ModelTimeoutError','UserError','AbortError','TimeoutError'].includes(failure?.name)?failure.name:Number.isInteger(failure?.status)?'PROVIDER_ERROR':'UNCLASSIFIED';
+        const failureMessage=typeof failure?.message==='string'?failure.message:'';
+        const reason=/incomplete|max_output_tokens|maximum output|response status/i.test(failureMessage)?'INCOMPLETE_MODEL_RESPONSE':/context.*(limit|length)|too many tokens/i.test(failureMessage)?'CONTEXT_LIMIT':/tool.*(not found|unknown|not available)|unknown tool/i.test(failureMessage)?'UNKNOWN_TOOL':/parse.*json|invalid.*json|json.*pars/i.test(failureMessage)?'INVALID_TOOL_ARGUMENTS':'UNCLASSIFIED';
         // SDK 0.21.0 rolls back an unsuccessful turn. Preserve the operator's
         // latest intent through its public local-session API, never by routing subjects.
         if ((await session.getItems()).length <= previousItems.length) {
@@ -93,7 +97,7 @@ export function createConversation({ servers, apiKey, fetchImpl, model, onTool =
             assistant('That request did not complete. Tool outputs, if any, remain available in the workspace.')]);
         }
         // Do not render provider error bodies or erase already completed, authorized tool results.
-        return { text: '', tools: [...currentTools], error: 'Commentary unavailable. Completed source results remain available below.' };
+        return { text: '', tools: [...currentTools], error: 'Commentary unavailable. Completed source results remain available below.', failure:{category,reason,...(Number.isInteger(failure?.status)&&failure.status>=400&&failure.status<=599?{status:failure.status}:{})},...(typeof failure?.state?.usage?.totalTokens==='number'?{usage:Object.fromEntries(['requests','inputTokens','outputTokens','totalTokens'].filter(key=>Number.isFinite(failure.state.usage[key])&&failure.state.usage[key]>=0).map(key=>[key,failure.state.usage[key]]))}:{}) };
       } finally { busy = false; }
     },
     reset() {

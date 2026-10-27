@@ -1431,7 +1431,7 @@
       "get": {
         "operationId": "readAccountTransactions",
         "summary": "Read Account transaction history",
-        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No GET body. Requests without query retain existing full-history/read-through behavior. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->\n\nWith mode=retained, this is a bounded provider-free query of existing admitted transaction evidence. Fidelity projection may normalize already-retained activity locally. No brokerage refresh occurs. Defaults25/max100 rows and100000 serialized bytes; capacity fails503. Exact source symbol and inclusive transaction dates are optional. Preserve all selectors and limit with nextCursor until pageComplete. Changed retained evidence invalidates the cursor422. matchedRecordCount is retained query coverage, never lifetime completeness; complete retains its existing history coverage meaning and does not imply this page is final. Source actions, reported gross value, net cash and fees remain distinct; matching a source symbol does not identify an opening cohort or associate a current construction. No premium or strategy inference. Requests without query preserve legacy read-through semantics; bounded selectors require mode=retained. Item reads continue rejecting queries.",
+        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No GET body. Requests without query retain existing full-history/read-through behavior. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->\n\nWith mode=retained, this is a bounded provider-free query of existing admitted transaction evidence. Fidelity projection may normalize already-retained activity locally. No brokerage refresh occurs. Defaults25/max100 rows and100000 serialized bytes; capacity fails503. Exact source symbol and inclusive transaction dates are optional. Preserve all selectors and limit with nextCursor until pageComplete. Changed retained evidence invalidates the cursor422. matchedRecordCount is retained query coverage, never lifetime completeness; complete retains its existing history coverage meaning and does not imply this page is final. Source actions, reported gross value, net cash and fees remain distinct; matching a source symbol does not identify an opening cohort or associate a current construction. No premium or strategy inference. Requests without query preserve legacy read-through semantics; bounded selectors require mode=retained. Item reads continue rejecting queries.\nBounded mode also accepts order=asc|desc (default asc); reverse the existing date/execution-time/transaction-ID total order only, not a freshness or identity inference. MCP requests desc to inspect recent retained evidence first. Order is included in cursor scope and selection.",
         "security": [
           {
             "bearerAuth": []
@@ -1517,6 +1517,18 @@
               "maxLength": 256
             },
             "description": "Opaque continuation; same Account/selectors/limit and retained-row signature required. Changed selection or evidence returns422; restart traversal."
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            },
+            "description": "Retained transaction-date/known execution-time/ID ordering. Descending starts with the latest retained source dates, not current brokerage state. Preserve with cursor."
           }
         ],
         "responses": {
@@ -5088,7 +5100,8 @@
               "symbol",
               "from",
               "through",
-              "limit"
+              "limit",
+              "order"
             ],
             "properties": {
               "symbol": {
@@ -5115,6 +5128,12 @@
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 100
+              },
+              "order": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ]
               }
             }
           },

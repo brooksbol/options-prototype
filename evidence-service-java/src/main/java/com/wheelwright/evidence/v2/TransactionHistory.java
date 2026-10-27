@@ -53,16 +53,20 @@ public class TransactionHistory {
 
     /** Pure retained-source query: never invokes brokerage acquisition, even when read-through is enabled. */
     public Map<String,Object> retained(String account,String request,String symbol,String from,String through,int limit,String cursor)throws Exception {
+        return retained(account,request,symbol,from,through,limit,cursor,false);
+    }
+    public Map<String,Object> retained(String account,String request,String symbol,String from,String through,int limit,String cursor,boolean descending)throws Exception {
         synchronized(locks.computeIfAbsent(account,k->new Object())) {
             var binding=accounts.get(account).orElseThrow();
             var result=binding.brokerAssociation().broker().equals("FIDELITY")?readFidelity(binding,request):
                     binding.brokerAssociation().broker().equals("TASTYTRADE")?representation(account,request,false):null;
             if(result==null)throw new UnsupportedOperationException();
             @SuppressWarnings("unchecked") var rows=(List<Map<String,Object>>)result.get("transactions");
-            var selected=rows.stream().filter(row->symbol==null||symbol.equals(row.get("symbol")))
+            var selected=new ArrayList<>(rows.stream().filter(row->symbol==null||symbol.equals(row.get("symbol")))
                     .filter(row->from==null||row.get("transactionDate")!=null&&from.compareTo((String)row.get("transactionDate"))<=0)
-                    .filter(row->through==null||row.get("transactionDate")!=null&&through.compareTo((String)row.get("transactionDate"))>=0).toList();
-            String signature=BrokerageArtifacts.sha(json.writeValueAsBytes(List.of(account,Objects.toString(symbol,""),Objects.toString(from,""),Objects.toString(through,""),limit,selected)));
+                    .filter(row->through==null||row.get("transactionDate")!=null&&through.compareTo((String)row.get("transactionDate"))>=0).toList());
+            if(descending)Collections.reverse(selected);
+            String signature=BrokerageArtifacts.sha(json.writeValueAsBytes(List.of(account,Objects.toString(symbol,""),Objects.toString(from,""),Objects.toString(through,""),limit,descending,selected)));
             int offset=0;
             if(cursor!=null) {
                 try {
@@ -76,7 +80,7 @@ public class TransactionHistory {
             result.put("queryMode","RETAINED_ONLY");result.put("matchedRecordCount",selected.size());
             result.put("pageComplete",end==selected.size());
             result.put("nextCursor",end==selected.size()?null:Base64.getUrlEncoder().withoutPadding().encodeToString((signature+":"+end).getBytes(StandardCharsets.UTF_8)));
-            var selection=new LinkedHashMap<String,Object>();selection.put("symbol",symbol);selection.put("from",from);selection.put("through",through);selection.put("limit",limit);result.put("selection",selection);
+            var selection=new LinkedHashMap<String,Object>();selection.put("symbol",symbol);selection.put("from",from);selection.put("through",through);selection.put("limit",limit);selection.put("order",descending?"desc":"asc");result.put("selection",selection);
             result.put("qualification","Retained transaction observations only; no provider refresh. Page completeness is not lifetime brokerage completeness. Source actions, gross reported value, net cash and fees remain distinct. Matching a symbol does not associate an opening occurrence with a currently held construction. Fidelity identity is row equivalence, not broker-event identity. Missing evidence is not zero premium.");
             return result;
         }

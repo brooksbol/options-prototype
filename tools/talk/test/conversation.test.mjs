@@ -159,3 +159,11 @@ test('restricted metadata disclosure does not replay an earlier turn to the prov
   assert.doesNotMatch(JSON.stringify(model.requests[1]), /PRIOR-TURN-DISCLOSURE-CANARY|Allowed metadata reply/);
   assert.match(JSON.stringify(model.requests[1]), /What is available on this turn/);
 });
+
+test('failed SDK diagnostics expose finite codes and counters without provider bodies or losing operator intent',async()=>{
+ const chat=createConversation({servers:[],model:{async getResponse(){const error=new Error('PRIVATE-PROVIDER-CANARY max_output_tokens');error.name='ModelBehaviorError';error.state={usage:{requests:1,inputTokens:2,outputTokens:3,totalTokens:5,privateCanary:'PRIVATE-USAGE-CANARY'}};throw error;}}});
+ const result=await chat.send('Keep this operator intent');
+ assert.equal(result.failure.category,'ModelBehaviorError');assert.equal(result.failure.reason,'INCOMPLETE_MODEL_RESPONSE');
+ assert.doesNotMatch(JSON.stringify(result),/PRIVATE-PROVIDER-CANARY|PRIVATE-USAGE-CANARY/);
+ assert.match(JSON.stringify(await chat.session.getItems()),/Keep this operator intent/);
+});

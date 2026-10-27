@@ -54,6 +54,9 @@ test('discovery projects its public contract; omitted facts are not asserted abs
     fetchImpl: async () => response(JSON.stringify({ requestId, items: [item], privateField: 'PRIVATE-TOP-CANARY' })) });
   assert.doesNotMatch(JSON.stringify(result), /PRIVATE-|authorityEpoch/);
   assert.match(result.content[0].text, /omits quote facts by design/);
+  const projected=JSON.parse(result.content[0].text).evidence.items[0];
+  assert.deepEqual(projected,{subject:item.subject,provenance:{provider:item.provenance.provider,environment:item.provenance.environment}});
+  assert.doesNotMatch(result.content[0].text,/receivedAt|committedAt|observationId/);
   item.subject = { symbol: '../accounts', securityType: 'ETF' };
   await assert.rejects(inspectQuotes({}, { ...config,
     fetchImpl: async () => response(JSON.stringify({ requestId, items: [item] })) }));
@@ -135,7 +138,7 @@ test('transaction transport requests bounded retained evidence only and preserve
  const {inspectTransactions}=await import('./transactions.mjs');const id='acct_'+'a'.repeat(32);const paths=[];
  const data={requestId,accountId:id,queryMode:'RETAINED_ONLY',pageComplete:false,nextCursor:'opaque',transactions:[{accountId:id,symbol:'FIXTURE',value:'100.23',netCash:'99.11',commission:'-1.12'}]};
  const result=await inspectTransactions({account:'fixture',symbol:'FIXTURE',limit:1},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data));}});
- assert.equal(paths[1],'/v2/accounts/'+id+'/transactions?mode=retained&limit=1&symbol=FIXTURE');assert.deepEqual(JSON.parse(result.content[0].text).evidence.transactions,data);
+ assert.equal(paths[1],'/v2/accounts/'+id+'/transactions?mode=retained&limit=1&order=desc&symbol=FIXTURE');assert.deepEqual(JSON.parse(result.content[0].text).evidence.transactions,data);
 });
 
 
