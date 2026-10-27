@@ -35,7 +35,7 @@ Principal authorized the specified read grants, supplied-file/catch-up imports a
 Ordinary corrections and operational data/grant changes authorized October27. Production delivery in progress; final revision/verification is recorded in the existing runtime receipt.
 
 ## Verification
-Targeted admission/security/row-equivalence checks pass at development source. Actual grant reads and Sawdust reconciliation pass. Output-cap diagnosis and real-model correction pass. Combined/main/installed checks pending; record remains Open.
+Installed production import/grant/source reconciliation and actual SDK read verification pass; the later portfolio falsification and corrections are preserved below and in the linked runtime receipt. Final option/transaction HTTP schemas, all three Account reads, native cash-field projection and targeted SDK financial-authority specimens are author-verified. Independent review and Principal observation remain pending; record remains Open.
 
 ## Related
 PL-MCP-01; ADR-024; BUG-052 covers source/Markdown presentation separately.

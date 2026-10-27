@@ -1,0 +1,134 @@
+{
+  "standing": "Author production-backend/MCP verification; not independent approval or Product acceptance",
+  "elapsedMs": 689,
+  "optionInventory": {
+    "bytes": 5499,
+    "accounts": [
+      {
+        "nickname": "pts",
+        "status": "READ",
+        "rows": 1,
+        "sourceDays": [
+          "2026-10-27"
+        ],
+        "relatedLongContexts": 0
+      },
+      {
+        "nickname": "sawdust",
+        "status": "READ",
+        "rows": 2,
+        "sourceDays": [
+          "2026-10-27"
+        ],
+        "relatedLongContexts": 0
+      },
+      {
+        "nickname": "tt1",
+        "status": "READ",
+        "rows": 2,
+        "sourceDays": [
+          null
+        ],
+        "relatedLongContexts": 2
+      }
+    ],
+    "counts": {
+      "shortPutContracts": 5,
+      "longPutContracts": 0,
+      "shortCallContracts": 0,
+      "longCallContracts": 0,
+      "unclassifiedOptionHoldings": 0,
+      "selectedInventoryComplete": true,
+      "cashSecuredPutContracts": null,
+      "cashSecuredPutStatus": "NOT_ESTABLISHED_BY_INVENTORY_READ"
+    },
+    "laterOmittedSymbolPresent": true
+  },
+  "transactions": [
+    {
+      "nickname": "pts",
+      "queryMode": "RETAINED_ONLY",
+      "rows": 3,
+      "matchedRecordCount": 1155,
+      "pageComplete": false,
+      "bytes": 5519,
+      "lifetimeCoverage": "UNKNOWN",
+      "order": "desc"
+    },
+    {
+      "nickname": "sawdust",
+      "queryMode": "RETAINED_ONLY",
+      "rows": 3,
+      "matchedRecordCount": 421,
+      "pageComplete": false,
+      "bytes": 5899,
+      "lifetimeCoverage": "UNKNOWN",
+      "order": "desc"
+    },
+    {
+      "nickname": "tt1",
+      "queryMode": "RETAINED_ONLY",
+      "rows": 3,
+      "matchedRecordCount": 21,
+      "pageComplete": false,
+      "bytes": 5731,
+      "lifetimeCoverage": "UNKNOWN",
+      "order": "desc"
+    }
+  ],
+  "balance": {
+    "nativeAvailableToTradeRetained": true,
+    "oneObservation": true,
+    "currentness": "NOT_ESTABLISHED",
+    "bytes": 2329
+  },
+  "quotes": {
+    "measurementStatus": "UNAVAILABLE",
+    "authoritativeFactsAvailable": true,
+    "problem": "NOT_FOUND"
+  },
+  "modelRequests": 0,
+  "providerAcquisition": false,
+  "protectedFinancialValuesExported": false,
+  "implementationRevision": "067e627f3fe16a187e29a16293b0dfe6d8572167",
+  "installedJarSha256": "c91e9809b6af342006bb6682c4a5caee84f054e9fb70edc147018dc8092efb3e",
+  "actualHttpContractConformance": {
+    "optionInventory": true,
+    "transactionPages": 3
+  },
+  "verificationInterval": {
+    "startBasis": "Birth time of first retained compile/verification log; not claimed as total task duration",
+    "startedAt": "2026-10-27T20:07:57.803069+00:00",
+    "elapsedSeconds": 2218
+  },
+  "tests": {
+    "javaFullBeforeFinalOrderingDelta": {
+      "tests": 1038,
+      "failures": 0,
+      "errors": 0,
+      "optionalSkips": 2,
+      "elapsedSeconds": 334
+    },
+    "finalTransactionOrderingDelta": "Focused TransactionHistoryTest and rebuilt bootJar pass; installed descending query and four actual HTTP schemas verified.",
+    "oasConformanceGroups": 8,
+    "mappedOperations": 39,
+    "finalJavaScript": {
+      "tests": 39,
+      "failures": 0,
+      "elapsedMs": 29681
+    }
+  },
+  "apiReference": {
+    "localUnpublishedBuild": "PASS_WITH_EXISTING_EXAMPLE_WARNINGS",
+    "publication": "ACCEPTANCE_PENDING",
+    "acceptedReleaseManifestModified": false
+  },
+  "boundaries": {
+    "newAccountGrants": false,
+    "providerAcquisition": false,
+    "trades": false,
+    "v1ServicesRestarted": false,
+    "independentApproval": false,
+    "principalProductAcceptance": false
+  }
+}

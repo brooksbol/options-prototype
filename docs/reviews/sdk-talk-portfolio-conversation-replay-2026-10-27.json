@@ -1,0 +1,912 @@
+{
+  "standing": "Author real installed SDK/production verification; preserves failed attempts. Not independent review or Principal Product acceptance.",
+  "implementationRevision": "067e627f3fe16a187e29a16293b0dfe6d8572167",
+  "attempts": [
+    {
+      "id": "firstScopeFailure",
+      "turns": [
+        {
+          "question": "what is my tt1 buying power right now?",
+          "elapsedMs": 4937,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 6430,
+            "outputTokens": 138,
+            "totalTokens": 6568,
+            "cachedInputTokens": 2603
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how many CSPs do i have?",
+          "elapsedMs": 4709,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 8942,
+            "outputTokens": 107,
+            "totalTokens": 9049,
+            "cachedInputTokens": 7773
+          },
+          "tools": [
+            {
+              "name": "inspect_account_holdings",
+              "isError": false
+            }
+          ],
+          "inventory": [
+            {
+              "accounts": [
+                "tt1"
+              ],
+              "rows": 2,
+              "sourceComplete": true,
+              "cspCountUnknown": true,
+              "laterOmittedSymbolPresent": false
+            }
+          ],
+          "cspQualificationPresent": true
+        }
+      ]
+    },
+    {
+      "id": "commentaryFailure",
+      "turns": [
+        {
+          "question": "what is my tt1 buying power right now?",
+          "elapsedMs": 4057,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 6842,
+            "outputTokens": 139,
+            "totalTokens": 6981,
+            "cachedInputTokens": 2811
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how many CSPs do i have?",
+          "elapsedMs": 3135,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 10100,
+            "outputTokens": 115,
+            "totalTokens": 10215,
+            "cachedInputTokens": 8182
+          },
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            }
+          ],
+          "inventory": [
+            {
+              "accounts": [
+                "pts",
+                "sawdust",
+                "tt1"
+              ],
+              "rows": 5,
+              "sourceComplete": true,
+              "cspCountUnknown": true,
+              "laterOmittedSymbolPresent": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "show all CSPs in a table",
+          "elapsedMs": 3161,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 1,
+            "inputTokens": 6045,
+            "outputTokens": 288,
+            "totalTokens": 6333,
+            "cachedInputTokens": 5937
+          },
+          "tools": [],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "add a premium collected column to the table",
+          "elapsedMs": 10507,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 6,
+            "inputTokens": 44835,
+            "outputTokens": 476,
+            "totalTokens": 45311,
+            "cachedInputTokens": 42211
+          },
+          "tools": [
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how much deployable cash do i have in sawdust?",
+          "elapsedMs": 3636,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 18539,
+            "outputTokens": 146,
+            "totalTokens": 18685,
+            "cachedInputTokens": 17554
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "what are the most liquid symbols today?",
+          "elapsedMs": 1956,
+          "commentaryAvailable": false,
+          "tools": [
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            }
+          ],
+          "quoteReads": [
+            {
+              "error": false,
+              "actualFactsPresent": false,
+              "measurementStatus": null
+            }
+          ],
+          "cspQualificationPresent": true
+        }
+      ]
+    },
+    {
+      "id": "quoteRecoveryReplay",
+      "turns": [
+        {
+          "question": "what is my tt1 buying power right now?",
+          "elapsedMs": 4715,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 3,
+            "inputTokens": 9961,
+            "outputTokens": 161,
+            "totalTokens": 10122,
+            "cachedInputTokens": 5805
+          },
+          "tools": [
+            {
+              "name": "list_authorized_accounts",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how many CSPs do i have?",
+          "elapsedMs": 3972,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 10352,
+            "outputTokens": 114,
+            "totalTokens": 10466,
+            "cachedInputTokens": 8432
+          },
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            }
+          ],
+          "inventory": [
+            {
+              "accounts": [
+                "pts",
+                "sawdust",
+                "tt1"
+              ],
+              "rows": 5,
+              "sourceComplete": true,
+              "cspCountUnknown": true,
+              "laterOmittedSymbolPresent": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "show all CSPs in a table",
+          "elapsedMs": 3291,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 1,
+            "inputTokens": 6168,
+            "outputTokens": 327,
+            "totalTokens": 6495,
+            "cachedInputTokens": 6061
+          },
+          "tools": [],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "add a premium collected column to the table",
+          "elapsedMs": 9370,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 4,
+            "inputTokens": 99050,
+            "outputTokens": 442,
+            "totalTokens": 99492,
+            "cachedInputTokens": 63010
+          },
+          "tools": [
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how much deployable cash do i have in sawdust?",
+          "elapsedMs": 4645,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 85799,
+            "outputTokens": 134,
+            "totalTokens": 85933,
+            "cachedInputTokens": 84732
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "what are the most liquid symbols today?",
+          "elapsedMs": 8681,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 5,
+            "inputTokens": 244226,
+            "outputTokens": 314,
+            "totalTokens": 244540,
+            "cachedInputTokens": 236504
+          },
+          "tools": [
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            }
+          ],
+          "quoteReads": [
+            {
+              "error": false,
+              "actualFactsPresent": false,
+              "measurementStatus": null
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            }
+          ],
+          "cspQualificationPresent": true
+        }
+      ]
+    },
+    {
+      "id": "oversizedPageFailure",
+      "turns": [
+        {
+          "question": "what is my tt1 buying power right now?",
+          "elapsedMs": 3479,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 7068,
+            "outputTokens": 150,
+            "totalTokens": 7218,
+            "cachedInputTokens": 2923
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how many CSPs do i have?",
+          "elapsedMs": 2886,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 10348,
+            "outputTokens": 144,
+            "totalTokens": 10492,
+            "cachedInputTokens": 8421
+          },
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            }
+          ],
+          "inventory": [
+            {
+              "accounts": [
+                "pts",
+                "sawdust",
+                "tt1"
+              ],
+              "rows": 5,
+              "sourceComplete": true,
+              "cspCountUnknown": true,
+              "laterOmittedSymbolPresent": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "show all CSPs in a table",
+          "elapsedMs": 3690,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 14176,
+            "outputTokens": 263,
+            "totalTokens": 14439,
+            "cachedInputTokens": 12254
+          },
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            }
+          ],
+          "inventory": [
+            {
+              "accounts": [
+                "pts",
+                "sawdust",
+                "tt1"
+              ],
+              "rows": 5,
+              "sourceComplete": true,
+              "cspCountUnknown": true,
+              "laterOmittedSymbolPresent": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "add a premium collected column to the table",
+          "elapsedMs": 7089,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 4,
+            "inputTokens": 44236,
+            "outputTokens": 417,
+            "totalTokens": 44653,
+            "cachedInputTokens": 32987
+          },
+          "tools": [
+            {
+              "name": "inspect_account_transactions",
+              "isError": true
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": true
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how much deployable cash do i have in sawdust?",
+          "elapsedMs": 3286,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 39747,
+            "outputTokens": 146,
+            "totalTokens": 39893,
+            "cachedInputTokens": 38723
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "what are the most liquid symbols today?",
+          "elapsedMs": 2186,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 1,
+            "inputTokens": 20372,
+            "outputTokens": 114,
+            "totalTokens": 20486,
+            "cachedInputTokens": 20231
+          },
+          "tools": [],
+          "cspQualificationPresent": true
+        }
+      ]
+    },
+    {
+      "id": "boundedTransportFinancialCompositionFalsification",
+      "turns": [
+        {
+          "question": "what is my tt1 buying power right now?",
+          "elapsedMs": 3102,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 7088,
+            "outputTokens": 129,
+            "totalTokens": 7217,
+            "cachedInputTokens": 2934
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how many CSPs do i have?",
+          "elapsedMs": 3829,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 10336,
+            "outputTokens": 162,
+            "totalTokens": 10498,
+            "cachedInputTokens": 8418
+          },
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            }
+          ],
+          "inventory": [
+            {
+              "accounts": [
+                "pts",
+                "sawdust",
+                "tt1"
+              ],
+              "rows": 5,
+              "sourceComplete": true,
+              "cspCountUnknown": true,
+              "laterOmittedSymbolPresent": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "show all CSPs in a table",
+          "elapsedMs": 3265,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 1,
+            "inputTokens": 6215,
+            "outputTokens": 255,
+            "totalTokens": 6470,
+            "cachedInputTokens": 6060
+          },
+          "tools": [],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "add a premium collected column to the table",
+          "elapsedMs": 8591,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 4,
+            "inputTokens": 101032,
+            "outputTokens": 435,
+            "totalTokens": 101467,
+            "cachedInputTokens": 64245
+          },
+          "tools": [
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "how much deployable cash do i have in sawdust?",
+          "elapsedMs": 3159,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 87331,
+            "outputTokens": 135,
+            "totalTokens": 87466,
+            "cachedInputTokens": 86289
+          },
+          "tools": [
+            {
+              "name": "inspect_account_balances",
+              "isError": false
+            }
+          ],
+          "balance": [
+            {
+              "observations": 1,
+              "currentness": "NOT_ESTABLISHED",
+              "availableToTradeReported": true
+            }
+          ],
+          "cspQualificationPresent": true
+        },
+        {
+          "question": "what are the most liquid symbols today?",
+          "elapsedMs": 11509,
+          "commentaryAvailable": true,
+          "usage": {
+            "requests": 8,
+            "inputTokens": 406276,
+            "outputTokens": 347,
+            "totalTokens": 406623,
+            "cachedInputTokens": 397052
+          },
+          "tools": [
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            }
+          ],
+          "quoteReads": [
+            {
+              "error": false,
+              "actualFactsPresent": false,
+              "measurementStatus": null
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            },
+            {
+              "error": false,
+              "actualFactsPresent": true,
+              "measurementStatus": "UNAVAILABLE"
+            }
+          ],
+          "cspQualificationPresent": true
+        }
+      ]
+    },
+    {
+      "id": "finalFinancialAuthorityReplay",
+      "turns": [
+        {
+          "question": "how many CSPs do i have?",
+          "elapsedMs": 2975,
+          "commentaryAvailable": true,
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            }
+          ],
+          "usage": {
+            "requests": 2,
+            "inputTokens": 8064,
+            "outputTokens": 108,
+            "totalTokens": 8172,
+            "cachedInputTokens": 3142
+          },
+          "unsupportedPremiumCells": 0,
+          "unsupportedSpreadCells": 0
+        },
+        {
+          "question": "show all CSPs in a table with a premium collected column",
+          "elapsedMs": 10289,
+          "commentaryAvailable": true,
+          "tools": [
+            {
+              "name": "inspect_option_inventory",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            },
+            {
+              "name": "inspect_account_transactions",
+              "isError": false
+            }
+          ],
+          "usage": {
+            "requests": 5,
+            "inputTokens": 105273,
+            "outputTokens": 500,
+            "totalTokens": 105773,
+            "cachedInputTokens": 67655
+          },
+          "unsupportedPremiumCells": 0,
+          "unsupportedSpreadCells": 0
+        },
+        {
+          "question": "what are the most liquid symbols today?",
+          "elapsedMs": 11900,
+          "commentaryAvailable": true,
+          "tools": [
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            },
+            {
+              "name": "inspect_market_quotes",
+              "isError": false
+            }
+          ],
+          "usage": {
+            "requests": 7,
+            "inputTokens": 344156,
+            "outputTokens": 352,
+            "totalTokens": 344508,
+            "cachedInputTokens": 335197
+          },
+          "unsupportedPremiumCells": 0,
+          "unsupportedSpreadCells": 0
+        }
+      ]
+    }
+  ],
+  "standaloneMarketDiagnostic": {
+    "commentaryAvailable": true,
+    "usage": {
+      "requests": 7,
+      "inputTokens": 147521,
+      "outputTokens": 374,
+      "totalTokens": 147895,
+      "cachedInputTokens": 124927
+    }
+  },
+  "knownUsageLowerBound": {
+    "requests": 87,
+    "inputTokens": 1916528,
+    "outputTokens": 6932,
+    "totalTokens": 1923460
+  },
+  "turnsWithUnavailableUsage": 1,
+  "usageQualification": "Includes repeated engineering model replays and standalone market diagnostic. An unsuccessful SDK turn had no available usage; these are lower bounds. Codex session tokens/tool request counts and monetary billing are not exposed. No dollar cost is invented.",
+  "answerability": {
+    "retainedShortPutInventory": "VERIFIED_BOUNDED_SOURCE_CUT: five rows across three Accounts; includes previously omitted source row. Not live custody.",
+    "cashSecuredStrategyCount": "NOT_ESTABLISHED: collateral and construction membership not established by custody query.",
+    "sawdustNativeAvailableToTrade": "VERIFIED_SOURCE_FIELD: distinct broker label, not universal or Operating Regime deployable cash. Current trading capacity unverified.",
+    "currentHoldingOpeningPremium": "PARTIAL: retained transactions now accessible; opening-occurrence association and gross-premium attribution not established. Final targeted replay leaves unsupported premium cells unknown.",
+    "mostLiquidToday": "PARTIAL: retained quote facts recover; no current complete liquidity ranking. Final targeted replay does not calculate unavailable spreads.",
+    "globalQ01ToQ63": "NOT_RECOUNTED: prior reconstructed matrix remains historical; not all63 rerun."
+  },
+  "privacy": {
+    "traceExport": false,
+    "responseStorage": false,
+    "protectedFinancialValuesExported": false,
+    "rawModelReplies": "Private local diagnostics only; no raw financial values in this receipt."
+  }
+}
