@@ -28,7 +28,7 @@
 
 import type { PutCandidate } from "./candidate-types";
 import type { BuyWriteCandidate } from "./recommend-buy-writes";
-import { gradeLiquidity, type LiquidityGrade } from "./liquidity-grade";
+import { gradeLiquidity, liquiditySortValue, type LiquidityGrade } from "./liquidity-grade";
 
 // --- Production v0 Result ---
 
@@ -93,6 +93,8 @@ export interface CrossEntryRow {
   volume: number;
   /** Contract liquidity grade — display/sort only, never a decision input */
   liquidity: LiquidityGrade | null;
+  /** Liq column sort value: grade only (L1=4 … L4=1, ungraded 0), so secondary sorts apply within a grade */
+  liquiditySortKey: number;
   /** Annualized premium yield (for sanity-check column) */
   premiumYieldAnnualized: number;
   /** Production v0 monthly rate */
@@ -231,6 +233,7 @@ export function buildCrossEntryRows(
       openInterest: c.openInterest,
       volume: c.volume,
       liquidity: gradeLiquidity(c),
+      liquiditySortKey: liquiditySortValue(gradeLiquidity(c)),
       premiumYieldAnnualized: c.yieldAnnualized,
       productionV0: decomposition.productionV0,
       decomposition,
@@ -267,6 +270,7 @@ export function buildCrossEntryRows(
       openInterest: c.openInterest,
       volume: c.volume,
       liquidity: gradeLiquidity(c),
+      liquiditySortKey: liquiditySortValue(gradeLiquidity(c)),
       premiumYieldAnnualized: c.premiumYieldAnnualized,
       productionV0: decomposition.productionV0,
       decomposition,

@@ -5,15 +5,14 @@
  * 2. Weakest link: the worse of spread and OI decides; neither compensates
  * 3. limitedBy names the measure(s) that set the tier
  * 4. Unobserved/invalid inputs are ungraded, never guessed
- * 5. Sort ordering: tier → tighter spread → larger OI; ungraded last; ties share a key
+ * 5. Liq sort value is the grade only (BUG-051), so rows tie within a grade
  * 6. Cross-entry rows carry spread/OI/volume and the grade from source candidates
  * 7. Grade is display-only: posture, Prod v0 and default order are unchanged
  */
 import { describe, it, expect } from "vitest";
 import {
   gradeLiquidity,
-  compareLiquidity,
-  withLiquiditySortKeys,
+  liquiditySortValue,
   describeLiquidity,
   LIQUIDITY_GRADE_POLICY,
 } from "../../src/write-desk/liquidity-grade";
@@ -79,39 +78,17 @@ describe("gradeLiquidity — unobserved inputs", () => {
   });
 });
 
-describe("liquidity ordering", () => {
-  const row = (spreadPercent: number, openInterest: number, id: string) => ({
-    id, spreadPercent, openInterest, liquidity: gradeLiquidity({ spreadPercent, openInterest }),
+describe("liquiditySortValue (BUG-051: grade only)", () => {
+  const v = (spreadPercent: number, openInterest: number) => liquiditySortValue(gradeLiquidity({ spreadPercent, openInterest }));
+
+  it("is higher for better grades: L1 4, L2 3, L3 2, L4 1, ungraded 0", () => {
+    expect([v(3, 5000), v(8, 400), v(15, 100), v(67, 5000)]).toEqual([4, 3, 2, 1]);
+    expect(liquiditySortValue(null)).toBe(0);
   });
 
-  it("orders by tier, then tighter spread, then larger OI", () => {
-    const rows = [
-      row(4, 1500, "L1-wider"),
-      row(67, 5000, "L4"),
-      row(3, 1200, "L1-tight-low-oi"),
-      row(3, 9000, "L1-tight-high-oi"),
-      row(8, 400, "L2"),
-    ];
-    const ordered = [...rows].sort(compareLiquidity).map((r) => r.id);
-    expect(ordered).toEqual(["L1-tight-high-oi", "L1-tight-low-oi", "L1-wider", "L2", "L4"]);
-  });
-
-  it("sort keys are higher for more liquid rows, shared on ties, undefined when ungraded", () => {
-    const rows = [
-      row(8, 400, "L2"),
-      row(3, 9000, "L1a"),
-      row(3, 9000, "L1b"),
-      { id: "ungraded", spreadPercent: NaN, openInterest: 100, liquidity: null },
-      row(67, 5000, "L4"),
-    ];
-    const keyed = withLiquiditySortKeys(rows);
-    const key = (id: string) => keyed.find((r) => r.id === id)!.liquiditySortKey;
-    expect(key("L1a")).toBe(key("L1b"));
-    expect(key("L1a")!).toBeGreaterThan(key("L2")!);
-    expect(key("L2")!).toBeGreaterThan(key("L4")!);
-    expect(key("ungraded")).toBeUndefined();
-    // Original row order and content are preserved.
-    expect(keyed.map((r) => r.id)).toEqual(rows.map((r) => r.id));
+  it("ties every row within a grade regardless of spread and OI, so a secondary sort can apply", () => {
+    expect(v(4, 1200)).toBe(v(2, 1500));
+    expect(v(2, 1500)).toBe(v(3, 90000));
   });
 });
 

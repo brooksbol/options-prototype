@@ -2366,3 +2366,15 @@ Still open with their own owners: Class A 15 vs 25 min; Velvet Rope runtime admi
   - BUG-050 Product questions;
   - unreconciled Codex Talk candidate state (PR #42 head beyond its recorded W1 source; October 27 worktrees);
   - `ASSIM-0002` PENDING.
+
+### October 27, 2026 — Liquidity grade follow-up: BUG-051 resolved (Liq sort is grade-only)
+
+This entry supersedes two statements in the entry above.
+
+**Liq sort is now grade-only.** The earlier "Liquidity sort is grade → tighter spread → larger OI" design baked the tie-breakers into a single key, so a Shift-click secondary sort never applied. The Principal's specimen was "sort by LIQ, second sort by OI… or more generally… any other column". The Liq column now sorts by grade only (L1=4 … L4=1, ungraded 0). Operator-chosen secondary columns order rows within each grade; with no secondary, rows keep the Prod v0 order.
+
+**"Ungraded rows sort last" was false at `17b0e60b`.** An undefined key was flipped to the top by a descending sort. It was practically unreachable and is now fixed: ungraded rows sit at the illiquid end in both directions.
+
+**Learning.** A display column that a shared multi-sort will use must expose a coarse primary key and leave tie-breaking to the operator. Encoding a total order into one column silently defeats the table's multi-sort convention.
+
+**Status.** Principal browser acceptance: "it's working now". Record: `docs/bugs/BUG-051-liq-sort-key-defeats-secondary-sort.md`. The grade cutoffs and the display-only boundary are unchanged.

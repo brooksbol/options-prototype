@@ -28,7 +28,7 @@ import { formatAcquisitionAge, type EvidenceProvenance } from "../write-desk/evi
 import { CrossEntryRefreshButton } from "../write-desk/CrossEntryRefreshButton";
 import { RowRefreshButton } from "../write-desk/RowRefreshButton";
 import { selectRefreshTopSymbols, REFRESH_TOP_N } from "../write-desk/refresh-top-symbols";
-import { withLiquiditySortKeys, describeLiquidity, LIQUIDITY_GRADE_POLICY, type LiquidityGrade } from "../write-desk/liquidity-grade";
+import { describeLiquidity, LIQUIDITY_GRADE_POLICY, type LiquidityGrade } from "../write-desk/liquidity-grade";
 
 // Liquidity header tooltip: states the provisional rule so the operator can see
 // exactly what the grade means without reading code.
@@ -36,7 +36,8 @@ const LIQUIDITY_HEADER_TITLE = [
   `Contract liquidity grade (${LIQUIDITY_GRADE_POLICY.version}; provisional cutoffs). Weakest link: the worse of spread % and open interest.`,
   ...LIQUIDITY_GRADE_POLICY.tiers.map((t) => `L${t.tier} ${t.name}: spread ≤ ${t.maxSpreadPercent}% and OI ≥ ${t.minOpenInterest.toLocaleString()}`),
   "L4 Illiquid: anything worse.",
-  "Sort: grade, then tightest spread, then largest OI. Volume is not graded (resets each session).",
+  "Sort: by grade only. Shift-click another column (e.g. OI, Spread, Yield) to order rows within each grade.",
+  "Volume is not graded (resets each session).",
   "Buy-Write: option leg only; the stock-purchase spread is not included.",
   "Display and sorting only — does not affect posture, ranking or Prod v0.",
 ].join("\n");
@@ -148,10 +149,8 @@ export function CrossEntryStrip({
   // INTERIM v1: attach observational IV Rank (tastytrade /market-metrics) from each
   // row's originating candidate so it colocates with the volatility block, sorts via
   // the shared `ivRank` key, and exports. Never a recommendation input.
-  // Liquidity sort key (display-only) is attached over the full population so
-  // "sort by liquidity" orders by grade → spread → OI across every row.
   const allRows = useMemo(
-    () => withLiquiditySortKeys(buildCrossEntryRows(putCandidates, buyWriteCandidates)).map((r) => ({
+    () => buildCrossEntryRows(putCandidates, buyWriteCandidates).map((r) => ({
       ...r,
       marketMetrics: (r.originalPut ?? r.originalBuyWrite)?.marketMetrics,
     })),

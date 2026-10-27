@@ -103,39 +103,18 @@ export function gradeLiquidity(
 }
 
 /**
- * Total "most liquid first" ordering: tier ascending, then spread % ascending,
- * then open interest descending. Ungraded rows sort after graded rows.
- * Returns negative when `a` is more liquid than `b`.
+ * Table sort value for the Liq column: the GRADE ONLY (higher = more liquid).
+ * L1 → 4, L2 → 3, L3 → 2, L4 → 1; ungraded → 0 (below L4).
+ *
+ * Deliberately coarse (BUG-051): every row in the same grade shares a value,
+ * so a secondary sort chosen by the operator (Shift-click, e.g. OI or Yield)
+ * orders rows within each grade. With no secondary sort, rows in a grade keep
+ * the table's default (Prod v0) order. Ungraded is a number, not undefined,
+ * so it stays at the illiquid end in both directions rather than being
+ * flipped to the top by a descending sort.
  */
-export function compareLiquidity(
-  a: { liquidity: LiquidityGrade | null; spreadPercent: number; openInterest: number },
-  b: { liquidity: LiquidityGrade | null; spreadPercent: number; openInterest: number },
-): number {
-  if (a.liquidity == null && b.liquidity == null) return 0;
-  if (a.liquidity == null) return 1;
-  if (b.liquidity == null) return -1;
-  if (a.liquidity.tier !== b.liquidity.tier) return a.liquidity.tier - b.liquidity.tier;
-  if (a.spreadPercent !== b.spreadPercent) return a.spreadPercent - b.spreadPercent;
-  return b.openInterest - a.openInterest;
-}
-
-/**
- * Attach a numeric `liquiditySortKey` (higher = more liquid) so the shared
- * single-key table sort orders rows by {@link compareLiquidity}. Rows that tie
- * on tier, spread and open interest share a key; ungraded rows get undefined,
- * which the shared sort pins last in both directions.
- */
-export function withLiquiditySortKeys<T extends { liquidity: LiquidityGrade | null; spreadPercent: number; openInterest: number }>(
-  rows: T[],
-): Array<T & { liquiditySortKey: number | undefined }> {
-  const graded = rows.filter((r) => r.liquidity != null).sort(compareLiquidity);
-  const keyByRow = new Map<T, number>();
-  let key = graded.length;
-  for (let i = 0; i < graded.length; i++) {
-    if (i > 0 && compareLiquidity(graded[i - 1], graded[i]) !== 0) key = graded.length - i;
-    keyByRow.set(graded[i], key);
-  }
-  return rows.map((r) => ({ ...r, liquiditySortKey: keyByRow.get(r) }));
+export function liquiditySortValue(grade: LiquidityGrade | null): number {
+  return grade ? 5 - grade.tier : 0;
 }
 
 /** Plain-language explanation for tooltips and CSV. */
