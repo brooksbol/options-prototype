@@ -12,7 +12,7 @@
  */
 
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { buildCrossEntryRows, type CrossEntryRow } from "../write-desk/production-v0";
+import { buildCrossEntryRows, formatAppreciationToStrike, type CrossEntryRow } from "../write-desk/production-v0";
 import { observeOpeningSetHydration } from "../write-desk/opening-set-observation";
 import type { PutCandidate } from "../write-desk/candidate-types";
 import type { BuyWriteCandidate } from "../write-desk/recommend-buy-writes";
@@ -380,7 +380,7 @@ export function CrossEntryStrip({
             <th className="wd-sortable" onClick={(e) => handleSort("dte", e)}>DTE{indicator("dte")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("spot", e)}>Spot{indicator("spot")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("strike", e)}>Strike{indicator("strike")}</th>
-            <th className="wd-sortable" onClick={(e) => handleSort("appreciationToStrikeDollars", e)} title="Appreciation to strike — signed dollar move (per-share × 100) the underlying must make from spot to reach the strike, with the % in parentheses. Buy-Write: headroom to the capped-upside strike. CSP: (negative) distance down to the OTM put strike.">Appr→Strike{indicator("appreciationToStrikeDollars")}</th>
+            <th className="wd-sortable" onClick={(e) => handleSort("appreciationToStrikeDollars", e)} title="Appreciation to strike — share gain (per-share × 100) from spot to the call strike if called away, with the % in parentheses. Buy-Write: headroom to the capped-upside strike. CSP: — (no shares held, so no appreciation to strike); sorts last.">Appr→Strike{indicator("appreciationToStrikeDollars")}</th>
             <th className="wd-sortable" onClick={(e) => handleSort("delta", e)}>Δ{indicator("delta")}</th>
             {crossEntryGreekIvHeaders(handleSort, indicator)}
             <th className="wd-sortable" onClick={(e) => handleSort("bid", e)}>Bid{indicator("bid")}</th>
@@ -426,7 +426,7 @@ export function CrossEntryStrip({
               <td>{row.dte}</td>
               <td>${row.spot.toFixed(2)}</td>
               <td>${row.strike.toFixed(2)}</td>
-              <td className={row.appreciationToStrikeDollars < 0 ? "wd-negative-value" : ""}>{row.appreciationToStrikeDollars >= 0 ? "+" : "−"}${Math.abs(row.appreciationToStrikeDollars).toFixed(0)} ({row.appreciationToStrikePct >= 0 ? "+" : "−"}{Math.abs(row.appreciationToStrikePct).toFixed(1)}%)</td>
+              <td className={row.appreciationToStrikeDollars != null && row.appreciationToStrikeDollars < 0 ? "wd-negative-value" : ""}>{formatAppreciationToStrike(row.appreciationToStrikeDollars, row.appreciationToStrikePct)}</td>
               <td>{row.delta.toFixed(2)}</td>
               <CrossEntryGreekIvCells greeks={(row.originalPut ?? row.originalBuyWrite)?.exportGreeks} metrics={row.marketMetrics} />
               <td>${row.bid.toFixed(2)}</td>

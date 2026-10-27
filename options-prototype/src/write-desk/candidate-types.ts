@@ -112,9 +112,12 @@ export interface CallCandidate {
   /**
    * Why this strike was selected for its expiration (exploratory — capital-state optionality):
    * - "target-delta": closest-to-target-delta contract (the ordinary pick).
+   *   BUG-050: surfaced only when struck at or above cost basis.
    * - "basis-positive": lowest admissible strike at or above cost basis, so a
    *   call-away would not sell shares below basis (before premium). Only emitted
-   *   when basis is known and differs from the target-delta pick.
+   *   when it differs from the target-delta pick.
+   * BUG-050: every surfaced covered call has strike >= known basis; holdings
+   * with unknown basis produce no call candidate.
    */
   selectionBasis: "target-delta" | "basis-positive";
   /** Chain-acquisition provenance copied from published evidence. */

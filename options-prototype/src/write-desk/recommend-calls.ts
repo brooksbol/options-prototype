@@ -40,7 +40,26 @@ export type CoveredCallTerminalOutcome =
   | "wait"            // produced only wait candidate(s)
   | "noExpirations"   // no cached/admissible expirations for the holding
   | "noDteMatch"      // expirations present but none in eligible DTE range
+  | "basisUnknown"    // BUG-050: no known share cost basis — fail closed (call-away acceptability unprovable)
+  | "belowBasis"      // BUG-050: admissible calls existed but every surfaced pick was struck below cost basis
   | "noQualifyingCall"; // had eligible expirations but produced no qualifying call contract
+
+/**
+ * BUG-050 call-away admissibility (Principal ruling, October 27, 2026):
+ * a covered call must never sell held shares for a loss if called away.
+ * Share leg only, premium excluded: strike >= cost basis per share (equality
+ * admitted). Unknown basis fails closed. Below-basis calls are removed from
+ * the surface, not demoted. Puts are out of scope.
+ */
+export function isAtOrAboveBasis(strike: number, basisPerShare: number): boolean {
+  return strike >= basisPerShare;
+}
+
+/** Known basis = a finite broker-reported average cost per share. */
+export function knownBasisPerShare(pos: InventoryPosition): number | null {
+  const b = pos.economics?.averageCostPerShare ?? null;
+  return b != null && Number.isFinite(b) ? b : null;
+}
 
 // --- Result ---
 
@@ -130,6 +149,15 @@ export async function recommendCalls(
   for (const pos of eligible) {
     const symbol = pos.symbol;
 
+    // BUG-050: unknown share basis fails closed — without it, a call-away
+    // cannot be shown to avoid selling below basis.
+    const basisPerShare = knownBasisPerShare(pos);
+    if (basisPerShare == null) {
+      excluded.push({ symbol, reason: "Share cost basis unknown" });
+      recordCall(pos, "basisUnknown", { terminalReason: "Share cost basis unknown — call-away acceptability cannot be established" });
+      continue;
+    }
+
     // Get expirations from cache
     const expKey = buildCacheKey(cacheEnvironment.provider, cacheEnvironment.environment, "expirations", symbol);
     const expRecord = await cache.get<Expiration[]>(expKey);
@@ -156,6 +184,8 @@ export async function recommendCalls(
     // BUG-016: exact chain-acquisition provenance observed for this holding, carried
     // into the noQualifyingCall terminal branch (which inspected chain evidence).
     let holdingChainProvenanceIso: string | null = null;
+    // BUG-050: a target-delta pick was removed because it was struck below basis.
+    let holdingSuppressedBelowBasis = false;
 
     for (const exp of eligibleExps) {
       interface CachedChain {
@@ -184,8 +214,6 @@ export async function recommendCalls(
       );
 
       if (inRange.length === 0) continue;
-
-      const basisPerShare = pos.economics?.averageCostPerShare ?? null;
 
       type RawCall = { strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number };
 
@@ -258,25 +286,27 @@ export async function recommendCalls(
         }
       };
 
-      // 1) Ordinary pick: contract closest to target delta.
+      // 1) Ordinary pick: contract closest to target delta — surfaced only when
+      //    struck at or above cost basis (BUG-050). A below-basis pick is removed.
       const targetDelta = policy.contractSelection.targetDelta;
       const byTargetDelta = [...inRange].sort((a, b) =>
         Math.abs(a.delta - targetDelta) - Math.abs(b.delta - targetDelta)
       );
       const targetContract = byTargetDelta[0];
-      fileCandidate(buildCandidate(targetContract, "target-delta"));
+      if (isAtOrAboveBasis(targetContract.strike, basisPerShare)) {
+        fileCandidate(buildCandidate(targetContract, "target-delta"));
+      } else {
+        holdingSuppressedBelowBasis = true;
+      }
 
-      // 2) Capital-state optionality (exploratory): lowest admissible strike at or
-      //    above cost basis, so a call-away would not sell shares below basis
-      //    (before premium). Only when basis is known and it is a DIFFERENT strike
-      //    than the target-delta pick (otherwise it is the same row).
-      if (basisPerShare != null) {
-        const basisPositive = [...inRange]
-          .filter((c) => c.strike >= basisPerShare)
-          .sort((a, b) => a.strike - b.strike)[0];
-        if (basisPositive && basisPositive.strike !== targetContract.strike) {
-          fileCandidate(buildCandidate(basisPositive, "basis-positive"));
-        }
+      // 2) Lowest admissible strike at or above cost basis, so a call-away would
+      //    not sell shares below basis (before premium). Only when it is a
+      //    DIFFERENT strike than the target-delta pick (otherwise it is the same row).
+      const basisPositive = [...inRange]
+        .filter((c) => isAtOrAboveBasis(c.strike, basisPerShare))
+        .sort((a, b) => a.strike - b.strike)[0];
+      if (basisPositive && basisPositive.strike !== targetContract.strike) {
+        fileCandidate(buildCandidate(basisPositive, "basis-positive"));
       }
     }
 
@@ -295,6 +325,9 @@ export async function recommendCalls(
     } else if (symbolWait.length > 0) {
       allWait.push(...symbolWait);
       recordCall(pos, "wait", { expiration: symbolWait[0]?.expiration ?? null, terminalReason: "Produced only wait covered-call candidate(s)", evidenceRetrievedAt: callProvenanceIso(symbolWait[0]), admissible: true });
+    } else if (holdingSuppressedBelowBasis) {
+      excluded.push({ symbol, reason: "No call at or above cost basis (call-away would sell below basis)" });
+      recordCall(pos, "belowBasis", { terminalReason: "No executable call at or above cost basis; below-basis strikes removed (loss if called away)", evidenceRetrievedAt: holdingChainProvenanceIso, admissible: true });
     } else {
       excluded.push({ symbol, reason: "No qualifying call contract" });
       recordCall(pos, "noQualifyingCall", { terminalReason: "Eligible expirations present but no qualifying call contract", evidenceRetrievedAt: holdingChainProvenanceIso, admissible: true });

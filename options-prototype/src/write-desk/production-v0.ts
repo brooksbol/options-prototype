@@ -67,18 +67,20 @@ export interface CrossEntryRow {
   spot: number;
   delta: number;
   /**
-   * Signed percentage move the underlying must make from current spot to reach
-   * the option strike: (strike - spot) / spot × 100.
-   * Buy-Write/covered-call: positive — headroom to the capped-upside strike.
-   * CSP: negative — the underlying would have to depreciate to the (OTM) put strike.
+   * Share appreciation to the call strike: (strike - spot) / spot × 100.
+   * Buy-Write: the share leg is bought at spot and sold at strike if called away
+   * (headroom to the capped-upside strike).
+   * CSP: null — a cash-secured put holds no shares, so there is no appreciation
+   * to strike (BUG-050, Principal decision October 27, 2026). Rendered "—" and
+   * exported empty; sorts last in either direction.
    * Presentation convention only; not a prediction that the move will occur.
    */
-  appreciationToStrikePct: number;
+  appreciationToStrikePct: number | null;
   /**
-   * Signed dollar value of the spot→strike move for one standard contract:
-   * (strike - spot) × 100. Same sign convention as appreciationToStrikePct.
+   * Dollar value of the share appreciation to strike for one standard contract:
+   * (strike - spot) × 100. Null for CSP rows, as appreciationToStrikePct.
    */
-  appreciationToStrikeDollars: number;
+  appreciationToStrikeDollars: number | null;
   /** Option bid */
   bid: number;
   /** Option midpoint */
@@ -134,6 +136,12 @@ export function appreciationToStrikePct(strike: number, spot: number): number {
 export function appreciationToStrikeDollars(strike: number, spot: number): number {
   if (!Number.isFinite(spot) || !Number.isFinite(strike)) return 0;
   return (strike - spot) * 100;
+}
+
+/** Appr→Strike cell: "+$200 (+4.0%)"; "—" when not applicable (CSP rows, BUG-050). */
+export function formatAppreciationToStrike(dollars: number | null, pct: number | null): string {
+  if (dollars == null || pct == null) return "—";
+  return `${dollars >= 0 ? "+" : "−"}$${Math.abs(dollars).toFixed(0)} (${pct >= 0 ? "+" : "−"}${Math.abs(pct).toFixed(1)}%)`;
 }
 
 /**
@@ -223,8 +231,9 @@ export function buildCrossEntryRows(
       dte: c.dte,
       strike: c.strike,
       spot: c.underlyingPrice,
-      appreciationToStrikePct: appreciationToStrikePct(c.strike, c.underlyingPrice),
-      appreciationToStrikeDollars: appreciationToStrikeDollars(c.strike, c.underlyingPrice),
+      // BUG-050: no share leg on a CSP → no appreciation to strike.
+      appreciationToStrikePct: null,
+      appreciationToStrikeDollars: null,
       delta: Math.abs(c.delta),
       bid: c.bid,
       mid: c.mid,

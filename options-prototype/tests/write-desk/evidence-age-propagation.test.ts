@@ -67,7 +67,8 @@ describe("PL-EVID-AGE provenance propagation", () => {
     await populatePut("XLE");
     const inventory: InventoryPosition[] = [{
       symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100,
-      maxAdditionalContracts: 1, economics: null,
+      // BUG-050: known basis at/below the 105 call strike (unknown basis fails closed).
+      maxAdditionalContracts: 1, economics: { averageCostPerShare: 95, costBasis: 9500, marketValue: 10000 },
     }];
     const result = await recommendCalls(inventory, cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
     const all = [...result.candidates, ...result.waitCandidates];

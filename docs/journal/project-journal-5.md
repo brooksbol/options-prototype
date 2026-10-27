@@ -2378,3 +2378,28 @@ This entry supersedes two statements in the entry above.
 **Learning.** A display column that a shared multi-sort will use must expose a coarse primary key and leave tie-breaking to the operator. Encoding a total order into one column silently defeats the table's multi-sort convention.
 
 **Status.** Principal browser acceptance: "it's working now". Record: `docs/bugs/BUG-051-liq-sort-key-defeats-secondary-sort.md`. The grade cutoffs and the display-only boundary are unchanged.
+
+### October 27, 2026 — BUG-050 resolved: covered-call basis guard; CSP Appr→Strike blank
+
+This entry supersedes the statement two entries above that "the CSP side of the signed Appr→Strike column (`4177ee6f`) is therefore correct".
+
+**Principal decisions.** The Principal directed "fix bug-50" and answered the three open questions "1 A", "2 A", "3 A":
+- Unknown share basis fails closed.
+- The rule is strike ≥ basis, share leg only; premium is excluded and equality is admitted.
+- Below-basis calls are removed from the surface, with an explicit funnel reason.
+
+**Implemented.**
+- `recommendCalls` gains new terminal outcomes `basisUnknown` and `belowBasis`, and BUG-016 membership still reconciles.
+- The target-delta pick is surfaced only at or above basis, so `basis+` becomes the surfaced row when the pick is below basis.
+- Buy-write (`strike > spot`), contingent-call (`strike > basis`) and put paths are unchanged.
+
+**Rejection, then scope extension.** The Principal's first browser check rejected the candidate: "see attached CSV with negative appreciation values". Every negative value was on a CSP row of the Cash Deployment table. That table carries no covered calls, so the candidate had not changed it. The Principal then asked: "what should be in the apprec-->strike column for CSPs?" Kiro's answer: a CSP holds no shares, so it has no appreciation to strike. The signed strike − spot on a CSP is distance to assignment, not a loss, and it shared one label with buy-write share headroom. The Principal chose "A": CSP Appr→Strike is "—" on screen, empty in the CSV and sorted last in both directions. The Principal then accepted: "acceptance PASSED".
+
+**Learning.**
+- One column label must carry one economic meaning across entry mechanisms. A uniform formula (strike − spot) is not a uniform semantic, and the Principal reads the column by its label.
+- Acceptance instructions must name the surface the Principal will actually inspect, including the surfaces a candidate deliberately leaves unchanged. Here the defect was reported on the Cash Deployment table, but the fix targeted the Calls table, and the gap cost one rejection cycle.
+- A put-side cushion column (spot − strike) was offered and not selected. It is not intake.
+
+**Status.** Record: `docs/bugs/BUG-050-covered-call-below-basis-loss-if-called-away.md` (Resolved). Tests: new tests fail on the base code and pass with the fix; the full frontend suite passed (2,233 tests) and the build passed.
+
+**API v2 docs.** Not live-verified at this closeout. The last deployment is source `cc066b15`, run 39985542391, with a successful deploy job, and it is an ancestor of `d257c74f`. No trigger-set paths changed between them, and this workstream's paths are v1 frontend and docs only. The publication build and live byte comparison were not run: the Principal limited this closeout to its own workstream because concurrent threads are active.

@@ -28,14 +28,18 @@ const EXPORT_CTX: ExportContext = {
   evidenceEnvironment: "production",
 };
 
-function holding(symbol: string, freeShares = 300): InventoryPosition {
+// BUG-050: default fixture carries a known basis below the 105 strikes used here
+// (unknown basis fails closed into its own terminal outcome).
+function holding(symbol: string, freeShares = 300, averageCostPerShare: number | null = 95): InventoryPosition {
   return {
     symbol,
     sharesOwned: freeShares,
     sharesEncumbered: 0,
     sharesFree: freeShares,
     maxAdditionalContracts: Math.floor(freeShares / 100),
-    economics: null,
+    economics: averageCostPerShare == null
+      ? null
+      : { averageCostPerShare, costBasis: averageCostPerShare * freeShares, marketValue: null },
   };
 }
 
@@ -111,6 +115,26 @@ describe("Covered-call funnel export — membership", () => {
     const total = Object.values(deriveCounters(ex.membership)).reduce((s, n) => s + n, 0);
 
     expect(ex.denominator).toBe(result.eligiblePositions);
+    expect(total).toBe(result.eligiblePositions);
+    expect(total).toBe(inventory.length);
+  });
+
+  it("BUG-050: unknown basis and below-basis holdings get explicit terminal outcomes and still reconcile", async () => {
+    await populateChain("ACT", [{ strike: 105, bid: 1.2, ask: 1.4, delta: 0.3, openInterest: 300, volume: 80 }]);
+    await populateChain("NOBASIS", [{ strike: 105, bid: 1.2, ask: 1.4, delta: 0.3, openInterest: 300, volume: 80 }]);
+    await populateChain("UNDER", [{ strike: 105, bid: 1.2, ask: 1.4, delta: 0.3, openInterest: 300, volume: 80 }]);
+    const inventory = [holding("ACT"), holding("NOBASIS", 300, null), holding("UNDER", 300, 110)];
+
+    const result = await recommendCalls(inventory, cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY, { exportContext: EXPORT_CTX });
+    const ex = result.exportResult!;
+    const bySymbol = Object.fromEntries(ex.membership.map((r) => [r.symbol, r]));
+
+    expect(bySymbol.NOBASIS.terminalOutcome).toBe("basisUnknown");
+    expect(bySymbol.NOBASIS.terminalReason).toMatch(/basis unknown/i);
+    expect(bySymbol.UNDER.terminalOutcome).toBe("belowBasis");
+    expect(bySymbol.UNDER.terminalReason).toMatch(/below basis|below-basis/i);
+    expect(result.candidates.map((c) => c.symbol)).toEqual(["ACT"]);
+    const total = Object.values(deriveCounters(ex.membership)).reduce((s, n) => s + n, 0);
     expect(total).toBe(result.eligiblePositions);
     expect(total).toBe(inventory.length);
   });

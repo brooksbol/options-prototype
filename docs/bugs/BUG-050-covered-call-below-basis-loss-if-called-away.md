@@ -1,6 +1,6 @@
 # BUG-050 — Covered-call recommendations surface strikes below cost basis (loss if called away)
 
-- **Status:** Open — filed October 27, 2026
+- **Status:** Resolved — filed and resolved October 27, 2026 (Principal browser acceptance after one rejection; scope extended by Principal decision to blank CSP Appr→Strike — see Verification)
 - **Severity:** Not established (Principal has not assigned one)
 - **Area:** Write Desk (Deployment, v1) / covered-call Decision path (`recommendCalls`)
 - **Provenance:** Principal report in the October 27, 2026 Kiro session, made while reviewing the Deployment page Cash Deployment — Prod v0 export (`wheelwright-cross-entry-2026-10-27.csv`)
@@ -66,6 +66,14 @@ Established at source level. The covered-call path has no "never sell below basi
 2. **Premium inclusion:** confirm the rule is share-leg only (strike ≥ basis), not net of premium (strike + premium ≥ basis).
 3. **Placement:** should a below-basis call be excluded entirely, following the buy-write `strategyUnfit` precedent, or kept visible but non-actionable?
 
+### Principal authorization — 2026-10-27 — fix directed; open questions answered 1A / 2A / 3A
+
+The Principal directed "fix bug-50" and answered Kiro's options as "1  A", "2  A", "3  A". The options as presented:
+
+1. **A — fail closed.** No covered-call candidate for a holding without a known basis; the funnel/export records "cost basis unknown".
+2. **A — strike ≥ basis, share leg only.** Equality admitted; premium does not count toward the rule.
+3. **A — remove from the Calls table.** The funnel and CSV record the reason, following the buy-write `strategyUnfit` precedent.
+
 ## Acceptance criteria
 
 1. Under the default policy, no covered-call candidate with strike below a known cost basis is presented as ACTIONABLE or EDGE.
@@ -78,11 +86,33 @@ Established at source level. The covered-call path has no "never sell below basi
 
 ## Remediation history
 
-None.
+October 27, 2026 (uncommitted on `main`, base `8ec2d5fb`), implementing the Principal answers above in `options-prototype/src/write-desk/recommend-calls.ts`:
+- New `knownBasisPerShare` (finite broker average cost per share, else unknown) and `isAtOrAboveBasis` (`strike >= basis`).
+- A holding with unknown basis exits before evidence evaluation with the new terminal outcome `basisUnknown` and the excluded reason "Share cost basis unknown".
+- The target-delta pick is filed only when `isAtOrAboveBasis`. A below-basis pick is removed in every posture, WAIT included. The `basis-positive` row (lowest admissible strike ≥ basis) is unchanged, so it becomes the surfaced row when the target-delta pick is below basis.
+- A holding whose only surfaced picks were below basis reaches the new terminal outcome `belowBasis`, with reason "No executable call at or above cost basis; below-basis strikes removed (loss if called away)". BUG-016 membership still reconciles to `eligiblePositions`.
+- Unchanged: `recommend-buy-writes.ts` (`strike > spot`), `conditioned-call-surface.ts` (`strike > basis`) and all put/CSP paths. The Write Desk UI needed no change; it renders only engine output.
+- Test fixtures that relied on `economics: null` producing calls now carry a known basis below their strikes. The former test asserting a below-basis target-delta row next to `basis+` now asserts that only the `basis+` row is surfaced.
 
 ## Verification
 
-None.
+- **Automated:** new tests in `tests/write-desk/recommend-calls.test.ts` (BUG-050 block, including the record specimen) and `tests/write-desk/funnel-export-covered-call.test.ts`. 7 fail against the unfixed engine at `8ec2d5fb` and all pass with the fix. The strike-equals-basis test passes on both, as a regression guard. Full frontend suite passes (2,228 tests); `npm run build` (including `tsc -b`) passes.
+- **Principal browser acceptance — REJECTED (October 27, 2026):** "acceptance REJECTED. see attached CSV with negative appreciation values". Evidence: `wheelwright-cross-entry-2026-10-27 (2).csv` (Cash Deployment — Prod v0). Kiro tally of that file: 45 buy-write rows, 0 negative Appr→Strike; 22 CSP rows, 21 negative. The table carries only `csp` and `buy-write` entries (`CrossEntryRow.entryMechanism`); covered calls on held inventory do not appear in it. The candidate changed only the Calls table, and every negative value is on a CSP row, which Principal statement 4 excludes. *Actor interpretation:* the rejection points either to a changed Product rule covering CSP rows on this table, or to a gap between what the fix changed and where the Principal checked it. Kiro's acceptance instructions did not state that the Cash Deployment table was unchanged. The candidate remains uncommitted; no correction has been attempted pending Principal direction.
+
+### Scope expansion — 2026-10-27 — Principal-authorized CSP Appr→Strike blank
+
+The Principal asked: "the question is what should be in the apprec-->strike column for CSPs?" Kiro answered that a cash-secured put holds no shares, so it has no appreciation to strike; the signed strike − spot value on CSP rows means distance to assignment, not a loss, and mixing it with buy-write share headroom under one label is misleading. The Principal selected **"A"**: CSP Appr→Strike is blank — "—" on screen, empty in the CSV, sorted last — folded into BUG-050. This supersedes, for this column only, the earlier signed CSP convention (`4177ee6f`) and the record's earlier statement that the CSP negatives "remain correct". A separate CSP cushion column (option B) was not selected.
+
+Remediation (uncommitted, same working tree):
+- `production-v0.ts`: `CrossEntryRow.appreciationToStrikePct` / `appreciationToStrikeDollars` are `number | null`. CSP rows set both to `null`; buy-write rows are unchanged ((strike − spot) × 100 and %). New `formatAppreciationToStrike` renders "—" for null.
+- `CrossEntryStrip.tsx`: the cell uses the formatter. The header tooltip now describes share gain to the call strike and "—" for CSP. The CSV writer already emits empty for null.
+- `use-multi-column-sort.ts`: `appreciationToStrikeDollars` / `appreciationToStrikePct` pin null last in both directions. Other columns keep their existing null ordering.
+
+Verification: new `tests/write-desk/cross-entry-appreciation-to-strike.render.test.tsx` uses specimen rows from the rejected export (KSA CSP, previously −$263; KWEB buy-write +$47.50). 4 of 5 fail on the base table code; all 5 pass with the change. Full frontend suite passes (2,233 tests); `npm run build` passes.
+
+### Principal acceptance — 2026-10-27 — browser acceptance PASSED
+
+"acceptance PASSED; execute end of session protocol." This covers both the covered-call basis guard (acceptance criteria 1–6) and the CSP Appr→Strike scope expansion.
 
 ## Related
 

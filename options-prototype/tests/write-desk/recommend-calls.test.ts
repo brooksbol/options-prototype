@@ -21,6 +21,9 @@ import type { InventoryPosition } from "../../src/write-desk/types";
 
 let testId = 0;
 
+// BUG-050: known basis below every strike used by the delta-policy tests.
+const KNOWN_BASIS_50 = { averageCostPerShare: 50, costBasis: 10000, marketValue: null };
+
 describe("recommendCalls", () => {
   let cache: DurableMarketCache;
   let env: string;
@@ -51,13 +54,17 @@ describe("recommendCalls", () => {
     }));
   }
 
-  const makeInventory = (symbol: string, sharesFree: number, maxContracts: number): InventoryPosition => ({
+  // BUG-050: fixtures carry a known basis below every strike used by the
+  // generic tests (unknown basis fails closed; see the BUG-050 block below).
+  const makeInventory = (symbol: string, sharesFree: number, maxContracts: number, averageCostPerShare: number | null = 50): InventoryPosition => ({
     symbol,
     sharesOwned: sharesFree + 100,
     sharesEncumbered: 100,
     sharesFree,
     maxAdditionalContracts: maxContracts,
-    economics: null,
+    economics: averageCostPerShare == null
+      ? null
+      : { averageCostPerShare, costBasis: averageCostPerShare * (sharesFree + 100), marketValue: null },
   });
 
   it("produces call candidate for eligible inventory with cached chain", async () => {
@@ -221,10 +228,10 @@ describe("recommendCalls", () => {
     expect(result.symbolsWithCandidates).toBe(1);
   });
 
-  it("emits an additional basis-positive strike alongside the target-delta pick", async () => {
-    // Basis $95. Target-delta (0.30) pick is strike 93 (below basis).
+  it("BUG-050: removes a below-basis target-delta pick and keeps the basis-positive strike", async () => {
+    // Basis $95. Target-delta (0.30) pick is strike 93 (below basis → loss if called away).
     // A higher strike 96 is admissible (delta 0.20, within 0.15-0.50) and at/above basis.
-    // Expect TWO rows: one target-delta (93), one basis-positive (96).
+    // Expect ONE row: basis-positive (96). The 93 pick is never surfaced.
     await populateChain("XLE", [
       { strike: 93, bid: 1.70, ask: 1.90, delta: 0.30, openInterest: 500, volume: 100 },
       { strike: 96, bid: 0.90, ask: 1.10, delta: 0.20, openInterest: 400, volume: 90 },
@@ -241,13 +248,10 @@ describe("recommendCalls", () => {
     );
 
     const all = [...result.candidates, ...result.waitCandidates];
-    expect(all.length).toBe(2);
-    const target = all.find(c => c.selectionBasis === "target-delta");
-    const basisPos = all.find(c => c.selectionBasis === "basis-positive");
-    expect(target?.strike).toBe(93);
-    expect(basisPos?.strike).toBe(96);
-    // basis-positive strike is at or above the $95 basis
-    expect(basisPos!.strike).toBeGreaterThanOrEqual(95.0);
+    expect(all.length).toBe(1);
+    expect(all[0].selectionBasis).toBe("basis-positive");
+    expect(all[0].strike).toBe(96);
+    expect(all.some(c => c.strike < 95)).toBe(false);
   });
 
   it("does not duplicate a row when the target-delta pick is already basis-positive", async () => {
@@ -331,7 +335,7 @@ describe("recommendCalls — delta policy consistency", () => {
 
     // Call recommendation: delta 0.30 is within [0.15, 0.50] (raw positive)
     const callResult = await recommendCalls(
-      [{ symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: null }],
+      [{ symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: KNOWN_BASIS_50 }],
       cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY
     );
     expect(callResult.candidates.length).toBe(1);
@@ -354,7 +358,7 @@ describe("recommendCalls — delta policy consistency", () => {
     );
 
     const result = await recommendCalls(
-      [{ symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: null }],
+      [{ symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: KNOWN_BASIS_50 }],
       cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY
     );
     expect(result.candidates.length).toBe(0);
@@ -372,13 +376,138 @@ describe("recommendCalls — delta policy consistency", () => {
     );
 
     const result = await recommendCalls(
-      [{ symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: null }],
+      [{ symbol: "XLE", sharesOwned: 200, sharesEncumbered: 100, sharesFree: 100, maxAdditionalContracts: 1, economics: KNOWN_BASIS_50 }],
       cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY
     );
 
-    expect(result.candidates.length).toBe(1);
+    // BUG-050 fixture carries a known basis, so a distinct basis-positive row may
+    // accompany the pick; this test concerns only the target-delta selection.
+    const targetRows = result.candidates.filter(c => c.selectionBasis === "target-delta");
+    expect(targetRows.length).toBe(1);
     // Both are equidistant from 0.30 (|0.25-0.30| = |0.35-0.30| = 0.05)
     // Sort is stable — first in array wins when equidistant
-    expect([0.25, 0.35]).toContain(result.candidates[0].delta);
+    expect([0.25, 0.35]).toContain(targetRows[0].delta);
+  });
+});
+
+// BUG-050 — covered calls must never sell held shares below cost basis.
+// Principal rulings (October 27, 2026): 1A unknown basis fails closed;
+// 2A strike >= basis, share leg only (equality admitted); 3A below-basis
+// calls are removed from the surface with an explicit terminal reason.
+describe("recommendCalls — BUG-050 call-away basis guard", () => {
+  let cache: DurableMarketCache;
+  let env: string;
+  const cacheEnv = () => ({ provider: "tradier", environment: env });
+
+  beforeEach(() => {
+    testId++;
+    env = `call-bug050-${testId}`;
+    resetDB();
+    resetDurableCache();
+    cache = getDurableCache();
+  });
+
+  async function populateChain(
+    symbol: string,
+    calls: Array<{ strike: number; bid: number; ask: number; delta: number; openInterest: number; volume: number }>,
+    underlyingPrice: number,
+    dte = 24,
+  ) {
+    const expDate = "2026-11-20";
+    const expKey = buildCacheKey("tradier", env, "expirations", symbol);
+    await cache.put(cache.createRecord(expKey, "expirations", "tradier", env, symbol, null, [{ date: expDate, dte }]));
+    const chainKey = buildCacheKey("tradier", env, "chain", symbol, expDate);
+    await cache.put(cache.createRecord(chainKey, "chain", "tradier", env, symbol, expDate, {
+      underlying: { symbol, name: `${symbol} Fund`, price: underlyingPrice },
+      calls,
+      puts: [],
+    }));
+  }
+
+  const held = (symbol: string, averageCostPerShare: number | null): InventoryPosition => ({
+    symbol, sharesOwned: 100, sharesEncumbered: 0, sharesFree: 100, maxAdditionalContracts: 1,
+    economics: averageCostPerShare == null ? null : { averageCostPerShare, costBasis: averageCostPerShare * 100, marketValue: null },
+  });
+
+  it("bug-record specimen: XLE basis $63, spot $58 → no below-basis recommendation, explicit reason", async () => {
+    await populateChain("XLE", [
+      { strike: 60, bid: 1.20, ask: 1.30, delta: 0.30, openInterest: 500, volume: 100 },
+      { strike: 62, bid: 0.60, ask: 0.70, delta: 0.18, openInterest: 400, volume: 80 },
+    ], 58.0);
+
+    const result = await recommendCalls([held("XLE", 63.0)], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+
+    expect(result.candidates).toHaveLength(0);
+    expect(result.waitCandidates).toHaveLength(0);
+    expect(result.excluded).toEqual([{ symbol: "XLE", reason: expect.stringMatching(/below basis/i) }]);
+  });
+
+  it("admits a strike exactly at basis (zero share-leg appreciation is not negative)", async () => {
+    await populateChain("XLE", [
+      { strike: 60, bid: 1.20, ask: 1.30, delta: 0.30, openInterest: 500, volume: 100 },
+    ], 58.0);
+
+    const result = await recommendCalls([held("XLE", 60.0)], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+
+    expect(result.candidates).toHaveLength(1);
+    expect(result.candidates[0].strike).toBe(60);
+    expect(result.candidates[0].selectionBasis).toBe("target-delta");
+  });
+
+  it("premium does not rescue a below-basis strike (share leg only)", async () => {
+    // Strike 60 + mid 1.25 = 61.25 >= basis 61, but strike 60 < basis 61 → still removed.
+    await populateChain("XLE", [
+      { strike: 60, bid: 1.20, ask: 1.30, delta: 0.30, openInterest: 500, volume: 100 },
+    ], 58.0);
+
+    const result = await recommendCalls([held("XLE", 61.0)], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+
+    expect(result.candidates).toHaveLength(0);
+    expect(result.waitCandidates).toHaveLength(0);
+  });
+
+  it("unknown basis fails closed with an explicit reason", async () => {
+    await populateChain("XLE", [
+      { strike: 60, bid: 1.20, ask: 1.30, delta: 0.30, openInterest: 500, volume: 100 },
+    ], 58.0);
+
+    const result = await recommendCalls([held("XLE", null)], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+
+    expect(result.candidates).toHaveLength(0);
+    expect(result.waitCandidates).toHaveLength(0);
+    expect(result.excluded).toEqual([{ symbol: "XLE", reason: expect.stringMatching(/basis unknown/i) }]);
+    expect(result.eligiblePositions).toBe(1);
+  });
+
+  it("removes below-basis WAIT rows too (removed from the surface, not demoted)", async () => {
+    // Wide-ish spread / thin OI so the pick lands in WAIT rather than ACTIONABLE/EDGE.
+    await populateChain("XLE", [
+      { strike: 60, bid: 0.40, ask: 0.60, delta: 0.30, openInterest: 5, volume: 0 },
+    ], 58.0);
+    const control = await recommendCalls([held("XLE", 50.0)], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+    const surfacedWhenCompliant = control.candidates.length + control.waitCandidates.length;
+
+    const result = await recommendCalls([held("XLE", 63.0)], cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+
+    expect(surfacedWhenCompliant).toBeGreaterThan(0);
+    expect(result.candidates).toHaveLength(0);
+    expect(result.waitCandidates).toHaveLength(0);
+  });
+
+  it("every surfaced covered call is at or above known basis across mixed holdings", async () => {
+    await populateChain("AAA", [
+      { strike: 93, bid: 1.70, ask: 1.90, delta: 0.30, openInterest: 500, volume: 100 },
+      { strike: 96, bid: 0.90, ask: 1.10, delta: 0.20, openInterest: 400, volume: 90 },
+    ], 94.0);
+    await populateChain("BBB", [
+      { strike: 60, bid: 1.20, ask: 1.30, delta: 0.30, openInterest: 500, volume: 100 },
+    ], 58.0);
+    const inventory = [held("AAA", 95.0), held("BBB", 55.0)];
+
+    const result = await recommendCalls(inventory, cache, cacheEnv(), DEFAULT_RECOMMENDATION_POLICY);
+    const all = [...result.candidates, ...result.waitCandidates];
+
+    expect(all.map(c => `${c.symbol}:${c.strike}`).sort()).toEqual(["AAA:96", "BBB:60"]);
+    for (const c of all) expect(c.strike).toBeGreaterThanOrEqual(c.basisPerShare!);
   });
 });

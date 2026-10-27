@@ -50,6 +50,15 @@ function defaultDirForKey(key: string): SortDir {
 /**
  * Extract a sort-comparable value from an item by key.
  */
+/**
+ * Keys whose null means "not applicable to this row" and is pinned last in
+ * BOTH directions. BUG-050: Cash Deployment Appr→Strike is null on CSP rows.
+ */
+const NULLS_LAST_KEYS: ReadonlySet<string> = new Set([
+  "appreciationToStrikeDollars",
+  "appreciationToStrikePct",
+]);
+
 function extractValue(item: Record<string, unknown>, key: string): unknown {
   if (key === "assessment") {
     const assessment = item.assessment as { score?: number } | undefined;
@@ -165,6 +174,13 @@ export function useMultiColumnSort<T>(
           // Younger = larger timestamp. asc(age) = youngest first = larger ts first.
           const youngestFirst = bMs - aMs;
           return dir === "asc" ? youngestFirst : -youngestFirst;
+        }
+
+        if (NULLS_LAST_KEYS.has(key)) {
+          // Not-applicable values (null) stay at the end regardless of direction.
+          if (aVal == null && bVal == null) continue;
+          if (aVal == null) return 1;
+          if (bVal == null) return -1;
         }
 
         const cmp = compareValues(aVal, bVal);
