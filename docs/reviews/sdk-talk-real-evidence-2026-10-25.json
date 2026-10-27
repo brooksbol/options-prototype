@@ -1,0 +1,471 @@
+{
+  "standing": "Author observations, not independent review or Product acceptance",
+  "sourceRevision": "8ee880ca72110eaa03984731c6ad80546dd94091",
+  "startingMain": "fc985c974d7655e490e8f1be94456fe3846b63e1",
+  "startingPr42Head": "bc8f66b7a1613496ce352c7f82e5582d5605350c",
+  "recordedAt": "2026-10-25T22:19:53.110200+00:00",
+  "coverageCounts": {
+    "primaryClassifications": {
+      "ANSWERABLE": 4,
+      "PARTIAL": 30,
+      "BLOCKED BY EVIDENCE": 10,
+      "UNKNOWN / NOT VERIFIED": 8,
+      "UNRESOLVED PRODUCT SEMANTICS": 11
+    },
+    "overlappingBlockers": {
+      "BLOCKED BY AUTHORIZATION": 59,
+      "BLOCKED BY EVIDENCE": 59,
+      "UNRESOLVED PRODUCT SEMANTICS": 37,
+      "BLOCKED BY CAPABILITY": 31
+    },
+    "assessed": 63,
+    "note": "ANSWERABLE includes three conceptual authority questions, not three financial runtime successes."
+  },
+  "retainedInventory": {
+    "observedAt": "2026-10-25T22:14:46.772012+00:00",
+    "operational": {
+      "tableCounts": {
+        "direct_quote": 204,
+        "evidence": 6615,
+        "brokerage_account": 0,
+        "brokerage_artifact": 0,
+        "brokerage_import": 0,
+        "account_position_snapshot": 0,
+        "account_transaction": 0,
+        "account_transaction_observation": 0,
+        "portfolio_resource": 0,
+        "governed_context_version": 2,
+        "subject_scope_association": 2,
+        "governed_decision": 55573,
+        "option_obligation_continuity_assessment": 1
+      },
+      "marketEvidenceCounts": [
+        {
+          "kind": "chain",
+          "environment": "PRODUCTION",
+          "count": 4026
+        },
+        {
+          "kind": "chain",
+          "environment": "SANDBOX",
+          "count": 1
+        },
+        {
+          "kind": "chain",
+          "environment": "UNKNOWN",
+          "count": 1267
+        },
+        {
+          "kind": "expirations",
+          "environment": "PRODUCTION",
+          "count": 160
+        },
+        {
+          "kind": "expirations",
+          "environment": "UNKNOWN",
+          "count": 1161
+        }
+      ],
+      "quoteReceiptRange": {
+        "first": "2026-10-06T19:59:24.151679Z",
+        "last": "2026-10-06T19:59:30.971806Z"
+      },
+      "snapshotEvidenceDateRange": {
+        "first": null,
+        "last": null
+      },
+      "distinctSnapshotDates": 0,
+      "positionLifecycleCounts": {},
+      "acceptedImportsLinkedToOriginals": 0,
+      "importsWithExplicitSyntheticFilename": 0,
+      "upstreamSourceAuthenticityIndependentlyVerified": false
+    },
+    "retainedAccounts": {
+      "tableCounts": {
+        "direct_quote": 16,
+        "evidence": 1,
+        "brokerage_account": 3,
+        "brokerage_artifact": 371,
+        "brokerage_import": 390,
+        "account_position_snapshot": 55,
+        "account_transaction": 1304,
+        "account_transaction_observation": 1304,
+        "portfolio_resource": 3054,
+        "governed_context_version": 0,
+        "subject_scope_association": 0,
+        "governed_decision": 0,
+        "option_obligation_continuity_assessment": 0
+      },
+      "marketEvidenceCounts": [
+        {
+          "kind": "expirations",
+          "environment": "UNKNOWN",
+          "count": 1
+        }
+      ],
+      "quoteReceiptRange": {
+        "first": "2026-10-17T17:53:25.691170Z",
+        "last": "2026-10-19T19:16:34.489699Z"
+      },
+      "snapshotEvidenceDateRange": {
+        "first": "2026-07-10",
+        "last": "2026-10-19"
+      },
+      "distinctSnapshotDates": 18,
+      "positionLifecycleCounts": {
+        "UNRESOLVED": 155
+      },
+      "acceptedImportsLinkedToOriginals": 388,
+      "importsWithExplicitSyntheticFilename": 0,
+      "upstreamSourceAuthenticityIndependentlyVerified": false
+    },
+    "rawPayloadsExported": false,
+    "mode": "SQLite mode=ro; counts/dates only"
+  },
+  "actualBackendReadonlyEvaluation": {
+    "realHeldQuotesRead": 204,
+    "backendSideMeasurementsQualified": 201,
+    "backendSideMeasurementsUnavailable": 3,
+    "authorizedPositionResources": 155,
+    "retainedBackendEvaluations": 155,
+    "evaluationFailures": 0,
+    "financialStatusCoverage": {
+      "brokerReportedOpenPl": {
+        "INCOMPLETE": 120,
+        "QUALIFIED": 31
+      },
+      "estimatedClosingCashFlow": {
+        "INCOMPLETE": 155
+      },
+      "fees": {
+        "INCOMPLETE": 151
+      },
+      "grossUnrealizedPl": {
+        "INCOMPLETE": 155
+      },
+      "marketValue": {
+        "INCOMPLETE": 155
+      },
+      "netUnrealizedPl": {
+        "INCOMPLETE": 155
+      },
+      "openingCashFlow": {
+        "INCOMPLETE": 155
+      },
+      "payoff": {
+        "INCOMPLETE": 4,
+        "UNSUPPORTED": 151
+      },
+      "range": {
+        "INCOMPLETE": 4,
+        "UNSUPPORTED": 151
+      },
+      "realizedGrossPl": {
+        "INCOMPLETE": 155
+      },
+      "realizedNetPl": {
+        "INCOMPLETE": 155
+      },
+      "spot": {
+        "INCOMPLETE": 151
+      }
+    },
+    "protectedValuesExported": false,
+    "providerAcquisitionCalled": false,
+    "grantBootstrapCalled": false
+  },
+  "actualMcpMarketRead": {
+    "actualMcpDiscovery": true,
+    "realRetainedObservationRead": true,
+    "modelRequests": 0,
+    "quoteDiscoveryCount": 204,
+    "types": {
+      "EQUITY": 100,
+      "ETF": 100,
+      "INDEX": 4
+    },
+    "candidateSubresourceInstalled": false,
+    "existingRuntimeCandidateRead": {
+      "code": "NOT_FOUND",
+      "requestId": "47bffb26-4680-41e7-aaba-3d8705668e51"
+    },
+    "retainedObservationRequestId": "30e86546-1ce8-48ad-9cee-d859a513619d",
+    "providerAcquisition": false,
+    "protectedFinancialValuesExported": false
+  },
+  "actualSdkAuthorizedMetadata": {
+    "profile": "real retained authorized Account metadata; H-004 scope; no prior-turn replay",
+    "results": [
+      {
+        "id": "Q01",
+        "question": "What accounts do I have?",
+        "classification": "ANSWERABLE",
+        "authorizedAccountCount": 3,
+        "answerContainsAuthorizedMetadata": true,
+        "responseText": "The authorized Account metadata shows 3 accounts:\n\n- **<authorized Account 1>** \u2014 Fidelity\n- **<authorized Account 2>** \u2014 Fidelity\n- **<authorized Account 3>** \u2014 tastytrade\n\nThis confirms authorized visibility only, not legal ownership or complete brokerage coverage.",
+        "toolNames": [
+          "list_authorized_accounts"
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 1451,
+          "outputTokens": 68,
+          "totalTokens": 1519,
+          "inputTokensDetails": [
+            {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            }
+          ],
+          "outputTokensDetails": [
+            {
+              "reasoning_tokens": 0
+            },
+            {
+              "reasoning_tokens": 0
+            }
+          ],
+          "requestUsageEntries": [
+            {
+              "inputTokens": 691,
+              "outputTokens": 16,
+              "totalTokens": 707,
+              "inputTokensDetails": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              },
+              "outputTokensDetails": {
+                "reasoning_tokens": 0
+              },
+              "endpoint": "responses.create"
+            },
+            {
+              "inputTokens": 760,
+              "outputTokens": 52,
+              "totalTokens": 812,
+              "inputTokensDetails": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              },
+              "outputTokensDetails": {
+                "reasoning_tokens": 0
+              },
+              "endpoint": "responses.create"
+            }
+          ]
+        }
+      },
+      {
+        "id": "Q02",
+        "question": "What's in this account?",
+        "classification": "BLOCKED BY AUTHORIZATION",
+        "responseText": "I can inspect authorized account metadata, but no financial records (balances, holdings, transactions, or positions) are currently admitted in this workspace. Please provide the account nickname or broker label you mean, and I can confirm what\u2019s authorized for it.",
+        "toolNames": [],
+        "usage": {
+          "requests": 1,
+          "inputTokens": 690,
+          "outputTokens": 53,
+          "totalTokens": 743,
+          "inputTokensDetails": [
+            {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            }
+          ],
+          "outputTokensDetails": [
+            {
+              "reasoning_tokens": 0
+            }
+          ],
+          "requestUsageEntries": [
+            {
+              "inputTokens": 690,
+              "outputTokens": 53,
+              "totalTokens": 743,
+              "inputTokensDetails": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              },
+              "outputTokensDetails": {
+                "reasoning_tokens": 0
+              },
+              "endpoint": "responses.create"
+            }
+          ]
+        }
+      },
+      {
+        "id": "Q63",
+        "question": "Good morning!  Whatta we got today?",
+        "classification": "PARTIAL",
+        "authorizedAccountCount": 3,
+        "responseText": "Good morning! The workspace currently shows **3 authorized Accounts**:\n\n- **<authorized Account 1>** \u2014 Fidelity\n- **<authorized Account 2>** \u2014 Fidelity\n- **<authorized Account 3>** \u2014 tastytrade\n\nThis confirms authorized visibility only; no financial records are available in the current workspace.",
+        "toolNames": [
+          "list_authorized_accounts"
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 1499,
+          "outputTokens": 114,
+          "totalTokens": 1613,
+          "inputTokensDetails": [
+            {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            }
+          ],
+          "outputTokensDetails": [
+            {
+              "reasoning_tokens": 0
+            },
+            {
+              "reasoning_tokens": 0
+            }
+          ],
+          "requestUsageEntries": [
+            {
+              "inputTokens": 695,
+              "outputTokens": 56,
+              "totalTokens": 751,
+              "inputTokensDetails": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              },
+              "outputTokensDetails": {
+                "reasoning_tokens": 0
+              },
+              "endpoint": "responses.create"
+            },
+            {
+              "inputTokens": 804,
+              "outputTokens": 58,
+              "totalTokens": 862,
+              "inputTokensDetails": {
+                "cache_write_tokens": 0,
+                "cached_tokens": 0
+              },
+              "outputTokensDetails": {
+                "reasoning_tokens": 0
+              },
+              "endpoint": "responses.create"
+            }
+          ]
+        }
+      }
+    ],
+    "outbound": [
+      {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "allowed": true,
+        "store": false,
+        "conversation": false,
+        "previousResponse": false
+      },
+      {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "allowed": true,
+        "store": false,
+        "conversation": false,
+        "previousResponse": false
+      },
+      {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "allowed": true,
+        "store": false,
+        "conversation": false,
+        "previousResponse": false
+      },
+      {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "allowed": true,
+        "store": false,
+        "conversation": false,
+        "previousResponse": false
+      },
+      {
+        "url": "https://api.openai.com/v1/responses",
+        "method": "POST",
+        "allowed": true,
+        "store": false,
+        "conversation": false,
+        "previousResponse": false
+      }
+    ],
+    "protectedFinancialToolsAdmitted": false,
+    "protectedValuesPersisted": false,
+    "syntheticProductEvidence": false
+  },
+  "finalMeasuredUsage": {
+    "requests": 5,
+    "inputTokens": 3640,
+    "outputTokens": 235
+  },
+  "tests": {
+    "talk": {
+      "passed": 15,
+      "failed": 0
+    },
+    "targetedJava": {
+      "passed": 12,
+      "failed": 0
+    },
+    "existingOasConformance": {
+      "passed": 7,
+      "failed": 0,
+      "mappedOperations": 37
+    }
+  },
+  "authorization": {
+    "newFinancialModelDisclosure": false,
+    "realMetadataFields": "existing approved nickname/broker/count only",
+    "financialModelVerification": "BLOCKED BY AUTHORIZATION",
+    "priorTurnHistoryReplayInRealMetadataProfile": false
+  },
+  "limits": [
+    "Existing operational backend does not install the candidate liquidity subresource.",
+    "Real source/controller arithmetic verified separately from synthetic candidate HTTP/MCP contract.",
+    "Counts and source tags do not prove upstream genuineness or history completeness.",
+    "No real protected financial end-to-end model answer is claimed.",
+    "Browser UI not visually verified; served assets, API and renderer tests only."
+  ],
+  "changedImplementationFiles": [
+    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml",
+    "evidence-service-java/build.gradle.kts",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/QuoteLiquidityController.java",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/QuoteLiquidityMeasurements.java",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/QuoteLiquidityTest.java",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/RetainedCoverageAudit.java",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/TalkMarketPreview.java",
+    "tools/mcp-v2-evidence/positions.mjs",
+    "tools/mcp-v2-evidence/quotes.mjs",
+    "tools/mcp-v2-evidence/server.mjs",
+    "tools/talk/README.md",
+    "tools/talk/conversation.mjs",
+    "tools/talk/privacy.mjs",
+    "tools/talk/server.mjs",
+    "tools/talk/test/conversation.test.mjs",
+    "tools/talk/test/evidence-view.test.mjs",
+    "tools/talk/test/market.test.mjs",
+    "tools/talk/test/position-pages.test.mjs",
+    "tools/talk/test/real-market.mjs",
+    "tools/talk/test/real-metadata.mjs",
+    "tools/talk/test/retained-inventory.py",
+    "tools/talk/test/ui.test.mjs",
+    "tools/talk/ui/app.js",
+    "tools/talk/ui/evidence-view.js",
+    "tools/talk/ui/index.html",
+    "tools/talk/ui/style.css"
+  ]
+}

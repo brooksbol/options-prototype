@@ -1,0 +1,225 @@
+{
+  "priorAuditedAccountStore": {
+    "mode": "SQLite read-only; counts, statuses and field-presence only",
+    "protectedPayloadsExported": false,
+    "providerRequests": 0,
+    "imports": [
+      {
+        "type": "ACTIVITY",
+        "status": "ACCEPTED",
+        "count": 114
+      },
+      {
+        "type": "ACTIVITY",
+        "status": "REJECTED",
+        "count": 1
+      },
+      {
+        "type": "API_POSITIONS",
+        "status": "ACCEPTED",
+        "count": 13
+      },
+      {
+        "type": "API_TRANSACTIONS",
+        "status": "ACCEPTED",
+        "count": 8
+      },
+      {
+        "type": "BALANCES",
+        "status": "ACCEPTED",
+        "count": 105
+      },
+      {
+        "type": "OPTION_SUMMARY",
+        "status": "ACCEPTED",
+        "count": 106
+      },
+      {
+        "type": "POSITIONS",
+        "status": "ACCEPTED",
+        "count": 42
+      },
+      {
+        "type": "POSITIONS",
+        "status": "REJECTED",
+        "count": 1
+      }
+    ],
+    "tastytradeBalanceArtifacts": {
+      "count": 0,
+      "validHashes": 0,
+      "nonNullFieldPresence": {
+        "cash-balance": 0,
+        "equity-buying-power": 0,
+        "derivative-buying-power": 0,
+        "day-trading-buying-power": 0,
+        "margin-equity": 0,
+        "maintenance-requirement": 0,
+        "reg-t-margin-requirement": 0,
+        "used-derivative-buying-power": 0,
+        "pending-margin-interest": 0,
+        "updated-at": 0,
+        "snapshot-date": 0,
+        "currency": 0
+      }
+    },
+    "fidelityBalanceArtifacts": {
+      "count": 105,
+      "fieldPresence": {
+        "Available without margin impact": 46,
+        "Settled cash": 73,
+        "Margin buying power": 46,
+        "Non-margin buying power": 46,
+        "Cash reserved for options strategies": 35,
+        "Cash reserved for options": 0,
+        "Margin credit/debit": 22,
+        "Margin debit": 10,
+        "Margin credit": 3,
+        "Total account value": 105
+      }
+    },
+    "resourceKinds": {
+      "AUDIT": 924,
+      "CONSTRUCTION": 814,
+      "HOLDING": 968,
+      "INSTRUMENT": 161,
+      "MARKET_OBSERVATION": 16,
+      "MODEL": 8,
+      "MODEL_VERSION": 8,
+      "POSITION": 155
+    },
+    "transactionCount": 1304
+  },
+  "primaryStore": {
+    "mode": "SQLite read-only; counts, statuses and field-presence only",
+    "protectedPayloadsExported": false,
+    "providerRequests": 0,
+    "imports": [],
+    "tastytradeBalanceArtifacts": {
+      "count": 0,
+      "validHashes": 0,
+      "nonNullFieldPresence": {
+        "cash-balance": 0,
+        "equity-buying-power": 0,
+        "derivative-buying-power": 0,
+        "day-trading-buying-power": 0,
+        "margin-equity": 0,
+        "maintenance-requirement": 0,
+        "reg-t-margin-requirement": 0,
+        "used-derivative-buying-power": 0,
+        "pending-margin-interest": 0,
+        "updated-at": 0,
+        "snapshot-date": 0,
+        "currency": 0
+      }
+    },
+    "fidelityBalanceArtifacts": {
+      "count": 0,
+      "fieldPresence": {
+        "Available without margin impact": 0,
+        "Settled cash": 0,
+        "Margin buying power": 0,
+        "Non-margin buying power": 0,
+        "Cash reserved for options strategies": 0,
+        "Cash reserved for options": 0,
+        "Margin credit/debit": 0,
+        "Margin debit": 0,
+        "Margin credit": 0,
+        "Total account value": 0
+      }
+    },
+    "resourceKinds": {},
+    "transactionCount": 0
+  },
+  "otherRetainedStore": {
+    "mode": "SQLite read-only; counts, statuses and field-presence only",
+    "protectedPayloadsExported": false,
+    "providerRequests": 0,
+    "imports": [
+      {
+        "type": "ACTIVITY",
+        "status": "ACCEPTED",
+        "count": 114
+      },
+      {
+        "type": "ACTIVITY",
+        "status": "REJECTED",
+        "count": 1
+      },
+      {
+        "type": "API_POSITIONS",
+        "status": "ACCEPTED",
+        "count": 13
+      },
+      {
+        "type": "API_TRANSACTIONS",
+        "status": "ACCEPTED",
+        "count": 8
+      },
+      {
+        "type": "BALANCES",
+        "status": "ACCEPTED",
+        "count": 105
+      },
+      {
+        "type": "OPTION_SUMMARY",
+        "status": "ACCEPTED",
+        "count": 106
+      },
+      {
+        "type": "POSITIONS",
+        "status": "ACCEPTED",
+        "count": 42
+      },
+      {
+        "type": "POSITIONS",
+        "status": "REJECTED",
+        "count": 1
+      }
+    ],
+    "tastytradeBalanceArtifacts": {
+      "count": 0,
+      "validHashes": 0,
+      "nonNullFieldPresence": {
+        "cash-balance": 0,
+        "equity-buying-power": 0,
+        "derivative-buying-power": 0,
+        "day-trading-buying-power": 0,
+        "margin-equity": 0,
+        "maintenance-requirement": 0,
+        "reg-t-margin-requirement": 0,
+        "used-derivative-buying-power": 0,
+        "pending-margin-interest": 0,
+        "updated-at": 0,
+        "snapshot-date": 0,
+        "currency": 0
+      }
+    },
+    "fidelityBalanceArtifacts": {
+      "count": 105,
+      "fieldPresence": {
+        "Available without margin impact": 46,
+        "Settled cash": 73,
+        "Margin buying power": 46,
+        "Non-margin buying power": 46,
+        "Cash reserved for options strategies": 35,
+        "Cash reserved for options": 0,
+        "Margin credit/debit": 22,
+        "Margin debit": 10,
+        "Margin credit": 3,
+        "Total account value": 105
+      }
+    },
+    "resourceKinds": {
+      "AUDIT": 924,
+      "CONSTRUCTION": 814,
+      "HOLDING": 968,
+      "INSTRUMENT": 161,
+      "MARKET_OBSERVATION": 16,
+      "MODEL": 8,
+      "MODEL_VERSION": 8,
+      "POSITION": 155
+    },
+    "transactionCount": 1304
+  }
+}

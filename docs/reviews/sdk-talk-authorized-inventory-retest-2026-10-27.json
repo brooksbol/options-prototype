@@ -1,0 +1,47 @@
+{
+  "question": "show me all of my positions",
+  "standing": "Author verification, Principal-authorized real retained data; no acceptance claimed",
+  "outcome": "COMPLETE_AUTHORIZED_READ",
+  "accounts": [
+    {
+      "nickname": "pts",
+      "readComplete": true,
+      "returnedHoldings": 31,
+      "problemCodes": [],
+      "sourceDates": [
+        "2026-10-19"
+      ]
+    },
+    {
+      "nickname": "sawdust",
+      "readComplete": true,
+      "returnedHoldings": 11,
+      "problemCodes": [],
+      "sourceDates": [
+        "2026-10-27"
+      ]
+    },
+    {
+      "nickname": "tt1",
+      "readComplete": true,
+      "returnedHoldings": 10,
+      "problemCodes": [],
+      "sourceDates": [
+        null
+      ]
+    }
+  ],
+  "toolNames": [
+    "list_authorized_accounts",
+    "inspect_account_holdings"
+  ],
+  "commentaryAvailable": false,
+  "elapsedMs": 8261,
+  "holdingsReadGrantsAddedFor": [
+    "pts",
+    "tt1"
+  ],
+  "csvImportedFor": "sawdust",
+  "providerAcquisition": false,
+  "protectedFinancialValuesExported": false
+}

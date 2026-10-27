@@ -62,6 +62,7 @@ Brokerage accounts have an accounting/execution context: cash versus margin, whi
 | Default masking of account numbers in `ww ls accounts` | **Not conformant** when recorded — BUG-035 | [`../../bugs/INDEX.md`](../../bugs/INDEX.md) (check the record for current status) |
 | `ww accounts` single human Account view | **Proposed / parked** design (Oct 17); no implementation or table acceptance | `design/ww-accounts-2026-10-17/README.md` |
 | Wheelwright Talk H-004 r1 authorized Account question | **Installed, real-data author-verified, independently accepted and Principal-accepted** (Oct 23, 2026); exact source02e4f45 | [Acceptance/integration receipt](../../discovery/h004-r1-authorization-acceptance-integration-2026-10-23.md); access means backend-authorized visibility, not legal ownership or brokerage completeness |
+| Retained broker-balance API/MCP projection | **Author-verified candidate (Oct27), independent review/installation pending**; distinct cash/BP/requirements, no debt/regime inference | [Coverage correction receipt](../../reviews/sdk-talk-capability-audit-2026-10-27.md) |
 | Other currently installed / running backend Account behavior | **UNKNOWN beyond the bounded delivery evidence cited here**; H-004 does not certify all Account capabilities | — |
 
 ---

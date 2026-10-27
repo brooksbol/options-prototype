@@ -1851,6 +1851,231 @@
           }
         ]
       }
+    },
+    "/v2/account-balance-observations": {
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "schema": {
+            "type": "string",
+            "pattern": "^\\s*([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})?\\s*$"
+          },
+          "description": "Single optional UUID; surrounding whitespace trimmed and echoed. Absent/blank generates one. Invalid or repeated values are 422 after applicable authorization, with a generated response UUID. Correlation only, never deduplication.",
+          "example": "11111111-1111-4111-8111-111111111111"
+        }
+      ],
+      "get": {
+        "operationId": "readAccountBalanceObservations",
+        "summary": "Read retained broker balance observations",
+        "description": "Pure provider-free projection of accepted retained TASTYTRADE API_BALANCES and FIDELITY BALANCES originals. Distinct brokerField and meaning preserve cash, equity/options/day-trading buying power, margin requirements and reserve dialects. No universal deployable-capital mapping, debt derivation, strategy permission, per-put collateral, governance allocation or order preview. No model arithmetic establishes financial findings. currentness is always NOT_ESTABLISHED and historyCoverage UNKNOWN. Empty observations means no selected accepted balance original, never zero buying power. Original bytes remain private; only allowlisted numeric fields are projected. Missing, invalid or duplicate fields never silently become zero. Exact decimal JSON numbers retain source precision; clients must parse losslessly. Tastytrade source updated-at and snapshot-date survive separately from first artifact receipt. Fidelity export minute (America/New_York) is separate from unknown source observation time; currency is unknown and unit SOURCE_MONETARY_UNIT. Receipt ordering does not establish source-time ordering or latest/current state after trades. Collection order receivedAt then artifactId ascending; content-deduplicated originals are not a complete observation-attempt history. Select optional artifactId to narrow to an exact original. Complete collection limit 200 artifacts /32 MiB; capacity/hash failure returns 503 without partial output. Unsupported brokerage is 422.\n\n<!-- internal-only:start -->\nCanonical accountId and existing account.artifacts.read for that exact Account required before storage. Nickname resolution additionally requires ordinary account.read; no new grants are introduced. Original scope must be positively established as the single requested Account; otherwise whole read is 403. Only one accountId and optional single artifactId allowed; unknown/repeated/blank query parameters, nonempty GET body and malformed correlation are 422 after authentication/applicable authorization. No provider calls, filesystem capability or change to acquisition permissions.\n<!-- internal-only:end -->\n\nBounded selection: selection=latest-source scans and validates originals backend-side but returns at most one observation. Source ordering uses tastytrade updated-at or Fidelity export minute, never receipt. Tied maximal source times are AMBIGUOUS_SOURCE_TIME with zero observations; all unknown clocks produce NO_ORDERABLE_SOURCE_TIME. A sourceAtOrAfter miss returns NO_MATCHING_SOURCE_TIME and the latest known retained source time. Some unknown clocks permit only a qualified maximum among known times, not a complete chronology. Currentness remains NOT_ESTABLISHED. Default all and exact artifactId reads preserve prior semantics. Financial glyphs in reportedDisplay come from validated broker scalar text; a dollar glyph does not create an ISO currency determination.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-grants": [
+          "account.artifacts.read:{accountId}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete bounded collection of reported balance facts with provenance and explicit unknowns.",
+            "headers": {
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountBalanceObservationCollection"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented options buying-power observation",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "currentness": "NOT_ESTABLISHED",
+                      "historyCoverage": "UNKNOWN",
+                      "observations": [
+                        {
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "broker": "TASTYTRADE",
+                          "environment": "PRODUCTION",
+                          "currency": "USD",
+                          "unit": "MONEY",
+                          "source": {
+                            "artifactId": "11111111-1111-4111-8111-111111111111",
+                            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "fileType": "API_BALANCES",
+                            "receivedAt": "2026-10-27T16:00:00Z",
+                            "observedAt": "2026-10-26T13:20:00Z",
+                            "observationDate": "2026-10-26",
+                            "exportedAt": null,
+                            "timeStatus": "SOURCE_INSTANT"
+                          },
+                          "fields": [
+                            {
+                              "brokerField": "derivative-buying-power",
+                              "meaning": "BROKER_REPORTED_OPTIONS_BUYING_POWER",
+                              "status": "REPORTED",
+                              "value": 1000.01,
+                              "sourceLocator": "/data/derivative-buying-power"
+                            }
+                          ]
+                        }
+                      ],
+                      "qualifications": [
+                        "Invented fixture, not a real brokerage Account. Retained observation; no currentness claim."
+                      ]
+                    }
+                  },
+                  "bounded": {
+                    "summary": "Invented bounded source-time selection; no currentness claim",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "currentness": "NOT_ESTABLISHED",
+                      "historyCoverage": "UNKNOWN",
+                      "observations": [
+                        {
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "broker": "TASTYTRADE",
+                          "environment": "PRODUCTION",
+                          "currency": "USD",
+                          "unit": "MONEY",
+                          "source": {
+                            "artifactId": "11111111-1111-4111-8111-111111111111",
+                            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "fileType": "API_BALANCES",
+                            "receivedAt": "2026-10-27T16:00:00Z",
+                            "observedAt": "2026-10-26T13:20:00Z",
+                            "observationDate": "2026-10-26",
+                            "exportedAt": null,
+                            "timeStatus": "SOURCE_INSTANT"
+                          },
+                          "fields": [
+                            {
+                              "brokerField": "derivative-buying-power",
+                              "meaning": "BROKER_REPORTED_OPTIONS_BUYING_POWER",
+                              "status": "REPORTED",
+                              "value": 1000.01,
+                              "sourceLocator": "/data/derivative-buying-power"
+                            }
+                          ]
+                        }
+                      ],
+                      "qualifications": [
+                        "Invented fixture, not a real brokerage Account. Retained observation; no currentness claim."
+                      ],
+                      "selection": {
+                        "mode": "latest-source",
+                        "status": "SELECTED",
+                        "retainedObservationCount": 82,
+                        "unknownSourceTimeCount": 0,
+                        "latestKnownSourceTime": "2026-10-26T13:20:00Z",
+                        "selectedSourceTime": "2026-10-26T13:20:00Z",
+                        "sourceAtOrAfter": null,
+                        "readAt": "2026-10-27T16:00:00Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem422"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          },
+          "405": {
+            "$ref": "api-v2-direct-quote-acquisition-proposal.yaml#/components/responses/MethodNotAllowed"
+          }
+        },
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^acct_[a-f0-9]{32}$"
+            },
+            "example": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "name": "artifactId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "22222222-2222-4222-8222-222222222222"
+          },
+          {
+            "name": "selection",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "latest-source"
+              ],
+              "default": "all"
+            },
+            "description": "all preserves the retained collection. latest-source returns at most one unique maximal known source-time observation, never ordered by receipt. Unknown clocks remain explicitly counted; ties return no amounts."
+          },
+          {
+            "name": "sourceAtOrAfter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Optional earliest source instant, only with latest-source. A miss returns no amounts and latestKnownSourceTime; it does not trigger acquisition. Cannot combine latest-source with artifactId."
+          }
+        ],
+        "tags": [
+          "Accounts"
+        ],
+        "externalDocs": {
+          "description": "Candidate audit and financial-semantic limits",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/reviews/sdk-talk-capability-audit-2026-10-27.md"
+        },
+        "x-codeSamples": [
+          {
+            "lang": "curl",
+            "label": "Synthetic cURL",
+            "source": "curl --request GET 'https://api.example.invalid/v2/account-balance-observations?accountId=acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -3754,6 +3979,383 @@
           }
         },
         "description": "Bounded Account history. complete describes available normalized result, not lifetime history or atomic provider snapshot. Fidelity uses admitted activity rows with row-equivalence identity, unknown currency/freshness and no upstream acquisition."
+      },
+      "AccountBalanceField": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "brokerField",
+          "meaning",
+          "status",
+          "value",
+          "sourceLocator"
+        ],
+        "properties": {
+          "brokerField": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "REPORTED",
+              "MISSING",
+              "INVALID",
+              "AMBIGUOUS"
+            ]
+          },
+          "value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "sourceLocator": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reportedDisplay": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Validated source scalar display text. Null for unknown/invalid amounts. Presentation only; source glyphs do not establish a currency code."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "REPORTED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "type": "number"
+                },
+                "sourceLocator": {
+                  "type": "string"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "value": {
+                  "type": "null"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AccountBalanceSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifactId",
+          "sha256",
+          "fileType",
+          "receivedAt",
+          "observedAt",
+          "observationDate",
+          "exportedAt",
+          "timeStatus"
+        ],
+        "properties": {
+          "artifactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "fileType": {
+            "enum": [
+              "API_BALANCES",
+              "BALANCES"
+            ]
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "observedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "observationDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "exportedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}[+-]\\d{2}:\\d{2}$",
+            "description": "Reported Fidelity export minute, not a balance observation instant. No seconds precision claimed."
+          },
+          "timeStatus": {
+            "enum": [
+              "SOURCE_INSTANT",
+              "UNKNOWN",
+              "INVALID_SOURCE_INSTANT",
+              "EXPORT_MINUTE",
+              "INVALID_EXPORT_TIME"
+            ]
+          }
+        }
+      },
+      "AccountBalanceObservation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accountId",
+          "broker",
+          "environment",
+          "currency",
+          "unit",
+          "source",
+          "fields"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "broker": {
+            "enum": [
+              "TASTYTRADE",
+              "FIDELITY"
+            ]
+          },
+          "environment": {
+            "enum": [
+              "PRODUCTION",
+              "BROKER_EXPORT"
+            ]
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z]{3}$"
+          },
+          "unit": {
+            "enum": [
+              "MONEY",
+              "SOURCE_MONETARY_UNIT"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/AccountBalanceSource"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceField"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "broker": {
+                  "const": "TASTYTRADE"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "currency": {
+                  "type": "string"
+                },
+                "environment": {
+                  "const": "PRODUCTION"
+                },
+                "unit": {
+                  "const": "MONEY"
+                },
+                "source": {
+                  "properties": {
+                    "fileType": {
+                      "const": "API_BALANCES"
+                    }
+                  }
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "currency": {
+                  "type": "null"
+                },
+                "environment": {
+                  "const": "BROKER_EXPORT"
+                },
+                "unit": {
+                  "const": "SOURCE_MONETARY_UNIT"
+                },
+                "source": {
+                  "properties": {
+                    "fileType": {
+                      "const": "BALANCES"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AccountBalanceObservationCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "currentness",
+          "historyCoverage",
+          "observations",
+          "qualifications"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "currentness": {
+            "const": "NOT_ESTABLISHED"
+          },
+          "historyCoverage": {
+            "const": "UNKNOWN"
+          },
+          "observations": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceObservation"
+            }
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "selection": {
+            "$ref": "#/components/schemas/AccountBalanceSelection"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "selection"
+              ],
+              "properties": {
+                "selection": {
+                  "properties": {
+                    "mode": {
+                      "const": "latest-source"
+                    }
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "observations": {
+                  "maxItems": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AccountBalanceSelection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "status",
+          "retainedObservationCount",
+          "unknownSourceTimeCount",
+          "latestKnownSourceTime",
+          "selectedSourceTime",
+          "sourceAtOrAfter",
+          "readAt"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "all",
+              "latest-source"
+            ]
+          },
+          "status": {
+            "enum": [
+              "COLLECTION",
+              "SELECTED",
+              "EMPTY",
+              "NO_ORDERABLE_SOURCE_TIME",
+              "NO_MATCHING_SOURCE_TIME",
+              "AMBIGUOUS_SOURCE_TIME"
+            ]
+          },
+          "retainedObservationCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unknownSourceTimeCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "latestKnownSourceTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "selectedSourceTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "sourceAtOrAfter": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     },
     "responses": {

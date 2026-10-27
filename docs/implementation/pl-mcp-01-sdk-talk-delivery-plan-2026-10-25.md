@@ -110,10 +110,10 @@ No fixed Kiro/Codex implementation ownership is assigned here. Select the implem
 | Deprecated bespoke Talk preserved | **PRODUCT DEPRECATED**; installed/process state not reverified by this planning update |
 | W0 baseline / successor workstream identification | **AUTHOR-VERIFIED** against `265ecedf`; protected W1 workstream and synthetic-only boundaries established; see W1 execution entry below |
 | W1 SDK conversational walking skeleton | **IMPLEMENTED / AUTHOR-VERIFIED CANDIDATE**; isolated preview used by the Principal in the reported liquidity conversation; independent review and Product acceptance pending |
-| W2–W6 operator acceptance and delivery | **NOT STARTED / NO ACCEPTANCE EVIDENCE PROVIDED** |
-| Software implementation / deployment authority | **W1 ONLY explicitly assigned to Codex by the subsequent Principal implementation instruction**; no W2, existing-runtime mutation or production deployment authority |
+| W2–W6 operator acceptance and delivery | **NO STAGE ACCEPTANCE**; later bounded experiments include evidence-access/UX work, not completion, installation or delivery |
+| Software implementation / deployment authority | Initial W1 grant followed by the **bounded question-driven assignments below**, including local retained-evidence assessment. No merge, deployment, broadened model disclosure or unrelated Product implementation |
 
-**Next execution handoff when separately authorized:** Recover current main/worktree/install/task state; confirm the W0 successor location and allowed synthetic fixture; then implement **W1 within that single successor** and immediately expose its multi-turn SDK/MCP conversation to Principal observation. Do not undertake fresh broad architectural research, speculative tool catalog work, or a new isolated Talk product.
+**Current execution handoff:** Independently review the frozen October27 audit/correction candidate linked below. W1 implementation and subsequent bounded candidate engineering are recorded; no second host, speculative catalog, installation or disclosure expansion follows from review readiness.
 
 ### Plan update discipline
 
@@ -153,7 +153,7 @@ independent review and Principal Product acceptance are separate evidence.
 
 **Receipt:** [W1 implementation and review evidence](https://github.com/brooksbol/options-prototype/blob/fdb4f4b291f9978959b68da7dc2ac23c8477f3ce/docs/reviews/sdk-talk-w1-implementation-2026-10-25.md).
 W1 code is submitted as a candidate, not silently promoted to accepted Product.
-W2–W6 remain unauthorized/not started. Next step is independent W1 review; the reported operator use below is not Product acceptance or authority for another implementation stage.
+At W1 submission, W2–W6 remained unauthorized/not started. The later autonomous experiment below is a separate bounded Principal authorization, not automatic stage progression or Product acceptance.
 
 **Submitted W1 candidate:** [draft PR #42](https://github.com/brooksbol/options-prototype/pull/42), implementation source `28e5c3449eb932abb06eac391ee83d6615b931ee`, evidence commit `fdb4f4b291f9978959b68da7dc2ac23c8477f3ce`. Application code remains unmerged; recording this task state does not imply independent ACCEPT or Principal Product acceptance.
 
@@ -175,9 +175,113 @@ Preserve the question under existing PL-MCP-01. No ranking policy, liquidity too
 provider acquisition, question-specific host patch or W2 implementation is authorized
 by this observation. Independent W1 review and Product acceptance remain pending.
 
+### Authorized continuous question-driven experiment — October 25, 2026
+
+**Authority:** subsequent Principal “Autonomous Wheelwright Talk Product Engineer”
+assignment: “including reusable backend/MCP changes that existing Product authority
+supports.” Codex owns actual application/model conversations, diagnosis, ordinary
+corrections and original-question retests without routine Principal intervention.
+Continue in `tools/talk/`, branch `codex/sdk-talk-w1-20261025`, draft PR #42; do not
+revive deprecated hosts. This candidate-plan update does not alter accepted main.
+
+Boundaries remain synthetic/otherwise explicitly permitted evidence, existing
+approved model access, local isolated preview and tests. No new provider access,
+real Account disclosure, existing credential/grant changes, installed-service
+changes, merge or deployment. Defer affected questions at genuine authority/data
+boundaries and continue other productive authorized questions; neither a passing
+test nor a checkpoint ends the assignment by itself.
+
+**Candidate result:** added two reusable MCP reads over existing API v2 retained
+quotes and current portfolio Positions; actual Java controllers/SQLite/backend
+authorization exercised against invented records. Account discovery uses the same
+coherent fixture. Existing greeting remains. The one successor is still `tools/talk/`;
+reusable adapters are in `tools/mcp-v2-evidence/`.
+Corrected discovery-vs-observation qualifications, source/storage clock handling,
+lossless source presentation, native SDK history replay after narration failure,
+workspace subject discovery and completion of requested reads. MCP error disposition
+survives narration failure. Native backend projection reduces redundant context.
+No scoring policy, live feed, host financial engine or question router.
+
+**Open observed narration risk:** final preview prose still inferred quote currency/size
+units and offered rough cross-source arithmetic despite source qualifications.
+Trusted source results remain exact and separate; broad financial claim integrity
+and the W3 UX are not established. Do not treat synthetic author verification as
+permission for protected financial evidence or Product acceptance.
+
+Current top-ten liquidity remains unavailable: no authorized current comparable
+options universe, depth evidence or selected ranking semantics. Fifty/twenty-five/
+twenty-five was a model suggestion, not policy. [Closed-loop implementation receipt](../reviews/sdk-talk-closed-loop-2026-10-25.md)
+records before/after questions, counterexamples, costs, exact source and remaining
+boundaries. Author verification is separate from independent review and Principal
+Product acceptance. W2–W6 are not declared complete.
+
+### Real retained evidence and API v2 capability engineering — October 25
+
+**Authority:** Principal's subsequent “Wheelwright API v2 Capability Engineer and
+Talk Integration Engineer” assignment. Assess Q01–Q63 and the liquidity seed against
+actual retained evidence; implement bounded reusable backend/MCP improvements.
+Synthetic records remain tests, not Product coverage. The assignment does not
+broaden protected Account/Position model disclosure, provider access, grants,
+installed services or integration authority.
+
+**Author-verified candidate source:** `8ee880ca72110eaa03984731c6ad80546dd94091`
+in the same protected SDK successor/PR #42. Candidate additions: backend retained
+quote-side measurement, existing MCP quote measurement/Position continuation and
+lifecycle selection, compact exact source cards, and real Account metadata profile
+within the existing nickname/broker/count permission. No new MCP tool, question
+router, host financial engine or general agent loop.
+
+**Coverage:** all 63 assessed, not 63 runtime passes: 4 bounded answers (one actual
+SDK metadata answer plus three conceptual authority answers), 30 partial, 10
+evidence-blocked, 11 unresolved-semantic and 8 not verified. Protected financial
+model testing remains blocked; full financial answers are not established.
+Readonly backend evaluation covers 155 retained Positions, all lifecycle UNRESOLVED;
+reported open P/L is not lifetime earnings. Real retained chains exist, but do not
+establish a current comparable liquidity ranking.
+
+Actual SDK Q01/Q02/Q63 and local real API/MCP checks are separate from synthetic
+contract tests. The new quote measurement HTTP route is **not installed** in the
+operational backend. The same application is observable at http://127.0.0.1:8812
+with approved real metadata only and fresh local sessions per turn. Existing
+previews/dirty candidates remain protected. No Product acceptance is asserted.
+
+[Coverage, source inventory, blockers and review receipt](../reviews/sdk-talk-real-evidence-2026-10-25.md)
+links the complete exact-wording matrix and safe machine evidence. Remaining
+financial work needs applicable evidence/meaning or disclosure authority; do not
+substitute synthetic demonstrations or infer a merge/deploy grant from this result.
 
 ## Real-world Product learning — October 26 Income Wheel deployment
 
 [October 26, 2026 real-money Income Wheel deployment case study](../discovery/2026-10-26-income-wheel-real-world-product-learning.md) is a **Principal-observed, human-executed** reference journey spanning market/WAIT assessment, current Account cash and held shares, option candidate comparison (hold/write vs liquidate vs hybrid), evolving constraints, share sales, covered calls, put and buy-write deployment, actual fills and post-trade balance reconciliation. The session recorded **$4,071 gross option premium sold** against a **$4,000** target; it does **not** demonstrate automated Talk execution or trading profit.
 
 Use the **full dated journey and negative specimens** as a high-value question-driven Product benchmark alongside Q01–Q63, not as preselected strategy policy or implementation authorization. Recover existing v1 and v2 capabilities before engineering API v2/MCP gaps. The WW backend, not the MCP adapter or agent, owns local-file access and provider ingestion. Protected financial payload disclosure remains governed by ADR-024.
+
+## Authorized capability-coverage audit and corrections — October 27, 2026
+
+**Authority:** Principal's “Independent Wheelwright Capability-Coverage Auditor and Backend Engineer” assignment, “Adversarial coverage audit followed by authorized, bounded engineering corrections.” This expressly extends the candidate engineering scope beyond the earlier W1-only summary, without granting protected disclosure, acquisition, installed-service mutation, new grants, trading, main merge or PR42 merge. Codex is implementer; independent reviewer remains separate. Protected branch `codex/capability-coverage-audit-20261027` is based on PR42 `cd3b9a6e`, reconciled with main `11a7cc1c`; PR42 and running services are preserved.
+
+[Audit/correction receipt](../reviews/sdk-talk-capability-audit-2026-10-27.md) preserves the original exercise, exact63-row evidence assessment, reverse provider/source/API/MCP inventory, ten related/new specimens, tastytrade trace, real-source aggregates and synthetic SDK transcript. Buying power was absent from Q01–Q63, and the existing balance acquisition/retention path was overlooked. Three inspected stores contain no tastytrade balance originals;105 Fidelity balance originals provide confirmed unmodeled/unexposed facts. A provider-free retained-balance API/MCP candidate now preserves broker-native quantities, scope, clocks and unknowns. The same SDK naturally selects it; no financial engine/router was added to Talk/MCP.
+
+**Standing:** author-verified candidate; not independently accepted or installed. Original full-answer counts remain4 bounded assessments/30 partial/10 evidence-blocked/11 unresolved semantics/8 unknown; only one prior real metadata SDK answer and no new real financial SDK answer established. New synthetic balance path passes. Existing restrictive real metadata profile remains unchanged. API publication acceptance pending; no manifest refresh/publication. **Next action:** independent review of the frozen audit candidate, with source/runtime/privacy checks, keeping reserved operations separate.
+
+## Principal-authorized real retained-read preview — October 27, 2026
+
+After observing the metadata-only preview fail “what is my margin position in pts right now?”, Principal instructed **“turn on everything.”** In this immediate read-preview context this authorizes admission and OpenAI API disclosure of the implemented real Account/financial/market read results under existing backend User grants for interactive Talk, including normal local conversational replay. It does not authorize new grants, changes to existing brokerage/operational credentials, brokerage acquisition, trades or production integration. Existing tracing-off, store:false, local sessions and no remote conversation/compaction remain. This supersedes the metadata-only restriction for the **new explicitly labeled real retained-read profile**, not other users or hosts.
+
+Protected branch `codex/talk-authorized-real-reads-20261027` continues the same `tools/talk/` successor from frozen audit `91ec937c`; PR42 and the audit submission remain untouched. [Runtime/verification receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md) records the isolated backend, live original grants, private portfolio snapshot, separate existing quote read authority and the actual PTS SDK trial. Original stores and installed services remain unchanged. This is a Principal-authorized local preview, not independent acceptance or production delivery.
+
+**October27 operator inventory rejection:** “show me all of my positions” was answered with empty OPEN lifecycle queries. Principal rejected it; prior real-preview handover is not Product acceptance. The same read-preview workstream now exposes the existing retained holdings collection through a reusable MCP inventory read and renders actual rows/denials; OPEN is not an implicit inventory filter. Existing grants allow Sawdust's seven holdings but deny PTS/tt1 holdings, so complete all-Account custody remains blocked by those grants. No permission expansion inferred. See the [same runtime receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md#operator-rejection-and-inventory-correction--october27).
+
+**October27 balance UX rejection:** [BUG-052](../bugs/BUG-052-talk-balance-history-overretrieval.md) records excessive retrieval, private model context and presentation. Candidate API v2 source-time selection, bounded MCP default and compact Talk card reduce the actual original PTS question from82 observations/34,260 input tokens to1 observation/6,634 input tokens. A natural source-time follow-up establishes the missing October26 source without substituting receipt time/currentness. [Same runtime receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md#operator-balance-ux-rejection-and-bounded-correction--october-27) preserves author evidence and browser-verification limitation. No grants/acquisition/v1 changes or Product acceptance inferred.
+
+**October27 screenshot falsification:** Principal rejected bd11fea0's general rendering: holdings still expanded into a large source block and answer Markdown appeared literally. The same [BUG-052 record](../bugs/BUG-052-talk-balance-history-overretrieval.md) now preserves the failed scope assumption, compact lazy generic sources, safe local Markdown dependency, 22-test result and native Chrome interaction evidence. This is a presentation-only successor within existing delegated engineering; backend authority, SDK conversation, disclosure profile and v1 remain unchanged. No Principal acceptance inferred.
+
+## Principal production direction — October27
+
+Principal explicitly approved option A: add only holdings-read grants for PTS and tt1, then supplied today's Sawdust Positions CSV. Subsequent instructions: scan Downloads since October19; finish the CSV problem; fix tt1 balance access; **“move this work to production. no more isolated work.”** This authorizes integrating this work into main and installing the SDK successor at the existing Talk entry point, replacing the deprecated host and preview-only data path. The earlier candidate-only/deployment reservation is superseded for this bounded delivery. It does not authorize trades, new brokerage/provider grants, unknown Account access, fabricated financial semantics or Product acceptance claims. Codex remains implementer, not its own independent reviewer.
+
+Author operational evidence so far: exact two holdings flags added with all other fields preserved; subsequent tt1 balance-evidence read authorized and added. Private rollback receipts contain identity/grant details; public reports omit credentials/financial values. Sawdust supplied CSV was accepted by existing backend POST; all10 security quantities/sides match exactly,11 returned rows include one source cash-category observation, and one unsupported source row remains explicitly outside inventory meaning. Source date October27, not October19.48 additional supported Fidelity CSVs were then submitted through existing `ww sync`/backend admission. The initial Downloads scan counted81 CSVs (61 after October19 ended),71 recognizable Fidelity files,21 already retained including the supplied import. A later new Wheelwright export increased the live directory count to82; do not rewrite the earlier observation.
+
+Two remaining combined Accounts_History exports exposed missing account-row attribution support. Bounded backend extension reuses strict source-envelope validation, exact retained originals, per-row owner filtering and existing Activity normalization/row-equivalence rules. Unknown foreign Accounts prevent original-byte disclosure but do not prevent admission of the explicitly authorized owner's rows, matching the existing Positions precedent. Account names/numbers are excluded from normalized row fingerprints so equivalent legacy/combined rows do not become new ledger events merely because their envelope differs. No new financial event identity is claimed.
+
+The successful full holdings read also exposed a synthetic-host output cap of700 tokens. Official Responses status and SDK error diagnostics establish `incomplete/max_output_tokens` despite HTTP200; the generic failure was not authorization. Raising the general bounded output cap to4096 passed the real-model retest (2 requests,29,717 tokens,11.067seconds). No financial logic or question-specific host routing was added. Installed service uses the operational backend directly, not a private SQLite copy; localhost8814 bookmarks redirect to installed Talk8787. Production deployment verification and final data reconciliation remain to be appended to the existing runtime receipt after observation.

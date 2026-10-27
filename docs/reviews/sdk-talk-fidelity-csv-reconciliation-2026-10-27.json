@@ -1,0 +1,23 @@
+{
+  "standing": "Actual authorized existing backend import via recovered CLI submission path; not a new ingestion implementation",
+  "results": [
+    {
+      "account": "pts",
+      "uploaded": 28,
+      "processed": 28,
+      "failed": 0,
+      "pending": 0,
+      "complete": true
+    },
+    {
+      "account": "sawdust",
+      "uploaded": 20,
+      "processed": 20,
+      "failed": 0,
+      "pending": 0,
+      "complete": true
+    }
+  ],
+  "providerAcquisition": false,
+  "protectedFinancialValuesExported": false
+}

@@ -57,6 +57,19 @@ class ContractConformance(unittest.TestCase):
         assert_preserved_quote_contract(self.contracts)
         print(f'Validated {len(operations)} v2 operations against production mappings')
 
+    def test_reported_balances_preserve_missing_values_and_currentness(self):
+        import copy
+        response, _ = self.contracts.response('GET', '/v2/account-balance-observations', 200)
+        value = response['content']['application/json']['examples']['synthetic']['value']
+        self.contracts.validate_response('GET', '/v2/account-balance-observations', 200, value)
+        for change in ('missing_numeric', 'missing_value', 'current_claim'):
+            bad = copy.deepcopy(value)
+            if change == 'missing_numeric': bad['observations'][0]['fields'][0]['status'] = 'MISSING'
+            elif change == 'missing_value': bad['observations'][0]['fields'][0]['value'] = None
+            else: bad['currentness'] = 'CURRENT'
+            with self.assertRaises(ValidationError):
+                self.contracts.validate_response('GET', '/v2/account-balance-observations', 200, bad)
+
     def test_issue40_metadata_detail_and_inventory(self):
         for kind, media, import_id in [('POSITIONS', 'text/csv', UUID),
                                       ('API_POSITIONS', 'application/json', UUID),

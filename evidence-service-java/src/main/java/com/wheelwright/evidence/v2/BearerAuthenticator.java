@@ -68,6 +68,15 @@ public class BearerAuthenticator {
         for(var entry:effective.entrySet())users.bootstrap(entry.getKey(),entry.getValue());
     }
 
+    /** Bind a local preview credential to an already authenticated existing User.
+     * No bootstrap, User creation or grant mutation. Grants remain live backend reads. */
+    public static BearerAuthenticator existingUser(UserDirectory users, String token, String userId) throws java.sql.SQLException {
+        if(token==null||token.isBlank()||users.get(userId).isEmpty())throw new IllegalArgumentException("existing identity required");
+        var auth=new BearerAuthenticator(users, "");
+        auth.byToken.put(token,userId);
+        return auth;
+    }
+
     /**
      * Whether any approved authentication configuration exists. When false the capability
      * must fail closed; it must never authenticate anonymously.

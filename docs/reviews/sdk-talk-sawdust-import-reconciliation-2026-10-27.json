@@ -1,0 +1,14 @@
+{
+  "account": "sawdust",
+  "sourceDate": "2026-10-27",
+  "returnedRows": 11,
+  "securityRowsMatchedExactly": 10,
+  "sourceCashCategoryRows": 1,
+  "unsupportedSourceRows": 1,
+  "quantityAndSideMatch": true,
+  "allReturnedRowsUseNewSourceDate": true,
+  "completeRead": true,
+  "snapshotCoverageValues": [
+    "PARTIAL"
+  ]
+}

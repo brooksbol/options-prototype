@@ -44,6 +44,8 @@ export function classifyExport(filename, text, brokerAccount) {
     if (text.split(/\r?\n/).some(line => line.startsWith(brokerAccount + ','))) return 'POSITIONS';
     return null;
   }
+  if (text.replace(/^\uFEFF/, '').trimStart().startsWith('Run Date,Account,Account Number,Action,Symbol,') &&
+      text.split(/\r?\n/).some(line => line.includes(',' + brokerAccount + ',') || line.includes(',"' + brokerAccount + '",'))) return 'ACTIVITY';
   if (text.includes('Fidelity Investments - Option Summary ' + brokerAccount) && text.includes('Expiration & Strike')) return 'OPTION_SUMMARY';
   const escaped = brokerAccount.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   if (new RegExp(`^History_for_Account_${escaped}(?:[- (].*)?\\.csv$`, 'i').test(filename) && text.includes('Run Date,Action,Symbol,')) return 'ACTIVITY';

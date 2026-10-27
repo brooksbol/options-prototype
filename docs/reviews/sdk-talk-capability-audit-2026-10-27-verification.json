@@ -1,0 +1,118 @@
+{
+  "standing": "AUTHOR_VERIFIED_REVIEW_READY; independent review and Principal acceptance pending",
+  "remoteMain": "11a7cc1ca4d8344baa216c43f26d08c97adb9137",
+  "preservedPr42Head": "cd3b9a6ea1c00ed7f0f51614997e53022513dbe5",
+  "preservedPr42State": "OPEN",
+  "implementationSource": "faf1e0f653852553e17daee8439117b095ec8ae7",
+  "candidateBranch": "codex/capability-coverage-audit-20261027",
+  "sourceFileSha256": {
+    "evidence-service-java/build.gradle.kts": "3469d970b5903cd30446825506f4c3b76433b53d942da12b3b4dfeae277b0e41",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/AccountBalanceObservations.java": "d2f6d244339fccfd337f04d85bb93e5cd202ebc403701d2170df881d2bd3c36f",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/AccountBalancesController.java": "aaf88fd66cfe2146e3e281b6001ec99c9f2cb0bdb3a0f44222b27bbbe24beb30",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/AccountBalancesTest.java": "03a1de4d23cffb0a703641a5e8a89c4fd90cbcec087b2efd726972531dcdd9e6",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/RetainedCoverageAudit.java": "57edaa3072f13be58f4184753a590aa72189ed0a7f9cec01e26d35cd7b5dbf45",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/TalkMarketPreview.java": "010766da5bf870f4b155e4e6971ef1feac0d3babc6ff38f1adcb295c2c69c496",
+    "scripts/v2-oas-conformance-test.py": "244485be97424aee294afbe5a4a80a7fe64c08b509a60f473aad9d30ac2f8a43",
+    "tools/mcp-v2-evidence/balances.mjs": "f179bf0307617cb7e4be44645ea4540d926af7c340a251585b8abd9d13b9d86f",
+    "tools/mcp-v2-evidence/server.mjs": "a2ee2be32a34a4a732702723bfc8879acb01ff57707c31a65cf8c1779d2e3471",
+    "tools/mcp-v2-evidence/test.mjs": "f0a6c78b6a56e0fc0c24d2fd13af5809bd7b54f0ee642180964affd0de5bb122",
+    "tools/talk/package.json": "72a3323ffc7ea252b79dba21d5889f08a4300c9e063edb7e6ac434ae265537f3",
+    "tools/talk/server.mjs": "2b6d96186c94caf1eb79acd74c1bacb530e3438a99111fd7541fa7c8ddf7002a",
+    "tools/talk/test/balance-specimen.mjs": "e92e03053b1270352f108efcfe9497c929c60648cd03c69269b80344e48c69d6",
+    "tools/talk/test/balances.test.mjs": "9a9f82c8ecf25536b4e629727eb768753ebd7aa532e977183eb0c80c5f53b620",
+    "tools/talk/test/market.test.mjs": "826df167b5ffecea2e82afb42a7a503dc31df14fc235384e8eede41397be0b5e",
+    "tools/talk/test/retained-balance-coverage.py": "00f7910aab66d823161d514d501c900f4548b3ee5b68c413a5b643fa7bed3d4a",
+    "tools/talk/ui/evidence-view.js": "b7c105f8ab4265d7bd7f6c77b621faccbd77aba09c1ac9a00d30abfe7cc1888a"
+  },
+  "javaTests": [
+    {
+      "name": "com.wheelwright.evidence.v2.PortfolioCapitalHistoryTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeDisclosureTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.TastytradeAcquisitionTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0"
+    },
+    {
+      "name": "com.wheelwright.evidence.v2.AccountBalancesTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0"
+    }
+  ],
+  "testSummaries": {
+    "java": {
+      "sha256": "3a34627603c6ac4a23b6221acf48125bc9b34eb1881f447865d93591722a324b",
+      "summary": "22 targeted Java tests pass"
+    },
+    "talk": {
+      "sha256": "f16db88b43d5e222869c239f096867ec74290736f3e5a621e0f1af74004e8804",
+      "summary": "16 Talk tests pass"
+    },
+    "oas": {
+      "sha256": "d3a7946a1c5163e7af0502a74670fbc517fc03b772d63bc3373f16b51ededd3e",
+      "summary": "8 groups pass;38 source operations"
+    },
+    "roadmap": {
+      "sha256": "71116901a440d1569c78a1429c877ff7c909ca9d80660f2616a49aead81693b4",
+      "summary": "178 tests in4 files pass"
+    }
+  },
+  "mcpAdapterTests": {
+    "passed": 6
+  },
+  "actualSyntheticHttpPayloadOas": [
+    "tastytrade.json",
+    "fidelity.json"
+  ],
+  "coverage": {
+    "inventoryAssessed": 63,
+    "newCompleteRealFinancialSdkAnswers": 0,
+    "boundedAnswerabilityAssessments": 4,
+    "conceptualOfThose": 3,
+    "priorRealMetadataSdkAnswer": 1,
+    "originalBalanceDependentQuestionsWithReducedGaps": 6,
+    "provenSolelyUnmodeledEvidenceBlockers": 0
+  },
+  "measurement": {
+    "protectedWorktreeCreatedAt": "2026-10-27T16:12:10+00:00",
+    "recordedAt": "2026-10-27T16:31:59.915565+00:00",
+    "measuredEngineeringSeconds": 1189.916,
+    "elapsedScope": "Protected-worktree interval only; bootstrap before branch creation excluded; full session wall time unavailable",
+    "successfulSyntheticModelRequests": 12,
+    "successfulSyntheticInputTokens": 29518,
+    "successfulSyntheticOutputTokens": 774,
+    "successfulSyntheticConversationSeconds": 28.553,
+    "successfulSyntheticBackendReads": 10,
+    "earlierFailedTrialCompletedTurns": 6,
+    "earlierTrialRequestAndTokenTotals": "NOT_PERSISTED; overall totals unavailable",
+    "billedCurrencyCost": null,
+    "codexSessionTokensAndCredits": null,
+    "providerRequests": 0
+  },
+  "realVerification": "Candidate backend read105 real retained Fidelity originals under existing User grants with read-only SQLite; only aggregates exported. No actual tastytrade balance original present in three inspected stores. No real protected financial SDK payload.",
+  "privacy": "Synthetic model trial only; all12 observed requests nonstored Responses; no trace/conversation/compaction request. Existing restrictive real metadata profile unchanged.",
+  "apiPublication": "ACCEPTANCE_PENDING; release manifest and public artifacts unchanged; no publication",
+  "roadmap": "Regenerated to reconcile existing ADR024/parking-lot11 inputs carried by main merge;178 integrity/freshness/parser/UI tests pass. No new strategy/backlog/authority created.",
+  "reserved": [
+    "real financial disclosure",
+    "balance provider acquisition",
+    "new grants/credentials",
+    "strategy-tier and margin-group ingestion",
+    "Product debt/per-put collateral/governed availability decisions",
+    "install/deploy",
+    "merge main or PR42",
+    "trading"
+  ],
+  "nextAuthorizedAction": "Independent review of frozen candidate source, contracts, negative cases, privacy and actual-evidence boundaries"
+}
