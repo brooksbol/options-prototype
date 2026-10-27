@@ -1,0 +1,88 @@
+{
+  "profile": "Installed production direct v2 reads",
+  "balances": [
+    {
+      "account": "pts",
+      "balanceReadError": false,
+      "observationCount": 1,
+      "selection": "SELECTED",
+      "sourceTime": "2026-10-27T17:33:00Z",
+      "reportedFieldNames": [
+        "Available without margin impact",
+        "Cash reserved for options strategies",
+        "Margin buying power",
+        "Margin credit/debit",
+        "Non-margin buying power",
+        "Settled cash",
+        "Total account value"
+      ]
+    },
+    {
+      "account": "sawdust",
+      "balanceReadError": false,
+      "observationCount": 1,
+      "selection": "SELECTED",
+      "sourceTime": "2026-10-27T17:27:00Z",
+      "reportedFieldNames": [
+        "Settled cash",
+        "Total account value"
+      ]
+    },
+    {
+      "account": "tt1",
+      "balanceReadError": false,
+      "observationCount": 1,
+      "selection": "SELECTED",
+      "sourceTime": "2026-10-27T19:19:47.498Z",
+      "reportedFieldNames": [
+        "cash-available-to-withdraw",
+        "cash-balance",
+        "day-trading-buying-power",
+        "derivative-buying-power",
+        "equity-buying-power",
+        "futures-margin-requirement",
+        "maintenance-excess",
+        "maintenance-requirement",
+        "margin-equity",
+        "net-liquidating-value",
+        "pending-margin-interest",
+        "reg-t-margin-requirement",
+        "used-derivative-buying-power"
+      ]
+    }
+  ],
+  "holdings": {
+    "outcome": "COMPLETE_AUTHORIZED_READ",
+    "accounts": [
+      {
+        "nickname": "pts",
+        "complete": true,
+        "rows": 29,
+        "problems": 0,
+        "sourceDates": [
+          "2026-10-27"
+        ]
+      },
+      {
+        "nickname": "sawdust",
+        "complete": true,
+        "rows": 11,
+        "problems": 0,
+        "sourceDates": [
+          "2026-10-27"
+        ]
+      },
+      {
+        "nickname": "tt1",
+        "complete": true,
+        "rows": 7,
+        "problems": 0,
+        "sourceDates": [
+          "2026-10-27",
+          null
+        ]
+      }
+    ]
+  },
+  "protectedValuesExported": false
+}

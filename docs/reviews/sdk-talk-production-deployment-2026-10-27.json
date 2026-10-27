@@ -1,0 +1,77 @@
+{
+  "standing": "Actual installed production author verification; no Principal acceptance or independent approval claimed",
+  "observedAt": "2026-10-27T19:43:14.080568+00:00",
+  "installedApplicationSource": "349dc014",
+  "integrationSource": "75cd6e466c7fb7dafa1facdbe85181a45a2b07b5",
+  "talkURL": "http://localhost:8787/",
+  "old8814RedirectsToProduction": true,
+  "backend": "http://127.0.0.1:3101",
+  "dataSource": "Operational data/positions-v2.sqlite3, directly; no private snapshot",
+  "jarSha256": "1116e18301c0d3370bd6f6707e6a3903b339bce2423e6e82f678582062fd66eb",
+  "supervision": "Existing user launchd mechanism; Talk replaces deprecated service; v2 backend restored",
+  "wwtEntry": "main tools/talk/wwt",
+  "wwEntry": "main scripts/ww; prior private credential/backend profile preserved",
+  "AccountUserIdentitiesPreserved": true,
+  "oldArtifactsAndSnapshotsPreserved": true,
+  "v1ProcessesPreserved": {
+    "3100": 80907,
+    "5173": 80928
+  },
+  "sharedV1EnvironmentByteIdenticalToBefore": true,
+  "grantChanges": [
+    "PTS holdings read",
+    "tt1 holdings read",
+    "tt1 retained balance/artifact read"
+  ],
+  "otherExistingGrantFieldsPreserved": true,
+  "providerCredentialsOrGrantsChanged": false,
+  "trades": 0,
+  "authorizedTastytradeBackendRefreshes": 1,
+  "FidelityDownloadedFilesRetainedAndScopedAccepted": 71,
+  "downloadCsvCountAtInitialScan": 81,
+  "downloadCsvCountAtFinalScan": 82,
+  "unknownForeignAccountsExcluded": 5,
+  "mixedSourceOriginalByteReadDenialsVerified": 4,
+  "combinedActivityRowAttributionExact": true,
+  "combinedHistoryAuthorizedSourceRows": {
+    "pts": [
+      124,
+      127
+    ],
+    "sawdust": [
+      56,
+      56
+    ]
+  },
+  "verification": {
+    "javaTests": 1035,
+    "javaOptionalSkips": 2,
+    "javaFailures": 0,
+    "javaSerialBuildSeconds": 374,
+    "talkTests": 22,
+    "cliSyncUpdateTests": 10,
+    "mcpAdapterTests": 8,
+    "oasGroups": 8,
+    "mappedOperations": 38,
+    "actualProductionBalancesSchemaValidated": 3,
+    "installedQuestionSpecimens": 3
+  },
+  "measuredDeliveryElapsedSeconds": 3170,
+  "successfulInstalledSdkUsage": {
+    "requests": 8,
+    "inputTokens": 40034,
+    "outputTokens": 1208,
+    "elapsedMs": 18221
+  },
+  "usageLimitations": "Successful installed trials only; earlier debug attempts and Codex session usage/currency costs not fully metered. No invented dollar total.",
+  "publicApiReferencePublication": "ACCEPTANCE_PENDING; no accepted hashes/permissions refreshed. Failed workflow 40567912836; missing synthetic sample corrected, reference review still required.",
+  "remainingBoundaries": [
+    "Source time is not perpetual currentness",
+    "CSV sync is explicit, not a background Downloads watcher",
+    "Unknown foreign Accounts remain unregistered and undisclosed",
+    "Historical brokerage lifecycle coverage is not proved complete",
+    "Original Q01\u2013Q63 were not fully rerun",
+    "Independent review and Principal Product acceptance not claimed"
+  ],
+  "protectedFinancialValuesOrCredentialsExported": false
+}

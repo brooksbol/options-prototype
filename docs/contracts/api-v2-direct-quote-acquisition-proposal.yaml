@@ -718,9 +718,13 @@ paths:
   /v2/quotes/{symbol}/liquidity:
     get:
       operationId: measureHeldUnderlyingQuote
+      x-codeSamples:
+      - lang: cURL
+        label: Synthetic retained-side comparison
+        source: curl --request GET 'https://api.example.invalid/v2/quotes/SPY/liquidity'
       summary: Calculate qualified side-price differences from one retained underlying quote
       description: >-
-        Candidate PL-MCP-01 extension, not an installed capability or a liquidity ranking.
+        PL-MCP-01 held-observation comparison read; not a liquidity ranking.
         Reuses the held detail read's authentication, quote.read authorization, canonical
         symbol codec, strict stored-observation validation, query/body rejection and
         safe correlated problems. No acquisition, provider contact or evidence mutation.

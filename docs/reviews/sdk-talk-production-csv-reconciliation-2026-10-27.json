@@ -1,0 +1,23 @@
+{
+  "standing": "Actual production backend admission, protected source values excluded",
+  "results": [
+    {
+      "account": "pts",
+      "uploaded": 2,
+      "processed": 2,
+      "failed": 0,
+      "pending": 0,
+      "complete": true
+    },
+    {
+      "account": "sawdust",
+      "uploaded": 2,
+      "processed": 2,
+      "failed": 0,
+      "pending": 0,
+      "complete": true
+    }
+  ],
+  "providerAcquisition": false,
+  "normalization": "Account-scoped source rows only; original mixed source bytes remain restricted"
+}

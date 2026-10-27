@@ -17,12 +17,13 @@ Wheelwright has multiple **distinct operational surfaces**. They are not interch
 |---|---|---|
 | **v1 Web** (React/Vite + Java evidence service) | **Operational Cash Deployment and opportunity-selection system of record**; put, call and buy-write recommendations, Write Desk, briefs and production views | Retains historical v1 browser-owned decision logic and evidence cache. Protected transitional software; no forced cutover. |
 | **v2 backend** | Foundational Holdings API: independently identified economic Positions, immutable Constructions/Model versions, separate broker Holdings/snapshots, read-only Orders, financial evaluations and retained evidence | Accepted backend installed locally on3101; source qualifications and Account grants apply. See the [deployment record](docs/implementation/api-v2-foundational-2026-10-21/deployment-2026-10-22.md) for verification and limitations. |
-| **`ww` CLI** | Existing human held-evidence and Account inspection client | Preserved without migration in this API release; compatibility with the changed Position contract is not asserted. |
+| **Wheelwright Talk** | Installed SDK conversation at [localhost:8787](http://localhost:8787/), or `wwt` | MCP exposes authorized backend reads; tracing and response storage are off. Source timestamps qualify answers; no trading tools. |
+| **`ww` CLI** | Human held-evidence, Account inspection and explicit Fidelity CSV synchronization | Installed from current main against the same operational v2 evidence used by Talk. CSV synchronization is explicit; complete brokerage history is not implied. |
 | **`tt positions` / `tt live`** | Standalone, read-only tastytrade API companion for broker positions and recognizable live-trade monitoring | Transitional companion, **not** v2 Position admission. Broker observations and indicative calculations are not execution or governed advice. |
 
 **Accepted multi-broker Account discovery:** `ww ls accounts` shows authorized Fidelity and tastytrade Accounts using operator-selected aliases (`pts`, `sawdust`, `tt1` in the current operator setup) and masked native account numbers. Account identity, nickname resolution and User–Account grants are backend-owned.
 
-**Current delivery:** The independently verified foundational Holdings backend is integrated and locally installed. Separate source-qualified broker custody observations and economic Positions are available through v2; missing occurrence/Order history remains unknown. No new live brokerage acquisition was performed during release verification. `ww live`, CLI/MCP migrations and v2 Web remain separate work; no client cutover is implied.
+**Current delivery:** The independently verified foundational Holdings backend is integrated and locally installed. Separate source-qualified broker custody observations and economic Positions are available through v2; missing occurrence/Order history remains unknown. The October27 Talk delivery adds installed SDK/MCP reads and verified Fidelity import catch-up; one authorized tastytrade refresh supplied real balance/holdings evidence. V1 remains a separate protected surface; `ww live` and v2 trading/execution are not delivered by this change.
 
 See [the convergence intake](docs/parking-lot-10.md) and [the roadmap](docs/roadmap.md) for current dispositions; this README is an overview, not the project-state ledger.
 
@@ -46,7 +47,7 @@ The installed `ww` CLI is intended to be used with familiar aliases, not interna
     ww show SPY
     ww ls quotes
 
-`ww sync account pts` scans supported Fidelity CSV exports. It does not imply complete brokerage lifecycle coverage. The installed CLI was not migrated or reaccepted as part of the foundational backend release.
+`ww sync account pts` scans supported Fidelity CSV exports. It does not imply complete brokerage lifecycle coverage. Newly downloaded CSVs require an explicit sync; downloading a file alone does not ingest it. Talk reads accepted operational evidence directly. See the [October27 delivery receipt](docs/reviews/sdk-talk-real-read-profile-2026-10-27.md#installed-result--october27-final-production-observation) for verification and scope.
 
 The standalone tastytrade companion provides:
 

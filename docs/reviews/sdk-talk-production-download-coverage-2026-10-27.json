@@ -1,0 +1,103 @@
+{
+  "standing": "Read-only final production artifact-hash reconciliation; no financial payloads exported",
+  "observedAt": "2026-10-27T19:26:18.801Z",
+  "observations": [
+    {
+      "directory": "/Users/bollich/Downloads",
+      "sinceInclusive": "2026-10-19T00:00:00-06:00",
+      "addedByFilesystemBirthTime": 82,
+      "modifiedSinceCutoff": 82,
+      "birthTimeAvailable": true
+    },
+    {
+      "family": "FIDELITY_ACTIVITY",
+      "files": 19,
+      "uniqueContents": 19,
+      "filesRetainedInTalkSource": 19,
+      "filesAcceptedInTalkSource": 19,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 4,
+        "2026-10-23": 2,
+        "2026-10-26": 4,
+        "2026-10-27": 3
+      }
+    },
+    {
+      "family": "FIDELITY_BALANCES",
+      "files": 19,
+      "uniqueContents": 19,
+      "filesRetainedInTalkSource": 19,
+      "filesAcceptedInTalkSource": 19,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 3,
+        "2026-10-23": 2,
+        "2026-10-26": 4,
+        "2026-10-27": 4
+      }
+    },
+    {
+      "family": "FIDELITY_OPTION_SUMMARY",
+      "files": 16,
+      "uniqueContents": 16,
+      "filesRetainedInTalkSource": 16,
+      "filesAcceptedInTalkSource": 16,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 3,
+        "2026-10-23": 2,
+        "2026-10-26": 2,
+        "2026-10-27": 3
+      }
+    },
+    {
+      "family": "FIDELITY_POSITIONS",
+      "files": 17,
+      "uniqueContents": 17,
+      "filesRetainedInTalkSource": 17,
+      "filesAcceptedInTalkSource": 17,
+      "addedByDay": {
+        "2026-10-19": 5,
+        "2026-10-21": 1,
+        "2026-10-22": 3,
+        "2026-10-23": 2,
+        "2026-10-26": 2,
+        "2026-10-27": 4
+      }
+    },
+    {
+      "family": "OTHER_CSV",
+      "files": 1,
+      "uniqueContents": 1,
+      "filesRetainedInTalkSource": 0,
+      "filesAcceptedInTalkSource": 0,
+      "addedByDay": {
+        "2026-10-24": 1
+      }
+    },
+    {
+      "family": "WHEELWRIGHT_EXPORT",
+      "files": 10,
+      "uniqueContents": 10,
+      "filesRetainedInTalkSource": 0,
+      "filesAcceptedInTalkSource": 0,
+      "addedByDay": {
+        "2026-10-22": 3,
+        "2026-10-26": 4,
+        "2026-10-27": 3
+      }
+    },
+    {
+      "totalFiles": 82,
+      "uniqueContents": 82,
+      "retainedFiles": 71,
+      "acceptedFiles": 71
+    }
+  ],
+  "combinedActivities": "PTS/Sawdust rows admitted only; unregistered Account rows not admitted; original-byte retrieval remains restricted",
+  "excludedDownloads": "Wheelwright-generated exports and one other unsupported CSV; not treated as brokerage ingestion inputs"
+}
