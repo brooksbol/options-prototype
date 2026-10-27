@@ -39,3 +39,9 @@ Targeted admission/security/row-equivalence checks pass at development source. A
 
 ## Related
 PL-MCP-01; ADR-024; BUG-052 covers source/Markdown presentation separately.
+
+## Subsequent production falsification — October 27
+
+The Principal's installed conversation finds a second gap after transport/import correction: successful holdings retrieval still omitted BIZD and inherited tt1 scope, native Fidelity `Available to trade`/`Cash and credits` labels were dropped, and absent optional quote measurements were mistaken for absent quote facts. Premium refusal based on custody alone overlooked an existing retained transaction path. This does not retroactively validate earlier completeness claims.
+
+The [existing receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md#production-portfolio-replay-correction--october-27-after-installed-conversation) records bounded backend option inventories/exact counts, native cash-label projection, bounded retained-only transaction selection/MCP, authoritative quote recovery and typed UI rows. Per-Account denial remains explicit; no grant changes. Cash-secured construction identity, current-held opening-cohort attribution and universal liquidity ranking remain unestablished. Verification receipts in that section distinguish controlled fixtures from installed real reads. Remains Open pending independent review and Principal observation; source correction is not acceptance.

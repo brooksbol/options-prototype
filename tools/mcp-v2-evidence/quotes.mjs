@@ -5,6 +5,18 @@ export async function inspectQuotes({ symbol, measurement = false } = {}, config
   if (measurement && !symbol) throw new Error('Measurement requires a canonical subject.');
   const path = '/v2/quotes' + (symbol === undefined ? '' : '/' + encodePathSymbol(symbol)) + (measurement ? '/liquidity' : '');
   const { requestId, data, error } = await readBackend(path, config);
+  if (error && measurement && error.status === 404) {
+    // An absent measurement route/observation is not proof that its underlying
+    // retained quote is absent. Recover that authoritative read without local math.
+    const source = await readBackend('/v2/quotes/' + encodePathSymbol(symbol), config);
+    if (source.error) return problemResult(source.error, symbol);
+    const observation = validateShowObservation(source.data, symbol);
+    return {content:[{type:'text',text:JSON.stringify({requestId:source.requestId,
+      operation:'observation',measurementStatus:'UNAVAILABLE',
+      measurementProblem:{requestId:error.requestId,status:error.status,code:error.code},
+      evidence:{source:observation},
+      qualification:'Requested backend measurements were unavailable. A separate authoritative retained quote read succeeded; its facts and clocks remain available. No spread, ranking or currentness is calculated by MCP.'})}]};
+  }
   if (error) return problemResult(error, symbol);
   let evidence;
   if (measurement) {

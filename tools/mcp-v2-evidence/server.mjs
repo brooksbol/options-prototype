@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import { z } from 'zod';
+import { inspectTransactions } from './transactions.mjs';
 import { inspectHoldings } from './holdings.mjs';
 import { inspectQuotes } from './quotes.mjs';
 import { inspectBalances } from './balances.mjs';
@@ -43,12 +44,19 @@ serveStdio(() => {
     catch { return { isError: true, content: [{ type: 'text', text: 'Balance-evidence read failed; no new finding established.' }] }; }
   });
   server.registerTool('inspect_account_holdings', {
-    description: 'Read the brokerage positions/holdings inventory, across all authorized Account nicknames when account is omitted. Uses each Account’s latest retained custody cut, not a Wheelwright Position OPEN lifecycle filter. Use for portfolio inventory; unresolved lifecycle does not mean no holdings. Reads all bounded pages and preserves per-Account denied/partial outcomes. A403 means access denied, never zero positions. Includes observed quantities, source instrument and source dates; no live freshness, managed occurrence continuity, financial calculation or trading action inferred.',
-    inputSchema: z.object({account:z.string().optional().describe('Exact authorized Account nickname. Omit to inspect all discovered Accounts and report each read outcome.')}),
+    description: 'Read the brokerage positions/holdings inventory, across all authorized Account nicknames when account is omitted. Uses each Account’s latest retained custody cut, not a Wheelwright Position OPEN lifecycle filter. Use for portfolio inventory; unresolved lifecycle does not mean no holdings. Reads all bounded pages and preserves per-Account denied/partial outcomes. A403 means access denied, never zero positions. For option counts or option lists, use optionRight and side selectors: the backend supplies complete selected-cut rows, exact counts, source contract descriptors and related-long context without a CSP or spread inference. A short put is not a cash-secured put; inventory counts are not verified construction counts. Includes observed quantities, source instrument and source dates; no live freshness, managed occurrence continuity, financial calculation or trading action inferred.',
+    inputSchema: z.object({account:z.string().optional().describe('Exact authorized Account nickname. Omit to inspect all discovered Accounts and report each read outcome.'),
+      optionRight:z.enum(['PUT','CALL']).optional().describe('Backend option-right filter; also requests typed option inventory and counts. Does not classify a cash-secured strategy.'),
+      side:z.enum(['SHORT','LONG']).optional().describe('Backend option-side filter; reports matching option contracts, with unknown identities and denied Accounts explicit.')}),
     annotations: {readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}
   }, async args => {
     try { return await inspectHoldings(args,{base:process.env.WW_BASE_URL,token:process.env.WW_API_TOKEN,syntheticFixture:process.env.WW_SYNTHETIC_FIXTURE==='1'}); }
     catch { return {isError:true,content:[{type:'text',text:'Holdings inventory read failed; no complete inventory established.'}]}; }
   });
+  server.registerTool('inspect_account_transactions', {
+    description:'Read bounded retained Account transaction evidence, with optional exact source symbol and inclusive transaction-date bounds. No provider acquisition. Use source actions, reported value, net cash, fees and provenance to investigate opening-credit questions; holdings alone cannot establish premium. A symbol match does not associate a transaction occurrence with a current holding or construction. Preserve row-equivalence identity, coverage and correction/reversal status. Page completeness is not lifetime completeness. No gross-premium arithmetic or strategy classification in MCP. Continue with opaque nextCursor and unchanged selectors when pageComplete is false.',
+    inputSchema:z.object({account:z.string(),symbol:z.string().min(1).max(128).optional(),from:z.string().date().optional(),through:z.string().date().optional(),limit:z.number().int().min(1).max(100).optional(),cursor:z.string().max(256).optional()}),
+    annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}
+  },async args=>{try{return await inspectTransactions(args,{base:process.env.WW_BASE_URL,token:process.env.WW_API_TOKEN,syntheticFixture:process.env.WW_SYNTHETIC_FIXTURE==='1'});}catch{return {isError:true,content:[{type:'text',text:'Retained transaction read failed; no premium finding established.'}]};}});
   return server;
 });

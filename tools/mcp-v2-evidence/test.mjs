@@ -110,3 +110,30 @@ test('holdings continuation rejects foreign origin and retains explicit known pa
   return response(JSON.stringify({requestId,status:503,code:'CAPABILITY_UNAVAILABLE',title:'Capability unavailable'}),503);
  }});const data=JSON.parse(result.content[0].text);assert.equal(data.outcome,'PARTIAL');assert.equal(data.accounts[0].complete,false);assert.equal(data.accounts[0].problems[0].code,'CAPABILITY_UNAVAILABLE');
 });
+
+test('missing measurement capability recovers existing authoritative quote without claiming absence or computing finance',async()=>{
+ const paths=[];
+ const result=await inspectQuotes({symbol:'^SPX',measurement:true},{...config,fetchImpl:async url=>{
+  paths.push(url.pathname);
+  return url.pathname.endsWith('/liquidity')?response(JSON.stringify({requestId,status:404,code:'NOT_FOUND',title:'Not found'}),404):response(JSON.stringify(observation));
+ }});
+ assert.deepEqual(paths,['/v2/quotes/_5ESPX/liquidity','/v2/quotes/_5ESPX']);
+ const data=JSON.parse(result.content[0].text);assert.equal(data.measurementStatus,'UNAVAILABLE');assert.equal(data.evidence.source.observationId,requestId);assert.equal(data.evidence.source.facts.last.price,4000);assert.equal(data.evidence.measurements,undefined);
+ const denied=[];const error=await inspectQuotes({symbol:'^SPX',measurement:true},{...config,fetchImpl:async url=>{denied.push(url.pathname);return response(JSON.stringify({requestId,status:403,code:'FORBIDDEN',title:'Forbidden'}),403);}});
+ assert.equal(error.isError,true);assert.equal(denied.length,1);
+});
+
+test('filtered option inventory preserves backend rows/counts and per-Account denial without client classification',async()=>{
+ const {inspectHoldings}=await import('./holdings.mjs');const id='acct_'+'a'.repeat(32);const paths=[];
+ const inventory={requestId,currentness:'NOT_ESTABLISHED',accounts:[{accountId:id,nickname:'fixture',broker:'FIDELITY',status:'READ',readComplete:true,options:[{unit:'CONTRACT',right:'PUT',side:'SHORT',sourceIdentifier:'LATER',relatedLongOptions:[]}],unclassifiedOptions:[]}],counts:{shortPutContracts:5,cashSecuredPutContracts:null}};
+ const result=await inspectHoldings({optionRight:'PUT',side:'SHORT'},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture',brokerAssociation:{broker:'FIDELITY'}}]}:inventory));}});
+ assert.deepEqual(paths,['/v2/accounts','/v2/option-inventory?right=PUT&side=SHORT']);assert.deepEqual(JSON.parse(result.content[0].text).evidence.optionInventory,inventory);
+ inventory.accounts[0].options[0].right='CALL';await assert.rejects(inspectHoldings({optionRight:'PUT'},{...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:inventory))}));
+});
+
+test('transaction transport requests bounded retained evidence only and preserves distinct source financial fields',async()=>{
+ const {inspectTransactions}=await import('./transactions.mjs');const id='acct_'+'a'.repeat(32);const paths=[];
+ const data={requestId,accountId:id,queryMode:'RETAINED_ONLY',pageComplete:false,nextCursor:'opaque',transactions:[{accountId:id,symbol:'FIXTURE',value:'100.23',netCash:'99.11',commission:'-1.12'}]};
+ const result=await inspectTransactions({account:'fixture',symbol:'FIXTURE',limit:1},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data));}});
+ assert.equal(paths[1],'/v2/accounts/'+id+'/transactions?mode=retained&limit=1&symbol=FIXTURE');assert.deepEqual(JSON.parse(result.content[0].text).evidence.transactions,data);
+});

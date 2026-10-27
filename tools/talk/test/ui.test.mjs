@@ -79,3 +79,22 @@ test('holdings source rows are lazy, answer Markdown renders, and access denials
   const rawDetails=created.filter(e=>e.tag==='details').at(-1);rawDetails.open=true;rawDetails.listeners.toggle();assert.equal(created.filter(e=>e.tag==='pre').length,1);
  }finally{delete globalThis.document;globalThis.fetch=priorFetch;}
 });
+
+test('option inventory renders every typed row before commentary and defers provenance',async()=>{
+ const elements=new Map(),created=[];
+ function element(tag='div'){const e={tag,listeners:{},children:[],value:'',open:false,
+ append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;},
+ insertBefore(item,before){this.children.splice(this.children.indexOf(before),0,item);},
+ querySelector(selector){return this.children.find(c=>selector==='.'+c.className);},
+ scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};created.push(e);return e;}
+ const priorFetch=globalThis.fetch;
+ globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element};
+ const raw=JSON.stringify({evidence:{optionInventory:{right:'PUT',side:'SHORT',counts:{shortPutContracts:5,selectedInventoryComplete:true},accounts:[{nickname:'fixture',readComplete:true,options:Array.from({length:5},(_,n)=>({underlyingSymbol:'ROW'+n,right:'PUT',side:'SHORT',quantity:'1',source:{artifactId:'PROVENANCE-CANARY',sourceRows:[n+1]}}))}]}}});
+ globalThis.fetch=async(_path,opts)=>new Response(JSON.stringify(opts?{text:'Five reported short puts; CSP status unknown.',tools:[{name:'inspect_account_holdings',result:JSON.stringify({type:'text',text:raw})}]}:{csrf:'fixture',profile:'Synthetic retained evidence',tools:[]}));
+ try{
+  await import('../ui/app.js?option-inventory');elements.get('message').value='Count options';await elements.get('composer').listeners.submit({preventDefault(){}});
+  assert.equal(created.find(e=>e.tag==='tbody').children.length,5);assert.ok(created.some(e=>e.textContent==='ROW4'));
+  assert.ok(!created.some(e=>e.textContent?.includes('PROVENANCE-CANARY')));assert.equal(created.filter(e=>e.tag==='pre').length,0);
+  const details=created.find(e=>e.tag==='details');details.open=true;details.listeners.toggle();assert.ok(created.some(e=>e.textContent?.includes('PROVENANCE-CANARY')));
+ }finally{delete globalThis.document;globalThis.fetch=priorFetch;}
+});

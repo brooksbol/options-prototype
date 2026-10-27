@@ -41,6 +41,7 @@ export function evidenceView(raw) {
     add('Received', source.provenance?.receivedAt);
     qualifications.push('Retained evidence; receipt time is not observation time or proof of currentness. Currency/size units are not inferred.');
   }
+  const unavailableMetrics = new Set();
   for (const position of value.evidence?.items ?? []) {
     if (!position.evaluation) continue;
     add('Position lifecycle status', position.state);
@@ -50,14 +51,46 @@ export function evidenceView(raw) {
       add('Observation date', holding.observationDate);
       for (const key of ['reportedMarketValue', 'reportedOpenPl']) {
         const metric = holding[key];
-        if (metric) add(key, metric.value, [metric.currency ?? metric.unit, metric.status, metric.method].filter(Boolean).join(' · '));
+        if (metric?.value != null) add(key, metric.value, [metric.currency ?? metric.unit, metric.status, metric.method].filter(Boolean).join(' · '));
+        else if(metric) unavailableMetrics.add(`${key} · ${[metric.currency??metric.unit,metric.status,metric.method].filter(Boolean).join(' · ')}`);
       }
     }
     for (const key of ['marketValue', 'realizedNetPl', 'netUnrealizedPl']) {
       const metric = position.evaluation[key];
-      if (metric) add(key, metric.value, [metric.currency ?? metric.unit, metric.status].filter(Boolean).join(' · '));
+      if (metric?.value != null) add(key, metric.value, [metric.currency ?? metric.unit, metric.status].filter(Boolean).join(' · '));
+      else if(metric) unavailableMetrics.add(`${key} · ${[metric.currency??metric.unit,metric.status].filter(Boolean).join(' · ')}`);
     }
     qualifications.push(...(position.warnings ?? []).map(warning => warning.code));
+  }
+  if(unavailableMetrics.size) add('Unavailable metrics', [...unavailableMetrics].join('; '));
+  const transactionRead=value.evidence?.transactions;
+  if(transactionRead?.queryMode==='RETAINED_ONLY') {
+    add('Account',value.account?.nickname);add('Retained matched rows',transactionRead.matchedRecordCount);
+    add('Page completeness',transactionRead.pageComplete?'Final selected page':'More retained pages available');
+    for(const transaction of transactionRead.transactions??[]) {
+      add('Source transaction',`${transaction.symbol??'No source symbol'} · ${transaction.transactionDate??'Unknown day'} · ${transaction.sourceAction??transaction.action??'Unknown action'}`);
+      for(const key of ['value','netCash','commission','fees'])add(key,transaction[key],transaction.currency??'source monetary unit');
+    }
+    qualifications.push(transactionRead.qualification);
+  }
+  let optionInventory;
+  const optionRead=value.evidence?.optionInventory;
+  if(optionRead && Array.isArray(optionRead.accounts)) {
+    optionInventory={title:'Reported option inventory',complete:optionRead.counts?.selectedInventoryComplete===true,
+      shortPutContracts:text(optionRead.counts?.shortPutContracts),
+      filters:[optionRead.right,optionRead.side].filter(Boolean).join(' · ') || 'All options',
+      rows:optionRead.accounts.flatMap(account=>[...(account.options??[]),...(account.unclassifiedOptions??[])].map(row=>[
+        account.nickname,row.underlyingSymbol??row.sourceIdentifier,row.right,row.side,
+        row.expiration??'Unknown',text(row.strike),text(row.quantity),
+        row.source?.observationDate??'Unknown · receipt only',
+        (row.relatedLongOptions??[]).map(other=>other.sourceIdentifier).join(', ')||'None in selected cut'
+      ])),
+      access:optionRead.accounts.filter(a=>!a.readComplete).map(a=>`${a.nickname}: ${a.status}`),
+      note:'Cash-secured strategy status is not established by this inventory read. Related long options are context, not construction membership. Retained source coverage and currentness remain qualified.',
+      details:[...(optionRead.qualifications??[]).map(q=>['Qualification',q]),
+        ...optionRead.accounts.flatMap(a=>[['Account',`${a.nickname} · ${a.snapshotCoverage} · ${a.status}`],
+          ...(a.options??[]).map(r=>['Source',`${r.sourceIdentifier} · terms ${r.termsStatus??'unknown'} · ${r.source?.artifactId??'artifact unavailable'} · rows ${(r.source?.sourceRows??[]).map(text).join(', ')} · received ${r.source?.receivedAt??'unknown'}`])])]
+    };
   }
   let balanceSummary;
   if (Array.isArray(value.evidence?.observations)) {
@@ -76,7 +109,7 @@ export function evidenceView(raw) {
       ['Options buying power','derivative-buying-power'], ['Equity buying power','equity-buying-power'],
       ['Settled cash','cash-balance'], ['Maintenance requirement','maintenance-requirement']
     ] : [
-      ['Available without additional margin impact','Available without margin impact'],
+      byName('Available without margin impact') ? ['Available without additional margin impact','Available without margin impact'] : byName('Available to trade') ? ['Broker-reported available to trade','Available to trade'] : byName('Available to trade (all settled)') ? ['Broker-reported available to trade (all settled)','Available to trade (all settled)'] : ['Available without additional margin impact','Available without margin impact'],
       ...([['Reported margin debit','Margin debit'], ['Reported margin credit','Margin credit'],
         ['Margin credit/debit · reported','Margin credit/debit']].filter(([,key]) => byName(key))),
       ['Options collateral reserved', byName('Cash reserved for options strategies') ? 'Cash reserved for options strategies' : 'Cash reserved for options'],
@@ -92,7 +125,7 @@ export function evidenceView(raw) {
       subtitle: `${observation?.broker ?? value.account?.broker ?? ''} · Retained balance from ${date}`,
       badge: historical ? 'Historical' : 'Retained · currentness unverified',
       facts: observation ? requested.slice(0,6).map(([label,key]) => ({label,value:money(byName(key)),status:byName(key)?.status ?? 'MISSING'})) : [],
-      note: observation ? `This is retained evidence, not today's buying power. ${selection.mode === 'latest-source' ? 'Latest known source time' : 'Selected source time'}: ${date}. ${selection.mode !== 'latest-source' ? 'Exact artifact read; later Account sources were not compared.' : text(selection.unknownSourceTimeCount) !== '0' && selection.unknownSourceTimeCount != null ? 'Some retained source times are unknown; chronology is incomplete.' : 'No later source-dated balance is retained.'}` :
+      note: observation ? `Retained observation; current trading capacity is not established. ${selection.mode === 'latest-source' ? 'Latest known source time' : 'Selected source time'}: ${date}. ${selection.mode !== 'latest-source' ? 'Exact artifact read; later Account sources were not compared.' : text(selection.unknownSourceTimeCount) !== '0' && selection.unknownSourceTimeCount != null ? 'Some retained source times are unknown; chronology is incomplete.' : 'No later source-dated balance is retained.'}` :
         `No single qualified balance selected (${selection.status ?? 'unscoped history'}). No financial amount established.${selection.latestKnownSourceTime ? ' Latest known source time: ' + selection.latestKnownSourceTime + '.' : ''}`,
       details: [
         ['Selection',selection.status], ['Selected source time',selection.selectedSourceTime],
@@ -110,5 +143,5 @@ export function evidenceView(raw) {
   if (!rows.length) rows.push(['Evidence', 'Detailed source is available below.']);
   for (const field of ['qualification', 'sourceQualification', 'scope']) if (value[field]) qualifications.push(value[field]);
   if (value.dataClassification) qualifications.unshift(value.dataClassification);
-  return { rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}) };
+  return { rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}), ...(optionInventory ? {optionInventory} : {}) };
 }

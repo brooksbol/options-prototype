@@ -129,4 +129,14 @@ class AccountBalancesTest {
   }
  }
 
+ @Test void cashAccountLabelsAreReportedSeparatelyAndDuplicatesAreAmbiguous()throws Exception {
+  String body="Name,Balance,Day change\nAvailable to trade,$321.45,0\nCash and credits,$401.25,0\nSettled cash,$0.00,0\n";
+  var o=AccountBalanceObservations.fidelity("a","id","hash",RECEIVED,body.getBytes(StandardCharsets.UTF_8));
+  assertThat(o.fields()).anySatisfy(f->{assertThat(f.brokerField()).isEqualTo("Available to trade");assertThat(f.value()).isEqualByComparingTo("321.45");});
+  assertThat(o.fields()).anySatisfy(f->{assertThat(f.brokerField()).isEqualTo("Cash and credits");assertThat(f.value()).isEqualByComparingTo("401.25");});
+  assertThat(o.fields()).noneSatisfy(f->assertThat(f.brokerField()).isEqualTo("Available without margin impact"));
+  var duplicate=AccountBalanceObservations.fidelity("a","id","hash",RECEIVED,(body+"Available to trade,$1,0\n").getBytes(StandardCharsets.UTF_8));
+  assertThat(duplicate.fields()).anySatisfy(f->{assertThat(f.brokerField()).isEqualTo("Available to trade");assertThat(f.status()).isEqualTo("AMBIGUOUS");assertThat(f.value()).isNull();});
+ }
+
 }

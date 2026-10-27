@@ -64,7 +64,22 @@ $('composer').addEventListener('submit', async event => {
     for (const tool of answer.tools ?? []) {
       const raw = resultText(tool.result);
       const view = evidenceView(raw);
-      if (view.balanceSummary) {
+      if (view.optionInventory) {
+        const inventory=view.optionInventory;
+        const card=document.createElement('section');card.className='option-inventory-card';
+        const title=document.createElement('h3');title.textContent=inventory.title;card.append(title);
+        const scope=document.createElement('p');scope.textContent=`${inventory.filters} · ${inventory.complete?'Complete selected retained scope':'Incomplete selected scope'}`;card.append(scope);
+        const count=document.createElement('p');count.textContent=`Reported short-put contracts in this selection: ${inventory.shortPutContracts}`;card.append(count);
+        const table=document.createElement('table'),head=document.createElement('thead'),header=document.createElement('tr');
+        for(const label of ['Account','Underlying','Right','Side','Expiration','Strike','Contracts','Source day','Related long options · not membership']){const cell=document.createElement('th');cell.textContent=label;header.append(cell);}
+        head.append(header);table.append(head);const body=document.createElement('tbody');
+        for(const row of inventory.rows){const tr=document.createElement('tr');for(const value of row){const cell=document.createElement('td');cell.textContent=value;tr.append(cell);}body.append(tr);}
+        table.append(body);const scroll=document.createElement('div');scroll.className='inventory-table-scroll';scroll.append(table);card.append(scroll);
+        const note=document.createElement('p');note.className='evidence-notes';note.textContent=[inventory.note,...inventory.access].join(' ');card.append(note);
+        const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Option inventory source details';details.append(summary);
+        let loaded=false;details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const dl=document.createElement('dl');for(const [label,value] of inventory.details){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}details.append(dl);}});card.append(details);
+        article.insertBefore(card,article.querySelector('.text'));
+      } else if (view.balanceSummary) {
         const card = document.createElement('section'); card.className = 'evidence-card';
         card.classList.add('balance-card');
         const balance = view.balanceSummary;
@@ -99,7 +114,7 @@ $('composer').addEventListener('submit', async event => {
         // Evidence supports the answer without duplicating it in the default view.
         const details = document.createElement('details'); details.className = 'source-disclosure';
         const summary = document.createElement('summary');
-        const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_account_positions:'Position sources',inspect_market_quotes:'Quote sources'};
+        const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_account_positions:'Position sources',inspect_account_transactions:'Transaction sources',inspect_market_quotes:'Quote sources'};
         const outcome = view.rows.find(([key]) => key === 'Read outcome' || key === 'Problem');
         summary.textContent = `${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
         details.append(summary);

@@ -42,9 +42,9 @@ public class AccountBalanceObservations {
         Map.entry("cash-available-to-withdraw", "BROKER_REPORTED_WITHDRAWABLE_CASH"),
         Map.entry("net-liquidating-value", "BROKER_REPORTED_NET_LIQUIDATING_VALUE"));
     private static final Set<String> FIDELITY = Set.of("Available without margin impact", "Settled cash",
-        "Available to trade (all settled)", "Margin buying power", "Non-margin buying power",
+        "Available to trade (all settled)", "Available to trade", "Margin buying power", "Non-margin buying power",
         "Cash reserved for options strategies", "Cash reserved for options", "Margin credit/debit",
-        "Margin debit", "Margin credit", "Total account value", "Cash & credits", "Cash & margin credits",
+        "Margin debit", "Margin credit", "Total account value", "Cash and credits", "Cash & credits", "Cash & margin credits",
         "Accrued interest", "Margin interest accrued");
     private static final Pattern DECIMAL = Pattern.compile("[+-]?(?:[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+)");
     @org.springframework.beans.factory.annotation.Autowired

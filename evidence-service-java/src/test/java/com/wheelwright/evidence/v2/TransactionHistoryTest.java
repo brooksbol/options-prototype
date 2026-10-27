@@ -186,4 +186,26 @@ class TransactionHistoryTest {
         }
         return result;
     }
+    @Test void boundedRetainedQueryNeverAcquiresAndCursorBindsScopeAndEvidence()throws Exception {
+        try(var store=new SqliteEvidenceStore(temp.resolve("bounded.db").toString())) {
+            var accounts=new AccountDirectory(store,"");String account=accounts.bind("fixture","TASTYTRADE","TTTEST01");var h=history(store,accounts,Duration.ZERO,true);
+            var empty=h.retained(account,"r",null,null,null,3,null);assertThat(tx(empty)).isEmpty();assertThat(requests.get()).isZero();
+            h.read(account,"r");int acquired=requests.get();
+            var first=h.retained(account,"r",null,null,null,3,null);assertThat(tx(first)).hasSize(3);assertThat(first.get("pageComplete")).isEqualTo(false);assertThat(first.get("matchedRecordCount")).isEqualTo(21);
+            var second=h.retained(account,"r",null,null,null,3,(String)first.get("nextCursor"));assertThat(tx(second)).hasSize(3);assertThat(tx(first).stream().map(r->r.get("transactionId"))).doesNotContainAnyElementsOf(tx(second).stream().map(r->r.get("transactionId")).toList());
+            assertThatThrownBy(()->h.retained(account,"r",null,null,null,4,(String)first.get("nextCursor"))).isInstanceOf(IllegalArgumentException.class);
+            String symbol=(String)tx(first).stream().filter(r->r.get("symbol")!=null).findFirst().orElseThrow().get("symbol");
+            var selected=h.retained(account,"r",symbol,null,null,100,null);assertThat(tx(selected)).allSatisfy(r->assertThat(r.get("symbol")).isEqualTo(symbol));assertThat(requests.get()).isEqualTo(acquired);
+            rows.get(1).put("commission","2.00");h.read(account,"r");
+            assertThatThrownBy(()->h.retained(account,"r",null,null,null,3,(String)first.get("nextCursor"))).isInstanceOf(IllegalArgumentException.class);
+            var auth=new BearerAuthenticator(new UserDirectory(store,accounts),"reader=reader:account.transactions.read:"+account);
+            var mvc=org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup(new TransactionsController(h,accounts,auth,json)).build();
+            int before=requests.get();var response=mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v2/accounts/"+account+"/transactions?mode=retained&limit=3").header("Authorization","Bearer reader")).andReturn().getResponse();
+            assertThat(response.getStatus()).isEqualTo(200);assertThat(requests.get()).isEqualTo(before);
+            java.nio.file.Files.createDirectories(Path.of("build/reports/transactions"));java.nio.file.Files.writeString(Path.of("build/reports/transactions/bounded.json"),response.getContentAsString());
+            for(String query:List.of("?limit=1","?mode=retained&limit=0","?mode=retained&from=bad","?mode=retained&limit=1&limit=2","?mode=retained&unknown=1"))
+                assertThat(mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/v2/accounts/"+account+"/transactions"+query).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(422);
+        }
+    }
+
 }

@@ -13,7 +13,7 @@ test('source cards retain exact decimals, clocks and units without inventing dol
 test('broker open P\/L retains its identity and incomplete backend earnings stay unavailable', () => {
   const view = evidenceView(JSON.stringify({evidence:{items:[{state:'OPEN',evaluation:{realizedNetPl:{status:'INCOMPLETE',value:null,currency:'USD'}},included:{holdings:[{reportedOpenPl:{value:'12.30',status:'QUALIFIED',currency:'USD',method:'BROKER_REPORTED'}}]}}]}}));
   assert.ok(view.rows.some(([key,value]) => key === 'reportedOpenPl' && value === '12.30 · USD · QUALIFIED · BROKER_REPORTED'));
-  assert.ok(view.rows.some(([key,value]) => key === 'realizedNetPl' && value === 'Unavailable · USD · INCOMPLETE'));
+  assert.ok(view.rows.some(([key,value]) => key === 'Unavailable metrics' && value.includes('realizedNetPl · USD · INCOMPLETE')));
   assert.doesNotMatch(JSON.stringify(view), /lifetime|earned|profit target|probability/);
 });
 
@@ -33,4 +33,14 @@ test('bounded balance card has four prominent facts and source details, never an
  const view=evidenceView(JSON.stringify(value));assert.equal(view.balanceSummary.badge,'Historical');assert.equal(view.balanceSummary.facts.length,4);assert.equal(view.balanceSummary.facts[1].label,'Reported margin debit');assert.equal(view.balanceSummary.facts[1].value,'$2,100.75');assert.match(view.balanceSummary.note,/No later source-dated balance/);assert.ok(view.balanceSummary.details.some(([k])=>k==='Received'));
  value.evidence.selection.mode='all';assert.match(evidenceView(JSON.stringify(value)).balanceSummary.note,/later Account sources were not compared/);
  value.evidence.observations.push(value.evidence.observations[0]);const history=evidenceView(JSON.stringify(value));assert.equal(history.balanceSummary.facts.length,0);assert.match(history.balanceSummary.note,/No single qualified/);
+});
+
+test('typed option source table includes every backend row independently of model prose, without CSP inference',()=>{
+ const options=Array.from({length:5},(_,n)=>({underlyingSymbol:'FIXTURE'+n,right:'PUT',side:'SHORT',expiration:'2001-01-01',strike:'10',quantity:'1',relatedLongOptions:[],source:{sourceRows:[n+1]}}));
+ const view=evidenceView(JSON.stringify({evidence:{optionInventory:{right:'PUT',side:'SHORT',accounts:[{nickname:'fixture',status:'READ',readComplete:true,options}],counts:{shortPutContracts:5,selectedInventoryComplete:true,cashSecuredPutContracts:null}}}}));
+ assert.equal(view.optionInventory.rows.length,5);assert.equal(view.optionInventory.rows[4][1],'FIXTURE4');assert.equal(view.optionInventory.shortPutContracts,'5');assert.match(view.optionInventory.note,/not established/);
+});
+test('cash-account availability displays native broker label without turning it into margin-impact or governed capital',()=>{
+ const view=evidenceView(JSON.stringify({account:{nickname:'fixture'},evidence:{observations:[{broker:'FIDELITY',fields:[{brokerField:'Available to trade',value:'321.45',reportedDisplay:'$321.45',status:'REPORTED'}],source:{}}]}}));
+ assert.equal(view.balanceSummary.facts[0].label,'Broker-reported available to trade');assert.equal(view.balanceSummary.facts[0].value,'$321.45');assert.doesNotMatch(view.balanceSummary.note,/not today/);
 });

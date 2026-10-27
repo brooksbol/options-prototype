@@ -320,3 +320,10 @@ footer {
 .source-disclosure dl {display:grid;grid-template-columns:minmax(120px,1fr) 2fr;gap:8px 16px;font-size:12px;line-height:1.5;}
 .source-disclosure dt {color:#64705d;}.source-disclosure dd {margin:0;overflow-wrap:anywhere;}
 .source-access {font-size:12px;line-height:1.6;color:#775d2a;margin:12px 0;}
+.option-inventory-card {border:1px solid #d8ddd2;border-radius:8px;padding:18px;margin:16px 0;}
+.option-inventory-card h3 {font:500 22px Georgia,serif;color:inherit;letter-spacing:normal;margin:0 0 12px;}
+.option-inventory-card>p {font-size:13px;line-height:1.6;}
+.inventory-table-scroll {max-width:100%;overflow-x:auto;}
+.option-inventory-card table {border-collapse:collapse;font-size:12px;width:100%;}
+.option-inventory-card th,.option-inventory-card td {text-align:left;border-bottom:1px solid #d8ddd2;padding:9px 12px 9px 0;vertical-align:top;}
+.option-inventory-card details {background:transparent;}

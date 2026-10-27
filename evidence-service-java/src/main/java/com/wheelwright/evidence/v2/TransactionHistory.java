@@ -49,6 +49,39 @@ public class TransactionHistory {
         }
     }
 
+    public static final class InvalidCursor extends IllegalArgumentException {}
+
+    /** Pure retained-source query: never invokes brokerage acquisition, even when read-through is enabled. */
+    public Map<String,Object> retained(String account,String request,String symbol,String from,String through,int limit,String cursor)throws Exception {
+        synchronized(locks.computeIfAbsent(account,k->new Object())) {
+            var binding=accounts.get(account).orElseThrow();
+            var result=binding.brokerAssociation().broker().equals("FIDELITY")?readFidelity(binding,request):
+                    binding.brokerAssociation().broker().equals("TASTYTRADE")?representation(account,request,false):null;
+            if(result==null)throw new UnsupportedOperationException();
+            @SuppressWarnings("unchecked") var rows=(List<Map<String,Object>>)result.get("transactions");
+            var selected=rows.stream().filter(row->symbol==null||symbol.equals(row.get("symbol")))
+                    .filter(row->from==null||row.get("transactionDate")!=null&&from.compareTo((String)row.get("transactionDate"))<=0)
+                    .filter(row->through==null||row.get("transactionDate")!=null&&through.compareTo((String)row.get("transactionDate"))>=0).toList();
+            String signature=BrokerageArtifacts.sha(json.writeValueAsBytes(List.of(account,Objects.toString(symbol,""),Objects.toString(from,""),Objects.toString(through,""),limit,selected)));
+            int offset=0;
+            if(cursor!=null) {
+                try {
+                    String[] parts=new String(Base64.getUrlDecoder().decode(cursor),StandardCharsets.UTF_8).split(":",-1);
+                    if(parts.length!=2||!parts[0].equals(signature)||!parts[1].matches("[0-9]{1,8}"))throw new IllegalArgumentException();
+                    offset=Integer.parseInt(parts[1]);if(offset<=0||offset>=selected.size())throw new IllegalArgumentException();
+                }catch(Exception e){throw new InvalidCursor();}
+            }
+            int end=Math.min(offset+limit,selected.size());
+            result.put("transactions",selected.subList(offset,end));result.put("recordCount",end-offset);
+            result.put("queryMode","RETAINED_ONLY");result.put("matchedRecordCount",selected.size());
+            result.put("pageComplete",end==selected.size());
+            result.put("nextCursor",end==selected.size()?null:Base64.getUrlEncoder().withoutPadding().encodeToString((signature+":"+end).getBytes(StandardCharsets.UTF_8)));
+            var selection=new LinkedHashMap<String,Object>();selection.put("symbol",symbol);selection.put("from",from);selection.put("through",through);selection.put("limit",limit);result.put("selection",selection);
+            result.put("qualification","Retained transaction observations only; no provider refresh. Page completeness is not lifetime brokerage completeness. Source actions, gross reported value, net cash and fees remain distinct. Matching a symbol does not associate an opening occurrence with a currently held construction. Fidelity identity is row equivalence, not broker-event identity. Missing evidence is not zero premium.");
+            return result;
+        }
+    }
+
     private Map<String,Object> readFidelity(AccountDirectory.Account binding,String request)throws Exception {
         String account=binding.id();
         try(var c=connect()) {

@@ -24,10 +24,10 @@ try {
   assert.notEqual(observation.isError,true);
   const candidate=await servers[0].callToolResult('inspect_market_quotes',{symbol:subject,measurement:true});
   const problem=JSON.parse(candidate.content[0].text);
-  assert.equal(candidate.isError,true);assert.equal(problem.code,'NOT_FOUND');
+  assert.notEqual(candidate.isError,true);assert.equal(problem.measurementStatus,'UNAVAILABLE');assert.ok(problem.evidence.source.facts);
   const result={actualMcpDiscovery:true,realRetainedObservationRead:true,modelRequests:0,
     quoteDiscoveryCount:inventory.evidence.items.length,types,
-    candidateSubresourceInstalled:false,existingRuntimeCandidateRead:{code:problem.code,requestId:problem.requestId},
+    candidateSubresourceInstalled:false,authoritativeSourceFallbackVerified:true,existingRuntimeCandidateRead:{code:problem.measurementProblem.code,requestId:problem.requestId},
     retainedObservationRequestId:JSON.parse(observation.content[0].text).requestId,
     providerAcquisition:false, protectedFinancialValuesExported:false};
   writeFileSync(process.argv[2],JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
