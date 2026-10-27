@@ -147,3 +147,9 @@ test('portfolio inventory mode remains all-Account and uses the bounded option r
  await inspectHoldings({},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture',brokerAssociation:{broker:'FIDELITY'}}]}:{requestId,currentness:'NOT_ESTABLISHED',accounts:[{accountId:id,nickname:'fixture',broker:'FIDELITY',status:'READ',readComplete:true,options:[],unclassifiedOptions:[]}],counts:{cashSecuredPutContracts:null}}));}},true);
  assert.deepEqual(paths,['/v2/accounts','/v2/option-inventory']);
 });
+
+
+test('transaction model-boundary row budget rejects oversized requests before any backend read',async()=>{
+ const {inspectTransactions}=await import('./transactions.mjs');
+ await assert.rejects(inspectTransactions({account:'fixture',limit:100},{...config,fetchImpl(){throw new Error('Unexpected backend read');}}),/bounded to25/);
+});

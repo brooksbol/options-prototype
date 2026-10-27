@@ -3,6 +3,7 @@ import {readBackend,problemResult} from './backend.mjs';
 
 /** Bounded existing Account transaction evidence; no brokerage refresh or premium calculation. */
 export async function inspectTransactions({account,symbol,from,through,limit=10,cursor,order='desc'},config) {
+ if(!Number.isInteger(limit)||limit<1||limit>25)throw new Error('MCP transaction pages are bounded to25 rows.');
  const discovery=await readBackend('/v2/accounts',config);
  if(discovery.error)return problemResult(discovery.error);
  if(discovery.data?.requestId!==discovery.requestId||!Array.isArray(discovery.data.accounts))throw new Error('Invalid discovery.');
