@@ -21,6 +21,7 @@ test('Position continuation is reusable, opaque, Account scoped and lifecycle qu
   const actual=new URL(c.paths[1],c.base);
   assert.equal(actual.searchParams.get('cursor'),'prior+opaque');
   assert.equal(actual.searchParams.get('state'),'OPEN');
+  assert.equal(actual.searchParams.get('limit'),'5');
   assert.equal(actual.searchParams.get('accountId'),id);
   assert.match(body.qualification,/not proof of current custody or freshness/);
 });

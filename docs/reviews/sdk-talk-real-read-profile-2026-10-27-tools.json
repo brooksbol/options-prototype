@@ -1,0 +1,20 @@
+{
+  "outcomes": [
+    {
+      "tool": "inspect_market_quotes",
+      "isError": false,
+      "code": null,
+      "evidenceItems": 204,
+      "hasNextCursor": false
+    },
+    {
+      "tool": "inspect_account_positions",
+      "isError": false,
+      "code": null,
+      "evidenceItems": 5,
+      "hasNextCursor": true
+    }
+  ],
+  "modelRequests": 0,
+  "protectedValuesExported": false
+}

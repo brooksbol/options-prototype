@@ -8,11 +8,17 @@ import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 
-export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false, retainedMetadataBackend } = {}) {
-  if (retainedMetadataBackend) {
-    const url = new URL(retainedMetadataBackend.base);
-    if (marketFixture || url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || url.pathname !== '/' || url.search || url.hash || url.username || url.password || !retainedMetadataBackend.token)
+export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false, retainedMetadataBackend, authorizedRetainedBackend, authorizedMarketBackend } = {}) {
+  if (authorizedRetainedBackend && (retainedMetadataBackend || marketFixture || authorizedRetainedBackend.profile !== 'AUTHORIZED_REAL_RETAINED_READS' || authorizedRetainedBackend.providerBeans !== false)) throw new Error('Invalid authorized retained profile.');
+  if (retainedMetadataBackend || authorizedRetainedBackend) {
+    const configuredBackend = retainedMetadataBackend ?? authorizedRetainedBackend;
+    const url = new URL(configuredBackend.base);
+    if (marketFixture || url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || url.pathname !== '/' || url.search || url.hash || url.username || url.password || !configuredBackend.token)
       throw new Error('Invalid trusted metadata backend.');
+  }
+  if (authorizedMarketBackend) {
+    const url = new URL(authorizedMarketBackend.base);
+    if (!authorizedRetainedBackend || url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || url.pathname !== '/' || url.search || url.hash || url.username || url.password || !authorizedMarketBackend.token) throw new Error('Invalid authorized retained market backend.');
   }
   const boundary = egressBoundary(networkFetch);
   // Cover SDK-owned network paths too, rather than assuming store:false disables tracing.
@@ -20,37 +26,42 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
   globalThis.fetch = boundary.fetch;
   const { syntheticBackend, connectSyntheticMcp, syntheticCapabilities } = await import('./synthetic.mjs');
   const { createConversation, MODEL } = await import('./conversation.mjs');
-  const backend = retainedMetadataBackend ? { ...retainedMetadataBackend, reads: [], async close() {} } : await syntheticBackend();
+  const configuredBackend = retainedMetadataBackend ?? authorizedRetainedBackend;
+  const backend = configuredBackend ? { ...configuredBackend, reads: [], async close() {} } : await syntheticBackend();
   let servers = [];
   let conversation;
   let market;
   const csrf = randomUUID();
   let http;
   try {
-    if (marketFixture) market = await (await import('./market-fixture.mjs')).marketFixture();
+    if (authorizedRetainedBackend) market = backend;
+    else if (marketFixture) market = await (await import('./market-fixture.mjs')).marketFixture();
     servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.map(config =>
       market && config.admitted.includes('list_authorized_accounts') ? { ...config, backend: market } : config), ...(market ? [{
-      name: 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
-      admitted: ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances'], backend: market
-    }] : [])]);
+      name: authorizedRetainedBackend ? 'wheelwright-retained-accounts' : 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
+      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances'], backend: market
+    }] : []), ...(authorizedMarketBackend ? [{ name: 'wheelwright-retained-market', script: '../mcp-v2-evidence/server.mjs',
+      admitted: ['inspect_market_quotes'], backend: authorizedMarketBackend }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: await server.listTools()
     }))));
-    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend });
+    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend, authorizedRetainedReads: !!authorizedRetainedBackend });
     // Freeze this preview's UI bytes at startup; later candidate edits must not
     // silently change an already-running preview or introduce mismatched assets.
     const assets = Object.fromEntries([
       ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript']
     ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./ui/${name}`, import.meta.url)) }]));
     http = createServer(async (req, res) => {
-      const origin = `http://127.0.0.1:${http.address().port}`;
+      const port = http.address().port;
+      const allowedHosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
+      const origin = `http://${req.headers.host}`;
       res.setHeader('Cache-Control', 'no-store');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'");
       const json = (status, value) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(value)); };
-      if (req.headers.host !== new URL(origin).host) return json(403, { error: 'Invalid local host.' });
+      if (!allowedHosts.has(req.headers.host)) return json(403, { error: 'Invalid local host.' });
       if (req.method === 'GET' && req.url === '/api/status') return json(200, {
-        profile: retainedMetadataBackend ? 'Authorized real Account metadata only' : market ? 'Synthetic retained evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
+        profile: authorizedRetainedBackend ? 'Authorized real retained evidence' : retainedMetadataBackend ? 'Authorized real Account metadata only' : market ? 'Synthetic retained evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf,
         privacy: { traceExport: false, state: 'local-memory', providerStorage: false, remoteCompaction: false }
       });
       if (req.method === 'GET' && assets[req.url]) {

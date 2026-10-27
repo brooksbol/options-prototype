@@ -126,3 +126,13 @@ tasks.register<JavaExec>("retainedCoverageAudit") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOfNotNull(project.findProperty("retainedDb") as? String, project.findProperty("retainedAuditMode") as? String)
 }
+
+// Explicitly authorized real retained preview; current grants, isolated projections, no provider beans.
+tasks.register<JavaExec>("talkRetainedPreview") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.TalkRetainedPreview")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("previewDirectory") as? String,
+        project.findProperty("accountSource") as? String, project.findProperty("quoteSource") as? String,
+        project.findProperty("previewReady") as? String)
+}

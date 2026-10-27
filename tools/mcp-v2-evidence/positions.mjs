@@ -14,7 +14,7 @@ export async function inspectPositions({ account, state, cursor }, config) {
     availableAccounts: inventory.data.accounts.map(item => ({ nickname: item.alias, broker: item.brokerAssociation?.broker })) }) }] };
   const selected = matches[0];
   if (!canonicalAccountId(selected.id)) throw new Error('Invalid canonical Account ID.');
-  const query = new URLSearchParams({ accountId: selected.id, include: 'holdingSummaries' });
+  const query = new URLSearchParams({ accountId: selected.id, include: 'holdingSummaries', limit: '5' });
   if (state !== undefined) query.set('state', state);
   if (cursor !== undefined) query.set('cursor', cursor);
   const result = await readBackend('/v2/positions?' + query, config);

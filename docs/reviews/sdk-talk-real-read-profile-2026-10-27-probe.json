@@ -1,0 +1,97 @@
+{
+  "profile": "Authorized real retained evidence",
+  "question": "what is my margin position in pts right now?",
+  "httpStatus": 200,
+  "tools": [
+    {
+      "name": "list_authorized_accounts",
+      "isError": false,
+      "problemCode": null,
+      "observationCount": null
+    },
+    {
+      "name": "inspect_account_balances",
+      "isError": false,
+      "problemCode": null,
+      "observationCount": 82
+    }
+  ],
+  "commentaryAvailable": true,
+  "mentionsRequestedAccount": true,
+  "qualifiesCurrentness": true,
+  "usage": {
+    "requests": 3,
+    "inputTokens": 34260,
+    "outputTokens": 203,
+    "totalTokens": 34463,
+    "inputTokensDetails": [
+      {
+        "cache_write_tokens": 1396,
+        "cached_tokens": 0
+      },
+      {
+        "cache_write_tokens": 69,
+        "cached_tokens": 1396
+      },
+      {
+        "cache_write_tokens": 29925,
+        "cached_tokens": 1465
+      }
+    ],
+    "outputTokensDetails": [
+      {
+        "reasoning_tokens": 0
+      },
+      {
+        "reasoning_tokens": 0
+      },
+      {
+        "reasoning_tokens": 0
+      }
+    ],
+    "requestUsageEntries": [
+      {
+        "inputTokens": 1399,
+        "outputTokens": 16,
+        "totalTokens": 1415,
+        "inputTokensDetails": {
+          "cache_write_tokens": 1396,
+          "cached_tokens": 0
+        },
+        "outputTokensDetails": {
+          "reasoning_tokens": 0
+        },
+        "endpoint": "responses.create"
+      },
+      {
+        "inputTokens": 1468,
+        "outputTokens": 20,
+        "totalTokens": 1488,
+        "inputTokensDetails": {
+          "cache_write_tokens": 69,
+          "cached_tokens": 1396
+        },
+        "outputTokensDetails": {
+          "reasoning_tokens": 0
+        },
+        "endpoint": "responses.create"
+      },
+      {
+        "inputTokens": 31393,
+        "outputTokens": 167,
+        "totalTokens": 31560,
+        "inputTokensDetails": {
+          "cache_write_tokens": 29925,
+          "cached_tokens": 1465
+        },
+        "outputTokensDetails": {
+          "reasoning_tokens": 0
+        },
+        "endpoint": "responses.create"
+      }
+    ]
+  },
+  "protectedFinancialValuesExported": false,
+  "hostLocalhostAccepted": true,
+  "untrustedHostRefused": true
+}

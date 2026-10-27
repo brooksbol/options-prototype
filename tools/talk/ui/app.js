@@ -41,6 +41,10 @@ try {
   const info = await fetch('/api/status').then(r => r.json()); csrf = info.csrf;
   $('profile').textContent = info.profile;
   metadataOnly = info.profile === 'Authorized real Account metadata only';
+  if (info.profile === 'Authorized real retained evidence') {
+    $('notice').textContent = 'Real retained Account and market evidence under existing backend permissions. Balances, positions and quotes may be historical. Reads only; no brokerage acquisition or trades. Conversation context stays local; authorized tool results reach the configured OpenAI API with tracing and response storage disabled.';
+    $('footnote').textContent = 'Authorized retained-data preview · Source dates govern currentness';
+  }
   if (metadataOnly) {
     $('notice').textContent = 'Real authorized Account nicknames, broker labels and count only. Do not enter holdings, balances, Account numbers or credentials. Financial tools are not admitted; each turn starts a fresh local session.';
     $('footnote').textContent = 'Restricted metadata profile · No financial-record disclosure';
@@ -50,7 +54,7 @@ try {
     const item = document.createElement('div'); item.className = 'tool'; item.textContent = tool.name;
     item.title = tool.description; $('tools').append(item);
   }
-  $('status').textContent = metadataOnly ? 'Ready · authorized Account metadata only' : 'Ready · synthetic data only';
+  $('status').textContent = metadataOnly ? 'Ready · authorized Account metadata only' : info.profile === 'Authorized real retained evidence' ? 'Ready · real retained evidence' : 'Ready · synthetic data only';
 } catch { $('status').textContent = 'Connection unavailable'; }
 $('composer').addEventListener('submit', async event => {
   event.preventDefault(); const text = $('message').value.trim(); if (!text || !csrf) return;
