@@ -1,0 +1,232 @@
+{
+  "standing": "Author verified; independent review and Principal acceptance pending",
+  "sourceRevision": "e9de00497777b90e03482737871dafa006d442d3",
+  "installedJarSha256": "898cbfbd1c6974a9de90f4828bee9d3f5cfc1e41554a91b8ed4eab38f814d071",
+  "installedUrl": "http://localhost:8787/",
+  "before": {
+    "sourceRevision": "067e627f3fe16a187e29a16293b0dfe6d8572167",
+    "remoteMain": "a766ea0d6c833213343af9dff939082efe43fca6",
+    "lastTransactionDate": "2026-10-15",
+    "lastSuccessCheckedAt": "2026-10-19T19:16:34.343128Z",
+    "clockContext": "absent",
+    "mcpTransactionMode": "retained-only"
+  },
+  "backendTests": {
+    "tests": 1051,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "talkTests": {
+    "tests": 31,
+    "failures": 0
+  },
+  "mcpTests": {
+    "tests": 14,
+    "failures": 0
+  },
+  "oas": {
+    "operations": 39,
+    "conformanceTests": 8,
+    "syntheticNewViewResponses": 2,
+    "actualPrivateViewResponses": 4,
+    "publication": "unpublished candidate; acceptance manifest unchanged"
+  },
+  "production": {
+    "observedAt": "2026-10-29T15:19:15.039Z",
+    "checks": {
+      "xlfOneClosingGroupTwoExecutions": true,
+      "sourceGrossMatchesUserSuppliedFourDollarDebit": true,
+      "entriesNotExits": true,
+      "ewzCorrectDay": true,
+      "closedSymbols": [
+        "XLE",
+        "EWZ",
+        "XLF"
+      ],
+      "uniqueWholeMatches": true,
+      "sourceNetReconciliation": true,
+      "noDoubleFeeSubtraction": true,
+      "estimatedFeesPreserved": true,
+      "unavailableTrades": 0,
+      "unchangedCredentialsAndGrants": true,
+      "installedAssetsMatchSource": true
+    },
+    "reads": [
+      {
+        "view": "execution-groups",
+        "from": "2026-10-29",
+        "through": "2026-10-29",
+        "status": 200,
+        "queryMode": "POLICY",
+        "acquisitionOutcome": "COMPLETE",
+        "coverage": "PERIOD_COMPLETENESS_NOT_ESTABLISHED",
+        "sourceScan": "2026-10-29T15:19:14.258704Z",
+        "responseBytes": 3606
+      },
+      {
+        "view": "execution-groups",
+        "from": "2026-10-28",
+        "through": "2026-10-28",
+        "status": 200,
+        "queryMode": "POLICY",
+        "acquisitionOutcome": "REUSED",
+        "coverage": "PERIOD_COMPLETENESS_NOT_ESTABLISHED",
+        "sourceScan": "2026-10-29T15:19:14.258704Z",
+        "responseBytes": 5541
+      },
+      {
+        "view": "execution-groups",
+        "from": "2026-10-27",
+        "through": "2026-10-27",
+        "status": 200,
+        "queryMode": "POLICY",
+        "acquisitionOutcome": "REUSED",
+        "coverage": "PERIOD_COMPLETENESS_NOT_ESTABLISHED",
+        "sourceScan": "2026-10-29T15:19:14.258704Z",
+        "responseBytes": 4621
+      },
+      {
+        "view": "closed-trades",
+        "from": "2026-10-01",
+        "through": "2026-10-29",
+        "status": 200,
+        "queryMode": "POLICY",
+        "acquisitionOutcome": "REUSED",
+        "coverage": "PERIOD_COMPLETENESS_NOT_ESTABLISHED",
+        "sourceScan": "2026-10-29T15:19:14.258704Z",
+        "responseBytes": 4921
+      }
+    ]
+  },
+  "sdk": {
+    "model": "gpt-5.6-luna",
+    "sdk": "0.21.0",
+    "privacy": {
+      "traceExport": false,
+      "state": "local-memory",
+      "providerStorage": false,
+      "remoteCompaction": false
+    },
+    "turns": [
+      {
+        "status": 200,
+        "error": false,
+        "selectedTools": [
+          {
+            "name": "list_authorized_accounts",
+            "args": {},
+            "error": false,
+            "resultBytes": 200
+          },
+          {
+            "name": "inspect_account_transactions",
+            "args": {
+              "account": "tt1",
+              "view": "execution-groups",
+              "from": "2026-10-29",
+              "through": "2026-10-29",
+              "timeZone": "America/Denver",
+              "limit": 25,
+              "order": "asc"
+            },
+            "error": false,
+            "resultBytes": 4059
+          }
+        ],
+        "usage": {
+          "requests": 3,
+          "inputTokens": 13385,
+          "outputTokens": 253,
+          "totalTokens": 13638
+        }
+      },
+      {
+        "status": 200,
+        "error": false,
+        "selectedTools": [
+          {
+            "name": "inspect_account_transactions",
+            "args": {
+              "account": "tt1",
+              "view": "closed-trades",
+              "from": "2026-10-01",
+              "through": "2026-10-29",
+              "timeZone": "America/Denver",
+              "limit": 25,
+              "order": "asc"
+            },
+            "error": false,
+            "resultBytes": 5434
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 12706,
+          "outputTokens": 243,
+          "totalTokens": 12949
+        }
+      },
+      {
+        "status": 200,
+        "error": false,
+        "selectedTools": [
+          {
+            "name": "inspect_account_transactions",
+            "args": {
+              "account": "tt1",
+              "view": "execution-groups",
+              "from": "2026-10-28",
+              "through": "2026-10-28",
+              "timeZone": "America/Denver",
+              "limit": 25,
+              "order": "asc"
+            },
+            "error": false,
+            "resultBytes": 6152
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 16679,
+          "outputTokens": 311,
+          "totalTokens": 16990
+        }
+      }
+    ],
+    "modelRequests": 7,
+    "inputTokens": 42770,
+    "outputTokens": 807,
+    "totalTokens": 43577,
+    "elapsedMs": 20141
+  },
+  "render": {
+    "observedAt": "2026-10-29T15:20:44.445Z",
+    "verification": "Installed assets replaying the actual installed SDK report; no additional inference",
+    "rows": 3,
+    "totalFields": 3,
+    "rawJsonNodes": 0,
+    "openDisclosures": 0,
+    "analysisInsideAccordion": 1,
+    "consoleErrors": [],
+    "deliberateDetailsAvailable": true
+  },
+  "operational": {
+    "v1ListenerPidsPreserved": true,
+    "credentialsAndGrantsUnchanged": true,
+    "protectedWorktreesUnmodified": true,
+    "noTradesOrOrderChanges": true,
+    "noEmailIngestion": true,
+    "noBackgroundPolling": true,
+    "rollbackPrepared": true
+  },
+  "measurement": {
+    "firstRetainedDiagnosticAt": "2026-10-29T14:23:25.397Z",
+    "stoppedAt": "2026-10-29T15:22:39.217819+00:00",
+    "secondsSinceFirstRetainedDiagnostic": 3554,
+    "fullTaskElapsed": "Not instrumented before first retained diagnostic",
+    "modelMonetaryCost": "Not exposed by runtime",
+    "codexTokensAndCost": "Not exposed",
+    "providerNetworkRequestTotal": "Not instrumented; two explicit full transaction refreshes and one existing custody acquisition verified"
+  }
+}
