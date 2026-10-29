@@ -32,12 +32,13 @@ export function heldMarginEvidence(broker){
  const read=broker?.reads?.find(r=>r.path==='/margin/accounts/tt1/requirements');
  const holdingsRead=broker?.reads?.find(r=>r.path==='/accounts/tt1/positions');
  const balanceRead=broker?.reads?.find(r=>r.path==='/accounts/tt1/balances');
- const balances=balanceRead?.body?.data,currency=typeof balances?.currency==='string'?balances.currency:null;
+ const balances=balanceRead?.body?.data,currency=balances?.currency==='USD'?'USD':null;
  const result={schema:'tt1-held-margin/v1',status:'UNAVAILABLE',source:null,riskGroups:[],positionBindings:[],qualifications:[
   'Broker-defined risk groups, not universal trade/Position identity. No pro-rata allocation.',
   'Gross margin requirement, current BP footprint, original opening BP debit and a future closing BP release are distinct.',
   'Group buying-power Credit is preserved; equality to account used-derivative-buying-power is an observed reconciliation, not a universal formula.',
   'Working-order inclusion is reported by the margin engine; false does not establish absence of closing orders.',
+  'Qualification requires same New York session margin state, balance update and component retrieval dates, valid causal clocks, and USD as requested by the existing balance GET. This is not an intraday age guarantee.',
   'Holdings, balances and margin have separate clocks. No atomic account cut or post-read orderability is claimed.',
   'Original opening BP debit and future closing BP release remain unknown; no simulations run by this exporter.'
  ],issues:[]};
@@ -45,7 +46,13 @@ export function heldMarginEvidence(broker){
  const data=read.body?.data;
  if(!data||!Array.isArray(data.groups)){result.status='PARTIAL';result.issues.push('INVALID_MARGIN_REPORT');return result;}
  const stamp=data['last-state-timestamp'];
- const validClock=Number.isSafeInteger(stamp)&&stamp>0&&stamp<=Date.parse(read.retrievedAt);
+ const nyDay=ms=>Number.isFinite(ms)?new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ms)):null;
+ const retrieved=Date.parse(read.retrievedAt),session=nyDay(retrieved);
+ const validClock=Number.isSafeInteger(stamp)&&stamp>0&&stamp<=retrieved&&nyDay(stamp)===session;
+ const validReadClock=r=>Number.isFinite(Date.parse(r?.retrievedAt))&&Date.parse(r.retrievedAt)<=retrieved&&nyDay(Date.parse(r.retrievedAt))===session;
+ const balanceAt=Date.parse(balances?.['updated-at']);
+ const validBalanceClock=validReadClock(balanceRead)&&Number.isFinite(balanceAt)&&balanceAt<=Date.parse(balanceRead.retrievedAt)&&nyDay(balanceAt)===session;
+ const validHoldingsClock=validReadClock(holdingsRead);
  result.source={endpoint:'GET /margin/accounts/{account_number}/requirements',retrievedAt:read.retrievedAt,brokerStateAt:validClock?new Date(stamp).toISOString():null,reportedStateTimestamp:stamp??null,balanceSourceAt:balances?.['updated-at']??null,holdingsRetrievedAt:holdingsRead?.retrievedAt??null,currencyBasis:currency?'BROKER_BALANCE_CURRENCY':'NOT_ESTABLISHED'};
  result.account={marginCalculationType:data['margin-calculation-type']??null,marginRequirement:metric(data,'margin-requirement',currency),initialRequirement:metric(data,'initial-requirement',currency),maintenanceRequirement:metric(data,'maintenance-requirement',currency),optionBuyingPower:metric(data,'option-buying-power',currency)};
  const groupMaps=[];let nodes=0;
@@ -70,7 +77,7 @@ export function heldMarginEvidence(broker){
  walk(data.groups,'/data/groups');
  const holdings=holdingsRead?.body?.data?.items,held=entries(holdings,{held:true});
  const all={out:new Map(),valid:groupMaps.every(m=>m.valid)};
- for(const group of groupMaps)for(const [k,q] of group.out)all.out.set(k,plus(all.out.get(k)??{n:0n,scale:0},q));
+ for(const group of groupMaps)for(const [k,q] of group.out){if(all.out.has(k))result.issues.push('OVERLAPPING_SIBLING_MARGIN_MEMBERSHIP');all.out.set(k,plus(all.out.get(k)??{n:0n,scale:0},q));}
  const membership=same(all,held);
  const sum=(field,effect)=>{
   let total={n:0n,scale:0};
@@ -84,7 +91,9 @@ export function heldMarginEvidence(broker){
  if(!broker?.projection&&held.out.size>0)result.issues.push('POSITION_PROJECTION_UNAVAILABLE');
  if(['groupMarginToReportTotal','groupBpToAccountUsedBp','groupBpToNlvMinusAvailable'].some(k=>result.reconciliation[k]==='UNKNOWN'))result.issues.push('ACCOUNT_RECONCILIATION_INCOMPLETE');
  if(!membership)result.issues.push('HELD_MEMBERSHIP_NOT_RECONCILED');
- if(!validClock)result.issues.push('MARGIN_STATE_CLOCK_UNAVAILABLE_OR_FUTURE');
+ if(!validClock)result.issues.push('MARGIN_STATE_CLOCK_UNAVAILABLE_FUTURE_OR_PRIOR_SESSION');
+ if(!validBalanceClock)result.issues.push('BALANCE_CLOCK_UNAVAILABLE_FUTURE_OR_PRIOR_SESSION');
+ if(!validHoldingsClock)result.issues.push('HOLDINGS_RETRIEVAL_CLOCK_UNAVAILABLE_FUTURE_OR_PRIOR_SESSION');
  if(!currency)result.issues.push('CURRENCY_NOT_ESTABLISHED');
  if(!result.riskGroups.length&&held.out.size>0)result.issues.push('MARGIN_GROUPS_UNAVAILABLE');
  if(Object.entries(result.reconciliation).some(([k,v])=>k!=='atomic'&&v==='MISMATCH'))result.issues.push('ACCOUNT_OR_GROUP_RECONCILIATION_MISMATCH');

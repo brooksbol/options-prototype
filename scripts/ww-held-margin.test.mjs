@@ -71,3 +71,23 @@ test('full ZIP exposes exactly matched held BP and gross margin with source basi
   assert.equal(account.derivedPositions[0].actualBrokerBuyingPowerRequirement,250);assert.equal(account.derivedPositions[0].brokerHeldCapital.marginRequirement.amount,300);assert.equal(account.heldCapital.status,'OBSERVED_QUALIFIED');assert.equal(account.derivedPositions[0].brokerHeldCapital.openingBuyingPowerDebit,null);assert.equal(coverage.heldTradeBuyingPower.status,'OBSERVED_QUALIFIED');assert.match(result.summary,/Held BP: 1\/1 structures matched/);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
+
+test('overlapping sibling ownership cannot qualify even when opposite quantities cancel and totals match',()=>{
+ const b=fixture(),base=group(b);base['buying-power']='150';base['margin-requirement']='200';
+ for(const qty of ['-1','1'])b.reads[2].body.data.groups[0].groups.push({...base,'buying-power':'50','margin-requirement':'50','position-entries':[{...base['position-entries'][0],quantity:qty}]});
+ const r=heldMarginEvidence(b);assert.equal(r.reconciliation.heldMembership,'MATCH');assert.equal(r.reconciliation.groupBpToAccountUsedBp,'MATCH');assert.equal(r.status,'PARTIAL');assert.equal(r.positionBindings[0].buyingPowerFootprint,null);assert.ok(r.issues.includes('OVERLAPPING_SIBLING_MARGIN_MEMBERSHIP'));
+});
+test('qualification requires same-session causal component clocks and the requested USD currency',()=>{
+ for(const mutate of [
+ b=>delete b.reads[1].body.data['updated-at'],
+ b=>b.reads[1].body.data['updated-at']='2026-10-29T18:01:00Z',
+ b=>b.reads[1].body.data['updated-at']='2025-01-01T18:00:00Z',
+ b=>b.reads[1].retrievedAt='bad',
+ b=>b.reads[0].retrievedAt='2026-10-28T18:00:00Z',
+ b=>b.reads[0].retrievedAt='2026-10-29T18:01:00Z',
+ b=>b.reads[2].body.data['last-state-timestamp']=Date.parse('2026-10-28T18:00:00Z'),
+ b=>b.reads[1].body.data.currency='UNAVAILABLE',
+ b=>b.reads[1].body.data.currency='EUR']){
+ const b=fixture();mutate(b);const r=heldMarginEvidence(b);assert.equal(r.status,'PARTIAL');assert.equal(r.positionBindings[0].buyingPowerFootprint,null);
+ }
+});

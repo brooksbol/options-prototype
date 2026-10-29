@@ -1,0 +1,21 @@
+**REJECT** — three blocking findings reproduced using synthetic inputs.
+
+Reviewed candidate `27f257fb3b23f8e629717aef21193e08adba27e1` against its parent `609022a97a0052cadca0eb3660ea4879f47d3bcf`. HEAD matches the candidate; worktree remained clean.
+
+1. **Overlapping sibling memberships can receive an exact binding.** [ww-held-margin.mjs:73](/Users/bollich/kiro/options-candidates/tt1-cadence-export-20261029/scripts/ww-held-margin.mjs:73) sums repeated instruments across groups, allowing opposite quantities to cancel. Synthetic groups containing the held spread plus two sibling short-leg entries of `−1` and `+1` pass every reconciliation. The result is `OBSERVED_QUALIFIED`, with a **150 BP** position binding despite overlapping membership and **250 BP** across the groups. Aggregate equality does not establish an unambiguous association. Withhold individual allocation when group ownership overlaps.
+
+2. **Missing, future and stale balance clocks do not prevent qualification.** [ww-held-margin.mjs:48](/Users/bollich/kiro/options-candidates/tt1-cadence-export-20261029/scripts/ww-held-margin.mjs:48) validates only the margin timestamp; balance and holdings clocks are merely copied. Removing balance `updated-at`, setting it after retrieval, or setting it to January 2025 each still produces `OBSERVED_QUALIFIED` and a **250 BP** binding with no issues. The exporter publishes that as `actualBrokerBuyingPowerRequirement`. Validate the component clocks before qualifying a current footprint.
+
+3. **Malformed currency is treated as established money.** [ww-held-margin.mjs:35](/Users/bollich/kiro/options-candidates/tt1-cadence-export-20261029/scripts/ww-held-margin.mjs:35) accepts any nonempty string. Setting balance currency to `"UNAVAILABLE"` still returns `OBSERVED_QUALIFIED`, `BROKER_BALANCE_CURRENCY`, and a 250-unit monetary binding. Currency validity and compatibility must be established before monetary reconciliation.
+
+Other delta checks found correct preservation of signed quantities, missing-money handling, effects, and the distinction between current footprint, original opening debit and future release. The collector checks native account equality before retention, scrubs account identifiers/secrets, and adds only the requirements GET. No dry-run or order mutation was introduced.
+
+Ran the requested tests with specimen variables absent via a clean environment: **15 passed, 2 private-specimen tests skipped, 6 failed at `mkdtemp` with sandbox `EPERM`**, before their assertions. Additional in-memory probes reproduced the findings above. No private configuration/specimens were read, providers invoked, or files changed.
+
+Bootstrap recovered `docs/README.md` authority and WW-GATE-001’s **STAGED/inactive** state. Remote-main synchronization could not be verified because GitHub DNS resolution failed; local candidate/base identities were verified.
+
+CURRENT STATE: Candidate 27f257fb independently REJECTED.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE
