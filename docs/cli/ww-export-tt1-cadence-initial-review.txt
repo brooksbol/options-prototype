@@ -1,0 +1,15 @@
+REJECT — frozen candidate `bea1a9441375da564df27495595c003cc9fb4760` against base `b74d127faefd457a594cac149afbe45ca8a5eeb4`.
+
+- **P1 — Working orders silently omitted when holdings are empty.** [tt-cadence-evidence.mjs:40](scripts/tt-cadence-evidence.mjs:40) delegates collection to `tt live --tsv`, whose empty-holdings branch skips orders and complex orders. [Line 64](scripts/tt-cadence-evidence.mjs:64) nevertheless reports `complete:true`. Synthetic falsifier reproduced: empty positions plus available working-opening-order responses produced **zero order reads, no failures, complete=true**. The package can conceal pending exposure/reservations without identifying missing order coverage.
+
+- **P2 — Total evidence failure still reaches publication.** [ww-export-tt1.mjs:143](scripts/ww-export-tt1.mjs:143) tests whether a broker result object exists, rather than whether it contains usable evidence. The adapter returns such an object even after authentication/read failure. Synthetic falsifier reproduced: discovery succeeded; snapshot, retained balances, inventory and broker evidence failed; **publication was reached with all evidence counts zero**. This contradicts the documented no-package-on-total-failure behavior. Publication was intercepted in memory; no ZIP was written.
+
+Inspected all 11 changed files. Seven selected synthetic tests independently passed. Source inspection supports shared v1 CSV equivalence, signed short-delta filtering, unrestricted lower-long pairing, historical/current BP separation, redaction and atomic no-clobber publication. No additional privacy or prohibited-write defect identified.
+
+No provider contact, private-artifact inspection or repository mutation performed. Author test claims were not treated as independent verification. Installed verification remains pending.
+
+CURRENT STATE: Frozen candidate REJECTED.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

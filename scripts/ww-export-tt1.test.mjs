@@ -111,3 +111,29 @@ test('October29 real specimen regression (private external evidence, never a rep
  assert.equal(m.contracts.length,expected.contracts.length);assert.equal(m.verticalPairs.length,expected.verticalPairs.length);assert.equal(m.verticalPairs.filter(p=>p.exclusions.includes('NONPOSITIVE_NATURAL_CREDIT')).length,45);
  for(const p of m.verticalPairs){const ref=expected.verticalPairs.find(r=>r.underlying===p.underlying&&r.expiration===p.expiration&&r.shortStrike===p.shortStrike&&r.longStrike===p.longStrike);assert.ok(ref);assert.equal(p.natural.creditPerShare,ref.natural.creditPerShare);assert.equal(p.midpoint.creditPerShare,ref.midpoint.creditPerShare);}
 });
+
+test('review P1: empty holdings still read all ordinary and complex order pages, including working entries',async()=>{
+ const calls=[],account='SYNTH1234';const env={TASTYTRADE_CLIENT_ID:'fake-client',TASTYTRADE_CLIENT_SECRET:'fake-secret',TASTYTRADE_REFRESH_TOKEN:'fake-refresh'};
+ const fetchImpl=async(url,opt)=>{
+  const u=new URL(url);calls.push([opt.method,u.pathname]);
+  if(u.pathname==='/oauth/token')return Response.json({access_token:'fake-access'});
+  if(u.pathname==='/customers/me/accounts')return Response.json({data:{items:[{account:{'account-number':account}}]}});
+  if(u.pathname.endsWith('/positions'))return Response.json({data:{items:[]}});
+  if(u.pathname.endsWith('/orders')||u.pathname.endsWith('/complex-orders'))return Response.json({data:{items:[{id:'working-entry',status:'Live'}]},pagination:{'page-offset':0,'total-pages':1,'total-items':1}});
+  if(u.pathname.endsWith('/balances'))return Response.json({data:{'derivative-buying-power':'3000','updated-at':now.toISOString()}});
+  throw Error('unexpected route');
+ };
+ const r=await collectBroker({expectedAccount:account,fetchImpl,env,now:()=>now});
+ assert.equal(r.complete,true);assert.equal(r.orderCoverage.orders,'COMPLETE');assert.equal(r.orderCoverage['complex-orders'],'COMPLETE');
+ assert.equal(r.reads.find(r=>r.path.endsWith('/orders')).body.data.items[0].status,'Live');
+ assert.equal(calls.filter(([method])=>method!=='GET').length,1);
+});
+test('review P2: successful discovery plus empty failure envelopes is total evidence failure, no ZIP',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'tt1-total-fail-'));
+ try{
+  const fixture=httpFixture(),real=fixture.fetchImpl;
+  fixture.fetchImpl=async(u,o)=>new URL(u).pathname==='/v2/accounts'?real(u,o):new Response('{}',{status:503});
+  await assert.rejects(exportCadence({base:'http://localhost:9999',token:'fake',now,downloads:dir,fetchImpl:fixture.fetchImpl,brokerRead:async()=>({reads:[],failures:[{source:'broker',code:'AUTHENTICATION_UNAVAILABLE'}],projection:null})}),/No usable evidence/);
+  assert.deepEqual(await readdir(dir),[]);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});

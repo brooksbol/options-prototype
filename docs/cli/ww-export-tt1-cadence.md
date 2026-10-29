@@ -33,3 +33,9 @@ Original opening fills, working exits, derived P50 and21DTE objectives and actua
 Falsifiers cover positive put delta, fractional/large widths, missing long delta, missing versus zero quotes/OI, nonpositive credits, mismatched chain identity, stale source dates, holidays/NY dates, shared CSV bytes, denied reads, malformed/all-failed inputs, account mismatch, no broker writes, ZIP corruption/hashes, collision/no-overwrite and installed CLI behavior. The real October29 external specimen is an optional private regression reference; no financial specimen or credentials are committed as test fixtures.
 
 Implementation uses only Node24 built-ins, existing TS source and Python3's standard `zipfile`. No dependency installation is needed. Independent review and actual installed-command verification are recorded below when completed; implementation tests alone are not Principal acceptance.
+
+### Initial independent review and correction
+
+Independent source reviewer REJECTED immutable `bea1a944` with two reproduced synthetic falsifiers: empty holdings caused `tt live` to skip order reads while reporting complete collection; and a nonempty failure-envelope object could let total financial-evidence failure reach ZIP publication. The original commit/release preparation remains preserved and was not installed. The disposition is retained in `ww-export-tt1-cadence-initial-review.txt`.
+
+Correction is to source-coverage invariants rather than presentation: always acquire missing order pages through the existing tt pagination readers, even with zero holdings, and gate publication on actual successful financial evidence (including an authoritative empty inventory/order read) rather than transport-wrapper object existence. Network failures in optional broker reads are recorded. Source identity, valuation formula, liquidity, trading parameters, grants and v2 are unchanged. Independent re-review and installation remain separate.

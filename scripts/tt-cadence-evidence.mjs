@@ -1,5 +1,5 @@
 // Narrow standalone-tt adapter. ww never loads brokerage credentials in its process.
-import {main as ttMain, PRODUCTION_BASE_URL} from './tastytrade.mjs';
+import {main as ttMain, PRODUCTION_BASE_URL, readOrders, readComplexOrders} from './tastytrade.mjs';
 import {projectLive} from './tastytrade-live.mjs';
 import {readFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
@@ -18,7 +18,8 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
   const allowed=method==='GET'&&(u.pathname==='/customers/me/accounts'||u.pathname==='/market-data/by-type'||u.pathname==='/market-time/equities/sessions/current'||/^\/accounts\/[A-Za-z0-9]+\/(?:positions|orders|complex-orders)$/.test(u.pathname));
   if(!oauth&&!allowed)throw Error('BROKER_ROUTE_DENIED');
   if(oauth)for(const v of Object.values(JSON.parse(options.body)))if(typeof v==='string'&&v!=='refresh_token')secrets.add(v);
-  const r=await fetchImpl(url,options);const text=await boundedText(r.clone());
+  let r;try{r=await fetchImpl(url,options);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'NETWORK_UNAVAILABLE'});throw Error('BROKER_NETWORK_UNAVAILABLE');}
+  const text=await boundedText(r.clone());
   let body;try{body=JSON.parse(text);}catch{throw Error('BROKER_INVALID_JSON');}
   if(oauth){if(body.access_token){token=body.access_token;secrets.add(token);}return r;}
   if(u.pathname==='/customers/me/accounts'){
@@ -39,6 +40,18 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
  };
  let tsv='';const code=await ttMain(['live','--tsv'],{env,readFile,fetchImpl:guarded,out:s=>{tsv=s;},err:()=>{},now});
  if(code)failures.push({source:'tt live --tsv',code:'BROKER_READ_INCOMPLETE'});
+ // Inventory may be empty while orders reserve capital or create exposure. Reuse
+ // tt's exact pagination validators even when its presentation shortcut skips them.
+ const orderCoverage={};
+ for(const [resource,reader] of [['orders',readOrders],['complex-orders',readComplexOrders]]) {
+  if(account&&token&&!reads.some(r=>r.path.endsWith('/'+resource))) {
+   try {
+    await reader(page=>guarded(`${PRODUCTION_BASE_URL}/accounts/${account}/${resource}?page-offset=${page}&per-page=100`,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`}}).then(r=>r.json()));
+    orderCoverage[resource]='COMPLETE';
+   }catch{orderCoverage[resource]='INCOMPLETE';failures.push({source:resource,code:'ORDER_COVERAGE_INCOMPLETE'});}
+  }else orderCoverage[resource]=code===0&&reads.some(r=>r.path.endsWith('/'+resource))?'COMPLETE':'INCOMPLETE';
+ }
+
  // Existing broker balance GET used by TastytradeClient.settledCashBalance, with
  // no backend admission, sync, market refresh, credential writes or order writes.
  if(account&&token){
@@ -61,7 +74,7 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
    for(const n of numbers)value=value.replaceAll(n,'MASKED');
   }return value;
  };
- return scrub({source:'tastytrade production via existing standalone tt',retrievedAt:now().toISOString(),accountLink:account?(expectedAccount?'MATCHED_BACKEND_REFERENCE':'SOLE_BROKER_ACCOUNT_OPERATOR_ESTABLISHED_TT1_CONTEXT'):'NOT_ESTABLISHED',complete:code===0&&failures.length===0,reads,failures,projection,liveTsv:tsv});
+ return scrub({source:'tastytrade production via existing standalone tt',retrievedAt:now().toISOString(),accountLink:account?(expectedAccount?'MATCHED_BACKEND_REFERENCE':'SOLE_BROKER_ACCOUNT_OPERATOR_ESTABLISHED_TT1_CONTEXT'):'NOT_ESTABLISHED',complete:code===0&&failures.length===0,orderCoverage,reads,failures,projection,liveTsv:tsv});
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  try{let input='';for await(const c of process.stdin){input+=c;if(input.length>4096)throw Error();}

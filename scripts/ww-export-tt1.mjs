@@ -140,7 +140,12 @@ export async function exportCadence({base,token,now=new Date(),downloads=join(ho
   const expected=account.body.brokerAssociation?.accountNumber??account.body.brokerAssociation?.maskedAccountNumber??account.body.maskedAccountNumber;
   broker=await attempt('standalone tt broker GETs',async()=>({body:brokerRead?await brokerRead(expected):JSON.parse(await child(process.execPath,[fileURLToPath(new URL('./tt-cadence-evidence.mjs',import.meta.url))],JSON.stringify({expectedAccount:expected,allowSingleAccount:account.body.brokerAssociation?.broker==='TASTYTRADE'})))}));
  }
- if(!snapshot&&!broker&&!retained&&!inventory)throw Error('No usable evidence retrieved; no package written');
+ const brokerFacts=broker?.body?.reads?.some(r=>
+  /\/(?:positions|orders|complex-orders)$/.test(r.path)&&Array.isArray(r.body?.data?.items)||
+  r.path.endsWith('/balances')&&['derivative-buying-power','cash-balance','net-liquidating-value'].some(k=>r.body?.data?.[k]!=null));
+ const retainedFacts=Array.isArray(retained?.body?.observations)&&retained.body.observations.length>0;
+ const inventoryFacts=inventory?.body?.accounts?.some(a=>a.readComplete===true&&Array.isArray(a.options));
+ if(!snapshot&&!brokerFacts&&!retainedFacts&&!inventoryFacts)throw Error('No usable evidence retrieved; no package written');
  const market=snapshot?buildMarket(snapshot.body,context,now):{schema:'tt1-cadence-market/v1',...context,coverage:[],contracts:[],verticalPairs:[],backendDteMismatches:0,status:'NOT_AVAILABLE',parameters:{...FILTER,symbols:SYMBOLS}};
  validateMarket(market);
  const liquidity=buildSymbolLiquidity(snapshot?.body.symbols??[],FILTER);
