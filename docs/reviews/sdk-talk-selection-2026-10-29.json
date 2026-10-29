@@ -602,5 +602,11 @@
       ],
       "deploymentAuthorized": false
     }
+  },
+  "integrationAuthorization": {
+    "principalAnswer": "A",
+    "authorizedAction": "Integrate and deploy accepted candidate to8787 keeping residual gaps open",
+    "runtimeSource": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+    "grantsOrPoliciesChanged": false
   }
 }

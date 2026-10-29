@@ -347,3 +347,8 @@ Selection successorb21404f1 independently ACCEPTed after preserved379 nonempty-c
 ### Principal bounded acceptance — October29
 
 Principal confirms corrected8816 three-turn4→QQQonly→4 PASS and accepts shared-result/selection experiment atb21404f1. Record this as bounded Product acceptance, not merely author/reviewer success. Residual empty analysis andCURRENT label scrutiny, plus full economic parity, remain separate open gaps. CURRENT implementation means≤12h policy window (also Open), not live/recent acquisition. Reviewed matching artifact/rollback prepared; main integration/production8787 deployment require the next explicit operational decision. [Acceptance and proposal](../reviews/sdk-talk-selection-2026-10-29.md#principal-bounded-product-acceptance-and-integration-decision).
+
+
+### Principal integration/deployment authorization — October29
+
+Principal selected **“A”** in response to the concrete proposal **“Integrate and deploy the accepted candidate to port8787, keeping residual gaps open.”** This authorizes integration of independently reviewed/Principal-bounded-accepted runtimeb21404f1 with its acceptance receipts, matching backend/API/MCP/UI installation, and normal post-installation verification. It does not authorize financial semantic changes, residual cleanup implementation, grant/policy/OAuth/trading changes, unrelated v1/service changes or changes to PR42. Preserve existing tools and approved300/30read policies. Restart only v2evidence3101 andTalk8787; retain matching source/JAR rollback and verify normal privacy/account boundaries. Earlier explicitly unapproved deployment state remains historical; this decision supersedes it for this exact release only.
