@@ -5,10 +5,16 @@ import {readFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 const MAX=12*1024*1024;
 async function boundedText(response){
- const chunks=[];let size=0;
- for await(const chunk of response.body){size+=chunk.length;if(size>MAX)throw Error('BROKER_RESPONSE_TOO_LARGE');chunks.push(chunk);}
- return Buffer.concat(chunks).toString();
+ const reader=response.body.getReader(),chunks=[];let size=0;
+ try {
+  for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;
+   if(size>MAX){void reader.cancel().catch(()=>{});throw Error('BROKER_RESPONSE_TOO_LARGE');}
+   chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString();
+ }finally{reader.releaseLock();}
 }
+
 export async function collectBroker({expectedAccount,allowSingleAccount=false,fetchImpl=fetch,env=process.env,readFile=readFileSync,now=()=>new Date()}={}) {
  const reads=[],failures=[],secrets=new Set(),numbers=new Set();let account,token;
  const guarded=async(url,options)=>{
@@ -19,9 +25,10 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
   if(!oauth&&!allowed)throw Error('BROKER_ROUTE_DENIED');
   if(oauth)for(const v of Object.values(JSON.parse(options.body)))if(typeof v==='string'&&v!=='refresh_token')secrets.add(v);
   let r;try{r=await fetchImpl(url,options);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'NETWORK_UNAVAILABLE'});throw Error('BROKER_NETWORK_UNAVAILABLE');}
-  let text;try{text=await boundedText(r.clone());}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'RESPONSE_BODY_UNAVAILABLE'});throw Error('BROKER_BODY_UNAVAILABLE');}
+  let text;try{text=await boundedText(r);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'RESPONSE_BODY_UNAVAILABLE'});throw Error('BROKER_BODY_UNAVAILABLE');}
   let body;try{body=JSON.parse(text);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'INVALID_RESPONSE_JSON'});throw Error('BROKER_INVALID_JSON');}
-  if(oauth){if(body.access_token){token=body.access_token;secrets.add(token);}return r;}
+  const replay=new Response(text,{status:r.status,statusText:r.statusText,headers:r.headers});
+  if(oauth){if(body.access_token){token=body.access_token;secrets.add(token);}return replay;}
   if(u.pathname==='/customers/me/accounts'){
    const items=body?.data?.items;
    if(!r.ok||!Array.isArray(items)||items.length!==1)throw Error('BROKER_SINGLE_ACCOUNT_REQUIRED');
@@ -32,11 +39,11 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
    if(expectedAccount&&(!expectedAccount.match(/[A-Za-z0-9]{4}$/)||!candidate.endsWith(expectedAccount.match(/[A-Za-z0-9]{4}$/)[0])))throw Error('TT1_ACCOUNT_LINK_UNVERIFIED');
    if(expectedAccount&&/^[A-Za-z0-9]+$/.test(expectedAccount)&&expectedAccount!==candidate)throw Error('TT1_ACCOUNT_LINK_MISMATCH');
    account=candidate;
-   return r;
+   return replay;
   }
   if(!r.ok)failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:`HTTP_${r.status}`});
   else reads.push({path:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),query:u.search,retrievedAt:now().toISOString(),body});
-  return r;
+  return replay;
  };
  let tsv='';const code=await ttMain(['live','--tsv'],{env,readFile,fetchImpl:guarded,out:s=>{tsv=s;},err:()=>{},now});
  if(code)failures.push({source:'tt live --tsv',code:'BROKER_READ_INCOMPLETE'});

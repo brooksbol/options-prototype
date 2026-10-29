@@ -1,0 +1,11 @@
+REJECT — oversized-body handling does not reach the new failure-recording catch at [tt-cadence-evidence.mjs:21](/Users/bollich/kiro/options-candidates/tt1-cadence-export-20261029/scripts/tt-cadence-evidence.mjs:21).
+
+In-memory reproduction on Node 24.18.0: an optional-session response exceeding 12 MiB leaves `collectBroker()` pending. Exiting `boundedText` cancels the cloned stream, which waits for the unread original stream. Explicitly cancelling the original releases the size error. Consequently, `RESPONSE_BODY_UNAVAILABLE` and `complete=false` are never returned.
+
+This mechanism predates the delta, but prevents its stated oversized-body case from working. Malformed, unreadable, and null-body checks passed without response leakage. No privacy or source-scope regression found. Author installation/ZIP evidence remains inherited, not independently certified.
+
+CURRENT STATE: Candidate 79a1de3 delta review REJECTED.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

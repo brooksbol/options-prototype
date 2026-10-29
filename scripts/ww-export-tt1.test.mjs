@@ -105,6 +105,8 @@ test('standalone broker uses OAuth + allowlisted GETs, reuses projection, strips
  assert.ok(!JSON.stringify(r).includes('5WX01234'));assert.ok(!JSON.stringify(r).includes('synthetic-access-token'));assert.equal(calls.filter(([m])=>m!=='GET').length,1);
  const malformed=await collectBroker({expectedAccount:'5WX01234',fetchImpl:(url,opt)=>new URL(url).pathname==='/market-time/equities/sessions/current'?Promise.resolve(new Response('not-json')):f(url,opt),env,now:()=>liveEvidence.now});
  assert.equal(malformed.complete,false);assert.ok(malformed.failures.some(r=>r.code==='INVALID_RESPONSE_JSON'&&r.source==='/market-time/equities/sessions/current'));
+ let cancelled=false;const oversized=await collectBroker({expectedAccount:'5WX01234',fetchImpl:(url,opt)=>new URL(url).pathname==='/market-time/equities/sessions/current'?Promise.resolve(new Response(new ReadableStream({start(c){c.enqueue(new Uint8Array(12*1024*1024+1));},cancel(){cancelled=true;}}))):f(url,opt),env,now:()=>liveEvidence.now});
+ assert.equal(oversized.complete,false);assert.ok(oversized.failures.some(r=>r.code==='RESPONSE_BODY_UNAVAILABLE'));assert.equal(cancelled,true);
  calls.length=0;const denied=await collectBroker({expectedAccount:'WRONG5678',fetchImpl:f,env,now:()=>liveEvidence.now});assert.equal(denied.complete,false);assert.ok(!calls.some(([,p])=>p.includes('/accounts/')));
 });
 test('October29 real specimen regression (private external evidence, never a repository fixture)',{skip:!process.env.TT1_SPECIMEN_DIR},async()=>{
@@ -160,5 +162,12 @@ test('review P2 invalid-only balance response cannot publish when every other fi
   fixture.fetchImpl=async(u,o)=>new URL(u).pathname==='/v2/accounts'?real(u,o):new Response('{}',{status:503});
   await assert.rejects(exportCadence({base:'http://localhost:9999',token:'fake',now,downloads:dir,fetchImpl:fixture.fetchImpl,brokerRead:async()=>({reads:[{path:'/accounts/tt1/balances',body:{data:{'derivative-buying-power':'UNAVAILABLE'}}}],failures:[{source:'broker',code:'READ_UNAVAILABLE'}],projection:null})}),/No usable evidence/);
   assert.deepEqual(await readdir(dir),[]);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});
+
+test('missing brokerage evidence remains unavailable, not a flat-account zero',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'tt1-unknown-positions-'));
+ try{const f=httpFixture();const result=await exportCadence({base:'http://localhost:9999',token:'fake',now,downloads:dir,fetchImpl:f.fetchImpl,brokerRead:async()=>({reads:[],failures:[{source:'broker',code:'READ_UNAVAILABLE'}],projection:null})});
+ assert.equal(result.manifest.counts.positions,null);assert.equal(result.manifest.counts.heldLegs,null);assert.match(result.summary,/Positions: unavailable/);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
