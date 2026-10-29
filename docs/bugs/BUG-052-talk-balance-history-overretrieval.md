@@ -75,3 +75,7 @@ Independent review rejected frozen tactical candidate e163a9cc: inverse-condor p
 ## October29 installed Position over-retrieval
 
 Installed real SDK replay at74493 selected expanded inactive Account history for an ordinary all-positions request:486,497 response bytes,499,374 input tokens in that turn. This extends the existing minimum-necessary retrieval defect beyond balances. Candidate strict monitoring schema and compact backend DTO address the actual layer; one-Position evidence-on-demand stays available. See the workspace-interactions receipt for scope, tests and pending review. Remains Open; no synthetic success substitutes for installed verification.
+
+## October29 installed bounded correction verified
+
+Independently accepted bounded monitoring is now installed atbf6fecea. Actual real SDK reads all selected pages without expanded history; natural selected-row detail succeeds. Monitoring turn input usage499,374→36,710; same-membership backend tactical bytes63,179→44,459. Existing broader defect remains Open pending Principal acceptance; see final workspace receipt.

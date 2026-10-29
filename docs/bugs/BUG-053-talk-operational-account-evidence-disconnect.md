@@ -67,3 +67,7 @@ A controlled controller falsifier after independent review additionally reproduc
 ## October29 installed refresh adapter falsification
 
 The real backend accepted and retained the explicitly requested holdings acquisition, while MCP rejected its opaque snapshot identity under an invented UUID constraint. Candidate now follows the existing string/null contract and fixtures use the actual snapshot prefix shape. No permission broadening or blind retry; the backend observation was inspected first. See the workspace-interactions receipt. Independent review and corrected installed replay remain pending.
+
+## October29 installed bounded correction verified
+
+Independently accepted opaque snapshot/cursor corrections installed atbf6fecea. Real SDK refresh returns ACCEPTED, natural exact Position detail succeeds, and all3authorized Accounts are included in inventory. No grant expansion. Full Order/market tactical parity and qualified opening associations remain blocked; broader defect stays Open pending acceptance.
