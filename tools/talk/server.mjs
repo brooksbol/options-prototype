@@ -1,3 +1,4 @@
+import {reportDownloads} from './report-downloads.mjs';
 import { egressBoundary } from './privacy.mjs';
 import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
@@ -32,26 +33,27 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
   const backend = configuredBackend ? { ...configuredBackend, reads: [], async close() {} } : await syntheticBackend();
   let servers = [];
   let conversation;
+  const downloads=reportDownloads({backend:{...backend,fetchImpl:originalFetch}});
   let market;
   const csrf = randomUUID();
   let http;
   try {
     if (retainedBackend) market = backend;
     else if (marketFixture) market = await (await import('./market-fixture.mjs')).marketFixture();
-    servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.map(config =>
+    servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.filter(config=>!retainedBackend||!config.admitted.includes('hello_world')).map(config =>
       market && config.admitted.includes('list_authorized_accounts') ? { ...config, backend: market } : config), ...(market ? [{
       name: retainedBackend ? 'wheelwright-retained-accounts' : 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
-      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_account_transaction_details', 'inspect_option_inventory'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_account_transaction_details', 'inspect_option_inventory'], backend: market
+      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_account_transaction_details', 'inspect_option_inventory','prepare_report_download','acquire_account_holdings'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_account_transaction_details', 'inspect_option_inventory','prepare_report_download','acquire_account_holdings'], backend: market,timeoutMs:45000
     }] : []), ...(authorizedMarketBackend ? [{ name: 'wheelwright-retained-market', script: '../mcp-v2-evidence/server.mjs',
       admitted: ['inspect_market_quotes'], backend: authorizedMarketBackend }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: (await server.listTools()).filter(tool => server.admittedToolNames.includes(tool.name))
     }))));
-    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend, authorizedRetainedReads: !!retainedBackend,clock,operatorTimeZone,marketTimeZone });
+    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend, authorizedRetainedReads: !!retainedBackend,allowImageAttachments:!!retainedBackend,clock,operatorTimeZone,marketTimeZone });
     // Freeze this preview's UI bytes at startup; later candidate edits must not
     // silently change an already-running preview or introduce mismatched assets.
     const assets = Object.fromEntries([
-      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript'], ['/markdown.js', 'markdown.js', 'text/javascript'], ['/currency.js', 'currency.js', 'text/javascript']
+      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript'], ['/markdown.js', 'markdown.js', 'text/javascript'], ['/currency.js', 'currency.js', 'text/javascript'], ['/tactical.js', 'tactical.js', 'text/javascript'], ['/attachments-ui.js', 'attachments-ui.js', 'text/javascript'], ['/report-downloads.js', 'report-downloads.js', 'text/javascript']
     ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./ui/${name}`, import.meta.url)) }]));
     assets['/node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs'] = {type:'text/javascript',bytes:readFileSync(new URL('./node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs',import.meta.url))};
     http = createServer(async (req, res) => {
@@ -65,26 +67,31 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
       if (!allowedHosts.has(req.headers.host)) return json(403, { error: 'Invalid local host.' });
       if (req.method === 'GET' && req.url === '/api/status') return json(200, {
         profile: retainedBackend ? 'Authorized real retained evidence' : retainedMetadataBackend ? 'Authorized real Account metadata only' : market ? 'Synthetic retained evidence' : 'Synthetic W1', model: MODEL, sdk: '0.21.0', tools, csrf, deployment: installedBackend ? 'installed' : 'development',
+        imageAttachments:!!retainedBackend,
         privacy: { traceExport: false, state: 'local-memory', providerStorage: false, remoteCompaction: false }
       });
       if (req.method === 'GET' && assets[req.url]) {
         res.writeHead(200, { 'Content-Type': assets[req.url].type });
         return res.end(assets[req.url].bytes);
       }
-      if (req.method !== 'POST' || !['/api/chat', '/api/reset'].includes(req.url)) return json(404, { error: 'Not found.' });
+      if (req.method !== 'POST' || !['/api/chat', '/api/reset','/api/report-export'].includes(req.url)) return json(404, { error: 'Not found.' });
       if (req.headers.origin !== origin || req.headers['x-talk-csrf'] !== csrf)
         return json(403, { error: 'Local request authorization failed.' });
       try {
         let body = '';
         for await (const chunk of req) {
           body += chunk;
-          if (Buffer.byteLength(body) > 20000) throw new Error();
+          if (Buffer.byteLength(body) > (retainedBackend?5700000:20000)) throw new Error();
         }
-        if (req.url === '/api/reset') { conversation.reset(); return json(200, { reset: true }); }
+        if (req.url === '/api/reset') { conversation.reset();downloads.clear(); return json(200, { reset: true }); }
         const data = JSON.parse(body);
-        if (Object.keys(data).join(',') !== 'message') throw new Error();
+        if(req.url==='/api/report-export'){
+          if(Object.keys(data).join(',')!=='reportId'||typeof data.reportId!=='string')throw new Error();const file=await downloads.read(data.reportId);res.writeHead(200,{'Content-Type':'text/csv;charset=UTF-8','Content-Disposition':`attachment; filename="${file.reportExport.filename}"`});return res.end(file.content);
+        }
+        if (!Object.hasOwn(data,'message')||Object.keys(data).some(key=>!['message','attachment'].includes(key))) throw new Error();
         if (apiKey && data.message?.includes(apiKey)) throw new Error();
-        const answer = await conversation.send(data.message);
+        const answer = await conversation.send(data.message,data.attachment);
+        for(const tool of answer.tools??[]){const download=downloads.register(tool);if(download)tool.download=download;}
         return json(200, answer);
       } catch { return json(400, { error: 'Request unavailable. Check the message or wait for the active turn.' }); }
     });
@@ -92,7 +99,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     return { url: `http://127.0.0.1:${http.address().port}`, boundary, backend, market, servers, conversation,
       async close() {
         http.closeAllConnections(); await new Promise(resolve => http.close(resolve));
-        await conversation.close();
+        downloads.clear();await conversation.close();
         await Promise.allSettled(servers.map(server => server.close())); await backend.close();
         await market?.close();
         globalThis.fetch = originalFetch;

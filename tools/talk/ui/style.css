@@ -336,3 +336,27 @@ footer {
 .workspace-details { margin: 0 28px; color: var(--muted, #68736b); font-size: .85rem; }
 .workspace-details > summary { cursor: pointer; padding: .6rem 0; }
 .closed-trade-card + details { margin-top: 1rem; }
+.tactical-report { margin-block: 1rem; }
+.tactical-position { border: 1px solid #d8dfd5; border-radius: 12px; padding: 1rem; margin-block: 1rem; }
+.tactical-position h4 { font-size: 1.25rem; margin: 0; }
+.tactical-identity { margin: .3rem 0; }
+.tactical-status,.tactical-freshness { font-size: .8rem; color: #5c6c61; }
+.tactical-grid { display: grid; grid-template-columns: minmax(180px,2fr) minmax(90px,.8fr) minmax(170px,1.4fr) minmax(190px,1.5fr); gap: 1rem; margin-block: 1rem; }
+.tactical-grid h5 { font-size: .75rem; font-weight: 500; margin: 0 0 .5rem; color: #5c6c61; }
+.tactical-grid strong { display:block; font-size: .95rem; }
+.tactical-grid small { display:block; color: #5c6c61; font-size: .7rem; }
+.tactical-grid svg { width: 100%; height: 84px; overflow: visible; }
+.tactical-payoff { stroke: #365342; stroke-width: 2.5; }
+.tactical-zero,.tactical-tick { stroke: #647468; stroke-width: 1; }
+.tactical-strike { fill: #365342; }
+.tactical-axis { font: 8px system-ui; fill: currentColor; }
+.tactical-spot-line { stroke: #1696a7; stroke-width: 1; stroke-dasharray: 3 3; }
+.tactical-spot,.tactical-now { fill: #1696a7; }
+.tactical-spot.plateau { fill: #16834e; }.tactical-spot.transition { fill: #ba8311; }.tactical-spot.loss { fill: #b53232; }
+.tactical-track { stroke: #c4cec2; stroke-width: 3; }.tactical-elapsed { stroke: #365342; stroke-width: 3; }
+.tactical-checkpoint { fill: #16834e; font: bold 11px system-ui; }.tactical-overdue,.tactical-overflow { fill: #b53232; font: bold 11px system-ui; }
+.tactical-adverse { stroke: #b53232; stroke-width: 3; }.tactical-target { stroke: #16834e; stroke-width: 3; }.tactical-unscaled { stroke: #929d90; stroke-width: 2; stroke-dasharray: 2 4; }
+@media(max-width:1100px){.tactical-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:600px){.tactical-grid{grid-template-columns:1fr;}.tactical-position{padding:.75rem;}}
+.tactical-freshness[data-state="STALE"],.tactical-freshness[data-state="RETAINED_SESSION"]{color:#9b6a08;}
+#image-selection{padding:.6rem;border:1px solid var(--border,#314047);border-radius:.5rem;margin:.5rem 0;font-size:.85rem}#image-selection[hidden]{display:none}#image-selection label{display:flex;align-items:flex-start;gap:.5rem;margin-top:.5rem}#image-selection input[type=checkbox]{width:auto;flex:none;margin-top:.2rem}#image-name{overflow-wrap:anywhere}#attach{white-space:nowrap}

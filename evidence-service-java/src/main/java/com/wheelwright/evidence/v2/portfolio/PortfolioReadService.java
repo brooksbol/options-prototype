@@ -133,6 +133,15 @@ public final class PortfolioReadService {
   }
   n.set("included",included);return n;
  }
+ public ObjectNode tactical(Document d,Principal p,Instant now,ReadContext context)throws Exception {
+  var expanded=expand(d,p,now,Set.of("currentConstruction","holdingSummaries"),context);var names=new HashMap<String,String>();var standings=new HashMap<String,String>();
+  if(p.hasGrant("reference.read")){
+   var c=expanded.at("/included/construction");var uris=new TreeSet<String>();
+   for(var leaf:leaves(c.path("composition")))for(String pointer:List.of("/instrument/href","/terms/underlying/href"))if(leaf.at(pointer).isTextual())uris.add(leaf.at(pointer).asText());
+   String model=c.at("/recognition/modelVersion/href").asText();if(!model.isBlank())uris.add(model);
+   for(String uri:uris){var resource=repo.get(uri);if(resource.isEmpty()||!PortfolioAuthorization.canRead(p,resource.get()))continue;var v=read(resource.get(),p,now,context);if(v.path("standing").isTextual())standings.put(uri,v.path("standing").asText());if(v.path("symbol").isTextual())names.put(uri,v.path("symbol").asText());else if(v.at("/family/href").isTextual()){var family=repo.get(v.at("/family/href").asText());if(family.isPresent()&&PortfolioAuthorization.canRead(p,family.get()))names.put(uri,family.get().value().path("name").asText());}}
+  }return PortfolioTactical.project(expanded,names,standings);
+ }
  public ObjectNode reconciliation(String account,Instant now)throws Exception{return new PortfolioReconciliation(repo).calculate(account,now);}
  /** Global contradictions qualify affected results without deleting broker-reported facts. */
  static void propagate(ObjectNode position,ObjectNode reconciliation){

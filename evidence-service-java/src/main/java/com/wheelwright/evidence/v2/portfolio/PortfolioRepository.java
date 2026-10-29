@@ -55,7 +55,12 @@ public final class PortfolioRepository {
         for(var filter:filters.entrySet()){
             String name=filter.getKey(),value=filter.getValue();
             String field=switch(name){case "state"->"$.state";case "exposureStatus"->"$.exposure.status";case "brokerGroupId"->"$.brokerGroupId";case "symbol"->"$.symbol";case "instrumentId"->"$.instrument.href";default->null;};
-            if(field!=null){where.append(" AND json_extract(p.payload_json,'").append(field).append("')=?");args.add(name.equals("instrumentId")?"/v2/instruments/"+value:value);}
+            if(name.equals("exposureStatus")){
+                var states=new ArrayList<>(Arrays.asList(value.split(",",-1)));boolean unrecorded=states.remove("UNRECORDED_NONCLOSED");where.append(" AND (");
+                if(!states.isEmpty()){where.append("json_extract(p.payload_json,'$.exposure.status') IN (").append(String.join(",",Collections.nCopies(states.size(),"?"))).append(")");args.addAll(states);}
+                if(unrecorded){if(!states.isEmpty())where.append(" OR ");where.append("(json_extract(p.payload_json,'$.exposure.status') IS NULL AND COALESCE(json_extract(p.payload_json,'$.state'),'')<>'CLOSED')");}where.append(")");
+            }
+            else if(field!=null){where.append(" AND json_extract(p.payload_json,'").append(field).append("')=?");args.add(name.equals("instrumentId")?"/v2/instruments/"+value:value);}
             else if(name.equals("snapshotId")){where.append(" AND p.source_snapshot=?");args.add(value);}
             else if(name.equals("positionId")){
                 where.append(" AND (json_extract(p.payload_json,'$.position.href')=? OR EXISTS (SELECT 1 FROM json_each(p.payload_json,'$.associations') a LEFT JOIN portfolio_resource c ON c.uri=json_extract(a.value,'$.target.href') AND c.kind='CONSTRUCTION' AND c.account_id=p.account_id WHERE (json_extract(a.value,'$.targetKind')='POSITION' AND json_extract(a.value,'$.target.href')=?) OR (json_extract(a.value,'$.targetKind')='CONSTRUCTION' AND json_extract(c.payload_json,'$.position.href')=?)))");

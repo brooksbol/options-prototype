@@ -79,6 +79,10 @@ public final class PortfolioMath {
             var flats=new ArrayList<JsonNode>();var interior=new ArrayList<JsonNode>();for(var segment:payoff.at("/geometry/segments"))if(number(segment.path("slope")).signum()==0){flats.add(segment);if(number(segment.path("lower")).signum()>0&&!segment.path("upper").isNull())interior.add(segment);}
             // A unique contractual plateau may be a loss floor or a profit cap; neither implies desirability.
             JsonNode selected=interior.size()==1?interior.getFirst():flats.size()==1?flats.getFirst():null;
+            // A bounded vertical has two flat tails and one transition. Its unique
+            // maximum contractual plateau is the accepted half-line strike range,
+            // regardless of opening basis; it does not assert a realized profit.
+            if(selected==null&&flats.size()==2&&payoff.at("/geometry/segments").size()==3&&number(payoff.at("/geometry/segments/0/slope")).signum()==0&&number(payoff.at("/geometry/segments/1/slope")).signum()!=0&&number(payoff.at("/geometry/segments/2/slope")).signum()==0){var a=flats.get(0);var b=flats.get(1);int comparison=number(a.path("intercept")).compareTo(number(b.path("intercept")));if(comparison!=0)selected=comparison>0?a:b;}
             if(selected!=null){boolean upperNull=selected.path("upper").isNull();var lower=number(selected.path("lower"));range.put("status","QUALIFIED").put("kind",upperNull?"LOWER_HALF_LINE":lower.signum()==0?"UPPER_HALF_LINE":"PLATEAU");if(upperNull||lower.signum()!=0)range.put("lower",decimal(lower));if(!upperNull)range.put("upper",selected.path("upper").asText());range.put("currency",currency);range.set("evidence",evidence.deepCopy());range.set("warningCodes",array());}
         }
         var underlyings=new HashSet<String>();for(var x:xs){if(x.path("kind").asText().equals("OPTION")&&!x.at("/terms/underlying/href").asText().isBlank())underlyings.add(x.at("/terms/underlying/href").asText());else if(x.path("kind").asText().equals("LONG_SHARES"))underlyings.add(x.at("/instrument/href").asText());}
@@ -129,4 +133,28 @@ public final class PortfolioMath {
         total=total.add(value.subtract(basis).multiply(BigDecimal.valueOf(sign)));}return total;}
     private static BigDecimal slope(List<ObjectNode> xs,BigDecimal spot){var total=BigDecimal.ZERO;for(var x:xs){int sign=x.path("side").asText().equals("LONG")?1:-1;var q=number(x.path("quantity"));if(x.path("kind").asText().equals("LONG_SHARES"))total=total.add(q.multiply(BigDecimal.valueOf(sign)));else if(x.path("kind").asText().equals("OPTION")){var t=x.path("terms");int side=t.path("right").asText().equals("CALL")?1:-1;int cmp=spot.compareTo(number(t.path("strike")));if(cmp*side>0)total=total.add(q.multiply(number(t.path("multiplier"))).multiply(BigDecimal.valueOf(sign*side)));}}return total;}
     private static JsonNode exactQuotient(BigDecimal a,BigDecimal b){try{return TextNode.valueOf(decimal(a.divide(b)));}catch(ArithmeticException ignored){int scale=Math.max(a.scale(),b.scale());BigInteger n=a.movePointRight(scale).toBigIntegerExact(),d=b.movePointRight(scale).toBigIntegerExact();if(d.signum()<0){n=n.negate();d=d.negate();}var gcd=n.gcd(d);return obj().put("numerator",n.divide(gcd).toString()).put("denominator",d.divide(gcd).toString());}}
+    /** Accepted tt-live region meaning; this qualifies a source spot, not a trading action. */
+    public static String spotRegion(JsonNode evaluation) {
+        var spot=evaluation.path("spot");var range=evaluation.path("range");var payoff=evaluation.path("payoff");var geometry=payoff.path("geometry");
+        if(!established(spot)||!spot.path("unit").asText().equals("PRICE")||!spot.path("currency").equals(range.path("currency"))||!range.path("status").asText().equals("QUALIFIED")||!payoff.path("status").asText().equals("QUALIFIED")||!spot.path("currency").equals(geometry.path("priceCurrency")))return "UNAVAILABLE";
+        var price=number(spot.path("value"));var lower=number(range.path("lower"));var upper=number(range.path("upper"));
+        if(price==null||price.signum()<0||lower==null&&upper==null)return "UNAVAILABLE";
+        // The accepted credit-structure color grammar requires a maximum flat plateau:
+        // nondecreasing to its left, flat within it, nonincreasing to its right.
+        // An inverse or otherwise incompatible shape still has inspectable geometry.
+        var segments=geometry.path("segments");if(segments.isEmpty())return "UNAVAILABLE";
+        if(number(segments.get(0).path("slope"))==null||number(segments.get(0).path("slope")).signum()!=0||number(segments.get(segments.size()-1).path("slope"))==null||number(segments.get(segments.size()-1).path("slope")).signum()!=0)return "UNAVAILABLE";
+        BigDecimal plateau=null;
+        for(var segment:segments){
+            var lo=number(segment.path("lower"));var hi=number(segment.path("upper"));var slope=number(segment.path("slope"));var intercept=number(segment.path("intercept"));
+            if(slope==null||intercept==null||lo==null)return "UNAVAILABLE";
+            if(lower!=null&&hi!=null&&hi.compareTo(lower)<=0){if(slope.signum()<0)return "UNAVAILABLE";}
+            else if(upper!=null&&lo.compareTo(upper)>=0){if(slope.signum()>0)return "UNAVAILABLE";}
+            else {if(slope.signum()!=0||plateau!=null&&plateau.compareTo(intercept)!=0)return "UNAVAILABLE";plateau=intercept;}
+        }
+        if(plateau==null)return "UNAVAILABLE";
+        if((lower==null||price.compareTo(lower)>=0)&&(upper==null||price.compareTo(upper)<=0))return "NEUTRAL_PLATEAU";
+        for(var segment:segments){var lo=number(segment.path("lower"));var hi=number(segment.path("upper"));var slope=number(segment.path("slope"));var intercept=number(segment.path("intercept"));if(slope.signum()==0&&intercept.compareTo(plateau)<0&&(lo==null||price.compareTo(lo)>=0)&&(hi==null||price.compareTo(hi)<=0))return "ADVERSE_TAIL";}
+        return "TRANSITION";
+    }
 }

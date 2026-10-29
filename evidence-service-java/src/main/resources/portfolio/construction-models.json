@@ -95,6 +95,30 @@
           "href": "/v2/constructions/models/BUY_WRITE/versions/1"
         }
       ]
+    },
+    {
+      "id": "BULL_PUT_VERTICAL",
+      "self": {
+        "href": "/v2/constructions/models/BULL_PUT_VERTICAL"
+      },
+      "name": "BULL PUT VERTICAL",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/BULL_PUT_VERTICAL/versions/1"
+        }
+      ]
+    },
+    {
+      "id": "BEAR_CALL_VERTICAL",
+      "self": {
+        "href": "/v2/constructions/models/BEAR_CALL_VERTICAL"
+      },
+      "name": "BEAR CALL VERTICAL",
+      "versions": [
+        {
+          "href": "/v2/constructions/models/BEAR_CALL_VERTICAL/versions/1"
+        }
+      ]
     }
   ],
   "versions": [
@@ -925,6 +949,234 @@
             "SC"
           ],
           "relation": null,
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/BULL_PUT_VERTICAL/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/BULL_PUT_VERTICAL"
+      },
+      "version": "1",
+      "createdAt": "2026-10-29T17:34:43.009394Z",
+      "roles": [
+        {
+          "name": "LP",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        },
+        {
+          "name": "SP",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "PUT",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "STRIKE_ORDER",
+          "roles": [
+            "LP",
+            "SP"
+          ],
+          "relation": "LT",
+          "ratio": null
+        }
+      ],
+      "valuation": {
+        "kind": "SIGNED_CONSTITUENT_SUM",
+        "horizonSupport": "COMMON_EXPIRATION_INTRINSIC",
+        "primitives": [
+          "CASH_CONSTANT",
+          "SHARES_LINEAR",
+          "OPTION_INTRINSIC"
+        ]
+      },
+      "standing": "CANDIDATE_NOT_PRODUCT_ACCEPTED"
+    },
+    {
+      "self": {
+        "href": "/v2/constructions/models/BEAR_CALL_VERTICAL/versions/1"
+      },
+      "family": {
+        "href": "/v2/constructions/models/BEAR_CALL_VERTICAL"
+      },
+      "version": "1",
+      "createdAt": "2026-10-29T17:34:43.009394Z",
+      "roles": [
+        {
+          "name": "SC",
+          "kind": "OPTION",
+          "side": "SHORT",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        },
+        {
+          "name": "LC",
+          "kind": "OPTION",
+          "side": "LONG",
+          "unit": "CONTRACT",
+          "ratio": "1",
+          "optionRight": "CALL",
+          "modelVersion": null
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "SAME_ACCOUNT",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_CURRENCY",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "EVIDENCED_MEMBERSHIP",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_UNDERLYING",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "SAME_EXPIRATION",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_MULTIPLIERS",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "COMPATIBLE_DELIVERABLES",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": null,
+          "ratio": null
+        },
+        {
+          "kind": "STRIKE_ORDER",
+          "roles": [
+            "SC",
+            "LC"
+          ],
+          "relation": "LT",
           "ratio": null
         }
       ],

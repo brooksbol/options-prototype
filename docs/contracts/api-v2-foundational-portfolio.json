@@ -21,7 +21,7 @@
       "get": {
         "operationId": "listPositions",
         "summary": "List positions",
-        "description": "List independently identified economic Positions across the selected Accounts. Each Position has its own GUID and links to its currently applicable Construction. The default summary and optional expansions preserve financial qualifications. State and observed exposure are separate: UNRESOLVED can coexist with known held quantities. Source observations do not prove an opening date or uninterrupted occurrence. Selection, stable ID ordering and pagination precede per-item evaluation; Account-wide allocation and coverage checks still apply.\n\n<!-- internal-only:start -->\nAuthenticate token User before validation. Enforce exact applicable Account capability on direct reads, all links, constituents, source records, historical/Audit records and every expanded projection; user ownership never bypasses Account grants. Collection filters narrow scope only. Unknown/duplicate query fields or GET bodies return 422. Collection cursor is opaque, bound to caller grants/filter/sort/projection; grant revocation is rechecked on continuation. Stable order ends in canonical ID; cursors do not promise atomic cross-broker time. Default page size 50, maximum 200. Financial status is independent of HTTP success. All private responses use private,no-store.\n<!-- internal-only:end -->",
+        "description": "List independently identified economic Positions across the selected Accounts. Each Position has its own GUID and links to its currently applicable Construction. The default summary and optional expansions preserve financial qualifications. State and observed exposure are separate: UNRESOLVED can coexist with known held quantities. Source observations do not prove an opening date or uninterrupted occurrence. Selection, stable ID ordering and pagination precede per-item evaluation; Account-wide allocation and coverage checks still apply.\n\n<!-- internal-only:start -->\nAuthenticate token User before validation. Enforce exact applicable Account capability on direct reads, all links, constituents, source records, historical/Audit records and every expanded projection; user ownership never bypasses Account grants. Collection filters narrow scope only. Unknown/duplicate query fields or GET bodies return 422. Collection cursor is opaque, bound to caller grants/filter/sort/projection; grant revocation is rechecked on continuation. Stable order ends in canonical ID; cursors do not promise atomic cross-broker time. Default page size 50, maximum 200. Financial status is independent of HTTP success. All private responses use private,no-store.\n<!-- internal-only:end -->\n\nTactical projection reuses existing recognition, payoff, valuation, timeline, management and per-field authorization. No new provider calls/policies/grants. Source freshness and unavailable facts survive. Candidate Model match is not an opening occurrence or policy/collateral assertion. Source evidence remains inspectable through canonical Position/Construction links. Multi-state exposure selection is SQL-before-pagination; it does not broaden authorization.",
         "security": [
           {
             "bearerAuth": []
@@ -40,10 +40,11 @@
               "enum": [
                 "uri",
                 "summary",
-                "expanded"
+                "expanded",
+                "tactical"
               ]
             },
-            "description": "Default summary. Non-Position summary currently returns the full qualified item; it is not a separate financial interpretation."
+            "description": "Default summary. tactical is a compact, authorization-sanitized Position collection representation from existing evaluations, incompatible with include. It changes representation, not membership or acquisition policy. TERMINAL_VALUE geometry is never gross P/L. Detailed provenance remains at each item details link."
           },
           {
             "name": "limit",
@@ -128,16 +129,25 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "enum": [
-                "OBSERVED",
-                "ZERO_OBSERVED",
-                "UNKNOWN",
-                "RETAINED",
-                "SUPERSEDED_INTERPRETATION"
-              ]
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "OBSERVED",
+                  "ZERO_OBSERVED",
+                  "UNKNOWN",
+                  "RETAINED",
+                  "SUPERSEDED_INTERPRETATION",
+                  "UNRECORDED_NONCLOSED"
+                ]
+              },
+              "uniqueItems": true,
+              "minItems": 1,
+              "maxItems": 6
             },
-            "description": "Filter current observed, zero-observed, unknown, retained, or superseded provisional financial interpretations independently from lifecycle state."
+            "description": "OR selection, applied before pagination within authorized Account scope. UNRECORDED_NONCLOSED is a query-only predicate: absent/null exposure.status and lifecycle not CLOSED; it never creates an exposure status or asserts custody. Omit for all retained interpretations. Explicit UNKNOWN remains distinct from unrecorded exposure.",
+            "style": "form",
+            "explode": false
           }
         ],
         "responses": {
@@ -29247,7 +29257,8 @@
             "enum": [
               "uri",
               "summary",
-              "expanded"
+              "expanded",
+              "tactical"
             ]
           },
           "items": {
@@ -29262,6 +29273,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/Position"
+                },
+                {
+                  "$ref": "#/components/schemas/TacticalPosition"
                 }
               ]
             }
@@ -29343,6 +29357,25 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Position"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "projection": {
+                  "const": "tactical"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TacticalPosition"
                   }
                 }
               }
@@ -37829,6 +37862,643 @@
             }
           }
         ]
+      },
+      "TacticalMetric": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "MONEY",
+              "PRICE",
+              "SHARE",
+              "CONTRACT",
+              "PACKAGE",
+              "DAY",
+              "RATIO",
+              "SHARE_EQUIVALENT_DELTA"
+            ]
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Currency"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ESTABLISHED",
+              "QUALIFIED",
+              "INCOMPLETE",
+              "UNSUPPORTED",
+              "CONFLICT",
+              "NOT_APPLICABLE",
+              "REDACTED"
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "BROKER_REPORTED",
+              "WHEELWRIGHT_DERIVED",
+              "UNKNOWN"
+            ]
+          },
+          "method": {
+            "type": "string"
+          },
+          "asOf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Evaluation target time, if established/requested. Actual component observation times remain in evidence; this is never a substitute for them."
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "value",
+          "unit",
+          "currency",
+          "status",
+          "origin",
+          "method",
+          "asOf",
+          "assumptions",
+          "warningCodes"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalStructure": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "VALIDATED",
+              "UNCLASSIFIED",
+              "AMBIGUOUS",
+              "INCOMPATIBLE"
+            ]
+          },
+          "modelVersion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelVersionLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reasonCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "authority": {
+            "$ref": "#/components/schemas/TacticalAuthority"
+          },
+          "name": {
+            "type": "string"
+          },
+          "modelStanding": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "modelVersion",
+          "reasonCodes",
+          "authority",
+          "name",
+          "modelStanding"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalConstituent": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "side": {
+            "type": "string"
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "instrument": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/OptionTerms"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "nodeId",
+          "kind",
+          "quantity",
+          "unit",
+          "side",
+          "currency",
+          "instrument"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalTimeline": {
+        "type": "object",
+        "properties": {
+          "openedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expiration": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "calendarZone": {
+            "const": "America/New_York"
+          },
+          "openingAccess": {
+            "enum": [
+              "VISIBLE",
+              "REDACTED",
+              "UNKNOWN"
+            ]
+          },
+          "remainingDays": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "originalDays": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          }
+        },
+        "required": [
+          "openedAt",
+          "expiration",
+          "calendarZone",
+          "remainingDays",
+          "originalDays"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalManagement": {
+        "type": "object",
+        "properties": {
+          "access": {
+            "type": "string",
+            "enum": [
+              "VISIBLE",
+              "REDACTED"
+            ]
+          },
+          "associationStatus": {
+            "type": "string",
+            "enum": [
+              "ESTABLISHED",
+              "AMBIGUOUS",
+              "UNAVAILABLE"
+            ]
+          },
+          "stopInterpretation": {
+            "const": "PROVISIONAL_NOT_EXECUTION_GUARANTEE"
+          },
+          "protectiveOrderEvidence": {
+            "type": "string",
+            "enum": [
+              "PRESENT",
+              "CONFIRMED_ABSENT",
+              "UNKNOWN"
+            ]
+          },
+          "manualCheckpoint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ManualCheckpoint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "zeroGrossPl": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "profitTargetGrossPl": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "reportedStopThresholdGrossPl": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          }
+        },
+        "required": [
+          "access",
+          "associationStatus",
+          "stopInterpretation",
+          "protectiveOrderEvidence",
+          "manualCheckpoint",
+          "warningCodes",
+          "zeroGrossPl",
+          "profitTargetGrossPl",
+          "reportedStopThresholdGrossPl"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalEvaluation": {
+        "type": "object",
+        "properties": {
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "freshness": {
+            "type": "string",
+            "enum": [
+              "CURRENT",
+              "RETAINED_SESSION",
+              "STALE",
+              "UNKNOWN"
+            ]
+          },
+          "oldestMaterialObservationAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "range": {
+            "$ref": "#/components/schemas/TacticalRange"
+          },
+          "payoff": {
+            "$ref": "#/components/schemas/TacticalPayoff"
+          },
+          "spot": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "grossUnrealizedPl": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "netUnrealizedPl": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "openingCashFlow": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "estimatedClosingCashFlow": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/TacticalTimeline"
+          },
+          "management": {
+            "$ref": "#/components/schemas/TacticalManagement"
+          },
+          "spotRegion": {
+            "type": "string",
+            "enum": [
+              "NEUTRAL_PLATEAU",
+              "TRANSITION",
+              "ADVERSE_TAIL",
+              "UNAVAILABLE"
+            ]
+          }
+        },
+        "required": [
+          "evaluatedAt",
+          "freshness",
+          "oldestMaterialObservationAt",
+          "range",
+          "payoff",
+          "spot",
+          "grossUnrealizedPl",
+          "netUnrealizedPl",
+          "openingCashFlow",
+          "estimatedClosingCashFlow",
+          "timeline",
+          "management",
+          "spotRegion"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalPosition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "self": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "CLOSED",
+              "UNRESOLVED"
+            ]
+          },
+          "currentConstruction": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/CurrentExposureEvidence",
+            "description": "Current quantity interpretation is separate from Position lifecycle. Empty UNKNOWN composition is not zero; SUPERSEDED_INTERPRETATION is prior provisional interpretation, not an economic merge or CLOSED transition."
+          },
+          "representation": {
+            "const": "TACTICAL_POSITION"
+          },
+          "details": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/TacticalStructure"
+          },
+          "constituents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TacticalConstituent"
+            }
+          },
+          "underlyings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "instrument": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              },
+              "required": [
+                "symbol",
+                "instrument"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/TacticalEvaluation"
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "self",
+          "account",
+          "state",
+          "currentConstruction",
+          "representation",
+          "details",
+          "structure",
+          "constituents",
+          "underlyings",
+          "evaluation",
+          "warningCodes"
+        ],
+        "additionalProperties": false,
+        "description": "No new Position or strategy identity. Source-backed financial scope, opening occurrence and lifecycle remain separate. Names/standing require authorized reference data; source-dependent fields are redacted before compaction. Compact metrics link to expanded Position evidence; all exact values/units/methods/clocks/qualifications survive. Missing exposure stays missing."
+      },
+      "TacticalAuthority": {
+        "type": "object",
+        "properties": {
+          "claimId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ESTABLISHED",
+              "QUALIFIED",
+              "UNRESOLVED"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "BROKER_PACKAGE_RECORD",
+              "BROKER_EXPLICIT_ORDER_LINK",
+              "RECONCILED_DOCUMENTED_ACTIVITY",
+              "BROKER_HOLDING_OBSERVATION",
+              "AGGREGATE_ECONOMIC_CALCULATION",
+              "BROKER_RESERVATION_RECORD",
+              "UNKNOWN"
+            ]
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            },
+            "minItems": 0
+          },
+          "qualification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "claimId",
+          "status",
+          "basis",
+          "subjects",
+          "qualification"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalRange": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PLATEAU",
+              "LOWER_HALF_LINE",
+              "UPPER_HALF_LINE",
+              "UNAVAILABLE"
+            ]
+          },
+          "lower": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "upper": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Currency"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "kind",
+          "lower",
+          "upper",
+          "currency",
+          "warningCodes"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalPayoff": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ESTABLISHED",
+              "QUALIFIED",
+              "INCOMPLETE",
+              "UNSUPPORTED",
+              "CONFLICT",
+              "REDACTED"
+            ]
+          },
+          "geometry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Geometry"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "geometry",
+          "evaluatedAt",
+          "assumptions",
+          "warningCodes"
+        ],
+        "additionalProperties": false
       }
     }
   },

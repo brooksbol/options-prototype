@@ -39,15 +39,21 @@ public class AccountBalancesController {
         if (body != null && body.length > 0) invalid.add(new ProblemDetails.InvalidParam("body", "GET body unsupported"));
         if (accountId == null) invalid.add(new ProblemDetails.InvalidParam("accountId", "required"));
         for (String name : Collections.list(request.getParameterNames()))
-            if (!Set.of("accountId", "artifactId", "selection", "sourceAtOrAfter").contains(name) || request.getParameterValues(name).length != 1)
+            if (!Set.of("accountId", "artifactId", "selection", "sourceAtOrAfter", "format", "expectedSha256").contains(name) || request.getParameterValues(name).length != 1)
                 invalid.add(new ProblemDetails.InvalidParam(name, "unknown or repeated query parameter"));
+        String format=request.getParameter("format"),expected=request.getParameter("expectedSha256");
+        if(format!=null&&!format.equals("csv")||expected!=null&&(format==null||!expected.matches("[a-f0-9]{64}"))||format!=null&&expected==null)invalid.add(new ProblemDetails.InvalidParam("format","csv requires expectedSha256 from the governed report"));
         if (!invalid.isEmpty()) return problem(ProblemCode.INVALID_REQUEST, id, "invalid read request", invalid);
         try {
             var account=accounts.get(accountId);
             if(account.isEmpty())return problem(ProblemCode.NOT_FOUND,id,"Account not found",null);
             if(!Set.of("FIDELITY","TASTYTRADE").contains(account.get().brokerAssociation().broker()))
                 return problem(ProblemCode.INVALID_REQUEST,id,"unsupported balance dialect",List.of(new ProblemDetails.InvalidParam("accountId","supported brokerage required")));
-            return response(200,id,MediaType.APPLICATION_JSON,service.read(accountId,artifactId,selection,sourceAtOrAfter,id,caller.get()));
+            var result=mapper.valueToTree(service.read(accountId,artifactId,selection,sourceAtOrAfter,id,caller.get()));
+            var export=FinancialReportCsv.balances(result,account.get().alias());
+            if(format!=null){if(export.isEmpty()||!export.get().sha256().equals(expected))return problem(ProblemCode.INVALID_REQUEST,id,"report changed or is not exportable; refresh the governed report",null);var file=export.get();return ResponseEntity.ok().header("X-Request-Id",id).header("Cache-Control","private, no-store").header("Content-Disposition","attachment; filename=\""+file.filename()+"\"").header("X-Content-SHA256",file.sha256()).contentType(MediaType.parseMediaType("text/csv;charset=UTF-8")).body(file.content());}
+            if(export.isPresent()){String href="/v2/account-balance-observations?accountId="+accountId+"&artifactId="+result.at("/observations/0/source/artifactId").asText();((com.fasterxml.jackson.databind.node.ObjectNode)result).set("csv",FinancialReportCsv.metadata(export.get(),href,mapper));}
+            return response(200,id,MediaType.APPLICATION_JSON,result);
         } catch (SecurityException e) {
             return problem(ProblemCode.FORBIDDEN,id,"source scope not authorized",null);
         } catch (java.sql.SQLException e) {

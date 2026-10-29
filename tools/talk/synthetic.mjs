@@ -48,7 +48,7 @@ export async function connectSyntheticMcp(backend, capabilities = syntheticCapab
         args: [fileURLToPath(new URL(config.script, import.meta.url))],
         env: { PATH: process.env.PATH ?? '', WW_BASE_URL: (config.backend ?? backend).base, WW_API_TOKEN: (config.backend ?? backend).token,
           WW_SYNTHETIC_FIXTURE: (config.backend ?? backend).syntheticOnly === true ? '1' : '0' },
-        cacheToolsList: true, timeout: 10000, clientSessionTimeoutSeconds: 10,
+        cacheToolsList: true, timeout: config.timeoutMs??10000, clientSessionTimeoutSeconds: Math.ceil((config.timeoutMs??10000)/1000),
         toolFilter: (_context, tool) => config.admitted.includes(tool.name) });
       server.admittedToolNames = Object.freeze([...config.admitted]);
       servers.push(server);

@@ -1,0 +1,27 @@
+package com.wheelwright.evidence.v2;
+import com.fasterxml.jackson.databind.*;import com.wheelwright.evidence.db.SqliteEvidenceStore;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import java.nio.file.*;import java.util.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+/** Explicit engineer-only real provider verification. No application worker, SDK/model or original-store write.
+ * Financial state goes only to the provided private copy; permissions resolve LIVE from the original read-only store.
+ * The environment opt-in is an accident guard, never authority. Actual backend grants remain mandatory. */
+public final class RealTalkIntegrationVerification {
+ public static void main(String[] args){try{verify(args);}catch(Exception failure){System.out.println("{\"verification\":\"REAL_BACKEND_CANDIDATE\",\"completed\":false,\"failure\":\"VERIFICATION_UNAVAILABLE\"}");System.exit(1);}}
+ static void verify(String[] args)throws Exception{
+  if(args.length!=2||!"true".equals(System.getenv("WW_VERIFY_ACQUIRE")))throw new IllegalArgumentException();Path copy=Path.of(args[0]).toRealPath(),original=Path.of(args[1]).toRealPath();if(Files.isSameFile(copy,original)||!Files.getPosixFilePermissions(copy).equals(java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")))throw new IllegalArgumentException();
+  String token=Objects.requireNonNull(System.getenv("WW_API_TOKEN")),user=Objects.requireNonNull(System.getenv("WW_VERIFY_USER_ID")),account=Objects.requireNonNull(System.getenv("WW_VERIFY_ACCOUNT_ID"));var json=new ObjectMapper();
+  try(var store=new SqliteEvidenceStore(copy.toString())){
+   var accounts=new AccountDirectory(store,"");var selected=accounts.get(account).orElseThrow();if(!selected.alias().equals("tt1")||!selected.brokerAssociation().broker().equals("TASTYTRADE"))throw new IllegalArgumentException();
+   var auth=BearerAuthenticator.existingUser(new UserDirectory("jdbc:sqlite:file:"+original+"?mode=ro"),token,user);var principal=auth.authenticate("Bearer "+token).orElseThrow();if(!principal.hasGrant("account.positions.acquire:"+account)||!principal.hasGrant("account.artifacts.read:"+account))throw new IllegalArgumentException();
+   var client=new TastytradeClient(Objects.requireNonNull(System.getenv("TASTYTRADE_CLIENT_ID")),Objects.requireNonNull(System.getenv("TASTYTRADE_CLIENT_SECRET")),Objects.requireNonNull(System.getenv("TASTYTRADE_REFRESH_TOKEN")));var positions=new PositionReadService(store,json);var acquisition=new PositionAcquisition(store,accounts,positions,client);var artifacts=new BrokerageArtifacts(store,json,positions,accounts);var balances=new AccountBalanceObservations(store,artifacts,accounts);
+   var mvc=MockMvcBuilders.standaloneSetup(new PositionAcquisitionController(acquisition,accounts,auth,json),new AccountBalancesController(accounts,balances,auth,json)).build();
+   var response=mvc.perform(post("/v2/position-acquisitions?accountId="+account).header("Authorization","Bearer "+token)).andReturn().getResponse();var result=json.readTree(response.getContentAsString());var summary=json.createObjectNode().put("verification","REAL_BACKEND_CANDIDATE").put("backendRequestCompleted",response.getStatus()==200).put("brokerHoldingsAccepted",response.getStatus()==200&&result.path("status").asText().equals("ACCEPTED")).put("backendAcquisitionStatus",result.path("status").asText()).put("productionStoreWritten",false).put("grantsChanged",false).put("backgroundWorkers",false).put("modelRequests",0);
+   if(response.getStatus()==200&&result.path("status").asText().equals("ACCEPTED")){
+    try(var q=store.getConnection().prepareStatement("SELECT payload FROM brokerage_artifact WHERE account=? AND artifact_id=?")){q.setString(1,account);q.setString(2,result.path("artifactId").asText());try(var rows=q.executeQuery()){if(!rows.next())throw new IllegalStateException();var source=json.readTree(rows.getBytes(1));if(!source.at("/data/items").isArray())throw new IllegalStateException();var symbols=new TreeSet<String>();for(var holding:source.at("/data/items"))if(holding.path("instrument-type").asText().equals("Equity Option")&&new java.math.BigDecimal(holding.path("quantity").asText()).signum()!=0)symbols.add(holding.path("underlying-symbol").asText());summary.put("expectedQqqSpyUngInventory",symbols.equals(Set.of("QQQ","SPY","UNG"))).put("containsEarlierExpectedThree",symbols.containsAll(Set.of("QQQ","SPY","UNG"))).put("additionalNonzeroUnderlyings",!Set.of("QQQ","SPY","UNG").containsAll(symbols)).put("xlfAbsent",!symbols.contains("XLF"));}}
+   }
+   var report=mvc.perform(get("/v2/account-balance-observations?accountId="+account+"&selection=latest-source").header("Authorization","Bearer "+token)).andReturn().getResponse();var value=json.readTree(report.getContentAsString());String ref=value.at("/csv/href").asText();summary.put("balanceReadStatus",report.getStatus()).put("balanceRemainsCurrentnessUnverified",value.path("currentness").asText().equals("NOT_ESTABLISHED"));if(!ref.isEmpty()){var file=mvc.perform(get(java.net.URI.create(ref)).header("Authorization","Bearer "+token)).andReturn().getResponse();summary.put("realRetainedCsvStatus",file.getStatus()).put("realRetainedCsvFingerprint",BrokerageArtifacts.sha(file.getContentAsByteArray()).equals(value.at("/csv/sha256").asText()));}
+   System.out.println(json.writeValueAsString(summary));
+  }
+ }
+}

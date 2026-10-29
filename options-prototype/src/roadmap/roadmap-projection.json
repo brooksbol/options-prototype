@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-29T19:02:10.887Z",
+    "generatedAt": "2026-10-29T19:18:04.130Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11579,6 +11579,13 @@
           "content": "Principal reports three passes and one failed XLF drill-down among four exercised tests, plus a five-row empty analysis table and three-decimal USD values. This is narrower UX/functional acceptance, not financial Product acceptance. A controlled placeholder-only Markdown table reproduces the rendering defect; the original incident Markdown was not recovered. Empty tables are removed before rendering, empty analysis has no accordion, and an empty period report creates no empty typed table. Meaningful unavailable rows and actual zero values remain visible.",
           "truncated": true,
           "tables": []
+        },
+        {
+          "heading": "October29 tactical presentation independent falsification",
+          "level": 2,
+          "content": "Independent review rejected frozen tactical candidate e163a9cc: inverse-condor profitable tails could get a loss-region color, and null legacy exposure failed the compact schema. The [integration receipt](../reviews/sdk-talk-tactical-integration-2026-10-29.md#independent-implementation-falsification-and-bounded-correction) preserves failure/review and new bounded corrections. A maximum-plateau geometry qualification and ADVERSE_TAIL avoid claiming actual losses; unsupported color interpretation remains unavailable while geometry survives. Source/presentation acceptance remains separate. No installed fix or Principal acceptance is claimed.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -11680,6 +11687,13 @@
           "heading": "October29 acceptance follow-up — exact report evidence drill-down",
           "level": 2,
           "content": "Actual installed SDK reproduction requested `view=closed-trades` with `symbol=XLF`. The shared tool schema admitted the combination, while the adapter rejected it before a backend request and returned a generic failure. This was not a403, missing source record or pagination failure in the reproduced case. The existing Account transaction item API already supported exact source IDs; MCP had not exposed it.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "October29 independent financial/tactical integration follow-up",
+          "level": 2,
+          "content": "Independent source-original review qualifies the three TT1 closed round trips and independently accepts the quantity-scale comparison correction at `77810b0b`; it does not certify complete monthly performance. Candidate tactical integration recovers the existing Java recognition/economic pipeline behind a compact Position representation. Installed Orders/Account-market grants and read-through remain disabled; zero retained Order resources explain why source-backed multi-leg monitoring cannot yet reach tt-live parity. No broad grant or automatic acquisition is inferred. See the [new scoped receipt](../reviews/sdk-talk-tactical-integration-2026-10-29.md) and [single maintained two-axis matrix](../implementation/pl-mcp-01-capability-presentation-matrix.md). This remains Open; candidate tests are not installed/Principal acceptance.",
           "truncated": true,
           "tables": []
         }

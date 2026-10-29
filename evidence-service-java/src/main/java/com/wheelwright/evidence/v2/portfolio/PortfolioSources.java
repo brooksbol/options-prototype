@@ -16,9 +16,14 @@ import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
 @Component
 public final class PortfolioSources {
  private final PortfolioRepository repository;private final ObjectMapper mapper;private final AccountDirectory accounts;private final byte[] catalogBytes;private final JsonNode catalog;
- public PortfolioSources(PortfolioRepository repository,ObjectMapper mapper,AccountDirectory accounts){this.repository=repository;this.mapper=mapper;this.accounts=accounts;
-  try(var stream=getClass().getResourceAsStream("/portfolio/construction-models.json")){if(stream==null)throw new IllegalStateException("Model catalog absent");catalogBytes=stream.readAllBytes();catalog=mapper.readTree(catalogBytes);}catch(java.io.IOException e){throw new IllegalStateException("Model catalog unreadable",e);}
+ @org.springframework.beans.factory.annotation.Autowired
+ public PortfolioSources(PortfolioRepository repository,ObjectMapper mapper,AccountDirectory accounts){this(repository,mapper,accounts,loadCatalog());}
+ /** Explicit immutable catalog input permits version-transition verification without changing installed resources. */
+ public PortfolioSources(PortfolioRepository repository,ObjectMapper mapper,AccountDirectory accounts,byte[] bytes){
+  this.repository=repository;this.mapper=mapper;this.accounts=accounts;catalogBytes=bytes.clone();
+  try{catalog=mapper.readTree(catalogBytes);if(!catalog.path("families").isArray()||!catalog.path("versions").isArray())throw new IllegalArgumentException("Invalid model catalog");}catch(java.io.IOException e){throw new IllegalStateException("Model catalog unreadable",e);}
  }
+ private static byte[] loadCatalog(){try(var stream=PortfolioSources.class.getResourceAsStream("/portfolio/construction-models.json")){if(stream==null)throw new IllegalStateException("Model catalog absent");return stream.readAllBytes();}catch(java.io.IOException e){throw new IllegalStateException("Model catalog unreadable",e);}}
  public synchronized void refresh(Set<String> scope)throws Exception {
   try(var c=repository.connection()){
    c.setAutoCommit(false);
@@ -53,6 +58,7 @@ public final class PortfolioSources {
   * The same transaction reads the inputs and records the completed interpretation marker. */
  private String sourceRevision(java.sql.Connection connection,String account)throws Exception {
   var digest=java.security.MessageDigest.getInstance("SHA-256");
+  digest.update(java.nio.ByteBuffer.allocate(4).putInt(catalogBytes.length).array());digest.update(catalogBytes);
   for(String sql:List.of(
    "SELECT snapshot_id FROM account_position_snapshot WHERE account=? ORDER BY snapshot_id",
    "SELECT import_id,artifact_id,file_type,status,result,original_filename FROM brokerage_import WHERE account=? AND file_type NOT IN ('API_MARKET_DATA','API_MARKET_SESSION') ORDER BY import_id",

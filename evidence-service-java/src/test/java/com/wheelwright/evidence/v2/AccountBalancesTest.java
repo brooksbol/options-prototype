@@ -123,6 +123,7 @@ class AccountBalancesTest {
   try(var f=new Fixture()) {
    retain(f.store,f.fid,"Name,Balance,Day change\nAvailable without margin impact,\"$1,800.25\",0\nMargin debit,\"$2,100.75\",0\nCash reserved for options strategies,\"$23,000.00\",0\nSettled cash,$40.50,0\n\nDate downloaded 10/19/2026 4:00 PM ET\n","BALANCES","Balances_for_Account_SYNTHETIC01.csv");
    var r=f.mvc.perform(get("/v2/account-balance-observations").param("accountId",f.fid).param("selection","latest-source").header("Authorization","Bearer reader")).andReturn().getResponse();assertThat(r.getStatus()).isEqualTo(200);assertThat(r.getContentAsString()).contains("$1,800.25","SELECTED");assertThat(r.getContentAsString().length()).isLessThan(8192);
+   java.nio.file.Files.createDirectories(Path.of("build/reports/balances"));
    java.nio.file.Files.writeString(Path.of("build/reports/balances/latest-fidelity.json"),r.getContentAsString());
    for(String query:List.of("&selection=wrong","&selection=latest-source&sourceAtOrAfter=bad","&selection=latest-source&artifactId="+UUID.randomUUID()))
     assertThat(f.mvc.perform(get("/v2/account-balance-observations?accountId="+f.fid+query).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(422);
