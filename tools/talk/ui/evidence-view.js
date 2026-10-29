@@ -28,7 +28,7 @@ export function evidenceView(raw) {
     qualifications.push('Authorized visibility; not proof of ownership or complete brokerage coverage.');
   }
   if (value.outcome) add('Read outcome', value.outcome);
-  if (value.code) { add('Problem', value.code); add('Status', value.status); }
+  if (value.code) { if(value.subject?.account)add('Account',value.subject.account); add('Problem', value.code); add('Status', value.status); }
   const source = value.evidence?.source ?? value.evidence;
   if (source?.subject) {
     add('Subject', source.subject.symbol); add('Instrument type', source.subject.securityType);

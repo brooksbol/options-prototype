@@ -70,8 +70,8 @@ $('composer').addEventListener('submit', async event => {
         const period=document.createElement('p');period.textContent=`${source.period} · ${source.metric}`;card.append(period);
         const totals=document.createElement('dl');totals.className='trade-totals';
         for(const [label,value,outcome]of source.totals){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dd.className=outcome==='WIN'?'trade-gain':outcome==='LOSS'?'trade-loss':'';totals.append(dt,dd);}card.append(totals);
-        const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');for(const label of ['Trade','Closed','Net P/L']){const th=document.createElement('th');th.textContent=label;tr.append(th);}head.append(tr);table.append(head);
-        const body=document.createElement('tbody');for(const r of source.rows){const row=document.createElement('tr');for(const value of [r.label,r.closed,r.pnl]){const td=document.createElement('td');td.textContent=value;row.append(td);}row.children[2].className=r.outcome==='WIN'?'trade-gain':r.outcome==='LOSS'?'trade-loss':'';body.append(row);}table.append(body);card.append(table);
+        if(source.rows.length) { const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');for(const label of ['Trade','Closed','Net P/L']){const th=document.createElement('th');th.textContent=label;tr.append(th);}head.append(tr);table.append(head);
+        const body=document.createElement('tbody');for(const r of source.rows){const row=document.createElement('tr');for(const value of [r.label,r.closed,r.pnl]){const td=document.createElement('td');td.textContent=value;row.append(td);}row.children[2].className=r.outcome==='WIN'?'trade-gain':r.outcome==='LOSS'?'trade-loss':'';body.append(row);}table.append(body);card.append(table); }
         const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Trade details and evidence';details.append(summary);let loaded=false;details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const dl=document.createElement('dl');for(const [label,value]of source.details){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}details.append(dl);}});card.append(details);
         article.insertBefore(card,article.querySelector('.text'));
       } else if(view.executionSummary) {
@@ -136,7 +136,8 @@ $('composer').addEventListener('submit', async event => {
         const summary = document.createElement('summary');
         const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_option_inventory:'Option inventory sources',inspect_account_positions:'Position sources',inspect_account_transactions:'Transaction sources',inspect_market_quotes:'Quote sources'};
         const outcome = view.rows.find(([key]) => key === 'Read outcome' || key === 'Problem');
-        summary.textContent = `${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
+        const accountScope=view.rows.find(([key])=>key==='Account')?.[1];
+        summary.textContent = `${accountScope ? accountScope+' · ' : ''}${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
         details.append(summary);
         const access = view.rows.filter(([key]) => key.endsWith(' access'));
         if (access.length) {

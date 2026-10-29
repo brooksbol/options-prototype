@@ -16,7 +16,7 @@ export async function inspectTransactions({account,symbol,from,through,limit=10,
  if(view!=='transactions'){query.set('view',view);if(timeZone!==undefined)query.set('timeZone',timeZone);}else query.set('order',order);
  for(const [key,value] of Object.entries({symbol,from,through,cursor}))if(value!==undefined)query.set(key,value);
  const response=await readBackend('/v2/accounts/'+selected.id+'/transactions?'+query,{...config,timeoutMs:mode==='policy'?15000:5000});
- if(response.error)return problemResult(response.error);
+ if(response.error)return problemResult(response.error,{account:selected.alias});
  const data=response.data;
  if(data?.requestId!==response.requestId||data.accountId!==selected.id||data.queryMode!==(mode==='policy'?'POLICY':'RETAINED_ONLY')||(view!=='transactions'?data.view!==view||data.period?.from!==from||data.period?.through!==through||data.period?.timeZone!==timeZone||!Array.isArray(view==='closed-trades'?data.trades:data.groups)||(view==='closed-trades'?data.trades:data.groups).length>limit:!Array.isArray(data.transactions)||data.transactions.length>limit||data.transactions.some(r=>r.accountId!==selected.id||symbol!==undefined&&r.symbol!==symbol))||typeof data.pageComplete!=='boolean'||!data.pageComplete&&typeof data.nextCursor!=='string')throw new Error('Invalid retained transaction scope.');
  return {content:[{type:'text',text:JSON.stringify({requestId:response.requestId,...(config.syntheticFixture?{dataClassification:'SYNTHETIC_FIXTURE'}:{}),account:{nickname:selected.alias,broker:selected.brokerAssociation?.broker},evidence:{[view==='closed-trades'?'closedTrades':view==='execution-groups'?'executions':'transactions']:data}})}]};
@@ -33,7 +33,7 @@ export async function inspectTransactionDetails({account,transactionIds},config)
  const deadline=Date.now()+15000;
  for(const id of transactionIds){
   const remaining=deadline-Date.now();if(remaining<=0)throw new Error('Transaction detail deadline exceeded.');
-  const response=await readBackend('/v2/accounts/'+selected.id+'/transactions/'+id,{...config,timeoutMs:remaining});if(response.error)return problemResult(response.error);
+  const response=await readBackend('/v2/accounts/'+selected.id+'/transactions/'+id,{...config,timeoutMs:remaining});if(response.error)return problemResult(response.error,{account:selected.alias});
   const data=response.data;if(data?.requestId!==response.requestId||data.accountId!==selected.id||data.transaction?.accountId!==selected.id||data.transaction.transactionId!==id||Object.hasOwn(data,'transactions'))throw new Error('Invalid transaction item scope.');
   records.push({requestId:data.requestId,checkedAt:data.checkedAt,freshness:data.freshness,acquisitionOutcome:data.acquisitionOutcome,transaction:data.transaction});
  }

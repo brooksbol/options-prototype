@@ -110,8 +110,8 @@ test('closed trades show outcomes and totals; matching, fees and analysis requir
  globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,createTextNode:text=>({textContent:text})};
  const pnl={status:'QUALIFIED_ESTIMATED_FEES',value:'7.25',currency:'USD',outcome:'WIN'};
  const raw=JSON.stringify({account:{nickname:'fixture'},evidence:{closedTrades:{view:'closed-trades',period:{from:'2026-10-01',through:'2026-10-29',timeZone:'America/Denver'},metric:'MATCHING-CANARY',qualification:'FEE-QUALIFICATION-CANARY',totals:{netPnl:pnl,winners:1,losers:0},trades:[{label:'ABC',closingExecutedAt:'2026-10-29T13:30:04Z',netPnl:pnl,openingTransactions:['PRIVATE-SOURCE-CANARY'],closingTransactions:[],qualifications:['DETAIL-CANARY']}]}}});
- let responseText='Analysis qualification.';
- globalThis.fetch=async(_path,opts)=>new Response(JSON.stringify(opts?{text:responseText,tools:[{name:'inspect_account_transactions',result:JSON.stringify({type:'text',text:raw})}]}:{csrf:'fixture',profile:'Synthetic retained evidence',tools:[]}));
+ let responseText='Analysis qualification.',toolRaw=raw;
+ globalThis.fetch=async(_path,opts)=>new Response(JSON.stringify(opts?{text:responseText,tools:[{name:'inspect_account_transactions',result:JSON.stringify({type:'text',text:toolRaw})}]}:{csrf:'fixture',profile:'Synthetic retained evidence',tools:[]}));
  try{
   await import('../ui/app.js?closed-report');elements.get('message').value='Show closed trades';await elements.get('composer').listeners.submit({preventDefault(){}});
   const card=created.find(e=>e.className==='closed-trade-card');assert.ok(card);
@@ -124,5 +124,6 @@ test('closed trades show outcomes and totals; matching, fees and analysis requir
   assert.equal(created.filter(e=>e.tag==='pre').length,0);
   created.length=0;responseText='| Trade | P/L |\n|---|---|\n| | |\n| | |\n| | |\n| | |\n| | |';elements.get('message').value='Repeat report';await elements.get('composer').listeners.submit({preventDefault(){}});
   assert.ok(!created.some(e=>e.tag==='summary'&&e.textContent==='Talk’s analysis'));assert.equal(created.filter(e=>e.tag==='table').length,1);
+  const empty=JSON.parse(raw);empty.evidence.closedTrades.trades=[];empty.evidence.closedTrades.totals={netPnl:{value:null},winners:null,losers:null};toolRaw=JSON.stringify(empty);responseText='P/L unavailable.';created.length=0;elements.get('message').value='Previous period';await elements.get('composer').listeners.submit({preventDefault(){}});assert.equal(created.filter(e=>e.tag==='table').length,0);
  }finally{delete globalThis.document;globalThis.fetch=priorFetch;}
 });

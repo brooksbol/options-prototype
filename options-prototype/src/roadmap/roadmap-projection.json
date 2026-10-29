@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-29T15:16:41.849Z",
+    "generatedAt": "2026-10-29T16:43:36.362Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11558,6 +11558,13 @@
           "content": "Principal: **“no disclaimer noise. hide any of that under accordion links”**, following the closed-trades report requirement **“with totals.”** The report renders backend trade outcomes, net total and winners/losers first. Matching, estimated-fee details, source identifiers, coverage and Talk analysis use closed accordions. The exact metric label retains `Estimated net P/L` when source fee finality is not established. Workspace access/privacy text and balance/inventory qualifications are also deliberate disclosures. Unknown values remain dashes; presentation never manufactures a result. UI regression tests verify closed-by-default disclosures and lazy source creation. See the October29 receipt linked from BUG-053.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "October29 acceptance follow-up — empty analysis and currency precision",
+          "level": 2,
+          "content": "Principal reports three passes and one failed XLF drill-down among four exercised tests, plus a five-row empty analysis table and three-decimal USD values. This is narrower UX/functional acceptance, not financial Product acceptance. A controlled placeholder-only Markdown table reproduces the rendering defect; the original incident Markdown was not recovered. Empty tables are removed before rendering, empty analysis has no accordion, and an empty period report creates no empty typed table. Meaningful unavailable rows and actual zero values remain visible.",
+          "truncated": true,
+          "tables": []
         }
       ]
     },
@@ -11652,6 +11659,13 @@
           "heading": "Subsequent production falsification — October 29",
           "level": 2,
           "content": "Principal reported transaction coverage stopping October15 despite later broker executions. The prior MCP adapter forced `mode=retained`, preventing the existing authorized backend read-through from being used. Existing retained last-success check was October19; last transaction date October15 was not a verified coverage endpoint. An authorized existing backend refresh acquired32 source records through October29 and recovered all four independently reported execution specimens. No new brokerage client, grants, background polling or email ingestion was needed.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "October29 acceptance follow-up — exact report evidence drill-down",
+          "level": 2,
+          "content": "Actual installed SDK reproduction requested `view=closed-trades` with `symbol=XLF`. The shared tool schema admitted the combination, while the adapter rejected it before a backend request and returned a generic failure. This was not a403, missing source record or pagination failure in the reproduced case. The existing Account transaction item API already supported exact source IDs; MCP had not exposed it.",
           "truncated": true,
           "tables": []
         }

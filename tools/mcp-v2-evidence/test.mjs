@@ -168,7 +168,7 @@ test('exact transaction detail composition uses item routes and rejects foreign 
  const r=await inspectTransactionDetails({account:'fixture',transactionIds:[id,other]},{...config,fetchImpl});assert.equal(JSON.parse(r.content[0].text).evidence.transactionDetails.length,2);assert.deepEqual(paths,['/v2/accounts','/v2/accounts/'+accountId+'/transactions/'+id,'/v2/accounts/'+accountId+'/transactions/'+other]);
  await assert.rejects(inspectTransactionDetails({account:'fixture',transactionIds:[id,id]},{...config,fetchImpl}));
  await assert.rejects(inspectTransactionDetails({account:'fixture',transactionIds:[id]},{...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id:accountId,alias:'fixture'}]}:{requestId,accountId,transaction:{accountId:'acct_'+'b'.repeat(32),transactionId:id}}))}),/scope/);
- const denied=await inspectTransactionDetails({account:'fixture',transactionIds:[id]},{...config,fetchImpl:async url=>url.pathname==='/v2/accounts'?response(JSON.stringify({requestId,accounts:[{id:accountId,alias:'fixture'}]})):response(JSON.stringify({requestId,status:403,code:'FORBIDDEN',title:'Forbidden'}),403)});assert.equal(denied.isError,true);
+ const denied=await inspectTransactionDetails({account:'fixture',transactionIds:[id]},{...config,fetchImpl:async url=>url.pathname==='/v2/accounts'?response(JSON.stringify({requestId,accounts:[{id:accountId,alias:'fixture'}]})):response(JSON.stringify({requestId,status:403,code:'FORBIDDEN',title:'Forbidden'}),403)});assert.equal(denied.isError,true);assert.equal(JSON.parse(denied.content[0].text).subject.account,'fixture');
 });
 
 test('unsupported period symbol combinations return actionable correction instead of a generic read failure',async()=>{
