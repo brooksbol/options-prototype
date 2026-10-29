@@ -38,6 +38,14 @@ Read fresh fields from the supplied ZIP rather than baking in example amounts. P
 
 Use `ww export tt1-cadence` as the ordinary operator workflow (saved in `~/Downloads`). Do not initiate brokerage actions.
 
+## Future Wheelwright Talk direction — Principal intent (2026-10-29)
+
+The Principal states: **"this will eventually be something that becomes the new normal in ww talk."**
+
+This accepted TT1 Positions presentation is a **working operator-facing precedent** for a future default Wheelwright Talk portfolio/position response: concise capital allocation visualization, one integrated performance table, and no redundant generic reports. Recover and reuse this precedent during Talk Product discovery and design rather than re-deriving the operator experience from scratch.
+
+**Standing:** Principal-stated future direction, **not** an authorization or accepted design to implement Talk integration now. The current working delivery is the ChatGPT daily ZIP report. Future Talk work must independently reconcile Product authority, intended scope, evidence/data paths, and implementation gates. Do not modify Talk or API v2 as part of this documentation capture.
+
 ## Example only — 2026-10-29 historical snapshot, not current data
 
 Available BP $2,994.17; deployed BP $2,237.00; 42.8% deployed / 57.2% available.
