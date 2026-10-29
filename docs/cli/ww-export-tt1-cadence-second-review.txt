@@ -1,0 +1,15 @@
+REJECT — corrected candidate `feb98baf11b52a095994bcbd0407f1d42aa35c18`.
+
+- **P2 remains incompletely fixed:** [ww-export-tt1.mjs:145](/Users/bollich/kiro/options-candidates/tt1-cadence-export-20261029/scripts/ww-export-tt1.mjs:145) counts any non-null balance value as usable evidence. Synthetic reproduction through the actual broker adapter: discovery succeeds; snapshot, retained balances, inventory, positions and orders fail; balances returns only `{"derivative-buying-power":"UNAVAILABLE"}`. Publication is reached despite unavailable financial amounts and zero holdings/contracts. Publication was intercepted in memory; no ZIP was written.
+- **P1 fixed:** empty holdings still retrieve ordinary and complex working orders, including multiple pages. Denials remain explicit.
+- The original P2 failure-wrapper reproduction now stops correctly. Valid empty inventory/order evidence remains publishable.
+
+Eight selected synthetic tests passed, plus independent in-memory probes. No scope, privacy, forbidden acquisition/write, v2-change or atomic-publication regression identified. Original rejection history remains preserved.
+
+No provider contact, private-data reads or mutation performed. Actual filesystem publication and installed behavior were not exercised; remote synchronization remains unverified.
+
+CURRENT STATE: Corrected candidate REJECTED.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

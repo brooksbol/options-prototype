@@ -137,3 +137,26 @@ test('review P2: successful discovery plus empty failure envelopes is total evid
   assert.deepEqual(await readdir(dir),[]);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
+
+test('usable source-fact contract rejects malformed/invalid-only observations but accepts qualified empty custody/orders and actual zero balances',async()=>{
+ const {hasFinancialEvidence,observedNumber}=await import('./ww-export-tt1.mjs');
+ for(const value of [null,undefined,'','UNAVAILABLE','NaN','Infinity','1e999',Infinity,NaN,true,{},[]]){
+  assert.equal(observedNumber(value),null);
+  assert.equal(hasFinancialEvidence({broker:{reads:[{path:'/accounts/tt1/balances',body:{data:{'derivative-buying-power':value}}}]}}),false);
+  assert.equal(hasFinancialEvidence({retained:{observations:[{fields:[{status:'REPORTED',value}]}]}}),false);
+ }
+ for(const value of [0,'0','-12.34','1e3'])assert.equal(hasFinancialEvidence({broker:{reads:[{path:'/accounts/tt1/balances',body:{data:{'cash-balance':value}}}]}}),true);
+ assert.equal(hasFinancialEvidence({broker:{reads:[{path:'/accounts/tt1/orders',body:{data:{items:[]}}}],orderCoverage:{orders:'INCOMPLETE'}}}),false);
+ assert.equal(hasFinancialEvidence({broker:{reads:[{path:'/accounts/tt1/orders',body:{data:{items:[]}}}],orderCoverage:{orders:'COMPLETE'}}}),true);
+ assert.equal(hasFinancialEvidence({broker:{reads:[{path:'/accounts/tt1/positions',body:{data:{items:[{symbol:'SPY',quantity:'UNAVAILABLE','quantity-direction':'Long'}]}}}]}}),false);
+ assert.equal(hasFinancialEvidence({inventory:{accounts:[{readComplete:true,options:[]}]}}),true);
+});
+test('review P2 invalid-only balance response cannot publish when every other financial source fails',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'tt1-invalid-balance-'));
+ try{
+  const fixture=httpFixture(),real=fixture.fetchImpl;
+  fixture.fetchImpl=async(u,o)=>new URL(u).pathname==='/v2/accounts'?real(u,o):new Response('{}',{status:503});
+  await assert.rejects(exportCadence({base:'http://localhost:9999',token:'fake',now,downloads:dir,fetchImpl:fixture.fetchImpl,brokerRead:async()=>({reads:[{path:'/accounts/tt1/balances',body:{data:{'derivative-buying-power':'UNAVAILABLE'}}}],failures:[{source:'broker',code:'READ_UNAVAILABLE'}],projection:null})}),/No usable evidence/);
+  assert.deepEqual(await readdir(dir),[]);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});

@@ -24,6 +24,29 @@ No setup flags, secrets, raw dumps or logs are written into Downloads.`;
 export const FILTER=Object.freeze({minDte:38,maxDte:45,optionType:'puts',minAbsDelta:.2,maxAbsDelta:.3});
 export const SYMBOLS=Object.freeze('IWM TLT SPY XLE XLF EWZ EEM HYG GDX SLV GLD QQQ USO IBIT'.split(' '));
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
+// Usability is a source-fact contract, independent of transport wrapper existence.
+export function observedNumber(value){
+ if(finite(value))return value;
+ if(typeof value!=='string'||!/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(value))return null;
+ const parsed=Number(value);return Number.isFinite(parsed)?parsed:null;
+}
+export function hasFinancialEvidence({snapshot,broker,retained,inventory}){
+ if(snapshot)return true; // snapshot shape/geometry is validated before publication.
+ const brokerFact=broker?.reads?.some(r=>{
+  const items=r.body?.data?.items;
+  if(r.path.endsWith('/positions'))return Array.isArray(items)&&items.every(h=>
+   typeof h?.symbol==='string'&&h.symbol.length>0&&observedNumber(h.quantity)!==null&&['Long','Short'].includes(h['quantity-direction']));
+  if(/\/(?:orders|complex-orders)$/.test(r.path))return Array.isArray(items)&&
+   (items.length>0?items.every(o=>typeof o?.id==='string'&&o.id.length>0||finite(o?.id)):
+    broker.orderCoverage?.[r.path.split('/').at(-1)]==='COMPLETE');
+  if(r.path.endsWith('/balances'))return ['derivative-buying-power','cash-balance','net-liquidating-value'].some(k=>observedNumber(r.body?.data?.[k])!==null);
+  return false;
+ });
+ const retainedFact=retained?.observations?.some(o=>o.fields?.some(f=>f.status==='REPORTED'&&observedNumber(f.value)!==null));
+ const inventoryFact=inventory?.accounts?.some(a=>a.readComplete===true&&Array.isArray(a.options)&&a.options.every(o=>
+  typeof o?.sourceIdentifier==='string'&&observedNumber(o.quantity)!==null));
+ return Boolean(brokerFact||retainedFact||inventoryFact);
+}
 const json=x=>JSON.stringify(x,(_,v)=>typeof v==='number'&&!Number.isFinite(v)?null:v,2)+'\n';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 export const nyDate=at=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(at);
@@ -67,7 +90,7 @@ export function buildMarket(snapshot,context,at){
    const data=chain.data;if(data?.symbol!==symbol||data.expiration!==chain.expiration||!Array.isArray(data.puts))throw Error('Mismatched or malformed retained chain; no package written');
    const exp=chain.expiration;const acquired=chain.chainAcquisitionProvenance?.kind==='chain-acquired'?chain.chainAcquisitionProvenance.acquiredAt:null;
    const clock=typeof acquired==='string'?Date.parse(acquired):NaN;
-   const source={system:'Wheelwright v1 normalized Tradier chain',generation:snapshot.generation,chainAcquiredAt:acquired,chainAcquisitionAgeSeconds:Number.isFinite(clock)?(at.getTime()-clock)/1000:null,marketQuoteObservedAt:null,underlyingSpotObservedAt:null,underlyingSpot:data.underlying?.price??null,environment:chain.environmentProvenance??null,backendAdmissibility:chain.admissibility??null,greeksTimeQualification:'provider-local zone-unspecified string; never converted to UTC'};
+   const source={system:'Wheelwright v1 normalized Tradier chain',generation:snapshot.generation,chainAcquiredAt:acquired,acquisitionAgeEvaluatedAt:at.toISOString(),chainAcquisitionAgeSeconds:Number.isFinite(clock)?(at.getTime()-clock)/1000:null,marketQuoteObservedAt:null,underlyingSpotObservedAt:null,underlyingSpot:data.underlying?.price??null,environment:chain.environmentProvenance??null,backendAdmissibility:chain.admissibility??null,greeksTimeQualification:'provider-local zone-unspecified string; never converted to UTC'};
    // Same cent-strike deduplication (last wins) as the accepted v1 width discovery.
    const byStrike=new Map();for(const c of data.puts){if(finite(c.strike)&&c.strike>0)byStrike.set(Math.round(c.strike*100),c);}
    const puts=[...byStrike.values()].sort((a,b)=>a.strike-b.strike);
@@ -121,7 +144,7 @@ export async function boundedJson(url,{fetchImpl=fetch,headers={},max=128*1024*1
 const sanitize=value=>Array.isArray(value)?value.map(sanitize):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).filter(([k])=>!/(?:access.?token|refresh.?token|client.?secret|authorization|password)/i.test(k)).map(([k,v])=>[k,/account.?number/i.test(k)?'MASKED':sanitize(v)])):value;
 export function balanceEvidence(broker,retained,context){
  const response=broker?.reads?.find(r=>r.path.endsWith('/balances'));const data=response?.body?.data;
- const amount=v=>typeof v==='number'&&Number.isFinite(v)?v:typeof v==='string'&&/^-?\d+(?:\.\d+)?$/.test(v)?Number(v):null;
+ const amount=observedNumber;
  const sourceAt=typeof data?.['updated-at']==='string'&&Number.isFinite(Date.parse(data['updated-at']))?data['updated-at']:null;
  const bp=amount(data?.['derivative-buying-power']),nlv=amount(data?.['net-liquidating-value']);
  return {brokerResponse:response??null,availableOptionsBuyingPower:bp,netLiquidatingValue:nlv,observedAt:sourceAt,retrievedAt:response?.retrievedAt??null,currentBpEstablished:bp!==null&&sourceAt!==null&&nyDate(new Date(sourceAt))===context.newYorkCalendarDate&&Date.parse(sourceAt)<=Date.parse(response.retrievedAt),currentness:response?'BROKER_CURRENT_BALANCE_ENDPOINT_RESPONSE_NOT_ATOMIC_WITH_OTHER_READS':'NOT_ESTABLISHED',qualification:response?'Direct broker response; use its updated-at as-of. No guarantee of post-read orderability, reservation stability or atomic alignment with positions. Never subtract committed BP again.':'No current balance inferred from retained observations.',retainedObservations:retained?.body??null};
@@ -140,13 +163,11 @@ export async function exportCadence({base,token,now=new Date(),downloads=join(ho
   const expected=account.body.brokerAssociation?.accountNumber??account.body.brokerAssociation?.maskedAccountNumber??account.body.maskedAccountNumber;
   broker=await attempt('standalone tt broker GETs',async()=>({body:brokerRead?await brokerRead(expected):JSON.parse(await child(process.execPath,[fileURLToPath(new URL('./tt-cadence-evidence.mjs',import.meta.url))],JSON.stringify({expectedAccount:expected,allowSingleAccount:account.body.brokerAssociation?.broker==='TASTYTRADE'})))}));
  }
- const brokerFacts=broker?.body?.reads?.some(r=>
-  /\/(?:positions|orders|complex-orders)$/.test(r.path)&&Array.isArray(r.body?.data?.items)||
-  r.path.endsWith('/balances')&&['derivative-buying-power','cash-balance','net-liquidating-value'].some(k=>r.body?.data?.[k]!=null));
- const retainedFacts=Array.isArray(retained?.body?.observations)&&retained.body.observations.length>0;
- const inventoryFacts=inventory?.body?.accounts?.some(a=>a.readComplete===true&&Array.isArray(a.options));
- if(!snapshot&&!brokerFacts&&!retainedFacts&&!inventoryFacts)throw Error('No usable evidence retrieved; no package written');
- const market=snapshot?buildMarket(snapshot.body,context,now):{schema:'tt1-cadence-market/v1',...context,coverage:[],contracts:[],verticalPairs:[],backendDteMismatches:0,status:'NOT_AVAILABLE',parameters:{...FILTER,symbols:SYMBOLS}};
+ if(!hasFinancialEvidence({snapshot,broker:broker?.body,retained:retained?.body,inventory:inventory?.body}))throw Error('No usable evidence retrieved; no package written');
+ // Acquisition can finish after export starts; never mislabel that interval as
+ // a future quote. Age is evaluated at snapshot receipt (or later injected now).
+ const evaluatedAt=new Date(Math.max(now.getTime(),Date.parse(snapshot?.retrievedAt??'')||0));
+ const market=snapshot?buildMarket(snapshot.body,context,evaluatedAt):{schema:'tt1-cadence-market/v1',...context,coverage:[],contracts:[],verticalPairs:[],backendDteMismatches:0,status:'NOT_AVAILABLE',parameters:{...FILTER,symbols:SYMBOLS}};
  validateMarket(market);
  const liquidity=buildSymbolLiquidity(snapshot?.body.symbols??[],FILTER);
  // Same default ascending median-spread sort; stable ties and missing-last as v1.
@@ -163,7 +184,7 @@ export async function exportCadence({base,token,now=new Date(),downloads=join(ho
  failures.push(...(brokerBody?.failures??[]));
  const counts={contracts:market.contracts.length,verticalPairs:market.verticalPairs.length,positiveNaturalPairs:market.verticalPairs.filter(p=>!p.exclusions.length).length,excludedPairs:market.verticalPairs.filter(p=>p.exclusions.length).length,liquiditySymbols:liquidity.rows.length,positions:derived.length,recognizedPositions:derived.filter(p=>p.status==='recognized').length,heldLegs:brokerBody?.reads?.filter(r=>r.path.endsWith('/positions')).flatMap(r=>r.body?.data?.items??[]).length??0};
  const clocks=market.coverage.flatMap(c=>(c.observedExpirations??[]).map(e=>e.source));
- const coverage={schema:'tt1-cadence-coverage/v1',...context,exportedAt:now.toISOString(),evidenceReadiness:'PARTIAL',collectionCompletion:failures.length?'PARTIAL':'COMPLETE',missing,failures,sources,counts,currentBpEstablished:balances.currentBpEstablished,marketCoverage:market.coverage,chainClocks:clocks,ageBasis:'Export captured instant minus publisher-established chain acquisition time; source quote clock unavailable. Backend admissibility is preserved without overriding it.',csvReconciliation:{calculation:'accepted v1 buildSymbolLiquidity',schema:'shared symbolLiquidityColumns/buildCsv used by browser',snapshotGeneration:snapshot?.body.generation??null,filter:FILTER,scope:'all snapshot symbols, no UI symbol/measured-only narrowing, default medianSpreadPercent ascending sort',backendDteMismatches:market.backendDteMismatches},freshness:{market:'Per-chain acquisition clocks and backend admissibility; no assertion all quotes are current',broker:brokerBody?.reads?.map(r=>({path:r.path,retrievedAt:r.retrievedAt}))??[],balances:{observedAt:balances.observedAt,retrievedAt:balances.retrievedAt,currentBpEstablished:balances.currentBpEstablished},nonAtomic:true},validation:{marketGeometryCreditsAndPayoff:'PASS',exhaustiveRetainedLongPairs:'PASS',noFixedWidthLimit:true,liquiditySharedPath:true,missingQuotesNotZeroed:true,brokerMutationRequests:0,refreshSyncForceRequests:0},limitations:['No independent down-stream restoration of source-missing v1 OI/volume','No joint correlation/risk score or trade selection','Positive natural credit is not a liquidity or admissibility recommendation','Read completion and decision readiness are different states']};
+ const coverage={schema:'tt1-cadence-coverage/v1',...context,exportedAt:now.toISOString(),evidenceReadiness:'PARTIAL',collectionCompletion:failures.length?'PARTIAL':'COMPLETE',missing,failures,sources,counts,currentBpEstablished:balances.currentBpEstablished,marketCoverage:market.coverage,chainClocks:clocks,ageBasis:'Snapshot receipt instant minus publisher-established chain acquisition time; source quote clock unavailable. Backend admissibility is preserved without overriding it.',csvReconciliation:{calculation:'accepted v1 buildSymbolLiquidity',schema:'shared symbolLiquidityColumns/buildCsv used by browser',snapshotGeneration:snapshot?.body.generation??null,filter:FILTER,scope:'all snapshot symbols, no UI symbol/measured-only narrowing, default medianSpreadPercent ascending sort',backendDteMismatches:market.backendDteMismatches},freshness:{market:'Per-chain acquisition clocks and backend admissibility; no assertion all quotes are current',broker:brokerBody?.reads?.map(r=>({path:r.path,retrievedAt:r.retrievedAt}))??[],balances:{observedAt:balances.observedAt,retrievedAt:balances.retrievedAt,currentBpEstablished:balances.currentBpEstablished},nonAtomic:true},validation:{marketGeometryCreditsAndPayoff:'PASS',exhaustiveRetainedLongPairs:'PASS',noFixedWidthLimit:true,liquiditySharedPath:true,missingQuotesNotZeroed:true,brokerMutationRequests:0,refreshSyncForceRequests:0},limitations:['No independent down-stream restoration of source-missing v1 OI/volume','No joint correlation/risk score or trade selection','Positive natural credit is not a liquidity or admissibility recommendation','Read completion and decision readiness are different states']};
  const files={'market-and-verticals.json':json(market),'tt1-account-positions-orders.json':json(sanitize(accountData)),'evidence-coverage.json':json(coverage),'symbol-liquidity.csv':csv,'README.md':README};
  for(const content of Object.values(files))if(token&&content.includes(token))throw Error('Credential exclusion failed; no package written');
  let revision=sourceRevision;if(!revision)try{revision=(await readFile(new URL('../.tt1-export-revision',import.meta.url),'utf8')).trim();}catch{revision='WORKTREE_UNRELEASED';}
