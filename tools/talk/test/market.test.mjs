@@ -66,6 +66,10 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.equal(monitorSchema.additionalProperties,false);
   const expanded = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor', projection:'expanded',includeInactive:true });
   assert.equal(expanded.isError,true);
+  const beforeEmpty=(await backend.reads()).length;
+  const emptyCursor=await servers[0].callToolResult('inspect_account_positions',{account:'harbor',cursor:''});
+  assert.equal(emptyCursor.isError,true);
+  assert.equal((await backend.reads()).length,beforeEmpty);
   const forbidden = await servers[0].callToolResult('inspect_account_positions', { account: 'orchard' });
   assert.equal(forbidden.isError, true); assert.match(forbidden.content[0].text, /FORBIDDEN/);
   assert.doesNotMatch(forbidden.content[0].text, /7500/);
