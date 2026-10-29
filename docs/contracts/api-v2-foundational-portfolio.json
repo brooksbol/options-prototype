@@ -37952,13 +37952,49 @@
           "unit",
           "currency",
           "status",
-          "origin",
-          "method",
-          "asOf",
-          "assumptions",
           "warningCodes"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ]
+                },
+                {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "QUALIFIED",
+                        "ESTABLISHED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              ]
+            },
+            "then": {
+              "required": [
+                "origin",
+                "method",
+                "asOf",
+                "assumptions"
+              ]
+            }
+          }
+        ],
+        "description": "Known or non-null financial values retain origin, method, clock and assumptions. Null unavailable/non-applicable/redacted values retain units/currency/status/reason codes; a repeated computation clock is not sent as an observation clock. Full evidence remains at canonical detail links."
       },
       "TacticalStructure": {
         "type": "object",
@@ -38036,7 +38072,7 @@
             "$ref": "#/components/schemas/Link"
           },
           "terms": {
-            "$ref": "#/components/schemas/OptionTerms"
+            "$ref": "#/components/schemas/TacticalOptionTerms"
           },
           "symbol": {
             "type": "string"
@@ -38136,7 +38172,47 @@
           "manualCheckpoint": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ManualCheckpoint"
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "remainingDteAtCheckpoint": {
+                    "type": "integer"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "UPCOMING",
+                      "DUE",
+                      "PAST_DUE"
+                    ]
+                  },
+                  "order": {
+                    "$ref": "#/components/schemas/Link"
+                  },
+                  "activeOrder": {
+                    "type": "boolean"
+                  },
+                  "qualification": {
+                    "$ref": "#/components/schemas/Status"
+                  },
+                  "meaning": {
+                    "const": "MANUAL_REVIEW_CONVENTION_NOT_TIMED_EXIT"
+                  }
+                },
+                "required": [
+                  "date",
+                  "remainingDteAtCheckpoint",
+                  "state",
+                  "order",
+                  "activeOrder",
+                  "qualification",
+                  "meaning"
+                ],
+                "additionalProperties": false,
+                "description": "Verified target+GTD convention; neither notification nor automatic close is established."
               },
               {
                 "type": "null"
@@ -38278,8 +38354,7 @@
             "$ref": "#/components/schemas/Link"
           },
           "exposure": {
-            "$ref": "#/components/schemas/CurrentExposureEvidence",
-            "description": "Current quantity interpretation is separate from Position lifecycle. Empty UNKNOWN composition is not zero; SUPERSEDED_INTERPRETATION is prior provisional interpretation, not an economic merge or CLOSED transition."
+            "$ref": "#/components/schemas/TacticalExposure"
           },
           "representation": {
             "const": "TACTICAL_POSITION"
@@ -38499,6 +38574,275 @@
           "warningCodes"
         ],
         "additionalProperties": false
+      },
+      "TacticalExposure": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "OBSERVED",
+              "ZERO_OBSERVED",
+              "UNKNOWN",
+              "RETAINED",
+              "SUPERSEDED_INTERPRETATION"
+            ]
+          },
+          "sourceSnapshotId": {
+            "type": "string"
+          },
+          "sourceDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "continuity": {
+            "const": "UNRESOLVED"
+          },
+          "qualification": {
+            "type": "string"
+          },
+          "successorPosition": {
+            "$ref": "#/components/schemas/Link"
+          }
+        },
+        "required": [
+          "status",
+          "sourceSnapshotId",
+          "sourceDate",
+          "receivedAt",
+          "continuity",
+          "qualification"
+        ],
+        "description": "Authorization-sanitized attributes of the selected immutable evidence cut. Full provenance is available through the canonical Position/Construction detail links; evidence arrays are not repeated in monitoring.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "SUPERSEDED_INTERPRETATION"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "successorPosition"
+              ]
+            }
+          }
+        ]
+      },
+      "TacticalOptionTerms": {
+        "type": "object",
+        "properties": {
+          "underlying": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Link"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "right": {
+            "type": "string",
+            "enum": [
+              "CALL",
+              "PUT",
+              "UNKNOWN"
+            ]
+          },
+          "strike": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NonnegativeDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Currency"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expiration": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "multiplier": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositiveDecimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "exerciseStyle": {
+            "type": "string",
+            "enum": [
+              "AMERICAN",
+              "EUROPEAN",
+              "UNKNOWN"
+            ]
+          },
+          "settlement": {
+            "type": "string",
+            "enum": [
+              "PHYSICAL",
+              "CASH",
+              "UNKNOWN"
+            ]
+          },
+          "adjustment": {
+            "type": "string",
+            "enum": [
+              "STANDARD",
+              "ADJUSTED",
+              "UNKNOWN"
+            ]
+          },
+          "deliverable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeliverableComponent"
+            }
+          },
+          "payoffApplicability": {
+            "type": "string",
+            "enum": [
+              "STANDARD_EQUITY_INTRINSIC",
+              "EXPLICIT_DELIVERABLE_REQUIRED",
+              "UNKNOWN"
+            ]
+          },
+          "qualification": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "required": [
+          "underlying",
+          "right",
+          "strike",
+          "currency",
+          "expiration",
+          "multiplier",
+          "exerciseStyle",
+          "settlement",
+          "adjustment",
+          "deliverable",
+          "payoffApplicability",
+          "qualification"
+        ],
+        "additionalProperties": false,
+        "description": "Authorization-sanitized attributes of the selected immutable evidence cut. Full provenance is available through the canonical Position/Construction detail links; evidence arrays are not repeated in monitoring.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "payoffApplicability": {
+                  "const": "STANDARD_EQUITY_INTRINSIC"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "strike": {
+                  "$ref": "#/components/schemas/NonnegativeDecimal"
+                },
+                "currency": {
+                  "$ref": "#/components/schemas/Currency"
+                },
+                "expiration": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "multiplier": {
+                  "$ref": "#/components/schemas/PositiveDecimal"
+                },
+                "underlying": {
+                  "$ref": "#/components/schemas/Link"
+                },
+                "right": {
+                  "enum": [
+                    "CALL",
+                    "PUT"
+                  ]
+                },
+                "deliverable": {
+                  "minItems": 1
+                },
+                "adjustment": {
+                  "const": "STANDARD"
+                },
+                "settlement": {
+                  "const": "PHYSICAL"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "qualification": {
+                  "const": "ESTABLISHED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "underlying": {
+                  "not": {
+                    "type": "null"
+                  }
+                },
+                "strike": {
+                  "not": {
+                    "type": "null"
+                  }
+                },
+                "currency": {
+                  "not": {
+                    "type": "null"
+                  }
+                },
+                "expiration": {
+                  "not": {
+                    "type": "null"
+                  }
+                },
+                "multiplier": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     }
   },

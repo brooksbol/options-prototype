@@ -71,3 +71,7 @@ Closed-report USD display rounds exact decimal strings to two places; source acc
 ## October29 tactical presentation independent falsification
 
 Independent review rejected frozen tactical candidate e163a9cc: inverse-condor profitable tails could get a loss-region color, and null legacy exposure failed the compact schema. The [integration receipt](../reviews/sdk-talk-tactical-integration-2026-10-29.md#independent-implementation-falsification-and-bounded-correction) preserves failure/review and new bounded corrections. A maximum-plateau geometry qualification and ADVERSE_TAIL avoid claiming actual losses; unsupported color interpretation remains unavailable while geometry survives. Source/presentation acceptance remains separate. No installed fix or Principal acceptance is claimed.
+
+## October29 installed Position over-retrieval
+
+Installed real SDK replay at74493 selected expanded inactive Account history for an ordinary all-positions request:486,497 response bytes,499,374 input tokens in that turn. This extends the existing minimum-necessary retrieval defect beyond balances. Candidate strict monitoring schema and compact backend DTO address the actual layer; one-Position evidence-on-demand stays available. See the workspace-interactions receipt for scope, tests and pending review. Remains Open; no synthetic success substitutes for installed verification.

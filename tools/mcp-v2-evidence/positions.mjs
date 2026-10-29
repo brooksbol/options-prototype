@@ -40,3 +40,17 @@ export async function inspectPositions({ account, state, cursor, projection = 't
     qualification: 'Current monitoring scope explicitly selects OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED exposure predicates (UNRECORDED_NONCLOSED means missing exposure on a non-CLOSED lifecycle, not established custody) unless inactive or explicit lifecycle evidence is requested; this is not an OPEN lifecycle assumption. Compact tactical results copy backend evaluations; candidate Model matches do not establish opening occurrence, governed capital or CSP collateral. Backend Position read from its selected Account evaluation graph, not an inventory of all history or independent held market quotes. Missing linked market evidence does not prove that no separate retained quote exists. Missing historical fields do not prove no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If nextCursor is non-null this page is incomplete; repeat with the same Account/state and that opaque cursor. Backend OPEN/CLOSED state is lifecycle, not proof of current custody or freshness.',
     evidence: result.data }) }] };
 }
+
+// Exact, deliberate single-Position evidence inspection; never an Account history dump.
+export async function inspectPositionDetails({account,positionId},config){
+ if(!UUID.test(positionId??''))throw new Error('Canonical Position ID required.');
+ const inventory=await readBackend('/v2/accounts',config);if(inventory.error)return problemResult(inventory.error);
+ if(inventory.data?.requestId!==inventory.requestId||!Array.isArray(inventory.data.accounts))throw new Error('Invalid Account discovery.');
+ const matches=inventory.data.accounts.filter(a=>a.alias===account);if(matches.length!==1||!canonicalAccountId(matches[0].id))return {isError:true,content:[{type:'text',text:'Exact authorized Account nickname required.'}]};
+ const selected=matches[0],path='/v2/positions/'+positionId,result=await readBackend(path,config);if(result.error)return problemResult(result.error,account);
+ if(result.data?.self?.href!==path||result.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Position detail scope.');
+ const href=result.data.currentConstruction?.href;if(typeof href!=='string'||!href.startsWith('/v2/constructions/')||!UUID.test(href.slice('/v2/constructions/'.length)))throw new Error('Invalid Construction reference.');
+ const construction=await readBackend(href,config);if(construction.error)return problemResult(construction.error,account);
+ if(construction.data?.self?.href!==href||construction.data.position?.href!==path||construction.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Construction detail scope.');
+ return {content:[{type:'text',text:JSON.stringify({requestId:result.requestId,account:{nickname:selected.alias,broker:selected.brokerAssociation?.broker},evidence:result.data,construction:construction.data,qualification:'Exact selected Position and its current immutable Construction, under backend permissions. Detail is not complete Account history or proof of current custody. Preserve source clocks, unknowns and qualifications.'})}]};
+}
