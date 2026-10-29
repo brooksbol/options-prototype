@@ -1,0 +1,21 @@
+**ACCEPT — no delta-specific blockers.**
+
+Candidate: `705b976a2a550878cf228a8923a95db7fac1cf24`  
+Baseline: `5e868296b15e1a7c0ac9fd5bbdfb3f50f3287624`
+
+- Probability remains `null`, with `NOT_AVAILABLE` status and null source/time. `PERCENT_0_TO_100` declares units without inventing an observed percentage.
+- `p50ClosingDebit` equals the existing credit/2 objective, including null and zero handling.
+- Legacy `p50`, POP, delta, and injected historical percentages cannot populate probability.
+- Structure identity, ordering, and prior financial fields are preserved. No routes, orders, v2, strategy, BP, or liquidity behavior changed.
+
+Inspected the investigation and all three modified source/test/README files. **135 in-memory synthetic cases passed**, comparing 270 rows against the baseline mapping.
+
+Independently parsed all **16 downloaded public specs**, verified their SHA-256/path receipts, counted **96 operations**, and found no P50/probability matches. This supports “no authorized source established”; it does not prove universal API absence.
+
+Limits: inspected the focused regression without executing its file-writing ZIP test. No private/config reads, provider calls, heavy tests, successful writes, or installation. GitHub DNS failure prevented fresh remote-main verification; local tracking main is `8b6857fdfca667bbba6412f196dec2bb2690bfb4`. HEAD remained the candidate and the tree stayed clean. Authority root is `docs/README.md`; WW-GATE-001 remains STAGED/inactive.
+
+CURRENT STATE: Bounded candidate review ACCEPT; installation and Product acceptance not established.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE
