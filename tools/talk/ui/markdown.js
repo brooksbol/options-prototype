@@ -9,7 +9,7 @@ export function renderMarkdown(text) {
     if(tokens[i].type!=='table_open')continue;
     let end=i+1;while(end<tokens.length&&tokens[end].type!=='table_close')end++;
     let body=false,meaningful=false;
-    for(const token of tokens.slice(i,end)){if(token.type==='tbody_open')body=true;if(body&&token.type==='inline'&&(token.children??[token]).map(child=>['text','code_inline','inline'].includes(child.type)?child.content:'').join('').replace(/[\p{White_Space}\p{Cf}—–\-_*`]/gu,''))meaningful=true;}
+    for(const token of tokens.slice(i,end)){if(token.type==='tbody_open')body=true;if(body&&token.type==='inline'&&(token.children??[token]).some(child=>child.type==='code_inline'?child.content.replace(/[\p{White_Space}\p{Cf}]/gu,''):['text','inline'].includes(child.type)&&child.content.replace(/[\p{White_Space}\p{Cf}—–\-_*`]/gu,'')))meaningful=true;}
     if(!meaningful){removedEmptyTable=true;tokens.splice(i,end-i+1);i--;}
   }
   // Suppress orphan headings left by removed empty tables; meaningful paragraphs/code survive.

@@ -485,5 +485,30 @@
     "talkCli": 71,
     "oas": 8,
     "operations": 39
+  },
+  "successor": {
+    "priorRejectedSource": "379746042e7fef387e6ac4639b76181be2ce5ee7",
+    "reviewSha256": "91d992a64b1ce986f4e8d529af4b0541b09d86aed3aca560ffa37a2756d441ff",
+    "changedRuntime": "Markdown token meaningfulness only",
+    "talkCliTests": 72,
+    "nativeReplay": {
+      "standing": "ACTUAL_SDK_RESULT_BROWSER_REPLAY_WITH_CONTROLLED_SAME_TURN_BROAD_PLUS_NARROW_AND_EMPTY_MD",
+      "cardsByTurn": [
+        4,
+        1,
+        4
+      ],
+      "priorTurnPreserved": true,
+      "sameTurnBroadRetainedAsSource": true,
+      "selectedNativeSvg": 1,
+      "selectedStrikeKnots": 2,
+      "emptyAnalysisAbsent": true,
+      "defaultRawJsonAbsent": true,
+      "mobileOverflow": false,
+      "pageErrors": 0,
+      "modelRequests": 0,
+      "protectedPixelsExported": false
+    },
+    "backendMcpSdkContractUnchanged": true
   }
 }

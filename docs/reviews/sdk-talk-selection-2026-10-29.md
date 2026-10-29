@@ -39,3 +39,10 @@ First wider Node run exposed stale strict-schema expectation (new underlying omi
 Existing financial engine, shared exact contract, CLI, installed daily tools, grants,300/30reuse, credentials and services preserved. Density/portfolio-summary mode remains a future preference. No trading, acquisition-policy change, full financial parity or Principal acceptance claimed. Independent review before replacing candidate8816. Only an owned temporary preview may be replaced for operator observation; production/main integration remains separately reserved.
 
 Final author suites before freeze:426backend/continuity tests0failures1skip;71Talk/CLI tests pass;8OAS checks/39operations pass. Actual cold underlying-selected collection validates OAS; candidate-only roadmap projection regenerates/checks cleanly.
+
+
+## Independent rejection and token correction
+
+Frozen37974604 independently REJECTed only for erasing nonempty quoted inline code in a table. [Immutable review](sdk-talk-independent-selection-review-2026-10-29.md), SHA25691d992a64b1ce986f4e8d529af4b0541b09d86aed3aca560ffa37a2756d441ff. Independent actual SQL/controller/MCP/UI selector/scope/cursor/ref permission/current-turn controls passed. No financial/core or Account boundary defect established. Original target stays frozen.
+
+Successorcodex/talk-selection-correction-20261029 changes only Markdown inline-child meaningfulness plus regression: explicit non-whitespace code punctuation is content; whitespace-only code remains empty. Quoted `---`/`***`, zero, meaningful unavailable rows, fenced code and other nonempty content survive.72Talk/CLI tests pass and corrected native browser4/1/4 replay with empty-table/same-turn source retention passes. Java/MCP/API/SDK trees remain byte-identical379;426backend/continuity and8OAS prior proofs carry unchanged, not falsely rerun. No further model/provider calls for this presentation-only correction; actual SDK traces remain attributable to379's unchanged backend/MCP path. Independent re-review follows successor freeze.

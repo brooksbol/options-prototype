@@ -25,3 +25,9 @@ test('decoded entity and format-only empty tables disappear with their orphan an
  assert.match(renderMarkdown('| Name | Value |\n|---|---|\n| ZERO | 0 |'),/>0<\/td>/);
  assert.match(renderMarkdown('### Note\n\nMeaningful explanation.\n\n|A|B|\n|-|-|\n|&nbsp;|&#160;|'),/Meaningful explanation/);
 });
+
+test('quoted nonempty punctuation is code content rather than an empty-table placeholder',()=>{
+ assert.match(renderMarkdown('### Literal\n\n| A |\n|---|\n| `---` |'),/<code>---<\/code>/);
+ assert.match(renderMarkdown('| A |\n|---|\n| `***` |'),/<code>\*\*\*<\/code>/);
+ assert.equal(renderMarkdown('| A |\n|---|\n| ` ` |').trim(),'');
+});
