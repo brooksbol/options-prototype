@@ -1,3 +1,4 @@
+import {withoutImages} from './attachments.mjs';
 // Applied before importing the SDK in the normal development runtime.
 process.env.OPENAI_AGENTS_DISABLE_TRACING = '1';
 process.env.OPENAI_AGENTS_DONT_LOG_MODEL_DATA = '1';
@@ -19,7 +20,7 @@ export function egressBoundary(networkFetch = globalThis.fetch) {
     if (!allowed) throw new Error('Outbound request refused by W1 disclosure policy.');
     // Bounded local-memory inspection only; never persist model bodies or headers/credentials.
     // Real metadata mode admits only the previously authorized nickname/broker/count projection.
-    requests.push(structuredClone(body));
+    requests.push(withoutImages(structuredClone(body)));
     if (requests.length > 200) requests.shift();
     if (events.length > 200) events.shift();
     return networkFetch(input, { ...init, redirect: 'error' });

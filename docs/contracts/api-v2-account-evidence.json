@@ -1431,7 +1431,7 @@
       "get": {
         "operationId": "readAccountTransactions",
         "summary": "Read Account transaction history",
-        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No GET body. Requests without query retain existing full-history/read-through behavior. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No Order-state, strategy grouping or tax computation; bounded closed-trade projection is specified below. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->\n\nWith mode=retained, this is a bounded provider-free query of existing admitted transaction evidence. Fidelity projection may normalize already-retained activity locally. No brokerage refresh occurs. Defaults25/max100 rows and100000 serialized bytes; capacity fails503. Exact source symbol and inclusive transaction dates are optional. Preserve all selectors and limit with nextCursor until pageComplete. Changed retained evidence invalidates the cursor422. matchedRecordCount is retained query coverage, never lifetime completeness; complete retains its existing history coverage meaning and does not imply this page is final. Source actions, reported gross value, net cash and fees remain distinct; matching a source symbol does not identify an opening cohort or associate a current construction. No premium or strategy inference. Requests without query preserve legacy read-through semantics; bounded selectors require explicit mode=retained or mode=policy. Item reads continue rejecting queries.\nBounded mode also accepts order=asc|desc (default asc); reverse the existing date/execution-time/transaction-ID total order only, not a freshness or identity inference. MCP requests desc to inspect recent retained evidence first. Order is included in cursor scope and selection.\n\nOctober29 governed projections: mode=policy reuses the existing authorized backend read-through/reuse policy, while mode=retained remains provider-free. First-page read-through has the existing10-second shared provider budget; subsequent pages do not refresh and changed evidence invalidates the opaque cursor. Response remains bounded100000 bytes/default25/max100 rows or whole groups. No User/grant changes or autonomous polling.\n\nview=execution-groups: explicit from/through/timeZone, source executedAt interval, native Order-ID grouping without splitting a group between pages. Source actions establish OPENING/CLOSING/MIXED/UNRESOLVED; buys/sells alone do not. Reversals, missing native Order identity and unknown actions cannot become confirmed exits. Reported gross transaction-value sums preserve known currency, never infer multiplier or opening basis. Full Order fill status, submitted time, strategy and Position/Construction association are not established by this projection and Order read permission is not bypassed. Coverage scan upper bound differs from observed transaction dates. Current provider path lacks verified lower bounds, so empty source results do not establish no executions. VERIFIED_TO_CUTOFF is reserved for an independently backend-established scoped coverage assertion, never inferred from first/last rows or client input.\n\nview=closed-trades: Principal-selected reported closed-round-trip net P/L view with row outcomes and totals. Match exactly one earlier native opening package to one native closing package by native contracts, whole quantities and opposing open/close source actions. All same-contract observations must belong solely to the pair; other cohorts, adjustments/reversals, partial closes, unknown net/currency or closes spanning the period remain unavailable. This bounded method introduces no FIFO, tax-lot or governed Position identity. Opening net cash outside the report month remains in the matching basis. Sum already-net source cash once; do not subtract fees twice or assume omitted fee components are zero. Preserve QUALIFIED_ESTIMATED_FEES when the broker reports estimates or final status is unknown. Net total and winners/losers are unavailable if a returned trade cannot be reconciled or currencies conflict. The report covers matched reported closed trades, not total Account investment performance, unrealized P/L or complete lifetime/period brokerage coverage. Source histories and evidence remain available separately; no raw ledger dump is required.",
+        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No GET body. Requests without query retain existing full-history/read-through behavior. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No Order-state, strategy grouping or tax computation; bounded closed-trade projection is specified below. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->\n\nWith mode=retained, this is a bounded provider-free query of existing admitted transaction evidence. Fidelity projection may normalize already-retained activity locally. No brokerage refresh occurs. Defaults25/max100 rows and100000 serialized bytes; capacity fails503. Exact source symbol and inclusive transaction dates are optional. Preserve all selectors and limit with nextCursor until pageComplete. Changed retained evidence invalidates the cursor422. matchedRecordCount is retained query coverage, never lifetime completeness; complete retains its existing history coverage meaning and does not imply this page is final. Source actions, reported gross value, net cash and fees remain distinct; matching a source symbol does not identify an opening cohort or associate a current construction. No premium or strategy inference. Requests without query preserve legacy read-through semantics; bounded selectors require explicit mode=retained or mode=policy. Item reads continue rejecting queries.\nBounded mode also accepts order=asc|desc (default asc); reverse the existing date/execution-time/transaction-ID total order only, not a freshness or identity inference. MCP requests desc to inspect recent retained evidence first. Order is included in cursor scope and selection.\n\nOctober29 governed projections: mode=policy reuses the existing authorized backend read-through/reuse policy, while mode=retained remains provider-free. First-page read-through has the existing10-second shared provider budget; subsequent pages do not refresh and changed evidence invalidates the opaque cursor. Response remains bounded100000 bytes/default25/max100 rows or whole groups. No User/grant changes or autonomous polling.\n\nview=execution-groups: explicit from/through/timeZone, source executedAt interval, native Order-ID grouping without splitting a group between pages. Source actions establish OPENING/CLOSING/MIXED/UNRESOLVED; buys/sells alone do not. Reversals, missing native Order identity and unknown actions cannot become confirmed exits. Reported gross transaction-value sums preserve known currency, never infer multiplier or opening basis. Full Order fill status, submitted time, strategy and Position/Construction association are not established by this projection and Order read permission is not bypassed. Coverage scan upper bound differs from observed transaction dates. Current provider path lacks verified lower bounds, so empty source results do not establish no executions. VERIFIED_TO_CUTOFF is reserved for an independently backend-established scoped coverage assertion, never inferred from first/last rows or client input.\n\nview=closed-trades: Principal-selected reported closed-round-trip net P/L view with row outcomes and totals. Match exactly one earlier native opening package to one native closing package by native contracts, whole quantities and opposing open/close source actions. All same-contract observations must belong solely to the pair; other cohorts, adjustments/reversals, partial closes, unknown net/currency or closes spanning the period remain unavailable. This bounded method introduces no FIFO, tax-lot or governed Position identity. Opening net cash outside the report month remains in the matching basis. Sum already-net source cash once; do not subtract fees twice or assume omitted fee components are zero. Preserve QUALIFIED_ESTIMATED_FEES when the broker reports estimates or final status is unknown. Net total and winners/losers are unavailable if a returned trade cannot be reconciled or currencies conflict. The report covers matched reported closed trades, not total Account investment performance, unrealized P/L or complete lifetime/period brokerage coverage. Source histories and evidence remain available separately; no raw ledger dump is required.\n\nOptional CSV representation is rendered by the backend from this same qualified result, never model arithmetic or raw originals. Correct currency, reported precision, fee/coverage status and source qualifications survive. USD display amounts use two decimals alongside unrounded accounting amounts in closed reports. Text cells neutralize spreadsheet formula prefixes and RFC4180 quoting preserves commas/quotes/newlines. Incomplete page/changed result is unavailable, not a partial export presented with whole-report totals. No persistent artifact or filesystem permission is created.",
         "security": [
           {
             "bearerAuth": []
@@ -1553,6 +1553,28 @@
               "type": "string"
             },
             "description": "Explicit available IANA timezone, required for execution-groups/closed-trades. From local start-of-day inclusive through following local midnight exclusive; DST respected. Effective cutoff is earlier of read clock and period end. No submission/source/receipt date substitution."
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "csv"
+              ]
+            },
+            "description": "Alternate governed report representation; requires expectedSha256 from a prior JSON csv reference. Balance CSV requires a single pinned source observation. Transaction CSV requires retained mode, closed-trades view, no cursor and a complete first page. Does not acquire evidence."
+          },
+          {
+            "name": "expectedSha256",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "description": "Required for format=csv; must match current backend-rendered CSV exactly. Not a permission token."
           }
         ],
         "responses": {
@@ -1571,6 +1593,19 @@
                 "schema": {
                   "const": "private, no-store"
                 }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "CSV responses only: attachment; filename=\"<safe-report-name>.csv\"."
+              },
+              "X-Content-SHA256": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "description": "CSV responses only: SHA256 of exact UTF8 response bytes."
               }
             },
             "content": {
@@ -1725,6 +1760,13 @@
                     }
                   }
                 }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 100000
+                },
+                "example": "Account,Trade,Net P/L\r\nSYNTHETIC,TOTAL,\r\n"
               }
             }
           },
@@ -1978,7 +2020,7 @@
       "get": {
         "operationId": "readAccountBalanceObservations",
         "summary": "Read retained broker balance observations",
-        "description": "Pure provider-free projection of accepted retained TASTYTRADE API_BALANCES and FIDELITY BALANCES originals. Distinct brokerField and meaning preserve cash, equity/options/day-trading buying power, margin requirements and reserve dialects. No universal deployable-capital mapping, debt derivation, strategy permission, per-put collateral, governance allocation or order preview. No model arithmetic establishes financial findings. currentness is always NOT_ESTABLISHED and historyCoverage UNKNOWN. Empty observations means no selected accepted balance original, never zero buying power. Original bytes remain private; only allowlisted numeric fields are projected. Missing, invalid or duplicate fields never silently become zero. Exact decimal JSON numbers retain source precision; clients must parse losslessly. Tastytrade source updated-at and snapshot-date survive separately from first artifact receipt. Fidelity export minute (America/New_York) is separate from unknown source observation time; currency is unknown and unit SOURCE_MONETARY_UNIT. Receipt ordering does not establish source-time ordering or latest/current state after trades. Collection order receivedAt then artifactId ascending; content-deduplicated originals are not a complete observation-attempt history. Select optional artifactId to narrow to an exact original. Complete collection limit 200 artifacts /32 MiB; capacity/hash failure returns 503 without partial output. Unsupported brokerage is 422.\n\n<!-- internal-only:start -->\nCanonical accountId and existing account.artifacts.read for that exact Account required before storage. Nickname resolution additionally requires ordinary account.read; no new grants are introduced. Original scope must be positively established as the single requested Account; otherwise whole read is 403. Only one accountId and optional single artifactId allowed; unknown/repeated/blank query parameters, nonempty GET body and malformed correlation are 422 after authentication/applicable authorization. No provider calls, filesystem capability or change to acquisition permissions.\n<!-- internal-only:end -->\n\nBounded selection: selection=latest-source scans and validates originals backend-side but returns at most one observation. Source ordering uses tastytrade updated-at or Fidelity export minute, never receipt. Tied maximal source times are AMBIGUOUS_SOURCE_TIME with zero observations; all unknown clocks produce NO_ORDERABLE_SOURCE_TIME. A sourceAtOrAfter miss returns NO_MATCHING_SOURCE_TIME and the latest known retained source time. Some unknown clocks permit only a qualified maximum among known times, not a complete chronology. Currentness remains NOT_ESTABLISHED. Default all and exact artifactId reads preserve prior semantics. Financial glyphs in reportedDisplay come from validated broker scalar text; a dollar glyph does not create an ISO currency determination.\nFidelity cash-account dialect also preserves exact Available to trade and Cash and credits labels; these are not aliases for Available without margin impact and do not establish Operating Regime deployable capital.",
+        "description": "Pure provider-free projection of accepted retained TASTYTRADE API_BALANCES and FIDELITY BALANCES originals. Distinct brokerField and meaning preserve cash, equity/options/day-trading buying power, margin requirements and reserve dialects. No universal deployable-capital mapping, debt derivation, strategy permission, per-put collateral, governance allocation or order preview. No model arithmetic establishes financial findings. currentness is always NOT_ESTABLISHED and historyCoverage UNKNOWN. Empty observations means no selected accepted balance original, never zero buying power. Original bytes remain private; only allowlisted numeric fields are projected. Missing, invalid or duplicate fields never silently become zero. Exact decimal JSON numbers retain source precision; clients must parse losslessly. Tastytrade source updated-at and snapshot-date survive separately from first artifact receipt. Fidelity export minute (America/New_York) is separate from unknown source observation time; currency is unknown and unit SOURCE_MONETARY_UNIT. Receipt ordering does not establish source-time ordering or latest/current state after trades. Collection order receivedAt then artifactId ascending; content-deduplicated originals are not a complete observation-attempt history. Select optional artifactId to narrow to an exact original. Complete collection limit 200 artifacts /32 MiB; capacity/hash failure returns 503 without partial output. Unsupported brokerage is 422.\n\n<!-- internal-only:start -->\nCanonical accountId and existing account.artifacts.read for that exact Account required before storage. Nickname resolution additionally requires ordinary account.read; no new grants are introduced. Original scope must be positively established as the single requested Account; otherwise whole read is 403. Only one accountId and optional single artifactId allowed; unknown/repeated/blank query parameters, nonempty GET body and malformed correlation are 422 after authentication/applicable authorization. No provider calls, filesystem capability or change to acquisition permissions.\n<!-- internal-only:end -->\n\nBounded selection: selection=latest-source scans and validates originals backend-side but returns at most one observation. Source ordering uses tastytrade updated-at or Fidelity export minute, never receipt. Tied maximal source times are AMBIGUOUS_SOURCE_TIME with zero observations; all unknown clocks produce NO_ORDERABLE_SOURCE_TIME. A sourceAtOrAfter miss returns NO_MATCHING_SOURCE_TIME and the latest known retained source time. Some unknown clocks permit only a qualified maximum among known times, not a complete chronology. Currentness remains NOT_ESTABLISHED. Default all and exact artifactId reads preserve prior semantics. Financial glyphs in reportedDisplay come from validated broker scalar text; a dollar glyph does not create an ISO currency determination.\nFidelity cash-account dialect also preserves exact Available to trade and Cash and credits labels; these are not aliases for Available without margin impact and do not establish Operating Regime deployable capital.\n\nOptional CSV representation is rendered by the backend from this same qualified result, never model arithmetic or raw originals. Correct currency, reported precision, fee/coverage status and source qualifications survive. USD display amounts use two decimals alongside unrounded accounting amounts in closed reports. Text cells neutralize spreadsheet formula prefixes and RFC4180 quoting preserves commas/quotes/newlines. Incomplete page/changed result is unavailable, not a partial export presented with whole-report totals. No persistent artifact or filesystem permission is created.",
         "security": [
           {
             "bearerAuth": []
@@ -2003,6 +2045,19 @@
                 "schema": {
                   "const": "private, no-store"
                 }
+              },
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "CSV responses only: attachment; filename=\"<safe-report-name>.csv\"."
+              },
+              "X-Content-SHA256": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "description": "CSV responses only: SHA256 of exact UTF8 response bytes."
               }
             },
             "content": {
@@ -2102,6 +2157,13 @@
                     }
                   }
                 }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "maxLength": 100000
+                },
+                "example": "Account,Trade,Net P/L\r\nSYNTHETIC,TOTAL,\r\n"
               }
             }
           },
@@ -2169,6 +2231,28 @@
               "format": "date-time"
             },
             "description": "Optional earliest source instant, only with latest-source. A miss returns no amounts and latestKnownSourceTime; it does not trigger acquisition. Cannot combine latest-source with artifactId."
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "csv"
+              ]
+            },
+            "description": "Alternate governed report representation; requires expectedSha256 from a prior JSON csv reference. Balance CSV requires a single pinned source observation. Transaction CSV requires retained mode, closed-trades view, no cursor and a complete first page. Does not acquire evidence."
+          },
+          {
+            "name": "expectedSha256",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "description": "Required for format=csv; must match current backend-rendered CSV exactly. Not a permission token."
           }
         ],
         "tags": [
@@ -4493,6 +4577,9 @@
           },
           "selection": {
             "$ref": "#/components/schemas/AccountBalanceSelection"
+          },
+          "csv": {
+            "$ref": "#/components/schemas/ReportCsvReference"
           }
         },
         "allOf": [
@@ -5849,8 +5936,40 @@
           },
           "qualification": {
             "type": "string"
+          },
+          "csv": {
+            "$ref": "#/components/schemas/ReportCsvReference"
           }
         }
+      },
+      "ReportCsvReference": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "href",
+          "sha256",
+          "filename",
+          "mediaType"
+        ],
+        "properties": {
+          "href": {
+            "type": "string",
+            "pattern": "^/v2/",
+            "maxLength": 2048
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "filename": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]{1,180}\\.csv$"
+          },
+          "mediaType": {
+            "const": "text/csv"
+          }
+        },
+        "description": "Backend-owned representation of this same bounded reported result; all selected rows must fit one page, without asserting complete brokerage coverage, never source originals. No file is stored. Download repeats Account authorization and compares exact CSV SHA256; changed/nonexportable reports return422. Talk handles expire after15minutes/reset. Metadata is absent for multi-observation balances or paginated/incomplete selected closed-report pages."
       }
     },
     "responses": {

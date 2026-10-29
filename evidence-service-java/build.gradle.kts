@@ -136,3 +136,12 @@ tasks.register<JavaExec>("talkRetainedPreview") {
         project.findProperty("accountSource") as? String, project.findProperty("quoteSource") as? String,
         project.findProperty("previewReady") as? String)
 }
+
+// Explicit engineering verification: existing grants, private copy, no application/background worker.
+tasks.register<JavaExec>("realTalkIntegrationVerification") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.RealTalkIntegrationVerification")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("verificationCopy") as? String,
+        project.findProperty("verificationOriginal") as? String)
+}

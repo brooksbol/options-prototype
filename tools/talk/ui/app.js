@@ -1,3 +1,5 @@
+import {reportDownloadButton} from './report-downloads.js';
+import {imageComposer} from './attachments-ui.js';
 import {renderTacticalPositions} from './tactical.js';
 import { evidenceView } from './evidence-view.js';
 import { renderMarkdown } from './markdown.js';
@@ -15,10 +17,11 @@ if (typeof document !== 'undefined') {
 const $ = id => document.getElementById(id);
 let csrf;
 let metadataOnly = false;
+const attachments=imageComposer(document,error=>{$('status').textContent=error;});
 async function post(path, body) {
   const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Talk-CSRF': csrf }, body: JSON.stringify(body) });
   if ([401, 403].includes(response.status)) {
-    csrf = undefined;
+    csrf = undefined;attachments.enable(false);
     for (const id of ['message', 'send', 'new']) $(id).disabled = true;
     $('reload')?.removeAttribute('hidden');
     throw new Error('This workspace session changed or expired. Reload to start a new conversation.');
@@ -40,8 +43,9 @@ try {
   const info = await fetch('/api/status').then(r => r.json()); csrf = info.csrf;
   $('profile').textContent = info.profile;
   metadataOnly = info.profile === 'Authorized real Account metadata only';
+  attachments.enable(info.imageAttachments===true&&!metadataOnly);
   if (info.profile === 'Authorized real retained evidence') {
-    $('notice').textContent = 'Real retained Account and market evidence under existing backend permissions. Balances, positions and quotes may be historical. User-initiated transaction reads may refresh brokerage evidence under existing backend policy. No trades or background polling. Conversation context stays local; authorized tool results reach the configured OpenAI API with tracing and response storage disabled.';
+    $('notice').textContent = 'Real retained Account and market evidence under existing backend permissions. Balances, positions and quotes may be historical. User-initiated authorized data acquisitions and transaction reads may refresh retained brokerage evidence under existing backend permissions and policy. No trades or background polling. Conversation context stays local; authorized tool results reach the configured OpenAI API with tracing and response storage disabled.';
     $('footnote').textContent = info.deployment === 'installed' ? 'Authorized retained-data workspace · Source dates govern currentness' : 'Authorized retained-data preview · Source dates govern currentness';
   }
   if (metadataOnly) {
@@ -57,12 +61,14 @@ try {
 } catch { $('status').textContent = 'Connection unavailable'; }
 $('composer').addEventListener('submit', async event => {
   event.preventDefault(); const text = $('message').value.trim(); if (!text || !csrf) return;
-  $('welcome')?.remove(); message('user', text); $('message').value = '';
+  let attachment;try{attachment=attachments.take();}catch(error){$('status').textContent=error.message;return;}
+  $('welcome')?.remove(); message('user', text+(attachment?'\n[Image attached for this turn]':''));attachments.clear(); $('message').value = '';
   $('send').disabled = true; $('new').disabled = true; $('status').textContent = 'Thinking with the SDK…';
   try {
-    const answer = await post('/api/chat', { message: text });
+    const answer = await post('/api/chat', { message: text,...(attachment?{attachment}:{}) });
     const article = message('assistant', answer.text || answer.error);
     for (const tool of answer.tools ?? []) {
+      if(tool.download)article.append(reportDownloadButton(document,tool.download,()=>csrf,error=>{$('status').textContent=error;}));
       const raw = resultText(tool.result);
       const view = evidenceView(raw);
       if(view.tacticalPositions) {
@@ -188,7 +194,7 @@ $('message').addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); $('composer').requestSubmit(); }
 });
 $('new').addEventListener('click', async () => {
-  try { await post('/api/reset', {}); $('messages').replaceChildren(); $('status').textContent = 'New conversation · local history cleared'; $('message').focus(); }
+  try { attachments.clear();await post('/api/reset', {}); $('messages').replaceChildren(); $('status').textContent = 'New conversation · local history cleared'; $('message').focus(); }
   catch (error) { $('status').textContent = error.message; }
 });
 $('reload')?.addEventListener('click', () => location.reload());

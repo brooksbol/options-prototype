@@ -1,0 +1,14 @@
+// Browser-selected raster only; decode/re-encode strips source metadata, no filesystem paths.
+export function imageComposer(doc,onError){
+ const picker=doc.getElementById('image-file'),button=doc.getElementById('attach'),status=doc.getElementById('image-selection'),consent=doc.getElementById('image-consent'),remove=doc.getElementById('image-remove'),composer=doc.getElementById('composer');let selected,enabled=false,generation=0,loading=false;
+ function clear(){generation++;loading=false;selected=undefined;picker.value='';consent.checked=false;status.hidden=true;doc.getElementById('image-name').textContent='';}
+ async function choose(file){const version=++generation;loading=true;selected=undefined;consent.checked=false;status.hidden=true;
+  try{if(!enabled||!file||!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>4*1024*1024)throw new Error('Choose a PNG, JPEG or WebP image up to 4 MiB.');const bitmap=await createImageBitmap(file);try{if(!bitmap.width||!bitmap.height||bitmap.width>8192||bitmap.height>8192||bitmap.width*bitmap.height>20000000)throw new Error('Image dimensions exceed limits.');const canvas=doc.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;canvas.getContext('2d').drawImage(bitmap,0,0);const dataUrl=canvas.toDataURL('image/png');if(dataUrl.length>5592430)throw new Error('Normalized PNG exceeds 4 MiB. Choose a smaller image.');if(version!==generation||!enabled)return;selected={type:'image/png',dataUrl};doc.getElementById('image-name').textContent=file.name||'Pasted screenshot';status.hidden=false;}finally{bitmap.close();}}
+  catch(e){if(version===generation)onError(e.message);}finally{if(version===generation)loading=false;}
+ }
+ button?.addEventListener('click',()=>picker.click());picker?.addEventListener('change',()=>choose(picker.files[0]));remove?.addEventListener('click',clear);
+ composer?.addEventListener('paste',event=>{const file=[...(event.clipboardData?.files??[])][0];if(enabled&&file){event.preventDefault();if(event.clipboardData.files.length!==1){clear();onError('Attach one image per turn.');return;}choose(file);}});
+ composer?.addEventListener('dragover',event=>{if(enabled&&event.dataTransfer?.types.includes('Files'))event.preventDefault();});
+ composer?.addEventListener('drop',event=>{if(enabled&&event.dataTransfer?.files.length){event.preventDefault();if(event.dataTransfer.files.length!==1){clear();onError('Attach one image per turn.');return;}choose(event.dataTransfer.files[0]);}});
+ return {enable(value){enabled=!!value;if(button)button.hidden=!enabled;if(!enabled)clear();},take(){if(loading)throw new Error('Image is still preparing.');if(!selected)return undefined;if(!consent.checked)throw new Error('Confirm image disclosure before sending.');return {...selected,disclose:true};},clear};
+}

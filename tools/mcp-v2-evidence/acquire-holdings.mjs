@@ -1,0 +1,13 @@
+import {randomUUID}from'node:crypto';
+import {canonicalAccountId}from'../../scripts/ww-accounts.mjs';
+import {UUID,readBackend,requestBackend,problemResult}from'./backend.mjs';
+// The existing backend owns brokerage authentication, retention, validation and exact acquisition grants.
+export async function acquireHoldings({account},config){
+ const discovery=await readBackend('/v2/accounts',config);if(discovery.error)return problemResult(discovery.error);if(discovery.data?.requestId!==discovery.requestId||!Array.isArray(discovery.data.accounts))throw new Error('Invalid Account discovery.');const matches=discovery.data.accounts.filter(a=>a.alias===account);if(matches.length!==1||!canonicalAccountId(matches[0].id))return {isError:true,content:[{type:'text',text:JSON.stringify({outcome:'unavailable',explanation:'Exact authorized Account nickname required; no acquisition performed.'})}]};
+ const selected=matches[0],requestId=randomUUID();let response;
+ try{response=await requestBackend('/v2/position-acquisitions?'+new URLSearchParams({accountId:selected.id}),{...config,timeoutMs:45000},{method:'POST',requestId});}
+ catch{return {isError:true,content:[{type:'text',text:JSON.stringify({outcome:'UNKNOWN',account:{nickname:selected.alias},requestId,explanation:'Acquisition outcome is unknown. Inspect retained holdings before retrying; a timed-out request may have retained evidence.'})}]};}
+ if(response.error)return problemResult(response.error,selected.alias);const d=response.data;
+ if(d.accountId!==selected.id||d.requestId!==requestId||!UUID.test(d.acquisitionId??'')||!['ACCEPTED','REJECTED','FAILED'].includes(d.status)||d.artifactId!==null&&!UUID.test(d.artifactId??'')||d.status==='ACCEPTED'&&(!UUID.test(d.artifactId??'')||!UUID.test(d.snapshotId??'')))throw new Error('Invalid acquisition result.');
+ return {isError:d.status!=='ACCEPTED',content:[{type:'text',text:JSON.stringify({requestId,account:{nickname:selected.alias,broker:selected.brokerAssociation?.broker},acquisition:{id:d.acquisitionId,status:d.status,startedAt:d.startedAt,receivedAt:d.receivedAt,completedAt:d.completedAt},qualification:'Backend read-only brokerage acquisition under existing account.positions.acquire authority; source retention changes, no trades or Orders. This metadata is not a holdings inventory. Read the bounded backend Position/holdings view after ACCEPTED. A new receipt does not prove a broker observation clock, atomic Account cut, opening occurrence, continuous custody, current quote or strategy/collateral qualification. Rejection is not an empty Account.'})}]};
+}

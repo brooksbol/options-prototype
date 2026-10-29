@@ -31,7 +31,7 @@ public class TransactionsController {
         try {
             if(accounts.get(accountId).isEmpty())return problem(ProblemCode.NOT_FOUND,id,"Account not found");
             boolean bounded=request.getParameter("mode")!=null;
-            for(String name:Collections.list(request.getParameterNames()))if(!Set.of("mode","symbol","from","through","limit","cursor","order","view","timeZone").contains(name)||request.getParameterValues(name).length!=1)
+            for(String name:Collections.list(request.getParameterNames()))if(!Set.of("mode","symbol","from","through","limit","cursor","order","view","timeZone","format","expectedSha256").contains(name)||request.getParameterValues(name).length!=1)
                 return problem(ProblemCode.INVALID_REQUEST,id,"unknown or repeated transaction selector");
             String symbol=request.getParameter("symbol"),from=request.getParameter("from"),through=request.getParameter("through"),cursor=request.getParameter("cursor");
             String mode=request.getParameter("mode"),view=Objects.requireNonNullElse(request.getParameter("view"),"transactions"),zone=request.getParameter("timeZone");
@@ -49,6 +49,8 @@ public class TransactionsController {
                     if(from!=null)java.time.LocalDate.parse(from);if(through!=null)java.time.LocalDate.parse(through);if(from!=null&&through!=null&&from.compareTo(through)>0)throw new IllegalArgumentException();
                 }catch(Exception e){return problem(ProblemCode.INVALID_REQUEST,id,"invalid bounded transaction selectors");}
             }
+            String format=request.getParameter("format"),expected=request.getParameter("expectedSha256");
+            if(format!=null&&(!format.equals("csv")||!view.equals("closed-trades")||!"retained".equals(mode)||cursor!=null||expected==null)||expected!=null&&(format==null||!expected.matches("[a-f0-9]{64}")))return problem(ProblemCode.INVALID_REQUEST,id,"csv requires a complete retained closed-trade report and expectedSha256");
             var result=bounded?view.equals("closed-trades")?history.closedTrades(accountId,id,from,through,zone,limit,cursor,mode.equals("policy")):view.equals("execution-groups")?history.executions(accountId,id,from,through,zone,limit,cursor,mode.equals("policy")):
                     history.bounded(accountId,id,symbol,from,through,limit,cursor,order.equals("desc"),mode.equals("policy")):history.read(accountId,id);
             if(transactionId!=null) {
@@ -56,6 +58,11 @@ public class TransactionsController {
                 for(Object item:items)if(item instanceof Map<?,?> row&&transactionId.equals(row.get("transactionId")))found=item;
                 if(found==null)return problem(ProblemCode.NOT_FOUND,id,"transaction not found in selected Account");
                 result.remove("transactions");result.put("transaction",found);
+            }
+            if(bounded&&view.equals("closed-trades")){
+                var export=FinancialReportCsv.closedTrades(json.valueToTree(result),accounts.get(accountId).orElseThrow().alias(),cursor==null);
+                if(format!=null){if(export.isEmpty()||!export.get().sha256().equals(expected))return problem(ProblemCode.INVALID_REQUEST,id,"report changed or is not exportable; refresh the governed report");var file=export.get();return ResponseEntity.ok().header("X-Request-Id",id).header("Cache-Control","private, no-store").header("Content-Disposition","attachment; filename=\""+file.filename()+"\"").header("X-Content-SHA256",file.sha256()).contentType(MediaType.parseMediaType("text/csv;charset=UTF-8")).body(file.content());}
+                if(export.isPresent()){String href="/v2/accounts/"+accountId+"/transactions?mode=retained&view=closed-trades&from="+from+"&through="+through+"&timeZone="+java.net.URLEncoder.encode(zone,java.nio.charset.StandardCharsets.UTF_8)+"&limit="+limit;result.put("csv",FinancialReportCsv.metadata(export.get(),href,json));}
             }
             String content=json.writeValueAsString(result);
             if(content.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>(bounded?100000:BrokerageArtifacts.MAX_BYTES))return problem(ProblemCode.CAPABILITY_UNAVAILABLE,id,"complete history exceeds response capacity");

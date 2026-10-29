@@ -1,15 +1,17 @@
 import { parseShowJson } from '../../scripts/ww-show.mjs';
 export const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 // Shared only after two actual read capabilities need the same bounded, safe transport.
-export async function readBackend(path, { base, token, fetchImpl = fetch, timeoutMs = 5000 }) {
+export async function readBackend(path, config) {return requestBackend(path,config);}
+export async function requestBackend(path, { base, token, fetchImpl = fetch, timeoutMs = 5000 }, {method="GET",requestId: suppliedRequestId}={}) {
+  if(!["GET","POST"].includes(method)||suppliedRequestId!==undefined&&!UUID.test(suppliedRequestId))throw new Error("Invalid trusted backend operation.");
   const origin = new URL(base);
   if (!['http:', 'https:'].includes(origin.protocol) || origin.username || origin.password ||
       (origin.protocol === 'http:' && !['127.0.0.1', 'localhost', '[::1]'].includes(origin.hostname)) ||
       typeof token !== 'string' || !token.trim()) throw new Error('Invalid trusted backend configuration.');
-  const response = await fetchImpl(new URL(path, origin), { method: 'GET', redirect: 'error',
-    signal: AbortSignal.timeout(timeoutMs), headers: { Authorization: `Bearer ${token}` } });
+  const response = await fetchImpl(new URL(path, origin), { method, redirect: 'error',
+    signal: AbortSignal.timeout(timeoutMs), headers: { Authorization: `Bearer ${token}`,...(suppliedRequestId?{'X-Request-Id':suppliedRequestId}:{}) } });
   const requestId = response.headers.get('x-request-id');
-  if (!UUID.test(requestId ?? '')) throw new Error('Invalid backend correlation.');
+  if (!UUID.test(requestId ?? '')||suppliedRequestId&&requestId!==suppliedRequestId) throw new Error('Invalid backend correlation.');
   if (!/^application\/(?:json|problem\+json)(?:;|$)/i.test(response.headers.get('content-type') ?? ''))
     throw new Error('Invalid backend media type.');
   let body = '';
