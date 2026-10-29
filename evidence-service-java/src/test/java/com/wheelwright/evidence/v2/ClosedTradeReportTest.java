@@ -45,4 +45,10 @@ class ClosedTradeReportTest extends ExecutionFixtures {
   var second=ClosedTradeReport.project(history(rows),"2026-10-01","2026-10-29","America/Denver",1,cursor,true,now,json);assertThat(trades(second)).hasSize(1);assertThat(second.get("nextCursor")).isNull();assertThat(trades(second).getFirst().id()).isNotEqualTo(trades(first).getFirst().id());
   assertThatThrownBy(()->ClosedTradeReport.project(history(rows),"2026-10-01","2026-10-29","America/Denver",1,cursor,false,now,json)).isInstanceOf(TransactionHistory.InvalidCursor.class);
  }
+ @Test void equivalentQuantityScalesMatchWithoutChangingSourcePrecision()throws Exception {
+  var open=transaction("open","opening","Sell to Open","2026-09-30T14:00:00Z","1","10.005",true);
+  var close=transaction("close","closing","Buy to Close","2026-10-29T13:30:00Z","1.000","-5.001",true);
+  var result=report(List.of(open,close));assertThat(trades(result).getFirst().netPnl().value()).isEqualTo("5.004");
+  assertThat(open.get("quantity")).isEqualTo("1");assertThat(close.get("quantity")).isEqualTo("1.000");
+ }
 }

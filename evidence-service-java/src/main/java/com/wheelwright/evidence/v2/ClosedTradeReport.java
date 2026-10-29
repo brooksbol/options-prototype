@@ -65,6 +65,7 @@ final class ClosedTradeReport {
         for(var r:rows){String a=action(r);String side=opening?a.equals("BUY_TO_OPEN")?"LONG":a.equals("SELL_TO_OPEN")?"SHORT":null:a.equals("SELL_TO_CLOSE")?"LONG":a.equals("BUY_TO_CLOSE")?"SHORT":null;
             if(side==null||r.get("symbol")==null||r.get("quantity")==null||r.get("executedAt")==null||r.get("reversesSourceId")!=null)return null;
             var n=new BigDecimal(r.get("quantity").toString());if(n.signum()<=0)return null;q.merge(r.get("symbol")+"|"+side,n,BigDecimal::add);}
+        q.replaceAll((key,value)->value.stripTrailingZeros());
         return q;
     }
     private static boolean matches(List<Map<String,Object>> opening,List<Map<String,Object>> closing,List<Map<String,Object>> all) {
