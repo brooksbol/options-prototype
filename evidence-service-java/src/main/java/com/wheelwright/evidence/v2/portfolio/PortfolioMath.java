@@ -79,6 +79,10 @@ public final class PortfolioMath {
             var flats=new ArrayList<JsonNode>();var interior=new ArrayList<JsonNode>();for(var segment:payoff.at("/geometry/segments"))if(number(segment.path("slope")).signum()==0){flats.add(segment);if(number(segment.path("lower")).signum()>0&&!segment.path("upper").isNull())interior.add(segment);}
             // A unique contractual plateau may be a loss floor or a profit cap; neither implies desirability.
             JsonNode selected=interior.size()==1?interior.getFirst():flats.size()==1?flats.getFirst():null;
+            // A bounded vertical has two flat tails and one transition. Its unique
+            // maximum contractual plateau is the accepted half-line strike range,
+            // regardless of opening basis; it does not assert a realized profit.
+            if(selected==null&&flats.size()==2&&payoff.at("/geometry/segments").size()==3&&number(payoff.at("/geometry/segments/0/slope")).signum()==0&&number(payoff.at("/geometry/segments/1/slope")).signum()!=0&&number(payoff.at("/geometry/segments/2/slope")).signum()==0){var a=flats.get(0);var b=flats.get(1);int comparison=number(a.path("intercept")).compareTo(number(b.path("intercept")));if(comparison!=0)selected=comparison>0?a:b;}
             if(selected!=null){boolean upperNull=selected.path("upper").isNull();var lower=number(selected.path("lower"));range.put("status","QUALIFIED").put("kind",upperNull?"LOWER_HALF_LINE":lower.signum()==0?"UPPER_HALF_LINE":"PLATEAU");if(upperNull||lower.signum()!=0)range.put("lower",decimal(lower));if(!upperNull)range.put("upper",selected.path("upper").asText());range.put("currency",currency);range.set("evidence",evidence.deepCopy());range.set("warningCodes",array());}
         }
         var underlyings=new HashSet<String>();for(var x:xs){if(x.path("kind").asText().equals("OPTION")&&!x.at("/terms/underlying/href").asText().isBlank())underlyings.add(x.at("/terms/underlying/href").asText());else if(x.path("kind").asText().equals("LONG_SHARES"))underlyings.add(x.at("/instrument/href").asText());}
