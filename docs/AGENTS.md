@@ -39,6 +39,10 @@ When the Principal requests **`TT1 Positions`** (case-insensitive), whether alon
 
 This routing rule governs report presentation only, not Product/trading policy or brokerage actions.
 
+## Principal report lookup — TT1 Opportunities (October 29, 2026)
+
+When the Principal requests **`TT1 Opportunities`** (case-insensitive), alone or after “bootstrap,” treat it as an exact trade-opportunities report invocation. **Explicitly retrieve and read** [`docs/cli/tt1-opportunities-report.md`](cli/tt1-opportunities-report.md), then analyze the latest attached `tt1-cadence` ZIP; if none is attached, request it. Render **only** the accepted **TT1 — Trade Opportunities** report: up to **20 real ranked candidates** in one dense table, with compact evidence status and economics. Do not produce a preliminary position/account summary, extra tables, images, candidate essays, repetitive disclaimers or generic closing observations. Distinguish off-hours test evidence from admissible trading evidence. This is report routing, not trade authorization or a new Talk/v2 feature.
+
 ## Principal shorthand: "write this down" — durable-learning request
 
 When the Principal says "write this down", "remember this", or an equivalent phrase about Wheelwright work, treat it as an instruction to **complete a bounded knowledge-capture and reconciliation workflow**, not merely to suggest a filename, append indiscriminately to a journal, or propose a new principle. Follow `bootstrap/project-memory-protocol.md`, ADR-023, the A–F authority model and the existing `knowledge/` owner / `assimilation-obligations.md` mechanisms.
