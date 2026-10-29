@@ -161,3 +161,16 @@ test('policy execution view is period/Account bound, carries native backend grou
  assert.match(paths[1],/mode=policy/);assert.match(paths[1],/view=execution-groups/);assert.doesNotMatch(paths[1],/order=/);assert.deepEqual(JSON.parse(result.content[0].text).evidence.executions,data);
  data.period.timeZone='America/New_York';await assert.rejects(inspectTransactions({account:'fixture',view:'execution-groups',from:'2026-10-29',through:'2026-10-29',timeZone:'America/Denver'},{...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data))}));
 });
+
+test('exact transaction detail composition uses item routes and rejects foreign IDs, scopes and partial batches',async()=>{
+ const{inspectTransactionDetails}=await import('./transactions.mjs');const accountId='acct_'+'a'.repeat(32),id='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222',paths=[];
+ const fetchImpl=async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id:accountId,alias:'fixture'}]}:{requestId,accountId,transaction:{accountId,transactionId:url.pathname.endsWith(other)?other:id,netCash:'1.234',estimatedFee:true},checkedAt:'2026-10-29T16:00:00Z'}));};
+ const r=await inspectTransactionDetails({account:'fixture',transactionIds:[id,other]},{...config,fetchImpl});assert.equal(JSON.parse(r.content[0].text).evidence.transactionDetails.length,2);assert.deepEqual(paths,['/v2/accounts','/v2/accounts/'+accountId+'/transactions/'+id,'/v2/accounts/'+accountId+'/transactions/'+other]);
+ await assert.rejects(inspectTransactionDetails({account:'fixture',transactionIds:[id,id]},{...config,fetchImpl}));
+ await assert.rejects(inspectTransactionDetails({account:'fixture',transactionIds:[id]},{...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id:accountId,alias:'fixture'}]}:{requestId,accountId,transaction:{accountId:'acct_'+'b'.repeat(32),transactionId:id}}))}),/scope/);
+ const denied=await inspectTransactionDetails({account:'fixture',transactionIds:[id]},{...config,fetchImpl:async url=>url.pathname==='/v2/accounts'?response(JSON.stringify({requestId,accounts:[{id:accountId,alias:'fixture'}]})):response(JSON.stringify({requestId,status:403,code:'FORBIDDEN',title:'Forbidden'}),403)});assert.equal(denied.isError,true);
+});
+
+test('unsupported period symbol combinations return actionable correction instead of a generic read failure',async()=>{
+ const{inspectTransactions}=await import('./transactions.mjs');const r=await inspectTransactions({account:'fixture',view:'closed-trades',symbol:'ABC',from:'2026-10-01',through:'2026-10-29',timeZone:'America/Denver'},{...config,fetchImpl(){throw Error('No backend read needed');}});assert.equal(r.isError,true);assert.match(r.content[0].text,/inspect_account_transaction_details/);
+});

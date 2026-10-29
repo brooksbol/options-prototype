@@ -182,3 +182,18 @@ side-price arithmetic, exposed by the existing market tool's `measurement` optio
 It is not installed in the operational backend. This does not establish a live
 ranking, options liquidity or executable depth. The existing Position tool now
 accepts backend lifecycle selection and opaque continuation without host changes.
+
+### Closed-report evidence drill-down and display
+
+Closed-trade report rows expose opening/closing transaction IDs. The admitted
+`inspect_account_transaction_details` MCP read composes at most eight existing
+Account-scoped transaction item reads, with a shared15-second item-read budget
+and100000-byte output bound. It preserves exact backend records and grants;
+it performs no financial calculation. Period summary views do not accept the
+raw transaction view's exact-native-symbol filter; invalid combinations return
+an actionable correction instead of a generic read failure.
+
+USD closed-report presentation rounds exact source decimals to two places;
+backend amounts and totals remain unrounded and are available in the evidence
+accordion. Totals are never recalculated from rounded display rows. Placeholder-only
+Markdown tables are suppressed; empty analysis produces no analysis accordion.

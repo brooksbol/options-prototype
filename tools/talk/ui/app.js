@@ -166,7 +166,9 @@ $('composer').addEventListener('submit', async event => {
       }
 
     }
-    if ((answer.tools??[]).some(tool=>evidenceView(resultText(tool.result)).closedTradeSummary)) {
+    const analysisContent=article.querySelector('.text');
+    if (!analysisContent.innerHTML?.trim()) { analysisContent.remove();
+    } else if ((answer.tools??[]).some(tool=>evidenceView(resultText(tool.result)).closedTradeSummary)) {
       const content=article.querySelector('.text');
       const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);
       article.insertBefore(details,content);content.remove();details.append(content);

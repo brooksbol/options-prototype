@@ -1,3 +1,4 @@
+import {usdDisplay} from './currency.js';
 // Presentation only: exact source lexemes and backend units/statuses; no financial arithmetic.
 export function evidenceView(raw) {
   let value;
@@ -76,14 +77,14 @@ export function evidenceView(raw) {
   let closedTradeSummary;
   const closed=value.evidence?.closedTrades;
   if(closed?.view==='closed-trades'&&Array.isArray(closed.trades)) {
-    const money=p=>{if(p?.value==null)return '—';const exact=text(p.value);return p.currency==='USD'?(exact.startsWith('-')?'−$'+exact.slice(1):'$'+exact):exact+' '+p.currency;};
+    const money=p=>{if(p?.value==null)return '—';const exact=text(p.value);return p.currency==='USD'?usdDisplay(exact,{signed:true}):exact+' '+p.currency;};
     const period=closed.period??{},total=closed.totals??{};
     closedTradeSummary={title:`${value.account?.nickname??'Account'} · Closed Trades`,period:`${period.from} through ${period.through}`,
       metric:total.netPnl?.value==null?'P/L unavailable':total.netPnl?.status==='QUALIFIED_ESTIMATED_FEES'?'Estimated net P/L':'Realized net P/L',
       totals:[['Net P/L total',money(total.netPnl),total.netPnl?.outcome],['Winners',total.winners==null?'—':text(total.winners),''],['Losers',total.losers==null?'—':text(total.losers),'']],
       rows:closed.trades.map(t=>({label:t.label,closed:(()=>{try{return new Intl.DateTimeFormat('en-US',{timeZone:period.timeZone,month:'short',day:'numeric'}).format(new Date(t.closingExecutedAt));}catch{return '—';}})(),pnl:money(t.netPnl),outcome:t.netPnl?.outcome})),
-      details:[['Metric',closed.metric],['Requested timezone',period.timeZone],['Cutoff',period.requestedCutoff],['Source scan',closed.coverage?.scannedThrough??'Unknown'],['Coverage',closed.coverage?.status??'Unknown'],['Qualification',closed.qualification],
-        ...closed.trades.flatMap(t=>[['Trade state',`${t.label} · ${t.status}`],['Net P/L status',t.netPnl?.status??'Unknown'],['Matching method',t.netPnl?.method??'Unknown'],...(t.qualifications??[]).map(q=>['Qualification',q]),['Opening source transactions',(t.openingTransactions??[]).join(', ')],['Closing source transactions',(t.closingTransactions??[]).join(', ')]])]
+      details:[['Metric',closed.metric],['Display rounding','USD display uses two decimals, half away from zero. Backend totals use unrounded source values, so displayed row sums can differ from the displayed total.'],['Unrounded total',`${text(total.netPnl?.value)} ${total.netPnl?.currency??''}`],['Requested timezone',period.timeZone],['Cutoff',period.requestedCutoff],['Source scan',closed.coverage?.scannedThrough??'Unknown'],['Coverage',closed.coverage?.status??'Unknown'],['Qualification',closed.qualification],
+        ...closed.trades.flatMap(t=>[['Trade state',`${t.label} · ${t.status}`],['Net P/L status',t.netPnl?.status??'Unknown'],['Unrounded net P/L',`${text(t.netPnl?.value)} ${t.netPnl?.currency??''}`],['Matching method',t.netPnl?.method??'Unknown'],...(t.qualifications??[]).map(q=>['Qualification',q]),['Opening source transactions',(t.openingTransactions??[]).join(', ')],['Closing source transactions',(t.closingTransactions??[]).join(', ')]])]
     };
   }
   let executionSummary;

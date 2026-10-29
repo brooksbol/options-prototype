@@ -41,7 +41,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     servers = await connectSyntheticMcp(backend, [...syntheticCapabilities.map(config =>
       market && config.admitted.includes('list_authorized_accounts') ? { ...config, backend: market } : config), ...(market ? [{
       name: retainedBackend ? 'wheelwright-retained-accounts' : 'wheelwright-synthetic-market', script: '../mcp-v2-evidence/server.mjs',
-      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_option_inventory'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_option_inventory'], backend: market
+      admitted: authorizedMarketBackend ? ['inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_account_transaction_details', 'inspect_option_inventory'] : ['inspect_market_quotes', 'inspect_account_positions', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_transactions', 'inspect_account_transaction_details', 'inspect_option_inventory'], backend: market
     }] : []), ...(authorizedMarketBackend ? [{ name: 'wheelwright-retained-market', script: '../mcp-v2-evidence/server.mjs',
       admitted: ['inspect_market_quotes'], backend: authorizedMarketBackend }] : [])]);
     const tools = (await Promise.all(servers.map(async server => ({
@@ -51,7 +51,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     // Freeze this preview's UI bytes at startup; later candidate edits must not
     // silently change an already-running preview or introduce mismatched assets.
     const assets = Object.fromEntries([
-      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript'], ['/markdown.js', 'markdown.js', 'text/javascript']
+      ['/', 'index.html', 'text/html'], ['/app.js', 'app.js', 'text/javascript'], ['/style.css', 'style.css', 'text/css'], ['/evidence-view.js', 'evidence-view.js', 'text/javascript'], ['/markdown.js', 'markdown.js', 'text/javascript'], ['/currency.js', 'currency.js', 'text/javascript']
     ].map(([path, name, type]) => [path, { type, bytes: readFileSync(new URL(`./ui/${name}`, import.meta.url)) }]));
     assets['/node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs'] = {type:'text/javascript',bytes:readFileSync(new URL('./node_modules/markdown-it/dist/browser/markdown-it.esm.min.mjs',import.meta.url))};
     http = createServer(async (req, res) => {

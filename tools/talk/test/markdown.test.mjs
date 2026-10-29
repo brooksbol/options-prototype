@@ -11,3 +11,10 @@ test('model Markdown cannot create active HTML, remote images, scripts or links'
  const html=renderMarkdown('<script>alert(1)</script>\n<img src="https://private.example/track" onerror="alert(1)">\n\n![private](https://private.example/track)\n[click](javascript:alert(1))\n[click](https://private.example/)\n<https://private.example/>\n\n&lpar; **0.00** <iframe src="/api/status"></iframe>');
  assert.doesNotMatch(html,/<(?:script|img|iframe|a)\b/i);assert.match(html,/&lt;script&gt;/);assert.match(html,/<strong>0.00<\/strong>/);
 });
+
+test('empty placeholder tables do not render, while unavailable rows with meaningful labels survive',()=>{
+ assert.equal(renderMarkdown('| Trade | Closed | Net P/L |\n|---|---|---|\n| | | |\n| — | — | — |\n| | | |\n| | | |\n| | | |').trim(),'');
+ assert.match(renderMarkdown('| Trade | P/L |\n|---|---|\n| ABC | — |'),/<table>/);
+ assert.match(renderMarkdown('Result unavailable.\n\n| Trade | P/L |\n|---|---|\n| | |'),/Result unavailable/);
+ assert.doesNotMatch(renderMarkdown('Result unavailable.\n\n| Trade | P/L |\n|---|---|\n| | |'),/<table>/);
+});
