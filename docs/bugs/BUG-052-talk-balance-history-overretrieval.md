@@ -85,3 +85,5 @@ October29 shared-result candidate: exact Position tactical projection and select
 
 
 Principal reports another empty six-column analysis table in shared-result Test2. Original Markdown unavailable; decoded whitespace-entity/format-only tables independently reproduce the raw-content filtering gap. Candidate token-tree suppression and empty rendered-analysis handling preserve meaningful text/zero/unavailable/code. Browser actual-result replay with controlled empty table passes. Same receipt links scope, source retention and review boundaries; no blanket claim every unknown Markdown format is fixed.
+
+Selection token correctionb21404f1 independently ACCEPTed after preserving rejected379 and nonempty-code falsifier. Decoded entity/format-empty tables suppress while quoted code/zeros/nonempty content survive. Temporary8816 updated; production unchanged; Principal empty-analysis retest pending.

@@ -510,5 +510,51 @@
       "protectedPixelsExported": false
     },
     "backendMcpSdkContractUnchanged": true
+  },
+  "finalDisposition": {
+    "review": "ACCEPT within bounded source scope",
+    "source": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+    "reviewSha256": "3de2bfc7c159ee4cfaa72d805123732ea4b618b6a0adab97d2a468d76a1b3d78",
+    "preview": {
+      "url": "http://127.0.0.1:8816",
+      "source": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+      "standing": "RETAINED_COPY_CANDIDATE_NOT_PRODUCTION",
+      "providerAcquisitionEnabled": false,
+      "productionWritten": false,
+      "grantsLiveReadOnly": true
+    },
+    "servedUi": {
+      "standing": "SERVED_REVIEWED_PREVIEW_ASSETS_ACTUAL_RESULT_REPLAY_CONTROLLED_SAME_TURN_AND_EMPTY_MD",
+      "cardsByTurn": [
+        4,
+        1,
+        4
+      ],
+      "priorTurnPreserved": true,
+      "sameTurnBroadRetainedAsSource": true,
+      "selectedNativeSvg": 1,
+      "selectedStrikeKnots": 2,
+      "emptyAnalysisAbsent": true,
+      "defaultRawJsonAbsent": true,
+      "mobileOverflow": false,
+      "pageErrors": 0,
+      "modelRequests": 0,
+      "protectedPixelsExported": false
+    },
+    "elapsedSecondsToReceipt": 1205,
+    "preservation": {
+      "productionPids": [
+        77120,
+        77121,
+        87839,
+        87851
+      ],
+      "credentialsGrantsPoliciesUnchanged": true,
+      "rootRevision": "f88a66664f71de081e8fc3916f5a7507e3ee3e51",
+      "remoteMain": "b67ff4493db8bb9f8a31f00e790aa0c44d8f608f",
+      "productionSource": "b008cbe1",
+      "productionChanged": false
+    },
+    "principalRetestPending": true
   }
 }

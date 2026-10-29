@@ -95,3 +95,5 @@ Shared exact tactical increment: independently ACCEPTed source97c943a2, two real
 
 
 Named-scope follow-up: Principal Test2 FAIL preserves the successful shared-core Test1/Test3 findings. Candidate access now supports backend underlying predicate and existing exact detail; representation collapses superseded graphics within a turn, preserves sources/history and removes decoded-empty analysis. Author real retained broad→QQQ→broad4/1/4 plus cold filtered query pass. Principal reacceptance and independent review remain distinct. Full entry/progress parity unchanged.
+
+Named-scope correction sourceb21404f1 independently ACCEPTed and available in temporary preview8816. Author real SDK broad→QQQ→broad4/1/4 and fresh underlyingQQQ query1 pass; served graphics/emptyanalysis/source-preservation replay passes. Prior Principal Test2FAIL remains historical until retest; no Principal/fullfinancial acceptance or production deployment claimed.

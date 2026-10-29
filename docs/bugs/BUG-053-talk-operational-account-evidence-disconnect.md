@@ -85,3 +85,5 @@ Runtimeb008cbe1 (reviewed6f5ed308) fixes blanket cash-coverage suppression while
 ## Principal named-scope acceptance falsifier — October29
 
 Shared-result Test1 operator-positive and Test3 QQQ evidence passed; Test2 compact QQQ request returned all4. Original tool trace unavailable, so exact failed invocation/root cause is not fabricated. Candidate adds existing Position underlying selector/MCP scope checks and current-turn trusted-result supersession; real retained SDK4→1→4 and cold QQQ selection pass. No financial-domain redesign or current-origin claim. [Scoped receipt](../reviews/sdk-talk-selection-2026-10-29.md). Independent review/Principal reacceptance pending; broader BUG053 remains Open.
+
+Named-scope sourceb21404f1 independently ACCEPTed; only temporary8816 updated. Actual SDK4/1/4 and cold backend-underlying query pass with native single graphic. This is candidate scope correction, not Principal reacceptance or full origin/economic parity. Existing broader defect stays Open.
