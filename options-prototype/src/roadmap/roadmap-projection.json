@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-29T19:18:04.130Z",
+    "generatedAt": "2026-10-29T20:11:53.261Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11586,6 +11586,13 @@
           "content": "Independent review rejected frozen tactical candidate e163a9cc: inverse-condor profitable tails could get a loss-region color, and null legacy exposure failed the compact schema. The [integration receipt](../reviews/sdk-talk-tactical-integration-2026-10-29.md#independent-implementation-falsification-and-bounded-correction) preserves failure/review and new bounded corrections. A maximum-plateau geometry qualification and ADVERSE_TAIL avoid claiming actual losses; unsupported color interpretation remains unavailable while geometry survives. Source/presentation acceptance remains separate. No installed fix or Principal acceptance is claimed.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "October29 installed Position over-retrieval",
+          "level": 2,
+          "content": "Installed real SDK replay at74493 selected expanded inactive Account history for an ordinary all-positions request:486,497 response bytes,499,374 input tokens in that turn. This extends the existing minimum-necessary retrieval defect beyond balances. Candidate strict monitoring schema and compact backend DTO address the actual layer; one-Position evidence-on-demand stays available. See the workspace-interactions receipt for scope, tests and pending review. Remains Open; no synthetic success substitutes for installed verification.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -11695,6 +11702,13 @@
           "level": 2,
           "content": "Independent source-original review qualifies the three TT1 closed round trips and independently accepts the quantity-scale comparison correction at `77810b0b`; it does not certify complete monthly performance. Candidate tactical integration recovers the existing Java recognition/economic pipeline behind a compact Position representation. Installed Orders/Account-market grants and read-through remain disabled; zero retained Order resources explain why source-backed multi-leg monitoring cannot yet reach tt-live parity. No broad grant or automatic acquisition is inferred. See the [new scoped receipt](../reviews/sdk-talk-tactical-integration-2026-10-29.md) and [single maintained two-axis matrix](../implementation/pl-mcp-01-capability-presentation-matrix.md). This remains Open; candidate tests are not installed/Principal acceptance.",
           "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "October29 installed refresh adapter falsification",
+          "level": 2,
+          "content": "The real backend accepted and retained the explicitly requested holdings acquisition, while MCP rejected its opaque snapshot identity under an invented UUID constraint. Candidate now follows the existing string/null contract and fixtures use the actual snapshot prefix shape. No permission broadening or blind retry; the backend observation was inspected first. See the workspace-interactions receipt. Independent review and corrected installed replay remain pending.",
+          "truncated": false,
           "tables": []
         }
       ]
