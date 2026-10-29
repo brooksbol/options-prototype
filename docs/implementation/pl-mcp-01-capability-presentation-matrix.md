@@ -85,3 +85,8 @@ Runtimeb008cbe1, reviewed source6f5ed308: all4current tt1 structures now expose 
 AxisA passes these independent fields/native links; current-held opening association, original duration, entry economics, progress and dependent checkpoints remain unresolved. AxisB passes compact geometry/degradation/evidence interaction; full tt-live economic parity does not pass. Actual four-structure same-cut membership/spot/clocks/DTE/strike boundaries agree. Existing coverage failure is no longer a blanket tactical-field veto. No current-origin inference from historical unique contract match or bracket.
 
 Deliberate Position/bracket details remain large (80,222/84,173normalized result bytes and substantial repeated-context tokens), an unresolved minimum-necessary retrieval concern under existing governance. Grants/policies remain approved300/30; no new permission decision. Independent bounded financial source review ACCEPT, Principal acceptance pending. [Source trace, field matrix and installed proof](../reviews/sdk-talk-financial-dependencies-2026-10-29.md#installed-successor-verification--october29).
+
+
+## Shared exact tactical candidate — October29
+
+Existing Java calculation/compact DTO now consumed by an engineer-only direct HTTP CLI and actual SDK/MCP selected view. Unchanged native web geometry/DTE/spot/degraded rendering passes actual-result replay; CLI prints metrics/clocks without economic arithmetic. Same retained QQQ vertical, all4structures retained; current origin/basis-dependent economics unknown. No installed replacement/Principal acceptance; installed financial algorithms removed:0. [Receipt](../reviews/sdk-talk-shared-tactical-result-2026-10-29.md).

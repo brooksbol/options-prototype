@@ -79,3 +79,6 @@ Installed real SDK replay at74493 selected expanded inactive Account history for
 ## October29 installed bounded correction verified
 
 Independently accepted bounded monitoring is now installed atbf6fecea. Actual real SDK reads all selected pages without expanded history; natural selected-row detail succeeds. Monitoring turn input usage499,374→36,710; same-membership backend tactical bytes63,179→44,459. Existing broader defect remains Open pending Principal acceptance; see final workspace receipt.
+
+
+October29 shared-result candidate: exact Position tactical projection and selected MCP view avoid expanded Position/Construction unless evidence requested. Same private cut6705byte DTO versus72225byte expanded pair; actual compact SDK wrapper8086bytes. This is selected Position overretrieval evidence, not a new balance fix or installed acceptance. [Receipt](../reviews/sdk-talk-shared-tactical-result-2026-10-29.md).

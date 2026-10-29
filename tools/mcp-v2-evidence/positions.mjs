@@ -46,15 +46,20 @@ export async function inspectPositions({ account, state, cursor, projection = 't
 }
 
 // Exact, deliberate single-Position evidence inspection; never an Account history dump.
-export async function inspectPositionDetails({account,positionId},config){
+export async function inspectPositionDetails({account,positionId,view='evidence'},config){
  const resourceConfig=resourceBudget(config);
+ if(!['evidence','tactical'].includes(view))throw new Error('Unsupported Position detail view.');
  if(!UUID.test(positionId??''))throw new Error('Canonical Position ID required.');
  const inventory=await readBackend('/v2/accounts',config);if(inventory.error)return problemResult(inventory.error);
  if(inventory.data?.requestId!==inventory.requestId||!Array.isArray(inventory.data.accounts))throw new Error('Invalid Account discovery.');
  const matches=inventory.data.accounts.filter(a=>a.alias===account);if(matches.length!==1||!canonicalAccountId(matches[0].id))return {isError:true,content:[{type:'text',text:'Exact authorized Account nickname required.'}]};
- const selected=matches[0],path='/v2/positions/'+positionId,result=await readBackend(path,resourceConfig());if(result.error)return problemResult(result.error,account);
- if(result.data?.self?.href!==path||result.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Position detail scope.');
+ const selected=matches[0],path='/v2/positions/'+positionId,result=await readBackend(path+(view==='tactical'?'?projection=tactical':''),resourceConfig());if(result.error)return problemResult(result.error,account);
+ if(result.data?.id!==positionId||result.data?.self?.href!==path||result.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Position detail scope.');
  const href=result.data.currentConstruction?.href;if(typeof href!=='string'||!href.startsWith('/v2/constructions/')||!UUID.test(href.slice('/v2/constructions/'.length)))throw new Error('Invalid Construction reference.');
+ if(view==='tactical'){
+  if(result.data.representation!=='TACTICAL_POSITION')throw new Error('Invalid tactical Position representation.');
+  return {content:[{type:'text',text:JSON.stringify({requestId:result.requestId,account:{nickname:selected.alias,broker:selected.brokerAssociation?.broker},nextCursor:null,evidence:{projection:'tactical',items:[result.data],next:null,warnings:result.data.warnings??[]},qualification:'Exact selected Position tactical representation; this is not a complete Account inventory or proof of current custody. Same backend calculations as monitoring. Historical opening references do not establish current origin; preserve field qualifications. Expanded source evidence remains available with view=evidence.'})}]};
+ }
  const construction=await readBackend(href,resourceConfig());if(construction.error)return problemResult(construction.error,account);
  if(construction.data?.self?.href!==href||construction.data.position?.href!==path||construction.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Construction detail scope.');
  return {content:[{type:'text',text:JSON.stringify({requestId:result.requestId,account:{nickname:selected.alias,broker:selected.brokerAssociation?.broker},evidence:result.data,construction:construction.data,qualification:'Exact selected Position and its current immutable Construction, under backend permissions. Detail is not complete Account history or proof of current custody. Preserve source clocks, unknowns and qualifications.'})}]};

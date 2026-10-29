@@ -26,7 +26,7 @@ public final class PortfolioController {
   String path=request.getRequestURI();Kind kind=kind(path);String account=request.getParameter("accountId");boolean recon=path.endsWith("/inventory-reconciliation");if(recon)account=path.split("/")[3];
   if(account!=null&&!caller.hasGrant(kind==Kind.MARKET_OBSERVATION?"account.market.read:"+account:PortfolioAuthorization.grant(kind,account)))return problem(403,"FORBIDDEN",id,"Account capability required");
   if(recon&&!caller.hasGrant("account.holdings.read:"+account))return problem(403,"FORBIDDEN",id,"Account holdings capability required for custody reconciliation");
-  boolean collection=isCollection(path);Set<String> parameters=collection?params(kind,path):Set.of();
+  boolean collection=isCollection(path);Set<String> parameters=collection?params(kind,path):kind==Kind.POSITION&&!recon?Set.of("projection"):Set.of();
   if(body!=null&&body.length>0||badCorrelation)return problem(422,"INVALID_REQUEST",id,"Invalid correlation header or GET body");
   for(String name:request.getParameterMap().keySet())if(!parameters.contains(name)||request.getParameterValues(name).length!=1)return problem(422,"INVALID_REQUEST",id,"Unknown or repeated query parameter");
   if(account!=null&&!AccountDirectory.validId(account))return problem(422,"INVALID_REQUEST",id,"Canonical Account ID required");
@@ -34,7 +34,8 @@ public final class PortfolioController {
   boolean selectorsValid=false;
   try{
    String projection=Optional.ofNullable(request.getParameter("projection")).orElse("summary"),sort=Optional.ofNullable(request.getParameter("sort")).orElse("id");if(!Set.of("uri","summary","expanded","tactical").contains(projection)||!Set.of("id","-id").contains(sort))return problem(422,"INVALID_REQUEST",id,"Invalid projection or sort");
-   if(projection.equals("tactical")&&(kind!=Kind.POSITION||!collection||request.getParameter("include")!=null))return problem(422,"INVALID_REQUEST",id,"Tactical projection is a Position collection representation with backend-selected fields");
+   if(!collection&&request.getParameter("projection")!=null&&!projection.equals("tactical"))return problem(422,"INVALID_REQUEST",id,"Exact Position supports only the optional tactical projection");
+   if(projection.equals("tactical")&&(kind!=Kind.POSITION||recon||request.getParameter("include")!=null))return problem(422,"INVALID_REQUEST",id,"Tactical projection is a Position representation with backend-selected fields");
    int limit=50;try{if(request.getParameter("limit")!=null)limit=Integer.parseInt(request.getParameter("limit"));}catch(NumberFormatException e){return problem(422,"INVALID_REQUEST",id,"Invalid limit");}if(limit<1||limit>200)return problem(422,"INVALID_REQUEST",id,"Limit outside1..200");
    Set<String> includes=new LinkedHashSet<>();if(request.getParameter("include")!=null){includes.addAll(Arrays.asList(request.getParameter("include").split(",",-1)));if(!Set.of("currentConstruction","constituents","modelVersion","holdingSummaries","orderSummaries").containsAll(includes))return problem(422,"INVALID_REQUEST",id,"Invalid include");}
    String brokerGroup=request.getParameter("brokerGroupId");if(brokerGroup!=null&&(brokerGroup.isBlank()||brokerGroup.length()>1024))return problem(422,"INVALID_REQUEST",id,"Invalid broker group selector");
@@ -67,7 +68,7 @@ public final class PortfolioController {
    if(recon){var value=service.reconciliation(account,now);PortfolioAuthorization.sanitizeRepresentation(value,caller);return ok(value,id);}
    if(kind==Kind.AUDIT){var parent=service.find("/v2/positions/"+parts[3]);if(parent.isEmpty()||!caller.hasGrant("account.positions.audit.read:"+parent.get().account()))return problem(404,"NOT_FOUND",id,"Position audit not found in authorized scope");scope.retainAll(Set.of(parent.get().account()));}
    if(!collection){
-    var d=service.find(path);if(d.isEmpty()||!PortfolioAuthorization.canRead(caller,d.get()))return problem(404,"NOT_FOUND",id,"Resource not found in authorized scope");var value=service.read(d.get(),caller,now);if(!marketWarnings.isEmpty())((ArrayNode)value.path("warnings")).addAll(marketWarnings);return ok(value,id);
+    var d=service.find(path);if(d.isEmpty()||!PortfolioAuthorization.canRead(caller,d.get()))return problem(404,"NOT_FOUND",id,"Resource not found in authorized scope");var value=projection.equals("tactical")?service.tactical(d.get(),caller,now,new PortfolioReadService.ReadContext()):service.read(d.get(),caller,now);if(!marketWarnings.isEmpty()){if(!value.path("warnings").isArray())value.set("warnings",array());((ArrayNode)value.path("warnings")).addAll(marketWarnings);}if(projection.equals("tactical")&&PortfolioJson.JSON.writeValueAsBytes(value).length>100000)return problem(503,"CAPABILITY_UNAVAILABLE",id,"Exact tactical representation exceeds100000 bytes");return ok(value,id);
    }
    var items=new ArrayList<ObjectNode>();
    if(view!=null){for(var x:service.snapshotPage(scope,after,sort.startsWith("-"),limit)){var value=(ObjectNode)x;PortfolioAuthorization.sanitizeRepresentation(value,caller);items.add(value);}}

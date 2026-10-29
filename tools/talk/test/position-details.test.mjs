@@ -13,3 +13,13 @@ test('detail shares one monotonic resource budget rather than granting a fresh d
  c.fetchImpl=async(url,init)=>{if(url.pathname===position)await import('node:timers/promises').then(({setTimeout})=>setTimeout(95,undefined,{signal:init.signal}));if(url.pathname===construction){constructionStarted=performance.now();await import('node:timers/promises').then(({setTimeout})=>setTimeout(95,undefined,{signal:init.signal}));}return old(url,init);};
  const start=performance.now();await assert.rejects(inspectPositionDetails({account:'fixture',positionId},c),/abort/i);assert.ok(constructionStarted);assert.ok(performance.now()-start<260);
 });
+
+
+test('exact tactical detail preserves one backend item and reads no expanded Construction',async()=>{
+ const c=fixture({position:{representation:'TACTICAL_POSITION',constituents:[],evaluation:{openingCashFlow:{value:null,status:'INCOMPLETE'}}}}),old=c.fetchImpl;c.fetchImpl=async(url,init)=>{if(url.pathname===position)assert.equal(url.search,'?projection=tactical');return old(url,init);};
+ const r=await inspectPositionDetails({account:'fixture',positionId,view:'tactical'},c),v=JSON.parse(r.content[0].text);assert.deepEqual(c.paths,['/v2/accounts',position]);assert.equal(v.evidence.projection,'tactical');assert.equal(v.evidence.items.length,1);assert.equal(v.evidence.items[0].id,positionId);assert.equal(v.nextCursor,null);assert.match(v.qualification,/not.*Account inventory/i);
+});
+test('tactical exact detail refuses changed identity and never falls back to history',async()=>{
+ for(const change of [{id:constructionId},{representation:'Position'},{currentConstruction:{href:'https://example.invalid/x'}}]){const c=fixture({position:{representation:'TACTICAL_POSITION',...change}});await assert.rejects(inspectPositionDetails({account:'fixture',positionId,view:'tactical'},c));assert.equal(c.paths.length,2);}
+ const c=fixture();await assert.rejects(inspectPositionDetails({account:'fixture',positionId,view:'broad'},c));assert.equal(c.paths.length,0);
+});

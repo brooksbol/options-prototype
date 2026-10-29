@@ -7206,6 +7206,18 @@
               "format": "uuid"
             },
             "description": "Filter by an independently authorized Position GUID. The caller also needs its Account Position-read permission; unknown and unauthorized targets return404. Construction-targeted associations resolve through their same-Account Position, including retained history. Filtering preserves UNKNOWN/AMBIGUOUS association qualifications; it does not validate them."
+          },
+          {
+            "name": "projection",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tactical"
+              ]
+            },
+            "description": "Optional compact exact Position representation using the same backend-qualified calculations as collection tactical projection. Omit for the existing full Position. Selection completeness is not Account inventory or lifecycle completeness."
           }
         ],
         "responses": {
@@ -7228,7 +7240,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Position"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Position"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TacticalPosition"
+                    }
+                  ]
                 },
                 "examples": {
                   "simple-position": {
@@ -38400,6 +38419,12 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Warning"
             }
           }
         },
