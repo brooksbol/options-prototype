@@ -90,3 +90,5 @@ Named-scope sourceb21404f1 independently ACCEPTed; only temporary8816 updated. A
 
 
 Principal now accepts bounded shared-result/scope experiment atb21404f1 (4→QQQonly→4). Broad defect remains Open for full opening/economic parity. Separate freshness inquiry establishes CURRENT≤12h even during Open; RETAINED_SESSION is a later completed-session extension. This explains39–40minute CURRENT labels as implementation behavior, not proof of live prices or separately ratified active-market policy. No freshness policy change or production deployment follows this acceptance. See selection receipt final acceptance/integration section.
+
+Principal A promoted accepted scope correction to production8787 atreleaseeb4f15cd/reviewedb214. Installed actualSDK4→QQQonly1→4 and cold named query pass; v1/grants/policies preserved. This resolves delivered narrow-scope behavior within the broader Open defect; full opening/economic parity remains unresolved. See installed selection receipt.

@@ -100,3 +100,5 @@ Named-scope correction sourceb21404f1 independently ACCEPTed and available in te
 
 
 Principal acceptance update: bounded shared-result/selection candidateb21404f1 is OPERATOR_ACCEPTED (4→1→4, native facts/unknowns preserved). Earlier pending/FAIL records are historical. GateA and demonstrated two-consumer GateB pass for this increment; complete financial/lifecycle parity is not accepted. Empty analysis blocks persist (BUG052); quote CURRENT means implemented≤12h window, with separate closed-session extension, and needs presentation/policy scrutiny. No production deployment inferred.
+
+Production update: Principal-authorized releaseeb4f15cd/b214runtime installed at8787; actualSDK4/1/4 and fresh namedQQQ pass, exact membership and native served-client replay verified. Same governed financial core, no new grant/policy/math. Bounded candidate Product acceptance now delivered operationally; installed Principal observation remains distinct. BUG052 empty block artifacts, CURRENT label/policy scrutiny and origin/P&L gaps stay open.

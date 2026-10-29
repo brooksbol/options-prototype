@@ -608,5 +608,388 @@
     "authorizedAction": "Integrate and deploy accepted candidate to8787 keeping residual gaps open",
     "runtimeSource": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
     "grantsOrPoliciesChanged": false
+  },
+  "productionDeployment": {
+    "principalAuthorization": "A",
+    "installed": true,
+    "releaseSource": "eb4f15cddba55118664a9efcd2758859677dfa7b",
+    "reviewedRuntimeSource": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+    "jarSha256": "abf3a1e3fb049bbcef305c15bbe937a33eb8ba27dbe3efb59e219d55fcc6748b",
+    "rollout": {
+      "installed": true,
+      "source": "eb4f15cddba55118664a9efcd2758859677dfa7b",
+      "reviewSource": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+      "jarSha": "abf3a1e3fb049bbcef305c15bbe937a33eb8ba27dbe3efb59e219d55fcc6748b",
+      "imagesEnabled": true,
+      "tools": [
+        "list_authorized_accounts",
+        "acquire_account_holdings",
+        "prepare_report_download",
+        "inspect_account_positions",
+        "inspect_position_details",
+        "inspect_order_details",
+        "inspect_account_balances",
+        "inspect_account_holdings",
+        "inspect_account_transactions",
+        "inspect_account_transaction_details",
+        "inspect_option_inventory",
+        "inspect_market_quotes"
+      ],
+      "privacy": {
+        "traceExport": false,
+        "state": "local-memory",
+        "providerStorage": false,
+        "remoteCompaction": false
+      },
+      "servedAssetHashesMatch": true,
+      "newAccountGrants": false,
+      "newAcquisitionPolicies": false
+    },
+    "installedSdk": {
+      "standing": "INSTALLED_REAL_AUTHORIZED_SDK_VERIFICATION",
+      "source": "eb4f15cddba55118664a9efcd2758859677dfa7b",
+      "reviewedSource": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+      "counts": [
+        4,
+        1,
+        4
+      ],
+      "exactAuthorizedBackendMembership": true,
+      "coldUnderlyingSelected": true,
+      "allFourBenchmark": true,
+      "entryAndProgressNotInvented": true,
+      "explicitRefreshToolsUsed": false,
+      "existingReadThroughPolicyMayAcquire": true,
+      "privacy": {
+        "traceExport": false,
+        "state": "local-memory",
+        "providerStorage": false,
+        "remoteCompaction": false
+      },
+      "elapsedMs": 26436,
+      "protectedResponsesRemainPrivate": true,
+      "turns": [
+        {
+          "tools": [
+            {
+              "name": "inspect_account_positions",
+              "view": null,
+              "underlying": null
+            }
+          ],
+          "resultBytes": 33573,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 19777,
+            "outputTokens": 314,
+            "totalTokens": 20091,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 5297,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 9177,
+                "cached_tokens": 5297
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 5300,
+                "outputTokens": 20,
+                "totalTokens": 5320,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 5297,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 14477,
+                "outputTokens": 294,
+                "totalTokens": 14771,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 9177,
+                  "cached_tokens": 5297
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          }
+        },
+        {
+          "tools": [
+            {
+              "name": "inspect_account_positions",
+              "view": null,
+              "underlying": "QQQ"
+            }
+          ],
+          "resultBytes": 9349,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 32058,
+            "outputTokens": 117,
+            "totalTokens": 32175,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 14785,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 2482,
+                "cached_tokens": 14785
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 14788,
+                "outputTokens": 26,
+                "totalTokens": 14814,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 14785,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 17270,
+                "outputTokens": 91,
+                "totalTokens": 17361,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 2482,
+                  "cached_tokens": 14785
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          }
+        },
+        {
+          "tools": [
+            {
+              "name": "inspect_account_positions",
+              "view": null,
+              "underlying": null
+            }
+          ],
+          "resultBytes": 33573,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 43927,
+            "outputTokens": 264,
+            "totalTokens": 44191,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 17372,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 9177,
+                "cached_tokens": 17372
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 17375,
+                "outputTokens": 20,
+                "totalTokens": 17395,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 17372,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 26552,
+                "outputTokens": 244,
+                "totalTokens": 26796,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 9177,
+                  "cached_tokens": 17372
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          }
+        },
+        {
+          "tools": [
+            {
+              "name": "inspect_account_positions",
+              "view": null,
+              "underlying": "QQQ"
+            }
+          ],
+          "resultBytes": 9349,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 13078,
+            "outputTokens": 245,
+            "totalTokens": 13323,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 5297,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 2478,
+                "cached_tokens": 5297
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 5300,
+                "outputTokens": 26,
+                "totalTokens": 5326,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 5297,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 7778,
+                "outputTokens": 219,
+                "totalTokens": 7997,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 2478,
+                  "cached_tokens": 5297
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          }
+        }
+      ],
+      "principalInstalledAcceptance": false
+    },
+    "installedUiReplay": {
+      "standing": "INSTALLED_ASSETS_ACTUAL_INSTALLED_SDK_RESULT_REPLAY_WITH_CONTROLLED_DISPLAY_COUNTEREXAMPLES",
+      "cardsByTurn": [
+        4,
+        1,
+        4
+      ],
+      "priorTurnPreserved": true,
+      "sameTurnBroadRetainedAsSource": true,
+      "selectedNativeSvg": 1,
+      "selectedStrikeKnots": 2,
+      "emptyAnalysisAbsent": true,
+      "defaultRawJsonAbsent": true,
+      "mobileOverflow": false,
+      "pageErrors": 0,
+      "modelRequests": 0,
+      "protectedPixelsExported": false
+    },
+    "isolation": {
+      "accountIsolation": {
+        "pts": {
+          "orders": 403,
+          "market": 403
+        },
+        "sawdust": {
+          "orders": 403,
+          "market": 403
+        }
+      },
+      "newTradingTool": false,
+      "toolNames": [
+        "list_authorized_accounts",
+        "acquire_account_holdings",
+        "prepare_report_download",
+        "inspect_account_positions",
+        "inspect_position_details",
+        "inspect_order_details",
+        "inspect_account_balances",
+        "inspect_account_holdings",
+        "inspect_account_transactions",
+        "inspect_account_transaction_details",
+        "inspect_option_inventory",
+        "inspect_market_quotes"
+      ],
+      "privacy": {
+        "traceExport": false,
+        "state": "local-memory",
+        "providerStorage": false,
+        "remoteCompaction": false
+      }
+    },
+    "usage": {
+      "requests": 8,
+      "inputTokens": 108840,
+      "outputTokens": 940,
+      "billingCost": null,
+      "authorReviewerTokens": null
+    },
+    "v1PidsUnchanged": [
+      77120,
+      77121
+    ],
+    "newV2AndTalkPids": [
+      95925,
+      95934
+    ],
+    "credentialsGrantsPoliciesAndLaunchConfigurationUnchanged": true,
+    "matchingSourceAndJarRollbackRetained": true,
+    "brokerProviderRequestCount": "NOT_INSTRUMENTED; existing authorized request-triggered policy may acquire/retain",
+    "principalInstalledAcceptance": false,
+    "knownResidualsRemainOpen": true
   }
 }

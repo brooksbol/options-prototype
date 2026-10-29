@@ -92,3 +92,5 @@ Selection token correctionb21404f1 independently ACCEPTed after preserving rejec
 ## Residual after bounded scope acceptance — October29
 
 Principal accepts4→1→4 scope behavior but still reports empty analysis tables/headings/bullets. Controlled current-source whitespace-entity-only list plus Analysis heading reproduces surviving empty block structures. Original session Markdown unavailable; exact table recurrence cause not established. Previous table/token fixes were incomplete, not full presentation acceptance. Remains Open; next cleanup should prune structurally empty block trees while preserving meaningful values/code/errors, rather than another question/format-specific patch. Scope acceptance is recorded separately in the selection receipt.
+
+Accepted bounded selected-read/representation correction deployed under Principal A at8787 (eb4f15cd/b214runtime). Installed narrow result9349bytes and single nativeQQQ display verified; reported remaining empty tables/headings/lists are explicitly not claimed fixed and keep this defect Open.

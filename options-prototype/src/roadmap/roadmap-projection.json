@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-29T23:48:09.687Z",
+    "generatedAt": "2026-10-29T23:58:02.408Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11605,7 +11605,7 @@
           "heading": "Residual after bounded scope acceptance — October29",
           "level": 2,
           "content": "Principal accepts4→1→4 scope behavior but still reports empty analysis tables/headings/bullets. Controlled current-source whitespace-entity-only list plus Analysis heading reproduces surviving empty block structures. Original session Markdown unavailable; exact table recurrence cause not established. Previous table/token fixes were incomplete, not full presentation acceptance. Remains Open; next cleanup should prune structurally empty block trees while preserving meaningful values/code/errors, rather than another question/format-specific patch. Scope acceptance is recorded separately in the selection receipt.",
-          "truncated": false,
+          "truncated": true,
           "tables": []
         }
       ]
