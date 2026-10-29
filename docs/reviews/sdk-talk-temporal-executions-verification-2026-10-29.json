@@ -228,5 +228,580 @@
     "modelMonetaryCost": "Not exposed by runtime",
     "codexTokensAndCost": "Not exposed",
     "providerNetworkRequestTotal": "Not instrumented; two explicit full transaction refreshes and one existing custody acquisition verified"
+  },
+  "acceptanceFollowup": {
+    "standing": "Author verified; Principal tests1/2/4 previously passed, corrected detail replay passes; full financial acceptance and independent review pending",
+    "installedSourceRevision": "fe7077f5ca936bf8336a12e09272e089e47ddea2",
+    "sdkFunctionalReplayRevision": "ee5f43ee22c8c4d34c70720ae98ed4e8c98ff5d4",
+    "before": {
+      "reproducedView": "closed-trades",
+      "unsupportedSymbol": "XLF",
+      "rejectedBeforeBackend": true,
+      "genericFailure": true
+    },
+    "sourceOriginalReconciliation": {
+      "method": "Separate Python Decimal computation directly from hash-verified accepted broker originals; does not invoke report matching/accounting code",
+      "sourcePages": 1,
+      "sourceRecords": 32,
+      "tradeCount": 3,
+      "trades": [
+        {
+          "symbol": "XLE",
+          "openingRows": 4,
+          "closingRows": 4,
+          "contractsAndQuantitiesMatch": true,
+          "uniqueWithinAcceptedSource": true,
+          "sourceOriginalNetMatchesBackend": true,
+          "allFeesEstimated": true
+        },
+        {
+          "symbol": "EWZ",
+          "openingRows": 4,
+          "closingRows": 4,
+          "contractsAndQuantitiesMatch": true,
+          "uniqueWithinAcceptedSource": true,
+          "sourceOriginalNetMatchesBackend": true,
+          "allFeesEstimated": true
+        },
+        {
+          "symbol": "XLF",
+          "openingRows": 2,
+          "closingRows": 2,
+          "contractsAndQuantitiesMatch": true,
+          "uniqueWithinAcceptedSource": true,
+          "sourceOriginalNetMatchesBackend": true,
+          "allFeesEstimated": true
+        }
+      ],
+      "exactNetTotalMatchesBackend": true,
+      "reportedGrossPlusReportedChargesMatchesReportedNetForEveryMatchedLeg": true,
+      "matchedLegs": 20,
+      "missingFeeFieldsAssumedZero": false,
+      "noFinancialValuesPersisted": true,
+      "independentReviewerApproval": false,
+      "remainingBoundary": "Source fee estimates and brokerage/period completeness remain qualified; this is source-original reconciliation, not tax or independent reviewer acceptance."
+    },
+    "fidelityEvidence": [
+      {
+        "account": "pts",
+        "retainedActivityRows": 1155,
+        "sourceHeaderFields": [
+          "Accrued Interest ($)",
+          "Action",
+          "Amount ($)",
+          "Cash Balance ($)",
+          "Commission ($)",
+          "Description",
+          "Fees ($)",
+          "Price ($)",
+          "Quantity",
+          "Run Date",
+          "Settlement Date",
+          "Symbol",
+          "Type"
+        ],
+        "orderOrExecutionIdHeaderPresent": false
+      },
+      {
+        "account": "sawdust",
+        "retainedActivityRows": 421,
+        "sourceHeaderFields": [
+          "Accrued Interest ($)",
+          "Action",
+          "Amount ($)",
+          "Cash Balance ($)",
+          "Commission ($)",
+          "Description",
+          "Fees ($)",
+          "Price ($)",
+          "Quantity",
+          "Run Date",
+          "Settlement Date",
+          "Symbol",
+          "Type"
+        ],
+        "orderOrExecutionIdHeaderPresent": false
+      }
+    ],
+    "septemberEvidence": {
+      "trades": 0,
+      "totalUnavailable": true,
+      "coverage": {
+        "status": "PERIOD_COMPLETENESS_NOT_ESTABLISHED",
+        "scannedThrough": "2026-10-29T16:38:22.766153Z",
+        "observedFrom": "2026-09-29",
+        "observedThrough": "2026-10-29",
+        "traversal": "COMPLETE_AT_LAST_SUCCESS",
+        "snapshotConsistency": "UNVERIFIED",
+        "lifetimeCoverage": "UNKNOWN",
+        "negativeConclusionSupported": false,
+        "unknownExecutionTimes": 0
+      },
+      "period": {
+        "from": "2026-09-01",
+        "through": "2026-09-30",
+        "timeZone": "America/Denver",
+        "startInclusive": "2026-09-01T06:00:00Z",
+        "endExclusive": "2026-10-01T06:00:00Z",
+        "requestedCutoff": "2026-10-01T06:00:00Z"
+      }
+    },
+    "installedSdkReplay": {
+      "observedAt": "2026-10-29T16:38:50.105Z",
+      "elapsedMs": 30040,
+      "results": [
+        {
+          "case": 0,
+          "status": 200,
+          "error": false,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 10401,
+            "outputTokens": 236,
+            "totalTokens": 10637,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 4341,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 1713,
+                "cached_tokens": 4341
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 4344,
+                "outputTokens": 63,
+                "totalTokens": 4407,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 4341,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 6057,
+                "outputTokens": 173,
+                "totalTokens": 6230,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 1713,
+                  "cached_tokens": 4341
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          },
+          "elapsedMs": 6466,
+          "tools": [
+            {
+              "name": "inspect_account_transactions",
+              "args": {
+                "account": "tt1",
+                "view": "closed-trades",
+                "from": "2026-10-01",
+                "through": "2026-10-29",
+                "timeZone": "America/Denver",
+                "mode": "policy",
+                "limit": 25,
+                "order": "asc"
+              },
+              "error": false,
+              "responseBytes": 5436
+            }
+          ],
+          "mentionsPts": false,
+          "mentionsSawdust": false,
+          "mentionsUnavailable": true
+        },
+        {
+          "case": 1,
+          "status": 200,
+          "error": false,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 14928,
+            "outputTokens": 472,
+            "totalTokens": 15400,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 6245,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 2432,
+                "cached_tokens": 6245
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 6248,
+                "outputTokens": 122,
+                "totalTokens": 6370,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 6245,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 8680,
+                "outputTokens": 350,
+                "totalTokens": 9030,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 2432,
+                  "cached_tokens": 6245
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          },
+          "elapsedMs": 6678,
+          "tools": [
+            {
+              "name": "inspect_account_transaction_details",
+              "args": {
+                "account": "tt1",
+                "transactionIdCount": 4
+              },
+              "error": false,
+              "returnedDetailRecords": 4,
+              "responseBytes": 7416
+            }
+          ],
+          "mentionsPts": false,
+          "mentionsSawdust": false,
+          "mentionsUnavailable": false
+        },
+        {
+          "case": 2,
+          "status": 200,
+          "error": false,
+          "usage": {
+            "requests": 5,
+            "inputTokens": 47890,
+            "outputTokens": 451,
+            "totalTokens": 48341,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 9050,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 69,
+                "cached_tokens": 9050
+              },
+              {
+                "cache_write_tokens": 127,
+                "cached_tokens": 9119
+              },
+              {
+                "cache_write_tokens": 124,
+                "cached_tokens": 9246
+              },
+              {
+                "cache_write_tokens": 1720,
+                "cached_tokens": 9370
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 9053,
+                "outputTokens": 16,
+                "totalTokens": 9069,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 9050,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 9122,
+                "outputTokens": 62,
+                "totalTokens": 9184,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 69,
+                  "cached_tokens": 9050
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 9249,
+                "outputTokens": 64,
+                "totalTokens": 9313,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 127,
+                  "cached_tokens": 9119
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 9373,
+                "outputTokens": 63,
+                "totalTokens": 9436,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 124,
+                  "cached_tokens": 9246
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 11093,
+                "outputTokens": 246,
+                "totalTokens": 11339,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 1720,
+                  "cached_tokens": 9370
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          },
+          "elapsedMs": 11715,
+          "tools": [
+            {
+              "name": "list_authorized_accounts",
+              "args": {},
+              "error": false,
+              "responseBytes": 200
+            },
+            {
+              "name": "inspect_account_transactions",
+              "args": {
+                "account": "pts",
+                "view": "closed-trades",
+                "from": "2026-10-01",
+                "through": "2026-10-29",
+                "timeZone": "America/Denver",
+                "mode": "policy",
+                "limit": 25,
+                "order": "asc"
+              },
+              "error": true,
+              "backendStatus": 503,
+              "backendCode": "CAPABILITY_UNAVAILABLE",
+              "responseBytes": 191
+            },
+            {
+              "name": "inspect_account_transactions",
+              "args": {
+                "account": "sawdust",
+                "view": "closed-trades",
+                "from": "2026-10-01",
+                "through": "2026-10-29",
+                "timeZone": "America/Denver",
+                "mode": "policy",
+                "limit": 25,
+                "order": "asc"
+              },
+              "error": true,
+              "backendStatus": 503,
+              "backendCode": "CAPABILITY_UNAVAILABLE",
+              "responseBytes": 191
+            },
+            {
+              "name": "inspect_account_transactions",
+              "args": {
+                "account": "tt1",
+                "view": "closed-trades",
+                "from": "2026-10-01",
+                "through": "2026-10-29",
+                "timeZone": "America/Denver",
+                "mode": "policy",
+                "limit": 25,
+                "order": "asc"
+              },
+              "error": false,
+              "responseBytes": 5434
+            }
+          ],
+          "mentionsPts": true,
+          "mentionsSawdust": true,
+          "mentionsUnavailable": true
+        },
+        {
+          "case": 3,
+          "status": 200,
+          "error": false,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 23304,
+            "outputTokens": 175,
+            "totalTokens": 23479,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 11358,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 582,
+                "cached_tokens": 11358
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 11361,
+                "outputTokens": 63,
+                "totalTokens": 11424,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 11358,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 11943,
+                "outputTokens": 112,
+                "totalTokens": 12055,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 582,
+                  "cached_tokens": 11358
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          },
+          "elapsedMs": 5173,
+          "tools": [
+            {
+              "name": "inspect_account_transactions",
+              "args": {
+                "account": "tt1",
+                "view": "closed-trades",
+                "from": "2026-09-01",
+                "through": "2026-09-30",
+                "timeZone": "America/Denver",
+                "mode": "policy",
+                "limit": 25,
+                "order": "asc"
+              },
+              "error": false,
+              "responseBytes": 1886
+            }
+          ],
+          "mentionsPts": false,
+          "mentionsSawdust": false,
+          "mentionsUnavailable": true
+        }
+      ],
+      "modelRequests": 11,
+      "inputTokens": 96523,
+      "outputTokens": 1334,
+      "monetaryCost": "not exposed"
+    },
+    "browser": {
+      "observedAt": "2026-10-29T16:48:29.222Z",
+      "installedAssets": true,
+      "replay": "Actual SDK results plus controlled empty-analysis specimen and actual scoped failures; no additional model requests",
+      "monthlyRows": 3,
+      "allUsdAmountsHaveTwoDecimals": true,
+      "emptyAnalysisSuppressed": true,
+      "emptyPeriodTableSuppressed": true,
+      "noFalseZeroForSeptember": true,
+      "scopedAccountFailuresVisible": true,
+      "defaultRawJsonNodes": 0,
+      "pageErrors": []
+    },
+    "tests": {
+      "talk": 34,
+      "mcp": 16,
+      "failures": 0,
+      "backend": "Unchanged; prior1051-test result remains applicable, not rerun for these client/adapter corrections"
+    },
+    "operational": {
+      "onlyTalkRestarted": true,
+      "v1AndV2BackendListenerIdentitiesUnchanged": true,
+      "credentialsAndGrantsUnchanged": true,
+      "noNewProviderClientOrPolling": true,
+      "noFinancialValuesInReceipt": true,
+      "noNewApiV2Contract": "Existing transaction item read reused; API documentation no-op",
+      "roadmap": "Scoped main projection and full workspace projection mechanically regenerated and checked; unrelated v1 delta preserved"
+    },
+    "measurement": {
+      "prefixedReproductionModelRequests": 2,
+      "prefixedReproductionTokens": 26501,
+      "actualReplayModelRequests": 11,
+      "actualReplayInputTokens": 96523,
+      "actualReplayOutputTokens": 1334,
+      "actualReplayElapsedMs": 30040,
+      "modelRequestsThisFollowup": 13,
+      "modelTokensThisFollowup": 124358,
+      "wholeTaskElapsed": "not instrumented",
+      "monetaryCostAndCodexUsage": "not exposed"
+    }
   }
 }
