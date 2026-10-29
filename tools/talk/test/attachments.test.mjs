@@ -18,3 +18,5 @@ test('native SDK serializes image for this turn; local history and inspection co
  }finally{await chat.close();}
  const blocked=createConversation({servers:[],model:{},allowImageAttachments:true,accountMetadataOnly:true});await assert.rejects(blocked.send('Image',attachment),/unavailable/);
 });
+
+test('the full advertised4MiB payload validates in bounded space without nested-regex stack exhaustion',()=>{const bytes=Buffer.alloc(MAX_IMAGE_BYTES);Buffer.from(png,'base64').copy(bytes);const large={...attachment,dataUrl:'data:image/png;base64,'+bytes.toString('base64')};assert.equal(validateImageAttachment(large,{enabled:true}),large.dataUrl);for(const suffix of ['=AAA','AA=A','A==='])assert.throws(()=>validateImageAttachment({...attachment,dataUrl:'data:image/png;base64,'+suffix},{enabled:true}));});
