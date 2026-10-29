@@ -69,6 +69,15 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
    reads.push({path:'/accounts/tt1/balances',query:'?currency=USD',retrievedAt:now().toISOString(),body:JSON.parse(text)});
   }catch{failures.push({source:'broker balances',code:'BALANCE_READ_UNAVAILABLE'});}
  }
+ // Separately authorized held-margin GET. No preview/order endpoint is reachable.
+ if(account&&token){
+  try{
+   const r=await fetchImpl(`${PRODUCTION_BASE_URL}/margin/accounts/${account}/requirements`,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`}});
+   const text=await boundedText(r);if(!r.ok)throw Error();const body=JSON.parse(text);
+   if(body?.data?.['account-number']!==account||!Array.isArray(body.data.groups))throw Error();
+   reads.push({path:'/margin/accounts/tt1/requirements',query:'',retrievedAt:now().toISOString(),body});
+  }catch{failures.push({source:'broker held margin requirements',code:'HELD_MARGIN_READ_UNAVAILABLE'});}
+ }
  const items=suffix=>reads.filter(r=>r.path.endsWith(suffix)).flatMap(r=>r.body?.data?.items??[]);
  const session=reads.find(r=>r.path==='/market-time/equities/sessions/current')?.body?.data;
  let projection=null;

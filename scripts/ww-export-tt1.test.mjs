@@ -94,6 +94,7 @@ test('standalone broker uses OAuth + allowlisted GETs, reuses projection, strips
   else if(u.pathname.endsWith('/complex-orders'))data={items:liveEvidence.complexOrders};
   else if(u.pathname.endsWith('/orders'))data={items:liveEvidence.orders};
   else if(u.pathname==='/market-data/by-type')data={items:liveEvidence.quotes};
+  else if(u.pathname.startsWith('/margin/accounts/')&&u.pathname.endsWith('/requirements'))data={'account-number':'5WX01234',groups:[],'last-state-timestamp':now.getTime()};
   else if(u.pathname.endsWith('/balances'))data={'derivative-buying-power':'3000','net-liquidating-value':'6000','updated-at':now.toISOString()};
   else if(u.pathname==='/market-time/equities/sessions/current')data={state:'Open'};
   else throw Error('Unapproved route');
@@ -124,6 +125,7 @@ test('review P1: empty holdings still read all ordinary and complex order pages,
   if(u.pathname==='/customers/me/accounts')return Response.json({data:{items:[{account:{'account-number':account}}]}});
   if(u.pathname.endsWith('/positions'))return Response.json({data:{items:[]}});
   if(u.pathname.endsWith('/orders')||u.pathname.endsWith('/complex-orders'))return Response.json({data:{items:[{id:'working-entry',status:'Live'}]},pagination:{'page-offset':0,'total-pages':1,'total-items':1}});
+  if(u.pathname.startsWith('/margin/accounts/')&&u.pathname.endsWith('/requirements'))return Response.json({data:{'account-number':account,groups:[],'last-state-timestamp':now.getTime()}});
   if(u.pathname.endsWith('/balances'))return Response.json({data:{'derivative-buying-power':'3000','updated-at':now.toISOString()}});
   throw Error('unexpected route');
  };
