@@ -1,0 +1,269 @@
+{
+  "standing": "AUTHOR_CANDIDATE_REAL_REPLAY_NOT_INSTALLED_ACCEPTANCE",
+  "parity": {
+    "standing": "CANDIDATE_SAME_RETAINED_ORIGINALS_CLI_DOMAIN_VS_V2",
+    "liveProviderRequests": 0,
+    "sourceCutCompatible": true,
+    "sharedEvaluationClock": true,
+    "cliStructures": 4,
+    "talkStructures": 4,
+    "extraCurrentUnderlying": true,
+    "rows": [
+      {
+        "symbol": "OTHER",
+        "bothPresent": true,
+        "cliStatus": "recognized",
+        "talkRecognition": "VALIDATED",
+        "sameContractMembership": true,
+        "sameLegCount": true,
+        "sameRemainingDte": true,
+        "sameSpot": true,
+        "sameSpotSourceClock": true,
+        "cliSpotAgeUsesSameClock": true,
+        "cliSpotAvailable": true,
+        "talkSpotAvailable": true,
+        "cliMatchedOpeningAvailable": true,
+        "talkOpeningEstablished": false,
+        "cliGeometryAvailable": true,
+        "sameStrikeBoundaries": true,
+        "geometryMeaning": "TERMINAL_VALUE",
+        "talkGeometryAvailable": true,
+        "cliProgressAvailable": true,
+        "talkProgressAvailable": false,
+        "cliManagementAvailable": true,
+        "talkCheckpointAvailable": false,
+        "talkPayoffStatus": "QUALIFIED",
+        "talkWarningCodes": [
+          "ASSOCIATION_UNRESOLVED",
+          "BASIS_ATTRIBUTION_UNKNOWN",
+          "BROKER_EVALUATION_BASIS_UNVERIFIED",
+          "COVERAGE_INSUFFICIENT",
+          "HISTORY_INCOMPLETE",
+          "MARKET_OBSERVATION_MISSING",
+          "OPENING_FILLS_UNAVAILABLE"
+        ]
+      },
+      {
+        "symbol": "QQQ",
+        "bothPresent": true,
+        "cliStatus": "recognized",
+        "talkRecognition": "VALIDATED",
+        "sameContractMembership": true,
+        "sameLegCount": true,
+        "sameRemainingDte": true,
+        "sameSpot": true,
+        "sameSpotSourceClock": true,
+        "cliSpotAgeUsesSameClock": true,
+        "cliSpotAvailable": true,
+        "talkSpotAvailable": true,
+        "cliMatchedOpeningAvailable": true,
+        "talkOpeningEstablished": false,
+        "cliGeometryAvailable": true,
+        "sameStrikeBoundaries": true,
+        "geometryMeaning": "TERMINAL_VALUE",
+        "talkGeometryAvailable": true,
+        "cliProgressAvailable": true,
+        "talkProgressAvailable": false,
+        "cliManagementAvailable": true,
+        "talkCheckpointAvailable": false,
+        "talkPayoffStatus": "QUALIFIED",
+        "talkWarningCodes": [
+          "ASSOCIATION_UNRESOLVED",
+          "BASIS_ATTRIBUTION_UNKNOWN",
+          "BROKER_EVALUATION_BASIS_UNVERIFIED",
+          "COVERAGE_INSUFFICIENT",
+          "HISTORY_INCOMPLETE",
+          "MARKET_OBSERVATION_MISSING",
+          "OPENING_FILLS_UNAVAILABLE"
+        ]
+      },
+      {
+        "symbol": "SPY",
+        "bothPresent": true,
+        "cliStatus": "recognized",
+        "talkRecognition": "VALIDATED",
+        "sameContractMembership": true,
+        "sameLegCount": true,
+        "sameRemainingDte": true,
+        "sameSpot": true,
+        "sameSpotSourceClock": true,
+        "cliSpotAgeUsesSameClock": true,
+        "cliSpotAvailable": true,
+        "talkSpotAvailable": true,
+        "cliMatchedOpeningAvailable": true,
+        "talkOpeningEstablished": false,
+        "cliGeometryAvailable": true,
+        "sameStrikeBoundaries": true,
+        "geometryMeaning": "TERMINAL_VALUE",
+        "talkGeometryAvailable": true,
+        "cliProgressAvailable": true,
+        "talkProgressAvailable": false,
+        "cliManagementAvailable": true,
+        "talkCheckpointAvailable": false,
+        "talkPayoffStatus": "QUALIFIED",
+        "talkWarningCodes": [
+          "ASSOCIATION_UNRESOLVED",
+          "BASIS_ATTRIBUTION_UNKNOWN",
+          "BROKER_EVALUATION_BASIS_UNVERIFIED",
+          "COVERAGE_INSUFFICIENT",
+          "HISTORY_INCOMPLETE",
+          "MARKET_OBSERVATION_MISSING",
+          "OPENING_FILLS_UNAVAILABLE"
+        ]
+      },
+      {
+        "symbol": "UNG",
+        "bothPresent": true,
+        "cliStatus": "recognized",
+        "talkRecognition": "VALIDATED",
+        "sameContractMembership": true,
+        "sameLegCount": true,
+        "sameRemainingDte": true,
+        "sameSpot": true,
+        "sameSpotSourceClock": true,
+        "cliSpotAgeUsesSameClock": true,
+        "cliSpotAvailable": true,
+        "talkSpotAvailable": true,
+        "cliMatchedOpeningAvailable": true,
+        "talkOpeningEstablished": false,
+        "cliGeometryAvailable": true,
+        "sameStrikeBoundaries": true,
+        "geometryMeaning": "TERMINAL_VALUE",
+        "talkGeometryAvailable": true,
+        "cliProgressAvailable": true,
+        "talkProgressAvailable": false,
+        "cliManagementAvailable": false,
+        "talkCheckpointAvailable": false,
+        "talkPayoffStatus": "QUALIFIED",
+        "talkWarningCodes": [
+          "ASSOCIATION_UNRESOLVED",
+          "BASIS_ATTRIBUTION_UNKNOWN",
+          "BROKER_EVALUATION_BASIS_UNVERIFIED",
+          "COVERAGE_INSUFFICIENT",
+          "HISTORY_INCOMPLETE",
+          "MARKET_OBSERVATION_MISSING",
+          "OPENING_FILLS_UNAVAILABLE"
+        ]
+      }
+    ]
+  },
+  "privateReplay": {
+    "verification": "RETAINED_FINANCIAL_REPLAY",
+    "completed": true,
+    "rows": 4,
+    "ordersWithNativeGroupLinks": 35,
+    "productionWritten": false,
+    "providerRequests": 0,
+    "modelRequests": 0
+  },
+  "candidateSdk": {
+    "standing": "ACTUAL_SDK_REAL_RETAINED_PRIVATE_BACKEND_NOT_INSTALLED",
+    "rows": 4,
+    "allContractualGeometryAvailable": true,
+    "noInventedOpeningEconomics": true,
+    "providerBeans": false,
+    "productionWritten": false,
+    "tools": [
+      "inspect_account_positions"
+    ],
+    "usage": {
+      "requests": 2,
+      "inputTokens": 19472,
+      "outputTokens": 484,
+      "totalTokens": 19956,
+      "inputTokensDetails": [
+        {
+          "cache_write_tokens": 5185,
+          "cached_tokens": 0
+        },
+        {
+          "cache_write_tokens": 9096,
+          "cached_tokens": 5185
+        }
+      ],
+      "outputTokensDetails": [
+        {
+          "reasoning_tokens": 0
+        },
+        {
+          "reasoning_tokens": 0
+        }
+      ],
+      "requestUsageEntries": [
+        {
+          "inputTokens": 5188,
+          "outputTokens": 20,
+          "totalTokens": 5208,
+          "inputTokensDetails": {
+            "cache_write_tokens": 5185,
+            "cached_tokens": 0
+          },
+          "outputTokensDetails": {
+            "reasoning_tokens": 0
+          },
+          "endpoint": "responses.create"
+        },
+        {
+          "inputTokens": 14284,
+          "outputTokens": 464,
+          "totalTokens": 14748,
+          "inputTokensDetails": {
+            "cache_write_tokens": 9096,
+            "cached_tokens": 5185
+          },
+          "outputTokensDetails": {
+            "reasoning_tokens": 0
+          },
+          "endpoint": "responses.create"
+        }
+      ]
+    },
+    "privacy": {
+      "traceExport": false,
+      "state": "local-memory",
+      "providerStorage": false,
+      "remoteCompaction": false
+    }
+  },
+  "controlledBrowser": {
+    "mobileOverflow": false,
+    "keyboardDetails": true,
+    "noEmptyProgressGauge": true,
+    "standing": "Controlled native backend fixture, not real Account parity",
+    "rows": 1,
+    "strikeKnots": 4,
+    "nativeSvg": 1,
+    "rawJsonNodes": 0,
+    "pageErrors": []
+  },
+  "tests": {
+    "backend": 404,
+    "backendSkipped": 1,
+    "talk": 60,
+    "oas": 8,
+    "httpOperations": 39
+  },
+  "protectedPayloadsIncluded": false,
+  "grantsChanged": false,
+  "policiesChanged": false,
+  "priorSubmission": {
+    "source": "405d2cbf4c436ad7526451f41492e7fccab51643",
+    "disposition": "REJECT",
+    "reviewSha256": "4ae239b757a0eec5861ec88565f3d60845665cb1d48d277a571a10f203773f4d"
+  },
+  "correctionVerification": {
+    "backend": 406,
+    "backendSkipped": 1,
+    "failures": 0,
+    "partialAllocationClosed": true,
+    "missingTriggerIncomplete": true,
+    "realRows": 4,
+    "linkedOrdersValidated": 35,
+    "currentOpeningStillUnknown": true,
+    "currentHoldingsAcquisition": {
+      "operation": "existing_authorized_tt1_holdings_acquisition",
+      "httpStatus": 200,
+      "outcome": "ACCEPTED"
+    }
+  }
+}

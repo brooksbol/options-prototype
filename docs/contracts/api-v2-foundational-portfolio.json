@@ -21,7 +21,7 @@
       "get": {
         "operationId": "listPositions",
         "summary": "List positions",
-        "description": "List independently identified economic Positions across the selected Accounts. Each Position has its own GUID and links to its currently applicable Construction. The default summary and optional expansions preserve financial qualifications. State and observed exposure are separate: UNRESOLVED can coexist with known held quantities. Source observations do not prove an opening date or uninterrupted occurrence. Selection, stable ID ordering and pagination precede per-item evaluation; Account-wide allocation and coverage checks still apply.\n\n<!-- internal-only:start -->\nAuthenticate token User before validation. Enforce exact applicable Account capability on direct reads, all links, constituents, source records, historical/Audit records and every expanded projection; user ownership never bypasses Account grants. Collection filters narrow scope only. Unknown/duplicate query fields or GET bodies return 422. Collection cursor is opaque, bound to caller grants/filter/sort/projection; grant revocation is rechecked on continuation. Stable order ends in canonical ID; cursors do not promise atomic cross-broker time. Default page size 50, maximum 200. Financial status is independent of HTTP success. All private responses use private,no-store.\n<!-- internal-only:end -->\n\nTactical projection reuses existing recognition, payoff, valuation, timeline, management and per-field authorization. No new provider calls/policies/grants. Source freshness and unavailable facts survive. Candidate Model match is not an opening occurrence or policy/collateral assertion. Source evidence remains inspectable through canonical Position/Construction links. Multi-state exposure selection is SQL-before-pagination; it does not broaden authorization.",
+        "description": "List independently identified economic Positions across the selected Accounts. Each Position has its own GUID and links to its currently applicable Construction. The default summary and optional expansions preserve financial qualifications. State and observed exposure are separate: UNRESOLVED can coexist with known held quantities. Source observations do not prove an opening date or uninterrupted occurrence. Selection, stable ID ordering and pagination precede per-item evaluation; Account-wide allocation and coverage checks still apply.\n\n<!-- internal-only:start -->\nAuthenticate token User before validation. Enforce exact applicable Account capability on direct reads, all links, constituents, source records, historical/Audit records and every expanded projection; user ownership never bypasses Account grants. Collection filters narrow scope only. Unknown/duplicate query fields or GET bodies return 422. Collection cursor is opaque, bound to caller grants/filter/sort/projection; grant revocation is rechecked on continuation. Stable order ends in canonical ID; cursors do not promise atomic cross-broker time. Default page size 50, maximum 200. Financial status is independent of HTTP success. All private responses use private,no-store.\n<!-- internal-only:end -->\n\nTactical projection reuses existing recognition, payoff, valuation, timeline, management and per-field authorization. No new provider calls/policies/grants. Source freshness and unavailable facts survive. Candidate Model match is not an opening occurrence or policy/collateral assertion. Source evidence remains inspectable through canonical Position/Construction links. Multi-state exposure selection is SQL-before-pagination; it does not broaden authorization.\n\nCoverage insufficiency/unknown support is qualified on the Construction relationship and Account coverage assessment. When held constituent allocation independently reconciles, coverage alone must not erase contractual TERMINAL_VALUE geometry, source spot/marks, DTE, or independently established entry/management facts. Actual allocation, terms, basis, quote and association failures still qualify their dependent results. Native bracket references are historical instruction relationships; they do not establish current-held origin.",
         "security": [
           {
             "bearerAuth": []
@@ -28719,6 +28719,9 @@
           "brokerGroupAuthority": {
             "$ref": "#/components/schemas/AssociationAuthority",
             "description": "Optional source-predicate corroboration of the reported complex parent/child record against the independently retained brokerage instruction. QUALIFIED does not establish Position membership, current atomic group completeness or guaranteed execution behavior. Missing means unknown."
+          },
+          "brokerGroupStructure": {
+            "$ref": "#/components/schemas/NativeOrderGroupStructure"
           }
         },
         "required": [
@@ -38838,6 +38841,125 @@
                   "not": {
                     "type": "null"
                   }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "NativeOrderGroupStructure": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "groupId",
+          "type",
+          "role",
+          "triggerOrder",
+          "childOrders",
+          "missingMemberCount",
+          "status",
+          "qualification"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "OCO",
+              "OTOCO"
+            ]
+          },
+          "role": {
+            "enum": [
+              "TRIGGER",
+              "CHILD"
+            ]
+          },
+          "triggerOrder": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Link"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "childOrders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "missingMemberCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "enum": [
+              "QUALIFIED",
+              "INCOMPLETE",
+              "CONFLICT"
+            ]
+          },
+          "qualification": {
+            "type": "string"
+          },
+          "groupId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "description": "Reported historical native bracket membership corroborated against independently retained same-Account Orders. Does not establish current-held origin, opening cohort continuity, governance, reservation or execution guarantee. Missing referenced Order resources are counted explicitly. CONFLICT preserves the reported historical links when the independently retained instruction terms disagree; the links do not override that disagreement or establish current bracket applicability.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "QUALIFIED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "missingMemberCount": {
+                  "const": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "OCO"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "role": {
+                  "const": "CHILD"
+                },
+                "triggerOrder": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "OTOCO"
+                },
+                "status": {
+                  "const": "QUALIFIED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "triggerOrder": {
+                  "$ref": "#/components/schemas/Link"
                 }
               }
             }
