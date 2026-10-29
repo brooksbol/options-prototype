@@ -147,10 +147,19 @@ public final class PortfolioReadService {
  static void propagate(ObjectNode position,ObjectNode reconciliation){
   String uri=position.at("/self/href").asText(),construction=position.at("/currentConstruction/href").asText();var affected=array();String code=null;
   for(var balance:reconciliation.path("balances"))if(Set.of("OVERALLOCATED","UNKNOWN").contains(balance.path("status").asText()))for(var c:balance.path("currentConstructions"))if(c.path("href").asText().equals(construction)){affectedHolding(affected,balance.at("/inventory/holding/href").asText());code=balance.path("status").asText().equals("OVERALLOCATED")?"INVENTORY_OVERALLOCATED":"HOLDING_RECONCILIATION_CONFLICT";}
-  for(var assessment:reconciliation.path("coverageAssessments"))if(!assessment.path("status").asText().equals("SUFFICIENT"))for(var obligation:assessment.path("obligations"))if(obligation.path("href").asText().equals(uri)){affectedHolding(affected,assessment.at("/supportHolding/href").asText());if(code==null)code=assessment.path("status").asText().equals("INSUFFICIENT")?"COVERAGE_INSUFFICIENT":"ASSOCIATION_UNRESOLVED";}
   boolean represented=false;for(var balance:reconciliation.path("balances"))for(var current:balance.path("currentConstructions"))if(current.path("href").asText().equals(construction))represented=true;
   if(code==null&&!represented)code="HOLDING_RECONCILIATION_CONFLICT";
-  if(code==null){((ObjectNode)position.path("allocation")).put("status","RECONCILED");return;}boolean conflict=Set.of("INVENTORY_OVERALLOCATED","COVERAGE_INSUFFICIENT").contains(code);String status=conflict?"CONFLICT":"INCOMPLETE";var allocation=(ObjectNode)position.path("allocation");allocation.put("status",conflict?"CONFLICT":"UNKNOWN");allocation.set("affectedHoldingIds",affected);
+  // Conservation and fungible support are different predicates. Coverage is not an
+  // input to contract geometry, source marks, attributed entry or instruction dates.
+  if(code==null){
+   ((ObjectNode)position.path("allocation")).put("status","RECONCILED");
+   for(var assessment:reconciliation.path("coverageAssessments"))if(!assessment.path("status").asText().equals("SUFFICIENT"))for(var obligation:assessment.path("obligations"))if(obligation.path("href").asText().equals(uri)){
+    String coverageCode=assessment.path("status").asText().equals("INSUFFICIENT")?"COVERAGE_INSUFFICIENT":"ASSOCIATION_UNRESOLVED";
+    var w=warning(coverageCode,"/allocation","Independently reconciled constituents and their qualified financial observations remain inspectable.","Aggregate support is insufficient or unknown; this does not establish cash security, reservation, margin permission, or invalidate independently established contractual/market facts.");
+    w.set("affected",array().add("/currentConstruction"));((ArrayNode)position.path("warnings")).add(w);
+   }return;
+  }
+  boolean conflict=Set.of("INVENTORY_OVERALLOCATED","COVERAGE_INSUFFICIENT").contains(code);String status=conflict?"CONFLICT":"INCOMPLETE";var allocation=(ObjectNode)position.path("allocation");allocation.put("status",conflict?"CONFLICT":"UNKNOWN");allocation.set("affectedHoldingIds",affected);
   var evaluation=(ObjectNode)position.path("evaluation");var targets=array();
   for(String field:List.of("marketValue","grossUnrealizedPl","netUnrealizedPl","openingCashFlow","estimatedClosingCashFlow","brokerReportedOpenPl")){if(!evaluation.path(field).isObject())continue;var m=(ObjectNode)evaluation.path(field);m.put("status",status);m.putNull("value");m.set("warningCodes",array().add(code));targets.add("/evaluation/"+field);}
   var management=(ObjectNode)evaluation.path("management");for(String field:List.of("profitTargetGrossPl","reportedStopThresholdGrossPl")){var metric=(ObjectNode)management.path(field);if(!metric.path("status").asText().equals("NOT_APPLICABLE")){metric.put("status",status).putNull("value");metric.set("warningCodes",array().add(code));targets.add("/evaluation/management/"+field);}}if(management.path("manualCheckpoint").isObject()){((ObjectNode)management.path("manualCheckpoint")).put("qualification",status);targets.add("/evaluation/management/manualCheckpoint");}

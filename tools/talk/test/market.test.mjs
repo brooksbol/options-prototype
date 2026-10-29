@@ -20,7 +20,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
     script: '../mcp-v2-evidence/server.mjs', admitted: ['inspect_market_quotes', 'inspect_account_positions','inspect_position_details'] }]);
   t.after(() => servers[0].close());
   const tools = await servers[0].listTools();
-  assert.deepEqual(tools.map(t => t.name).sort(), ['acquire_account_holdings', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_positions', 'inspect_account_transaction_details', 'inspect_account_transactions', 'inspect_market_quotes', 'inspect_option_inventory','inspect_position_details', 'prepare_report_download']);
+  assert.deepEqual(tools.map(t => t.name).sort(), ['acquire_account_holdings', 'inspect_account_balances', 'inspect_account_holdings', 'inspect_account_positions', 'inspect_account_transaction_details', 'inspect_account_transactions', 'inspect_market_quotes', 'inspect_option_inventory','inspect_order_details','inspect_position_details', 'prepare_report_download']);
   assert.ok(tools.find(t => t.name === 'inspect_market_quotes').inputSchema.properties.symbol);
   const list = await servers[0].callToolResult('inspect_market_quotes', {});
   assert.equal(list.isError, undefined);

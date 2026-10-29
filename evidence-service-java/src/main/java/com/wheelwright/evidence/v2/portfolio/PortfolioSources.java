@@ -58,7 +58,7 @@ public final class PortfolioSources {
   * The same transaction reads the inputs and records the completed interpretation marker. */
  private String sourceRevision(java.sql.Connection connection,String account)throws Exception {
   var digest=java.security.MessageDigest.getInstance("SHA-256");
-  digest.update(java.nio.ByteBuffer.allocate(4).putInt(catalogBytes.length).array());digest.update(catalogBytes);
+  digest.update(java.nio.ByteBuffer.allocate(4).putInt(catalogBytes.length).array());digest.update(catalogBytes);digest.update("native-order-group-structure:v2".getBytes(java.nio.charset.StandardCharsets.UTF_8));
   for(String sql:List.of(
    "SELECT snapshot_id FROM account_position_snapshot WHERE account=? ORDER BY snapshot_id",
    "SELECT import_id,artifact_id,file_type,status,result,original_filename FROM brokerage_import WHERE account=? AND file_type NOT IN ('API_MARKET_DATA','API_MARKET_SESSION') ORDER BY import_id",

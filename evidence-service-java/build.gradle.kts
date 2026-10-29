@@ -145,3 +145,13 @@ tasks.register<JavaExec>("realTalkIntegrationVerification") {
     args = listOfNotNull(project.findProperty("verificationCopy") as? String,
         project.findProperty("verificationOriginal") as? String)
 }
+
+tasks.register<JavaExec>("tacticalFinancialVerification") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.TacticalFinancialVerification")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOfNotNull(project.findProperty("verificationCopy") as? String,
+        project.findProperty("verificationOriginal") as? String,
+        project.findProperty("verificationOutput") as? String,
+        project.findProperty("verificationMode") as? String)
+}
