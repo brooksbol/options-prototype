@@ -5,8 +5,9 @@ import { UUID, readBackend, problemResult } from './backend.mjs';
 function resourceBudget(config){const end=performance.now()+(config.timeoutMs??40000);return()=>{const remaining=Math.floor(end-performance.now());if(remaining<=0)throw new Error('Position evidence deadline exceeded.');return{...config,timeoutMs:remaining};};}
 
 // Resolve a nickname through authenticated backend discovery; never infer ownership/grants.
-export async function inspectPositions({ account, state, cursor, projection = 'tactical', includeInactive = false }, config) {
+export async function inspectPositions({ account, state, cursor, projection = 'tactical', includeInactive = false, underlying }, config) {
   const resourceConfig=resourceBudget(config);
+  if(underlying!==undefined&&!/^[A-Z0-9^][A-Z0-9.^/-]{0,31}$/.test(underlying))throw new Error('Canonical underlying symbol required.');
   const inventory = await readBackend('/v2/accounts', config);
   if (inventory.error) return problemResult(inventory.error);
   if (inventory.data?.requestId !== inventory.requestId || !Array.isArray(inventory.data.accounts))
@@ -22,12 +23,17 @@ export async function inspectPositions({ account, state, cursor, projection = 't
   const query = new URLSearchParams({ accountId: selected.id, projection, limit: '5' });
   if(projection==='expanded')query.set('include','currentConstruction,holdingSummaries');
   if(!includeInactive&&state===undefined)query.set('exposureStatus','OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED');
+  if (underlying !== undefined) query.set('underlying', underlying);
   if (state !== undefined) query.set('state', state);
   if (cursor !== undefined) query.set('cursor', cursor);
   const result = await readBackend('/v2/positions?' + query, resourceConfig());
   if (result.error) return problemResult(result.error);
   if (!Array.isArray(result.data?.items) || result.data.items.some(item => !UUID.test(item.id ?? '') ||
       item.account?.href !== '/v2/accounts/' + selected.id)) throw new Error('Invalid Position scope.');
+  if(underlying!==undefined){
+    if(result.data.selection?.underlying!==underlying||result.data.selection?.accounts?.length!==1||result.data.selection.accounts[0].href!=='/v2/accounts/'+selected.id)throw new Error('Invalid underlying selection scope.');
+    if(projection==='tactical'&&result.data.items.some(item=>!(item.underlyings??[]).some(subject=>subject.symbol===underlying)&&!(item.constituents??[]).some(c=>c.kind==='LONG_SHARES'&&c.symbol===underlying)))throw new Error('Position does not match selected underlying.');
+  }
   let nextCursor = null;
   if (result.data.next != null) {
     const next = new URL(result.data.next.href, config.base);
@@ -41,7 +47,7 @@ export async function inspectPositions({ account, state, cursor, projection = 't
     ...(config.syntheticFixture ? { dataClassification: 'SYNTHETIC_FIXTURE',
       sourceQualification: 'Invented development records, not real brokerage holdings or live provider data. Broker environment labels describe the simulated source.' } : {}),
     account: { nickname: selected.alias, broker: selected.brokerAssociation?.broker },
-    qualification: 'Current monitoring scope explicitly selects OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED exposure predicates (UNRECORDED_NONCLOSED means missing exposure on a non-CLOSED lifecycle, not established custody) unless inactive or explicit lifecycle evidence is requested; this is not an OPEN lifecycle assumption. Compact tactical results copy backend evaluations; candidate Model matches do not establish opening occurrence, governed capital or CSP collateral. Backend Position read from its selected Account evaluation graph, not an inventory of all history or independent held market quotes. Missing linked market evidence does not prove that no separate retained quote exists. Missing historical fields do not prove no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If nextCursor is non-null this page is incomplete; repeat with the same Account/state and that opaque cursor. Backend OPEN/CLOSED state is lifecycle, not proof of current custody or freshness.',
+    qualification: (underlying!==undefined?'Exact underlying '+underlying+' selection over resolved current constituent subjects only. An empty selection is not proof of complete brokerage absence; unresolved references are not matches. ':'')+'Current monitoring scope explicitly selects OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED exposure predicates (UNRECORDED_NONCLOSED means missing exposure on a non-CLOSED lifecycle, not established custody) unless inactive or explicit lifecycle evidence is requested; this is not an OPEN lifecycle assumption. Compact tactical results copy backend evaluations; candidate Model matches do not establish opening occurrence, governed capital or CSP collateral. Backend Position read from its selected Account evaluation graph, not an inventory of all history or independent held market quotes. Missing linked market evidence does not prove that no separate retained quote exists. Missing historical fields do not prove no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If nextCursor is non-null this page is incomplete; repeat with the same Account/state and that opaque cursor. Backend OPEN/CLOSED state is lifecycle, not proof of current custody or freshness.',
     evidence: result.data }) }] };
 }
 

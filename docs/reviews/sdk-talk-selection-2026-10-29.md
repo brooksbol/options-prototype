@@ -1,0 +1,41 @@
+# SDK Talk named Position selection — October29,2026
+
+Standing: bounded continuous correction under Principal Test1/2/3 feedback, not a new financial capability campaign. Base reviewed shared-result receipt2b2217fd. Original reviewed/rejected worktrees remain frozen; installed8787/b008 and current candidate8816/97c remain untouched during engineering. Remote mainb67ff449; rootf88a6666 clean. No main merge/deployment, grant, policy, OAuth or trading authorization inferred.
+
+## Principal observation and authority
+
+Principal records Test1 all4tt1 structures/operator-positive, Test2 “Show just QQQ again as a compact tactical view” FAILED (all4again), Test3 QQQ evidence/provenance PASSED. Full Product acceptance remains pending. Principal requests a bounded scope/presentation correction and retains visual density as future preference. Attached image says Expected behavior/illustrative schematic; its prices/date/layout are not treated as a new brokerage observation or exact backend geometry.
+
+Root/docsAGENTS, Codex bootstrap, docsREADME A–F, Product-first operating mandate/b67ff449, Principal Decision Surface, ADR024/016, Doc77, maintained Account/Position meanings/ASSIM0002, accepted tt-live visual and shared-result contracts recovered. Existing BUG052/053 and PL-MCP-01 remain owners. Prior assessment indexed all parking/journal continuations; relevant state recovered without rereading unrelated history. Gate001 remainsSTAGED. No underlying financial semantics, valuation/core, current-origin predicate or agent architecture reopened.
+
+## Evidence-supported diagnosis, with limits
+
+The actual failed Principal turn's tool trace and original six-column Markdown were not retained/recovered. Therefore this report does not invent whether its exact failure was broad invocation, stale display or both. Source inspection proves two reproducible integration weaknesses: account monitoring had no underlying selector, requiring the agent to remember/select an exact prior Position ID; and UI rendered every tactical tool result in a turn, so a broad read followed by an exact read produced redundant broad graphics. Existing exact-item capability still works, consistent with Principal Test3.
+
+The empty-table filter tested raw inline content. Entity-only cells such as `&nbsp;`, numeric NBSP/zero-width format characters can be nonempty raw Markdown but render blank. A six-column controlled entity/format specimen reproduces that failure class. This is not claimed as the unrecovered incident's exact bytes.
+
+## Bounded corrections
+
+- Existing Position collection adds optional exact canonical `underlying` Instrument-symbol predicate, intersecting authorized Account/lifecycle/exposure filters before limit/cursor and selected market enrichment; selection is reapplied after Order-driven membership changes. Existing Account-wide Order read-through policy is unchanged. Match ANY current immutable Construction option-underlying or long-share subject. Mixed-underlying Constructions match any resolved subject and retain all constituents; no splitting/grouping/economics inferred. Historical Constructions/display names are not matched. Missing references are not matches; successful empty selection is not complete brokerage-absence proof. Existing reference.read required; no grants changed.
+- Machine-readable backend selection records canonical Account links and underlying/state/exposure predicates. Cursor signature and continuation retain the selector. SQL uses bound values and guarded json_tree extraction, not text search or unsafe scalar JSON assumptions.
+- Existing account-position MCP input adds optional underlying; prefer prior exact Position when unique. Validate canonical request, backend selection/Account and each returned subject; reject wrong scope or changed continuation rather than filtering/falling back broadly. No host question parsing, financial logic, new tool/router or provider client.
+- Trusted current-turn display uses canonical Account, predicate compatibility and exact Position/Construction/source-cut identity to collapse superseded broad or narrow graphics. Original results remain in deliberate source disclosure; independent named scopes, differing cuts/Accounts/predicates and prior conversation turns survive. Empty narrow results remain narrow. Errors do not become successful selected results. Only returned scopes are examined, never question text or model-authored graphics.
+- Markdown suppresses table bodies whose decoded inline children contain only whitespace/format/placeholders; remove orphan headings left by removed tables. Meaningful zeros, unavailable rows, code and text remain. Empty analysis detection uses rendered text rather than HTML-tag presence. Test DOM now models innerHTML→textContent; source behavior was not weakened for a fake DOM. Native geometry/financial calculations unchanged.
+
+## Regression and actual SDK outcomes
+
+Backend fixture: resolved underlying membership before limit; Account/ref restrictions; invalid symbols; absent resolved match preserving narrow scope; cursor changed selector refused; later native group admission keeps all4UNGlegs. MCP tests preserve selector/empty results, refuse changed selection/foreign subject/continuation and never broad fallback. UI tests cover broad→narrow, narrow→broad, independent named scopes, cuts/Accounts/predicates, exact detail, empty narrow and failures. Prior-turn result preservation is explicit.
+
+Actual authorized retained-copy backend (live read-only original grants, no provider/acquisition/worker beans): ordinary SDK3turns returns4→1→4. Narrow turn uses existing exact detail view=tactical; broad-again omits underlying. Independent cold conversation naturally selects account-position tool with underlying=QQQ, returns1selected Position. All4current structures survive inventory; original duration/P&L/continuity remain unknown. No model arithmetic or new financial interpretation.
+
+Three-turn SDK uses7requests/100716input/745output; cold named selection2requests/13081input/245output. Total9requests/113797input/990output. Narrow exact wrapper8087bytes; cold selector9350bytes including scope/qualifications; cold backend selected collection7023bytes versus28801broad. Instrumented backendGETwindows12+7 include setup, reference comparison and SDK requests, not19newproviderrequests. Provider requests0; production writes0. Billing/author/reviewer consumption unavailable.
+
+Browser replay uses actual returned SDK results plus controlled broad+exact outputs in the same second turn and six-column empty Markdown. Results4cards→1card→4cards; QQQ1nativeSVG/2strike knots; broad source retained behind disclosure; prior turn4cards preserved; zero empty analysis/table/defaultJSON;390px no overflow/page errors. Replay adds no model/provider request and exports no protected screenshot. Cold selected collection validates governed OAS. This is author candidate verification, not new Principal acceptance.
+
+First wider Node run exposed stale strict-schema expectation (new underlying omitted from expected list) and fake DOM lacking textContent derivation; subsequent tests model new contract and actual DOM. Original empty-MD regression failed before correction. Failed author checks remain failures, not relabelled Product passes. Final suite/review results follow freeze.
+
+## Scope and continuation
+
+Existing financial engine, shared exact contract, CLI, installed daily tools, grants,300/30reuse, credentials and services preserved. Density/portfolio-summary mode remains a future preference. No trading, acquisition-policy change, full financial parity or Principal acceptance claimed. Independent review before replacing candidate8816. Only an owned temporary preview may be replaced for operator observation; production/main integration remains separately reserved.
+
+Final author suites before freeze:426backend/continuity tests0failures1skip;71Talk/CLI tests pass;8OAS checks/39operations pass. Actual cold underlying-selected collection validates OAS; candidate-only roadmap projection regenerates/checks cleanly.

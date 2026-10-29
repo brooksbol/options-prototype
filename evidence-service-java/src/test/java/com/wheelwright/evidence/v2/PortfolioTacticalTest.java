@@ -81,4 +81,18 @@ class PortfolioTacticalTest {
   }finally{h.close();}
  }
 
+ @Test void underlyingPredicateSelectsCurrentSubjectsBeforeLimitAndBindsCursor()throws Exception {
+  var h=new PortfolioSourcePackageTest();h.directory=directory;h.setup();try{
+   var all=(ArrayNode)h.fixture.path("holdings").deepCopy();h.holdings(all);h.references(h.selected("holdings","UNG"),false);
+   var reader=new PortfolioReadService(h.repo,h.sources);var auth=new BearerAuthenticator(new UserDirectory(h.db,h.accounts),"reader=reader:account.positions.read:"+h.account+"|account.holdings.read:"+h.account+"|reference.read,bare=bare:account.positions.read:"+h.account);
+   var mvc=MockMvcBuilders.standaloneSetup(new PortfolioController(reader,auth,h.accounts)).build();String query="/v2/positions?accountId="+h.account+"&projection=tactical&exposureStatus=OBSERVED&underlying=UNG&limit=1";
+   var response=mvc.perform(get(query).header("Authorization","Bearer reader")).andReturn().getResponse();assertThat(response.getStatus()).isEqualTo(200);var body=JSON.readTree(response.getContentAsString());assertThat(body.path("items")).hasSize(1);assertThat(body.at("/selection/underlying").asText()).isEqualTo("UNG");assertThat(body.at("/items/0/underlyings/0/symbol").asText()).isEqualTo("UNG");assertThat(body.path("next").isNull()).isFalse();
+   String next=body.at("/next/href").asText();assertThat(next).contains("underlying=UNG");assertThat(mvc.perform(get(next.replace("underlying=UNG","underlying=XLF")).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(422);
+   assertThat(mvc.perform(get(query).header("Authorization","Bearer bare")).andReturn().getResponse().getStatus()).isEqualTo(403);
+   for(String value:List.of("ung","UNG%20OR%201=1",""))assertThat(mvc.perform(get(query.replace("underlying=UNG","underlying="+value)).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(422);
+   var missing=mvc.perform(get(query.replace("underlying=UNG","underlying=ZZZZ")).header("Authorization","Bearer reader")).andReturn().getResponse();assertThat(missing.getStatus()).isEqualTo(200);var empty=JSON.readTree(missing.getContentAsString());assertThat(empty.path("items")).isEmpty();assertThat(empty.at("/selection/underlying").asText()).isEqualTo("ZZZZ");
+   h.orders(false);var grouped=JSON.readTree(mvc.perform(get(query).header("Authorization","Bearer reader")).andReturn().getResponse().getContentAsString());assertThat(grouped.path("items")).hasSize(1);assertThat(grouped.at("/items/0/constituents")).hasSize(4);
+  }finally{h.close();}
+ }
+
 }

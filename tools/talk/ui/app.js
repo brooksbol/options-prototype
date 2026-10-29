@@ -1,6 +1,7 @@
 import {reportDownloadButton} from './report-downloads.js';
 import {imageComposer} from './attachments-ui.js';
 import {renderTacticalPositions} from './tactical.js';
+import {visibleTacticalResults} from './tactical-selection.js';
 import { evidenceView } from './evidence-view.js';
 import { renderMarkdown } from './markdown.js';
 // Preserve backend number lexemes; unwrap only the SDK/MCP text envelope.
@@ -67,11 +68,13 @@ $('composer').addEventListener('submit', async event => {
   try {
     const answer = await post('/api/chat', { message: text,...(attachment?{attachment}:{}) });
     const article = message('assistant', answer.text || answer.error);
-    for (const tool of answer.tools ?? []) {
+    const resultViews=(answer.tools??[]).map(tool=>evidenceView(resultText(tool.result)));
+    const visibleTactical=visibleTacticalResults(resultViews);
+    for (const [toolIndex,tool] of (answer.tools ?? []).entries()) {
       if(tool.download)article.append(reportDownloadButton(document,tool.download,()=>csrf,error=>{$('status').textContent=error;}));
       const raw = resultText(tool.result);
-      const view = evidenceView(raw);
-      if(view.tacticalPositions) {
+      const view = resultViews[toolIndex];
+      if(view.tacticalPositions&&visibleTactical.has(toolIndex)) {
         article.insertBefore(renderTacticalPositions(document,view.tacticalPositions),article.querySelector('.text'));
       } else if(view.closedTradeSummary) {
         const source=view.closedTradeSummary,card=document.createElement('section');card.className='closed-trade-card';
@@ -146,7 +149,7 @@ $('composer').addEventListener('submit', async event => {
         const labels = {list_authorized_accounts:'Account sources',inspect_account_holdings:'Holdings sources',inspect_option_inventory:'Option inventory sources',inspect_account_positions:'Position sources',inspect_account_transactions:'Transaction sources',inspect_market_quotes:'Quote sources'};
         const outcome = view.rows.find(([key]) => key === 'Read outcome' || key === 'Problem');
         const accountScope=view.rows.find(([key])=>key==='Account')?.[1];
-        summary.textContent = `${accountScope ? accountScope+' · ' : ''}${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
+        summary.textContent = `${view.tacticalPositions?'Earlier tactical source · ':''}${accountScope ? accountScope+' · ' : ''}${labels[tool.name] ?? 'Source details'}${tool.isError ? ' · Read failed' : outcome ? ' · ' + outcome[1] : ''}`;
         details.append(summary);
         const access = view.rows.filter(([key]) => key.endsWith(' access'));
         if (access.length) {
@@ -177,7 +180,7 @@ $('composer').addEventListener('submit', async event => {
 
     }
     const analysisContent=article.querySelector('.text');
-    if (!analysisContent.innerHTML?.trim()) { analysisContent.remove();
+    if (!analysisContent.textContent.replace(/[\p{White_Space}\p{Cf}]/gu,'').trim()) { analysisContent.remove();
     } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).tacticalPositions))) {
       const content=article.querySelector('.text');
       const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);

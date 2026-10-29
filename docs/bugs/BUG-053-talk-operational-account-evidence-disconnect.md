@@ -80,3 +80,8 @@ Approved tt1 Order/Account-market plus global market scope and300/30request-trig
 ## Installed field dependencies and native bracket correction
 
 Runtimeb008cbe1 (reviewed6f5ed308) fixes blanket cash-coverage suppression while retaining actual constituent/allocation guards. Native OTOCO/OCO links survive normalized evidence and are accessible through exact Order MCP reads. Independent first candidate rejection and corrected acceptance remain immutable. Installed real SDK and all4same-originals structures verify terminal geometry/spot/clocks/DTE; native client renders4SVGs without empty progress gauges. Current-origin/entry economics remain unavailable because historical linkage does not establish held lifecycle continuity. Broader defect stays Open; no Principal acceptance or full parity claimed. Large deliberate detail/context retrieval is measured, not declared solved. See [financial dependency receipt](../reviews/sdk-talk-financial-dependencies-2026-10-29.md#installed-successor-verification--october29). Grants, policies, credentials and v1 unchanged.
+
+
+## Principal named-scope acceptance falsifier — October29
+
+Shared-result Test1 operator-positive and Test3 QQQ evidence passed; Test2 compact QQQ request returned all4. Original tool trace unavailable, so exact failed invocation/root cause is not fabricated. Candidate adds existing Position underlying selector/MCP scope checks and current-turn trusted-result supersession; real retained SDK4→1→4 and cold QQQ selection pass. No financial-domain redesign or current-origin claim. [Scoped receipt](../reviews/sdk-talk-selection-2026-10-29.md). Independent review/Principal reacceptance pending; broader BUG053 remains Open.

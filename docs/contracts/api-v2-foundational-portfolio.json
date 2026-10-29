@@ -148,6 +148,17 @@
             "description": "OR selection, applied before pagination within authorized Account scope. UNRECORDED_NONCLOSED is a query-only predicate: absent/null exposure.status and lifecycle not CLOSED; it never creates an exposure status or asserts custody. Omit for all retained interpretations. Explicit UNKNOWN remains distinct from unrecorded exposure.",
             "style": "form",
             "explode": false
+          },
+          {
+            "name": "underlying",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z0-9^][A-Z0-9.^/-]{0,31}$",
+              "maxLength": 32
+            },
+            "description": "Exact canonical Instrument symbol of ANY current Construction constituent option underlying or long-equity subject. Requires reference.read; combined with authorized Account/exposure/lifecycle predicates before pagination and enrichment. Mixed-underlying Constructions match each resolved subject. Historical compositions/display names are not matched; missing/unresolved references are not matches, so empty selection does not prove complete brokerage absence."
           }
         ],
         "responses": {
@@ -29316,6 +29327,46 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Warning"
+            }
+          },
+          "selection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "accounts",
+              "underlying",
+              "state",
+              "exposureStatus",
+              "qualification"
+            ],
+            "properties": {
+              "accounts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              },
+              "underlying": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "exposureStatus": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "qualification": {
+                "const": "RESOLVED_CURRENT_CONSTITUENT_SUBJECT_MATCHES_ONLY"
+              }
             }
           }
         },

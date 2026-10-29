@@ -40,7 +40,7 @@ test('balance render creates four facts and defers provenance DOM until delibera
  append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;},
  insertBefore(item,before){this.children.splice(this.children.indexOf(before),0,item);},
  querySelector(selector){return this.children.find(c=>selector==='.'+c.className);},
- scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};created.push(e);return e;}
+ scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};Object.defineProperty(e,'innerHTML',{get(){return this._html??'';},set(value){this._html=value;this.textContent=value.replace(/<[^>]*>/g,'');}});created.push(e);return e;}
  const priorFetch=globalThis.fetch;
  globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,createTextNode:text=>({textContent:text})};
  const raw=JSON.stringify({account:{nickname:'fixture'},evidence:{selection:{mode:'latest-source',status:'SELECTED',readAt:'2026-10-27T12:00:00Z',unknownSourceTimeCount:0},observations:[{broker:'FIDELITY',source:{artifactId:'PROVENANCE-CANARY',exportedAt:'2026-10-19T16:00:00-04:00'},fields:['Available without margin impact','Margin debit','Cash reserved for options','Settled cash'].map(brokerField=>({brokerField,status:'REPORTED',value:'1.25',reportedDisplay:'$1.25'}))}]}});
@@ -62,7 +62,7 @@ test('holdings source rows are lazy, answer Markdown renders, and access denials
  append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;},
  insertBefore(item,before){this.children.splice(this.children.indexOf(before),0,item);},
  querySelector(selector){return this.children.find(c=>selector==='.'+c.className);},
- scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};created.push(e);return e;}
+ scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};Object.defineProperty(e,'innerHTML',{get(){return this._html??'';},set(value){this._html=value;this.textContent=value.replace(/<[^>]*>/g,'');}});created.push(e);return e;}
  const priorFetch=globalThis.fetch;
  globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,createTextNode:text=>({textContent:text})};
  const raw=JSON.stringify({outcome:'PARTIAL',accounts:[{nickname:'pine',broker:'FIDELITY',complete:false,holdings:Array.from({length:60},()=>({sourceInstrument:{identifier:'SOURCE-ROW-CANARY'},quantity:'100',unit:'SHARE'}))},{nickname:'birch',complete:false,holdings:[],problems:[{code:'FORBIDDEN'}]}],qualification:'SOURCE-QUALIFICATION-CANARY'});
@@ -86,7 +86,7 @@ test('option inventory renders every typed row before commentary and defers prov
  append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;},
  insertBefore(item,before){this.children.splice(this.children.indexOf(before),0,item);},
  querySelector(selector){return this.children.find(c=>selector==='.'+c.className);},
- scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};created.push(e);return e;}
+ scrollIntoView(){},remove(){},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};Object.defineProperty(e,'innerHTML',{get(){return this._html??'';},set(value){this._html=value;this.textContent=value.replace(/<[^>]*>/g,'');}});created.push(e);return e;}
  const priorFetch=globalThis.fetch;
  globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element};
  const raw=JSON.stringify({evidence:{optionInventory:{right:'PUT',side:'SHORT',counts:{shortPutContracts:5,selectedInventoryComplete:true},accounts:[{nickname:'fixture',readComplete:true,options:Array.from({length:5},(_,n)=>({underlyingSymbol:'ROW'+n,right:'PUT',side:'SHORT',quantity:'1',source:{artifactId:'PROVENANCE-CANARY',sourceRows:[n+1]}}))}]}}});
@@ -105,7 +105,7 @@ test('closed trades show outcomes and totals; matching, fees and analysis requir
  append(...items){for(const item of items){item.parent=this;this.children.push(item);}},replaceChildren(...items){this.children=[];this.append(...items);},
  insertBefore(item,before){item.parent=this;this.children.splice(this.children.indexOf(before),0,item);},
  querySelector(selector){return this.children.find(c=>selector==='.'+c.className);},
- scrollIntoView(){},remove(){if(this.parent)this.parent.children=this.parent.children.filter(c=>c!==this);},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};created.push(e);return e;}
+ scrollIntoView(){},remove(){if(this.parent)this.parent.children=this.parent.children.filter(c=>c!==this);},focus(){},addEventListener(n,fn){this.listeners[n]=fn;}};Object.defineProperty(e,'innerHTML',{get(){return this._html??'';},set(value){this._html=value;this.textContent=value.replace(/<[^>]*>/g,'');}});created.push(e);return e;}
  const priorFetch=globalThis.fetch;
  globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},createElement:element,createTextNode:text=>({textContent:text})};
  const pnl={status:'QUALIFIED_ESTIMATED_FEES',value:'7.25',currency:'USD',outcome:'WIN'};

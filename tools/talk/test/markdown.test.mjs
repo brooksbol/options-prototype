@@ -18,3 +18,10 @@ test('empty placeholder tables do not render, while unavailable rows with meanin
  assert.match(renderMarkdown('Result unavailable.\n\n| Trade | P/L |\n|---|---|\n| | |'),/Result unavailable/);
  assert.doesNotMatch(renderMarkdown('Result unavailable.\n\n| Trade | P/L |\n|---|---|\n| | |'),/<table>/);
 });
+
+test('decoded entity and format-only empty tables disappear with their orphan analysis heading',()=>{
+ const empty='### Analysis\n\n| A | B | C | D | E | F |\n|---|---|---|---|---|---|\n| &nbsp; | &#160; | &#x200B; | **&nbsp;** | ` ` | &#x2060; |';
+ assert.equal(renderMarkdown(empty).trim(),'');
+ assert.match(renderMarkdown('| Name | Value |\n|---|---|\n| ZERO | 0 |'),/>0<\/td>/);
+ assert.match(renderMarkdown('### Note\n\nMeaningful explanation.\n\n|A|B|\n|-|-|\n|&nbsp;|&#160;|'),/Meaningful explanation/);
+});

@@ -82,3 +82,6 @@ Independently accepted bounded monitoring is now installed atbf6fecea. Actual re
 
 
 October29 shared-result candidate: exact Position tactical projection and selected MCP view avoid expanded Position/Construction unless evidence requested. Same private cut6705byte DTO versus72225byte expanded pair; actual compact SDK wrapper8086bytes. This is selected Position overretrieval evidence, not a new balance fix or installed acceptance. [Receipt](../reviews/sdk-talk-shared-tactical-result-2026-10-29.md).
+
+
+Principal reports another empty six-column analysis table in shared-result Test2. Original Markdown unavailable; decoded whitespace-entity/format-only tables independently reproduce the raw-content filtering gap. Candidate token-tree suppression and empty rendered-analysis handling preserve meaningful text/zero/unavailable/code. Browser actual-result replay with controlled empty table passes. Same receipt links scope, source retention and review boundaries; no blanket claim every unknown Markdown format is fixed.

@@ -62,7 +62,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.match(positions.content[0].text, /125/);
   assert.equal(JSON.parse(positions.content[0].text).evidence.id,selected.id);
   const monitorSchema=tools.find(t=>t.name==='inspect_account_positions').inputSchema;
-  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','cursor']);
+  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','cursor','underlying']);
   assert.equal(monitorSchema.additionalProperties,false);
   const expanded = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor', projection:'expanded',includeInactive:true });
   assert.equal(expanded.isError,true);

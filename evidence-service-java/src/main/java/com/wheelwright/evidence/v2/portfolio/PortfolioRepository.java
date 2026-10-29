@@ -60,6 +60,11 @@ public final class PortfolioRepository {
                 if(!states.isEmpty()){where.append("json_extract(p.payload_json,'$.exposure.status') IN (").append(String.join(",",Collections.nCopies(states.size(),"?"))).append(")");args.addAll(states);}
                 if(unrecorded){if(!states.isEmpty())where.append(" OR ");where.append("(json_extract(p.payload_json,'$.exposure.status') IS NULL AND COALESCE(json_extract(p.payload_json,'$.state'),'')<>'CLOSED')");}where.append(")");
             }
+            else if(name.equals("underlying")){
+                // ANY current bound constituent subject, not display text, prior composition or guessed package.
+                // Guard json_tree scalars before JSON extraction; SQLite may reorder predicates.
+                where.append(" AND EXISTS (SELECT 1 FROM portfolio_resource c, json_tree(c.payload_json,'$.composition') n, portfolio_resource i WHERE c.uri=json_extract(p.payload_json,'$.currentConstruction.href') AND c.kind='CONSTRUCTION' AND c.account_id=p.account_id AND n.type='object' AND i.kind='INSTRUMENT' AND i.uri=CASE WHEN json_extract(CASE WHEN n.type='object' THEN n.value ELSE '{}' END,'$.kind')='OPTION' THEN json_extract(CASE WHEN n.type='object' THEN n.value ELSE '{}' END,'$.terms.underlying.href') WHEN json_extract(CASE WHEN n.type='object' THEN n.value ELSE '{}' END,'$.kind')='LONG_SHARES' THEN json_extract(CASE WHEN n.type='object' THEN n.value ELSE '{}' END,'$.instrument.href') ELSE NULL END AND json_extract(i.payload_json,'$.symbol')=?)");args.add(value);
+            }
             else if(field!=null){where.append(" AND json_extract(p.payload_json,'").append(field).append("')=?");args.add(name.equals("instrumentId")?"/v2/instruments/"+value:value);}
             else if(name.equals("snapshotId")){where.append(" AND p.source_snapshot=?");args.add(value);}
             else if(name.equals("positionId")){

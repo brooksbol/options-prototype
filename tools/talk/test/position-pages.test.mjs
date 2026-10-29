@@ -47,3 +47,12 @@ test('request-triggered monitoring allows bounded cold acquisition beyond the ol
  const r=await inspectPositions({account:'fixture'},c);assert.equal(r.isError,undefined);assert.equal(c.paths.length,2);
  const short=config(null),transport=short.fetchImpl;short.timeoutMs=10;short.fetchImpl=async(url,init)=>{if(url.pathname==='/v2/positions')await import('node:timers/promises').then(({setTimeout})=>setTimeout(100,undefined,{signal:init.signal}));return transport(url,init);};await assert.rejects(inspectPositions({account:'fixture'},short),/abort/i);
 });
+
+test('underlying selector is backend scoped, retained on continuation, and empty stays narrow',async()=>{
+ const c=config(null),old=c.fetchImpl;c.fetchImpl=async(url,init)=>{const r=await old(url,init);if(url.pathname==='/v2/accounts')return r;const data=await r.json();data.selection={underlying:'QQQ',accounts:[{href:'/v2/accounts/'+id}]};return new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json','X-Request-Id':requestId}});};
+ const result=JSON.parse((await inspectPositions({account:'fixture',underlying:'QQQ'},c)).content[0].text);assert.equal(new URL(c.paths[1],c.base).searchParams.get('underlying'),'QQQ');assert.equal(result.evidence.selection.underlying,'QQQ');assert.equal(result.evidence.items.length,0);assert.match(result.qualification,/empty selection is not proof/);
+ const bad=config(null);await assert.rejects(inspectPositions({account:'fixture',underlying:'qqq'},bad));assert.equal(bad.paths.length,0);
+});
+test('wrong-subject response or changed underlying cursor fails without client filtering or broad fallback',async()=>{
+ for(const defect of ['selection','row','continuation']){const c=config(null),old=c.fetchImpl;c.fetchImpl=async(url,init)=>{const r=await old(url,init);if(url.pathname==='/v2/accounts')return r;const data=await r.json();data.selection={underlying:defect==='selection'?'SPY':'QQQ',accounts:[{href:'/v2/accounts/'+id}]};if(defect==='row')data.items=[{id:requestId,account:{href:'/v2/accounts/'+id},underlyings:[{symbol:'SPY'}]}];if(defect==='continuation')data.next={href:'/v2/positions?accountId='+id+'&projection=tactical&limit=5&exposureStatus=OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED&underlying=SPY&cursor=opaque'};return new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json','X-Request-Id':requestId}});};await assert.rejects(inspectPositions({account:'fixture',underlying:'QQQ'},c),/scope|underlying|selectors/);assert.equal(c.paths.length,2);}
+});
