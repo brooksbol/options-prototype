@@ -29,7 +29,15 @@ When reporting retrieval coverage, distinguish these activities and disclose mat
 
 ### Principal report lookup — TT1 Positions (October 29, 2026)
 
-When the Principal types **`TT1 Positions`** or **`tt1 positions`**, treat this as an exact report-retrieval request, **not** an invitation to improvise a new portfolio summary. Retrieve and follow [`docs/cli/tt1-positions-report.md`](cli/tt1-positions-report.md), the Principal-accepted presentation contract. Obtain the latest attached `tt1-cadence` ZIP for current figures; if absent, request it. The report must have one capital-allocation bar and exactly one position table with the prescribed columns. Do not replace it with separate exits/observations tables, invented headline KPIs, or generic narrative. This is a presentation routing rule only, not Product/trading authority.
+When the Principal requests **`TT1 Positions`** (case-insensitive), whether alone or after “bootstrap,” treat it as an exact report-rendering invocation, not a general portfolio-review question.
+
+1. Bootstrap using repository instructions and **explicitly retrieve and read** [`docs/cli/tt1-positions-report.md`](cli/tt1-positions-report.md) before rendering.
+2. Use the latest attached `tt1-cadence` ZIP for figures. If none is available, ask for that ZIP instead of fabricating current figures.
+3. **Render only** the **TT1 — Position Performance** report defined there: Available BP and Deployed BP, the segmented color allocation bar, and exactly one eight-column position table with its total row.
+4. **No preliminary account or position summary, no duplicate table, no separate exit-management section, no generic observations, and no closing commentary.** Do not print an introductory bootstrap report when the same request already asks for TT1 Positions.
+5. Keep existing provenance and evidence discipline; do not misrepresent stale/unknown evidence or infer trading authorization.
+
+This routing rule governs report presentation only, not Product/trading policy or brokerage actions.
 
 ## Principal shorthand: "write this down" — durable-learning request
 
