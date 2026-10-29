@@ -134,9 +134,23 @@ public final class PortfolioMath {
         var spot=evaluation.path("spot");var range=evaluation.path("range");var payoff=evaluation.path("payoff");var geometry=payoff.path("geometry");
         if(!established(spot)||!spot.path("unit").asText().equals("PRICE")||!spot.path("currency").equals(range.path("currency"))||!range.path("status").asText().equals("QUALIFIED")||!payoff.path("status").asText().equals("QUALIFIED")||!spot.path("currency").equals(geometry.path("priceCurrency")))return "UNAVAILABLE";
         var price=number(spot.path("value"));var lower=number(range.path("lower"));var upper=number(range.path("upper"));
-        if(price==null||lower==null&&upper==null)return "UNAVAILABLE";
+        if(price==null||price.signum()<0||lower==null&&upper==null)return "UNAVAILABLE";
+        // The accepted credit-structure color grammar requires a maximum flat plateau:
+        // nondecreasing to its left, flat within it, nonincreasing to its right.
+        // An inverse or otherwise incompatible shape still has inspectable geometry.
+        var segments=geometry.path("segments");if(segments.isEmpty())return "UNAVAILABLE";
+        if(number(segments.get(0).path("slope"))==null||number(segments.get(0).path("slope")).signum()!=0||number(segments.get(segments.size()-1).path("slope"))==null||number(segments.get(segments.size()-1).path("slope")).signum()!=0)return "UNAVAILABLE";
+        BigDecimal plateau=null;
+        for(var segment:segments){
+            var lo=number(segment.path("lower"));var hi=number(segment.path("upper"));var slope=number(segment.path("slope"));var intercept=number(segment.path("intercept"));
+            if(slope==null||intercept==null||lo==null)return "UNAVAILABLE";
+            if(lower!=null&&hi!=null&&hi.compareTo(lower)<=0){if(slope.signum()<0)return "UNAVAILABLE";}
+            else if(upper!=null&&lo.compareTo(upper)>=0){if(slope.signum()>0)return "UNAVAILABLE";}
+            else {if(slope.signum()!=0||plateau!=null&&plateau.compareTo(intercept)!=0)return "UNAVAILABLE";plateau=intercept;}
+        }
+        if(plateau==null)return "UNAVAILABLE";
         if((lower==null||price.compareTo(lower)>=0)&&(upper==null||price.compareTo(upper)<=0))return "NEUTRAL_PLATEAU";
-        for(var segment:geometry.path("segments")){var lo=number(segment.path("lower"));var hi=number(segment.path("upper"));var slope=number(segment.path("slope"));if(slope!=null&&slope.signum()==0&&(lo==null||price.compareTo(lo)>=0)&&(hi==null||price.compareTo(hi)<=0))return "LOSS_TAIL";}
+        for(var segment:segments){var lo=number(segment.path("lower"));var hi=number(segment.path("upper"));var slope=number(segment.path("slope"));var intercept=number(segment.path("intercept"));if(slope.signum()==0&&intercept.compareTo(plateau)<0&&(lo==null||price.compareTo(lo)>=0)&&(hi==null||price.compareTo(hi)<=0))return "ADVERSE_TAIL";}
         return "TRANSITION";
     }
 }

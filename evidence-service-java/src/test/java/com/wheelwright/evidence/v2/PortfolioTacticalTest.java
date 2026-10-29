@@ -20,6 +20,7 @@ class PortfolioTacticalTest {
    var full=new BearerAuthenticator.Principal("full",Set.of("account.positions.read:"+h.account,"account.holdings.read:"+h.account,"account.orders.read:"+h.account,"account.artifacts.read:"+h.account,"market.read","account.market.read:"+h.account,"reference.read"));
    var reader=new PortfolioReadService(h.repo,h.sources);var row=reader.tactical(h.current().getFirst(),full,Instant.parse("2026-10-29T16:00:00Z"),new PortfolioReadService.ReadContext());
    assertThat(row.path("representation").asText()).isEqualTo("TACTICAL_POSITION");assertThat(row.at("/structure/name").asText()).isEqualTo("IRON CONDOR");assertThat(row.path("constituents")).hasSize(4);assertThat(row.at("/evaluation/payoff/geometry/boundaries")).hasSize(4);assertThat(row.at("/evaluation/payoff/geometry/valueKind").asText()).isEqualTo("TERMINAL_VALUE");assertThat(row.at("/evaluation/timeline/remainingDays/value").asText()).isEqualTo("29");assertThat(row.at("/evaluation/openingCashFlow/value").isNull()).isTrue();
+   for(var legacy:List.of(obj().putNull("exposure"),obj().set("exposure",obj().putNull("status"))))assertThat(PortfolioTactical.project(legacy,Map.of(),Map.of()).has("exposure")).isFalse();
    var restricted=new BearerAuthenticator.Principal("restricted",Set.of("account.positions.read:"+h.account,"account.holdings.read:"+h.account,"reference.read"));var hidden=reader.tactical(h.current().getFirst(),restricted,Instant.parse("2026-10-29T16:00:00Z"),new PortfolioReadService.ReadContext());assertThat(hidden.at("/structure/status").asText()).isEqualTo("UNCLASSIFIED");assertThat(hidden.at("/evaluation/management/profitTargetGrossPl/value").isNull()).isTrue();assertThat(hidden.at("/evaluation/timeline/openedAt").isNull()).isTrue();
    var response=obj().put("projection","tactical");response.set("items",array().add(row));response.putNull("next");response.set("warnings",array());var sample=obj();sample.set("account",obj().put("nickname","fixture"));sample.set("evidence",response);Files.createDirectories(Path.of("build/reports/tactical"));Files.writeString(Path.of("build/reports/tactical/condor.json"),JSON.writeValueAsString(sample));
    var auth=new BearerAuthenticator(new UserDirectory(h.db,h.accounts),"reader=reader:account.positions.read:"+h.account+",account.holdings.read:"+h.account+",reference.read");var mvc=MockMvcBuilders.standaloneSetup(new PortfolioController(reader,auth,h.accounts)).build();
@@ -38,14 +39,25 @@ class PortfolioTacticalTest {
  }
  @Test void monitoringOrSelectorIncludesLegacyUnknownBeforePaginationAndKeepsAccountIsolation()throws Exception {
   var h=new PortfolioSourcePackageTest();h.directory=directory;h.setup();try{
+   String foreign=h.accounts.bind("foreign","TASTYTRADE","FOREIGN1234");
    try(var c=h.repo.connection();var q=c.prepareStatement("INSERT INTO portfolio_resource(uri,kind,account_id,payload_json,source_snapshot,source_key,recorded_at) VALUES (?,'POSITION',?,?,NULL,'fixture','2026-10-29T00:00:00Z')")){
     String[] statuses={"ZERO_OBSERVED","OBSERVED","UNKNOWN","RETAINED",null,null,null,"OBSERVED"};
     String[] states={"UNRESOLVED","UNRESOLVED","OPEN","UNRESOLVED","OPEN","UNRESOLVED","CLOSED","OPEN"};
-    for(int i=0;i<statuses.length;i++){var value=obj().put("state",states[i]);if(statuses[i]!=null)value.set("exposure",obj().put("status",statuses[i]));q.setString(1,"/v2/positions/fixture-"+i);q.setString(2,i==7?"foreign-account":h.account);q.setString(3,JSON.writeValueAsString(value));q.executeUpdate();}
+    for(int i=0;i<statuses.length;i++){var value=obj().put("state",states[i]);if(statuses[i]!=null)value.set("exposure",obj().put("status",statuses[i]));q.setString(1,"/v2/positions/fixture-"+i);q.setString(2,i==7?foreign:h.account);q.setString(3,JSON.writeValueAsString(value));q.executeUpdate();}
    }
    var filter=Map.of("exposureStatus","OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED");var first=h.repo.page(Kind.POSITION,Set.of(h.account),filter,null,"",false,2);assertThat(first.stream().map(Document::uri)).containsExactly("/v2/positions/fixture-1","/v2/positions/fixture-2","/v2/positions/fixture-3");
    var rest=h.repo.page(Kind.POSITION,Set.of(h.account),filter,null,first.get(1).uri(),false,10);assertThat(rest.stream().map(Document::uri)).containsExactly("/v2/positions/fixture-3","/v2/positions/fixture-4","/v2/positions/fixture-5");assertThat(rest.get(1).value().has("exposure")).isFalse();
    assertThat(h.repo.page(Kind.POSITION,Set.of(h.account),Map.of(),null,"",false,20)).hasSize(7);
+  }finally{h.close();}
+ }
+
+ @Test void marketReferencesUseMembershipReselectedAfterNativeOrderGrouping()throws Exception {
+  var h=new PortfolioSourcePackageTest();h.directory=directory;h.setup();try{
+   var held=h.selected("holdings","UNG");h.holdings(held);h.references(held,false);assertThat(h.current()).hasSize(4);
+   var reader=new PortfolioReadService(h.repo,h.sources);var orders=org.mockito.Mockito.mock(PortfolioOrderAcquisition.class);org.mockito.Mockito.when(orders.read(org.mockito.ArgumentMatchers.anySet())).thenAnswer(call->{h.orders(false);return array();});reader.orderAcquisition(orders);
+   var selected=new java.util.concurrent.atomic.AtomicReference<Map<String,Set<String>>>();var market=org.mockito.Mockito.mock(PortfolioMarketAcquisition.class);org.mockito.Mockito.when(market.read(org.mockito.ArgumentMatchers.anySet(),org.mockito.ArgumentMatchers.anyMap(),org.mockito.ArgumentMatchers.anyMap())).thenAnswer(call->{selected.set(call.getArgument(2));return array();});reader.marketAcquisition(market);
+   var auth=new BearerAuthenticator(new UserDirectory(h.db,h.accounts),"reader=reader:account.positions.read:"+h.account+",account.holdings.read:"+h.account+",account.orders.read:"+h.account+",account.market.read:"+h.account+",market.read,reference.read");var mvc=MockMvcBuilders.standaloneSetup(new PortfolioController(reader,auth,h.accounts)).build();
+   var response=mvc.perform(get("/v2/positions?accountId="+h.account+"&projection=tactical&exposureStatus=OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED&limit=5").header("Authorization","Bearer reader")).andReturn().getResponse();assertThat(response.getStatus()).isEqualTo(200);assertThat(h.current()).hasSize(1);assertThat(selected.get().get(h.account)).containsExactly(h.current().getFirst().uri());
   }finally{h.close();}
  }
 

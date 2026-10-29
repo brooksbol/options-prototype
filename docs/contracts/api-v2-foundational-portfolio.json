@@ -38231,7 +38231,7 @@
             "enum": [
               "NEUTRAL_PLATEAU",
               "TRANSITION",
-              "LOSS_TAIL",
+              "ADVERSE_TAIL",
               "UNAVAILABLE"
             ]
           }
