@@ -1,0 +1,15 @@
+ACCEPT — candidate `7e271b3f963061e8a6dc0f844ca902e07e64222e`. No material findings in the bounded correction review.
+
+- Independently reproduced 14 invalid-only balance cases through the actual broker adapter with every other financial source failed. All stopped before publication.
+- Finite balances, including true zero, and qualified empty collections remained usable. Incomplete empty orders and invalid current-BP values were rejected.
+- Empty holdings still retrieved both pages of ordinary and complex working orders.
+- Acquisition-age probes accepted acquisition during snapshot retrieval, excluded genuinely future acquisition, and preserved session-based DTE.
+- Nine selected synthetic tests passed. Broader unchanged claims inherit the prior independent reviews.
+
+Limits: publication was intercepted in memory; filesystem ZIP publication and installed behavior were not exercised. Remote synchronization remains unverified. No provider contact, actual broker/WW reads, private-artifact inspection, other-worktree access, or mutation performed.
+
+CURRENT STATE: Frozen candidate independently ACCEPTED within review scope; installation and Principal acceptance remain pending.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

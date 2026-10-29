@@ -1,0 +1,13 @@
+ACCEPT — `775038e3e591821b0b59b195acdc8bf9d9cafa72`, bounded delta only.
+
+Independently reproduced `79a1de3`’s deadlock. Candidate passes 13 MiB never-ending stream probes, including cancellation that never resolves: collection settles, failure metadata appears, and the reader unlocks.
+
+Malformed, null, and errored bodies pass; successful replay preserves exact text/status/headers without credential leakage. Unavailable counts remain null/“unavailable”; known empty holdings remain zero. No clone/tee remains.
+
+Broader `7e271b3` acceptance remains inherited. Current installation and filesystem ZIP behavior were not tested. No mutations or operational/private reads performed.
+
+CURRENT STATE: Candidate 775038e3 bounded delta review ACCEPTED; correction not installed.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE
