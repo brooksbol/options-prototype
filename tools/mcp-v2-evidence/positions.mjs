@@ -2,7 +2,7 @@ import { canonicalAccountId } from '../../scripts/ww-accounts.mjs';
 import { UUID, readBackend, problemResult } from './backend.mjs';
 
 // Resolve a nickname through authenticated backend discovery; never infer ownership/grants.
-export async function inspectPositions({ account, state, cursor }, config) {
+export async function inspectPositions({ account, state, cursor, projection = 'tactical', includeInactive = false }, config) {
   const inventory = await readBackend('/v2/accounts', config);
   if (inventory.error) return problemResult(inventory.error);
   if (inventory.data?.requestId !== inventory.requestId || !Array.isArray(inventory.data.accounts))
@@ -14,7 +14,10 @@ export async function inspectPositions({ account, state, cursor }, config) {
     availableAccounts: inventory.data.accounts.map(item => ({ nickname: item.alias, broker: item.brokerAssociation?.broker })) }) }] };
   const selected = matches[0];
   if (!canonicalAccountId(selected.id)) throw new Error('Invalid canonical Account ID.');
-  const query = new URLSearchParams({ accountId: selected.id, include: 'holdingSummaries', limit: '5' });
+  if(!['tactical','expanded'].includes(projection))throw new Error('Unsupported Position projection.');
+  const query = new URLSearchParams({ accountId: selected.id, projection, limit: '5' });
+  if(projection==='expanded')query.set('include','currentConstruction,holdingSummaries');
+  if(!includeInactive&&state===undefined)query.set('exposureStatus','OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED');
   if (state !== undefined) query.set('state', state);
   if (cursor !== undefined) query.set('cursor', cursor);
   const result = await readBackend('/v2/positions?' + query, config);
@@ -27,12 +30,13 @@ export async function inspectPositions({ account, state, cursor }, config) {
     if (next.origin !== new URL(config.base).origin || next.pathname !== '/v2/positions' ||
         next.searchParams.get('accountId') !== selected.id || !next.searchParams.get('cursor'))
       throw new Error('Invalid Position continuation scope.');
+    for(const [key,value]of query)if(key!=='cursor'&&next.searchParams.get(key)!==value)throw new Error('Position continuation changed selectors.');
     nextCursor = next.searchParams.get('cursor');
   }
   return { content: [{ type: 'text', text: JSON.stringify({ requestId: result.requestId, nextCursor,
     ...(config.syntheticFixture ? { dataClassification: 'SYNTHETIC_FIXTURE',
       sourceQualification: 'Invented development records, not real brokerage holdings or live provider data. Broker environment labels describe the simulated source.' } : {}),
     account: { nickname: selected.alias, broker: selected.brokerAssociation?.broker },
-    qualification: 'Backend Position read from its selected Account evaluation graph, not an inventory of all history or independent held market quotes. Missing linked market evidence does not prove that no separate retained quote exists. Missing historical fields do not prove no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If nextCursor is non-null this page is incomplete; repeat with the same Account/state and that opaque cursor. Backend OPEN/CLOSED state is lifecycle, not proof of current custody or freshness.',
+    qualification: 'Current monitoring scope explicitly selects OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED exposure predicates (UNRECORDED_NONCLOSED means missing exposure on a non-CLOSED lifecycle, not established custody) unless inactive or explicit lifecycle evidence is requested; this is not an OPEN lifecycle assumption. Compact tactical results copy backend evaluations; candidate Model matches do not establish opening occurrence, governed capital or CSP collateral. Backend Position read from its selected Account evaluation graph, not an inventory of all history or independent held market quotes. Missing linked market evidence does not prove that no separate retained quote exists. Missing historical fields do not prove no other historical source exists. Preserve financial statuses, missing values, source dates and warnings. A holdings observation is not proof of an opening transaction, current fill, or trading recommendation. If nextCursor is non-null this page is incomplete; repeat with the same Account/state and that opaque cursor. Backend OPEN/CLOSED state is lifecycle, not proof of current custody or freshness.',
     evidence: result.data }) }] };
 }

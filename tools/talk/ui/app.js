@@ -1,3 +1,4 @@
+import {renderTacticalPositions} from './tactical.js';
 import { evidenceView } from './evidence-view.js';
 import { renderMarkdown } from './markdown.js';
 // Preserve backend number lexemes; unwrap only the SDK/MCP text envelope.
@@ -64,7 +65,9 @@ $('composer').addEventListener('submit', async event => {
     for (const tool of answer.tools ?? []) {
       const raw = resultText(tool.result);
       const view = evidenceView(raw);
-      if(view.closedTradeSummary) {
+      if(view.tacticalPositions) {
+        article.insertBefore(renderTacticalPositions(document,view.tacticalPositions),article.querySelector('.text'));
+      } else if(view.closedTradeSummary) {
         const source=view.closedTradeSummary,card=document.createElement('section');card.className='closed-trade-card';
         const title=document.createElement('h3');title.textContent=source.title;card.append(title);
         const period=document.createElement('p');period.textContent=`${source.period} · ${source.metric}`;card.append(period);
@@ -169,7 +172,7 @@ $('composer').addEventListener('submit', async event => {
     }
     const analysisContent=article.querySelector('.text');
     if (!analysisContent.innerHTML?.trim()) { analysisContent.remove();
-    } else if ((answer.tools??[]).some(tool=>evidenceView(resultText(tool.result)).closedTradeSummary)) {
+    } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).tacticalPositions))) {
       const content=article.querySelector('.text');
       const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);
       article.insertBefore(details,content);content.remove();details.append(content);

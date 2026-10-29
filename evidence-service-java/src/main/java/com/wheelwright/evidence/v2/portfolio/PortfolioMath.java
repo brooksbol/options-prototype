@@ -129,4 +129,14 @@ public final class PortfolioMath {
         total=total.add(value.subtract(basis).multiply(BigDecimal.valueOf(sign)));}return total;}
     private static BigDecimal slope(List<ObjectNode> xs,BigDecimal spot){var total=BigDecimal.ZERO;for(var x:xs){int sign=x.path("side").asText().equals("LONG")?1:-1;var q=number(x.path("quantity"));if(x.path("kind").asText().equals("LONG_SHARES"))total=total.add(q.multiply(BigDecimal.valueOf(sign)));else if(x.path("kind").asText().equals("OPTION")){var t=x.path("terms");int side=t.path("right").asText().equals("CALL")?1:-1;int cmp=spot.compareTo(number(t.path("strike")));if(cmp*side>0)total=total.add(q.multiply(number(t.path("multiplier"))).multiply(BigDecimal.valueOf(sign*side)));}}return total;}
     private static JsonNode exactQuotient(BigDecimal a,BigDecimal b){try{return TextNode.valueOf(decimal(a.divide(b)));}catch(ArithmeticException ignored){int scale=Math.max(a.scale(),b.scale());BigInteger n=a.movePointRight(scale).toBigIntegerExact(),d=b.movePointRight(scale).toBigIntegerExact();if(d.signum()<0){n=n.negate();d=d.negate();}var gcd=n.gcd(d);return obj().put("numerator",n.divide(gcd).toString()).put("denominator",d.divide(gcd).toString());}}
+    /** Accepted tt-live region meaning; this qualifies a source spot, not a trading action. */
+    public static String spotRegion(JsonNode evaluation) {
+        var spot=evaluation.path("spot");var range=evaluation.path("range");var payoff=evaluation.path("payoff");var geometry=payoff.path("geometry");
+        if(!established(spot)||!spot.path("unit").asText().equals("PRICE")||!spot.path("currency").equals(range.path("currency"))||!range.path("status").asText().equals("QUALIFIED")||!payoff.path("status").asText().equals("QUALIFIED")||!spot.path("currency").equals(geometry.path("priceCurrency")))return "UNAVAILABLE";
+        var price=number(spot.path("value"));var lower=number(range.path("lower"));var upper=number(range.path("upper"));
+        if(price==null||lower==null&&upper==null)return "UNAVAILABLE";
+        if((lower==null||price.compareTo(lower)>=0)&&(upper==null||price.compareTo(upper)<=0))return "NEUTRAL_PLATEAU";
+        for(var segment:geometry.path("segments")){var lo=number(segment.path("lower"));var hi=number(segment.path("upper"));var slope=number(segment.path("slope"));if(slope!=null&&slope.signum()==0&&(lo==null||price.compareTo(lo)>=0)&&(hi==null||price.compareTo(hi)<=0))return "LOSS_TAIL";}
+        return "TRANSITION";
+    }
 }

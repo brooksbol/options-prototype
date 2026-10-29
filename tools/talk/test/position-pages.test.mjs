@@ -14,7 +14,7 @@ function config(next) {
     }};
 }
 test('Position continuation is reusable, opaque, Account scoped and lifecycle qualified', async () => {
-  const c=config({href:'/v2/positions?accountId='+id+'&cursor=signed%2Bopaque'});
+  const c=config({href:'/v2/positions?accountId='+id+'&projection=tactical&limit=5&state=OPEN&cursor=signed%2Bopaque'});
   const result=await inspectPositions({account:'fixture',state:'OPEN',cursor:'prior+opaque'},c);
   const body=JSON.parse(result.content[0].text);
   assert.equal(body.nextCursor,'signed+opaque');
@@ -28,4 +28,16 @@ test('Position continuation is reusable, opaque, Account scoped and lifecycle qu
 test('Position continuation refuses an unexpected backend origin or Account', async () => {
   for(const href of ['https://example.invalid/v2/positions?accountId='+id+'&cursor=x','/v2/positions?accountId=other&cursor=x'])
     await assert.rejects(inspectPositions({account:'fixture'},config({href})),/continuation scope/);
+});
+
+test('monitoring includes explicit unknown and legacy unrecorded exposure; inactive/lifecycle selectors stay explicit',async()=>{
+ for(const [args,expected]of [[{},'OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED'],[{includeInactive:true},null],[{state:'CLOSED'},null]]){
+  const c=config(null);await inspectPositions({account:'fixture',...args},c);const q=new URL(c.paths[1],c.base).searchParams;
+  assert.equal(q.get('exposureStatus'),expected);assert.equal(q.get('projection'),'tactical');assert.equal(q.has('include'),false);
+ }
+});
+test('expanded detail is explicit and continuation cannot change projection or exposure selection',async()=>{
+ const c=config(null);await inspectPositions({account:'fixture',projection:'expanded'},c);
+ assert.equal(new URL(c.paths[1],c.base).searchParams.get('include'),'currentConstruction,holdingSummaries');
+ await assert.rejects(inspectPositions({account:'fixture'},config({href:'/v2/positions?accountId='+id+'&projection=expanded&limit=5&cursor=x'})),/changed selectors/);
 });
