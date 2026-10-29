@@ -103,6 +103,8 @@ test('standalone broker uses OAuth + allowlisted GETs, reuses projection, strips
  const r=await collectBroker({expectedAccount:'5WX01234',fetchImpl:f,env,now:()=>liveEvidence.now});
  assert.ok(r.reads.length>=4);assert.ok(r.projection);assert.equal(r.projection.positions.length,2);
  assert.ok(!JSON.stringify(r).includes('5WX01234'));assert.ok(!JSON.stringify(r).includes('synthetic-access-token'));assert.equal(calls.filter(([m])=>m!=='GET').length,1);
+ const malformed=await collectBroker({expectedAccount:'5WX01234',fetchImpl:(url,opt)=>new URL(url).pathname==='/market-time/equities/sessions/current'?Promise.resolve(new Response('not-json')):f(url,opt),env,now:()=>liveEvidence.now});
+ assert.equal(malformed.complete,false);assert.ok(malformed.failures.some(r=>r.code==='INVALID_RESPONSE_JSON'&&r.source==='/market-time/equities/sessions/current'));
  calls.length=0;const denied=await collectBroker({expectedAccount:'WRONG5678',fetchImpl:f,env,now:()=>liveEvidence.now});assert.equal(denied.complete,false);assert.ok(!calls.some(([,p])=>p.includes('/accounts/')));
 });
 test('October29 real specimen regression (private external evidence, never a repository fixture)',{skip:!process.env.TT1_SPECIMEN_DIR},async()=>{

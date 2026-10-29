@@ -19,8 +19,8 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
   if(!oauth&&!allowed)throw Error('BROKER_ROUTE_DENIED');
   if(oauth)for(const v of Object.values(JSON.parse(options.body)))if(typeof v==='string'&&v!=='refresh_token')secrets.add(v);
   let r;try{r=await fetchImpl(url,options);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'NETWORK_UNAVAILABLE'});throw Error('BROKER_NETWORK_UNAVAILABLE');}
-  const text=await boundedText(r.clone());
-  let body;try{body=JSON.parse(text);}catch{throw Error('BROKER_INVALID_JSON');}
+  let text;try{text=await boundedText(r.clone());}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'RESPONSE_BODY_UNAVAILABLE'});throw Error('BROKER_BODY_UNAVAILABLE');}
+  let body;try{body=JSON.parse(text);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'INVALID_RESPONSE_JSON'});throw Error('BROKER_INVALID_JSON');}
   if(oauth){if(body.access_token){token=body.access_token;secrets.add(token);}return r;}
   if(u.pathname==='/customers/me/accounts'){
    const items=body?.data?.items;
