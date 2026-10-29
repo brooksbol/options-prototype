@@ -27,7 +27,11 @@ When reporting retrieval coverage, distinguish these activities and disclose mat
 | 6 | Complete `parking-lot*.md` sequence | Enumerate every continuation and inspect headings/IDs/current-state matches across all files; read full entries only for the active task or a specific backlog inquiry. |
 | 7 | `principles.md` | Canonical Principles register, ratified principles, and candidate boundary. |
 
-### Principal shorthand: "write this down" — durable-learning request
+### Principal report lookup — TT1 Positions (October 29, 2026)
+
+When the Principal types **`TT1 Positions`** or **`tt1 positions`**, treat this as an exact report-retrieval request, **not** an invitation to improvise a new portfolio summary. Retrieve and follow [`docs/cli/tt1-positions-report.md`](cli/tt1-positions-report.md), the Principal-accepted presentation contract. Obtain the latest attached `tt1-cadence` ZIP for current figures; if absent, request it. The report must have one capital-allocation bar and exactly one position table with the prescribed columns. Do not replace it with separate exits/observations tables, invented headline KPIs, or generic narrative. This is a presentation routing rule only, not Product/trading authority.
+
+## Principal shorthand: "write this down" — durable-learning request
 
 When the Principal says "write this down", "remember this", or an equivalent phrase about Wheelwright work, treat it as an instruction to **complete a bounded knowledge-capture and reconciliation workflow**, not merely to suggest a filename, append indiscriminately to a journal, or propose a new principle. Follow `bootstrap/project-memory-protocol.md`, ADR-023, the A–F authority model and the existing `knowledge/` owner / `assimilation-obligations.md` mechanisms.
 
