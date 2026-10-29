@@ -1396,6 +1396,74 @@ Proposed strategic disposition: no roadmap change. Proposed architectural dispos
 
 **Next mode:** Principal Product definition of the open questions, then design. No work is authorized now.
 
+#### Reconciliation Completion Record — `PL-EVID-OBS` v1 observed symbol-liquidity table
+
+**Date:** October 27, 2026
+**State:** RECONCILED (scoped) — a bounded v1 observational experiment authorized by the Principal ("principal authorizes", revised-design Option A). This scopes only the v1 display table below. It does not reconcile the broader `PL-EVID-OBS` research, and it does not define the eventual v2 capability.
+
+- **Intake:** `PL-EVID-OBS`, October 27 refinement above. Cross-referenced from `PL-MCP-01` (`docs/parking-lot-11.md`).
+- **Experiment question:** can Wheelwright use its existing market evidence to tell broadly liquid options markets apart from markets with only isolated pockets of liquidity?
+- **Strategic disposition:** no roadmap change. The table is evidence under the question-driven North Star and the Trade Finder CSP specimen (underlying selection, liquidity).
+- **Architectural disposition:** no architecture-roadmap change. Like other v1 engines, the calculation lives in the browser, computed from the published snapshot (`PL-ARCH-06`). A v2 equivalent would be a backend-owned capability (Doc 77) designed holistically. No backend, acquisition, API v2 or MCP change.
+- **Parking-lot disposition:** retained under `PL-EVID-OBS`. This lifts the October 27 refinement's Deployment deferral for this one display-only table only.
+- **Approved design (Principal):**
+  - **Window:** listed expirations with backend DTE from 7 to 45.
+  - **Contract band:** |Δ| 0.15–0.50, puts and calls. This is a provisional constant independent of recommendation policy.
+  - **Liquid:** the existing v1 grade at L1–L2, thresholds unchanged.
+  - **Default sort:** median spread, lowest first, with multi-sort.
+  - **Click-through:** selecting a symbol sets the Cash Deployment symbol filter.
+- **Principal clarifications:**
+  1. **Zero-bid in-band contracts** are in the liquid-share denominator and count as not liquid. They contribute no spread, so they cannot distort the median.
+  2. **Freshness** uses the backend admissibility verdict as authoritative, with no frontend freshness threshold. Inadmissible chains contribute nothing to current measurements, and excluded evidence stays visible.
+  3. **Limited-coverage symbols** stay visible, distinguished from liquidity quality.
+  4. **Each metric's denominator is explicit.** Missing chains, inadmissible chains, missing or invalid quotes and observed zero-bid contracts are distinct states.
+  5. **Measures stay provisional and observational.** No composite score, and no influence on trading policy.
+  6. **Preserved unchanged:** the v1 contract grade and all unrelated Deployment behavior.
+- **Provisional display rule (not a liquidity judgment):** "limited coverage" means fewer than 20 measured contracts, or at most one admissible expiration with measured contracts.
+- **Principal Product adjustment (October 27, 2026, after the first browser review):**
+  - **Why:** the combined "limited coverage" rule flagged 883 of 959 symbols, which made it uninformative.
+  - **Change:** sample sufficiency and expiration breadth are now separate. A symbol with one expiration and 200 well-quoted contracts must not be characterized the same as a symbol with six contracts.
+  - **Sample sufficiency:** fewer than 20 measured contracts is a "thin sample". This sets the evidence state.
+  - **Expiration breadth:** shown independently as measured/listed expirations, with a "single" tag when exactly one expiration is measured. It never changes the evidence state.
+  - **Layout:** the table also uses the full board width.
+  - Both rules remain provisional display rules.
+- **Why-state:** this record, the refinement above, and the October 27, 2026 review chain in the Kiro session (proposal, reviewer modifications, Kiro corrections on zero-bid, admissibility and absent symbols). No additional record required.
+- **Next authorized mode:** implementation of the display-only table and tests, then a browser specimen for Principal review before commit. Passing tests are not Product acceptance.
+
+#### Scope clarification — `PL-EVID-OBS` observed-liquidity filters for TT1 short put spread screening
+
+**Date:** October 29, 2026
+**State:** RECONCILED (scoped extension) — Principal-directed ("v1 Options Market Liquidity — Daily Short Put Spread Screening" prompt) extension of the v1 observed-liquidity table above. Still display-only and observational. This promotes no strategy support into accepted Product authority. The table, Spot column and narrow-panel fix remain uncommitted, awaiting Principal acceptance; this extension does not accept them retroactively.
+
+- **Purpose:** support the operator's 19-session TT1 experiment (at most one short put credit spread per session). The operator filters observed evidence and exports it for a ChatGPT-assisted discussion. Wheelwright does not select trades, rank or execute.
+- **Principal decisions (recorded verbatim in substance):**
+  - Entry window 38–45 calendar DTE, preferring expirations nearest 45.
+  - Backend acquisition window stays 7–45 DTE; no expansion to 52.
+  - No change to provider cadence, scheduler, recommendation eligibility or freshness policy.
+  - Correlation and capital allocation stay outside this feature.
+  - The extension builds on the existing table; the operator controls all trading.
+  - Observed liquidity stays distinct from an executable spread.
+- **Added (all operator filters over existing published chain evidence):**
+  - A DTE range limited to observed coverage (7–45). The default preserves 7–45.
+  - Option type: All, Puts or Calls.
+  - Configurable absolute-delta band, default 0.15–0.50. This replaces the fixed band; the default behavior is unchanged.
+  - Median absolute quote spread, per share.
+  - Short-put vertical width availability at Level 1 (listed) and Level 2 (both legs quoted). Level 3 (executable vertical price) is explicitly not established. The delta band applies to the short put only.
+  - **Width-discovery refinement (Principal, final bounded refinement):** the explicit Widths input and its fixed $1, $2, $3, $5, $10 defaults are removed. Widths are discovered, not configured: every in-band short put pairs with every listed lower-strike put in the same admissible chain, with no width cap. A quoted pair needs valid two-sided quotes on both legs. The table shows quoted-width count with the narrowest–widest range, and quoted/listed pairs; the CSV carries counts, range and a per-width detail column. Liquidity calculations are unchanged.
+  - Filter-aware aggregation and CSV columns carrying the filter settings.
+- **Evidence states distinguished:**
+  - no listed expiration in range;
+  - listed but not observed;
+  - observed but not current;
+  - observed with no matching contracts;
+  - matching contracts with insufficient quote evidence;
+  - measured, with the thin-sample flag.
+- **Thin-sample threshold:** unchanged. The 20-contract rule is a Principal-approved provisional display rule (October 27 revised design). No empirical basis exists for an adaptive rule, so raw counts stay visible instead.
+- **Strategic disposition:** no roadmap change. **Architectural disposition:** no architecture-roadmap change; the calculation stays browser-local and v1 (`PL-ARCH-06`), with no backend, acquisition, API v2, MCP or Talk change.
+- **Out of scope:** acquisition beyond 45 DTE, new provider calls, scheduler tiers, Class A policy, recommendations or rankings, the Cash Deployment 1–100 Liq score, and P50 or 21-DTE management.
+- **Why-state:** this record plus the October 29 Kiro session review (the 50-DTE monthlies were listed for 956 symbols and observed for 0, and a 52-DTE window was estimated at +71% chains). No additional record required.
+- **Next authorized mode:** implementation and tests, then a market-hours browser specimen for Principal review before any commit.
+
 
 ---
 

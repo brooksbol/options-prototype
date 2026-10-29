@@ -35,6 +35,18 @@ const STORAGE_KEY = "options-prototype:workspace";
  * outlook) does NOT live in the Workspace — it is keyed by brokerageAccountId in its own
  * per-account stores (Increments 2–5). The Workspace deliberately holds none of it.
  */
+/** Persisted Options Market Liquidity — observed controls (raw operator text). */
+export interface SymbolLiquidityControls {
+  minDte: string;
+  maxDte: string;
+  optionType: "all" | "puts" | "calls";
+  minAbsDelta: string;
+  maxAbsDelta: string;
+  symbol: string;
+  measuredOnly: boolean;
+  showCount: number | null;
+}
+
 export interface Workspace {
   // ── Scope 1: GLOBAL STRATEGY DEFAULTS (shared across all accounts) ──
   // Deployment policy (persisted field names remain stable)
@@ -54,6 +66,12 @@ export interface Workspace {
   writeDeskBuyWritesCollapsed: boolean;
   writeDeskCrossEntryCollapsed: boolean;
   writeDeskIronCondorsCollapsed: boolean;
+  writeDeskSymbolLiquidityCollapsed: boolean;
+  /**
+   * Observed-liquidity table controls as the operator typed them (PL-EVID-OBS).
+   * Stored as text so a refresh restores exactly what was on screen. null = defaults.
+   */
+  writeDeskSymbolLiquidityControls: SymbolLiquidityControls | null;
 
   // Deployment section order (drag/reorder)
   writeDeskSectionOrder: string[];
@@ -152,7 +170,9 @@ const DEFAULT_WORKSPACE: Workspace = {
   writeDeskBuyWritesCollapsed: false,
   writeDeskCrossEntryCollapsed: false,
   writeDeskIronCondorsCollapsed: false,
-  writeDeskSectionOrder: ["cross-entry", "puts", "calls", "buy-writes", "iron-condors"],
+  writeDeskSymbolLiquidityCollapsed: false,
+  writeDeskSymbolLiquidityControls: null,
+  writeDeskSectionOrder: ["cross-entry", "symbol-liquidity", "puts", "calls", "buy-writes", "iron-condors"],
   writeDeskAffordableOnly: false,
   writeDeskShowDanger: false,
   writeDeskShowWideSpread: false,

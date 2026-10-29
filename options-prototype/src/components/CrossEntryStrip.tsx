@@ -80,6 +80,11 @@ interface CrossEntryStripProps {
    * refresh affordances are not shown.
    */
   onRefreshTopOpportunities?: () => void;
+  /**
+   * PL-EVID-OBS click-through: a symbol handed from the observed symbol-liquidity
+   * table. Each new `seq` replaces the symbol filter with `symbol`.
+   */
+  symbolFilterRequest?: { symbol: string; seq: number } | null;
 }
 
 // Curated visible Greek/IV evidence columns (presentation semantics), resolved
@@ -144,6 +149,7 @@ export function CrossEntryStrip({
   onSelectPut,
   onSelectBuyWrite,
   onRefreshTopOpportunities,
+  symbolFilterRequest,
 }: CrossEntryStripProps) {
   // Full eligible population (composition + eligibility filtering, no display cap).
   // INTERIM v1: attach observational IV Rank (tastytrade /market-metrics) from each
@@ -178,6 +184,12 @@ export function CrossEntryStrip({
   const [symbolFilter, setSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskCrossEntrySymbol);
   const [capitalMin, setCapitalMin] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryCapitalMin);
   const [capitalMax, setCapitalMax] = useState<number | null>(() => loadWorkspace().writeDeskCrossEntryCapitalMax);
+  // Click-through from the observed symbol-liquidity table (display navigation only).
+  useEffect(() => {
+    if (!symbolFilterRequest) return;
+    setSymbolFilter(symbolFilterRequest.symbol);
+    updateWorkspace({ writeDeskCrossEntrySymbol: symbolFilterRequest.symbol });
+  }, [symbolFilterRequest?.seq]); // eslint-disable-line react-hooks/exhaustive-deps
   const symbolTerms = useMemo(
     () => symbolFilter.split(/[\s,]+/).map(t => t.trim().toUpperCase()).filter(Boolean),
     [symbolFilter]

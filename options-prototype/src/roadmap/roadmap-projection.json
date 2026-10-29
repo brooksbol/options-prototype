@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-29T16:43:36.362Z",
+    "generatedAt": "2026-10-29T19:02:10.887Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,8 +41,8 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 54,
-      "logTotal": 125,
+      "bugTotal": 55,
+      "logTotal": 127,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 62
@@ -3482,7 +3482,7 @@
         {
           "heading": "`PL-EVID-OBS` Refinement — Operator symbol-level options-liquidity question",
           "level": 3,
-          "content": "**What was discovered.** The operator wants to know which symbols have the most liquid options markets right now. That is a different question from the accepted v1 contract-level Liquidity grade, which answers whether one particular contract is liquid. This refinement preserves the problem definition. It deliberately does not commit to a measurement method.\n\n**Trigger and provenance:**\n- **Original operator question:** in the SDK Talk W1 preview, the Principal asked \"what are the most liquid etfs and indexes right now?\" and then \"a combination of chain depth, trading volume, and tight spreads. score the top ten accordingly, starting with tight spreads as the first parameter\". This is recorded in the [SDK Talk delivery plan](implementation/pl-mcp-01-sdk-talk-delivery-plan-2026-10-25.md#w1-operator-reported-observation--liquidity-question) under `PL-MCP-01`.\n- **v1 precedent:** the Principal-accepted contract Liquidity grade (`17b0e60b`, sort corrected by BUG-051 at `8ec2d5fb`). It is a weakest-link grade between spread % and open interest on Deployment rows, for display and sorting only, with provisional cutoffs. It stays in that role unchanged.\n- **Reviewer framing:** Principal-relayed reviewer feedback (apparently ChatGPT, judging by its citation links) proposed a two-level model, symbol and contract. Kiro's review supplied two of the measurement boundaries below. The reviewer then proposed preserving three distinct questions. The Principal authorized recording all of this as documentation only.\n\n**Three questions, not to be collapsed into one score:**\n\n\nSymbol-level liquidity is **not** the same as the number of executable, strategy-compatible opportunities. That distinction matters once Talk answers questions about selecting underlyings. A highly liquid symbol may be unproductive for the Income Wheel, and a structurally thinner one may still offer usable local surfaces. This is consistent with H2b above and with the 84-symbol contradiction.\n\n**Measurement boundaries already established (Kiro, source-confirmed October 27, 2026):**\n1. **Acquisition window.** The appliance acquires chains only for expirations from 7 to 45 days out (`SqliteEvidenceStore.getEligibleExpirations`, `MIN_DTE = 7`, `MAX_DTE = 45`). Any symbol-level measure describes that observed window, not the symbol's whole options market. Widening it would be a separate acquisition decision.\n2. **No historical options-volume series.** Only the latest chain payload is retained, and the only appended time series is underlying spot (`spot_history`). Current-session option volume exists, but historical average option volume does not. Underlying share volume or AUM must not stand in for it (synthesis red flag 6).\n3. **Comparable freshness.** Cross-symbol comparisons from chains of different ages are not comparable. Each measure needs its own observation time and must disclose whether it came from refreshed or retained evidence.\n4. **v2 placement.** API v2 has no chain or option-surface read capability today. Any v2 symbol-liquidity capability would be backend-owned (Doc 77) and designed holistically (`PRIN-ARCH-HOLISTIC-DOMAIN-API`).\n\n**Unresolved (Principal Product meaning required):**\n- What \"spreads first\" and \"chain depth\" mean precisely.\n- Which days-to-expiration and moneyness ranges count as comparable.\n- What counts as a tight spread, adequate open interest and meaningful volume.\n- Whether component measurements alone are enough, or whether a composite is ever warranted. The guardrail above against a scalar structural-liquidity score still applies.\n- Whether the observation window should widen.\n- Whether option-volume history should be retained (`PL-EVID-01`, `AR8`).\n\n**Related, not double-booked:**\n- `PL-MCP-01`: owns the Talk question and its answer form.\n- `PL-EVID-01`: historical observation substrate.\n- `PL-EVID-AGE`: freshness and provenance.\n- `PL-ARCH-06`: browser-local v1 engines.\n- `AR5`: separating eligibility, acceptability and comparative fitness.\n- Roadmap North Star (question-driven design) and the Trade Finder CSP specimen, which names underlying selection and liquidity.\n\nProposed strategic disposition: no roadmap change. Proposed architectural disposition: no architecture-roadmap change; pressure is noted under `AR5`/`AR8`. Both remain proposals until reconciliation.\n\n**Explicitly not authorized:**\n- Any implementation, including v1 Deployment symbol-coverage columns. That option was deliberately deferred so a provisional metric does not look authoritative just because it appears in the application.\n- Any v2 API or MCP capability.\n- Any ranking, threshold or composite score.\n- Any change to acquisition scope or retention.\n- Any universe, servicing or suitability policy.\n\n**Why-state:** this record, the linked Talk plan entry, the October 27, 2026 journal entries on the contract Liquidity grade (`docs/journal/project-journal-5.md`), and the synthesis document above. No additional record required.\n\n**Next mode:** Principal Product definition of the open questions, then design. No work is authorized now.\n\n\n---",
+          "content": "**What was discovered.** The operator wants to know which symbols have the most liquid options markets right now. That is a different question from the accepted v1 contract-level Liquidity grade, which answers whether one particular contract is liquid. This refinement preserves the problem definition. It deliberately does not commit to a measurement method.\n\n**Trigger and provenance:**\n- **Original operator question:** in the SDK Talk W1 preview, the Principal asked \"what are the most liquid etfs and indexes right now?\" and then \"a combination of chain depth, trading volume, and tight spreads. score the top ten accordingly, starting with tight spreads as the first parameter\". This is recorded in the [SDK Talk delivery plan](implementation/pl-mcp-01-sdk-talk-delivery-plan-2026-10-25.md#w1-operator-reported-observation--liquidity-question) under `PL-MCP-01`.\n- **v1 precedent:** the Principal-accepted contract Liquidity grade (`17b0e60b`, sort corrected by BUG-051 at `8ec2d5fb`). It is a weakest-link grade between spread % and open interest on Deployment rows, for display and sorting only, with provisional cutoffs. It stays in that role unchanged.\n- **Reviewer framing:** Principal-relayed reviewer feedback (apparently ChatGPT, judging by its citation links) proposed a two-level model, symbol and contract. Kiro's review supplied two of the measurement boundaries below. The reviewer then proposed preserving three distinct questions. The Principal authorized recording all of this as documentation only.\n\n**Three questions, not to be collapsed into one score:**\n\n\nSymbol-level liquidity is **not** the same as the number of executable, strategy-compatible opportunities. That distinction matters once Talk answers questions about selecting underlyings. A highly liquid symbol may be unproductive for the Income Wheel, and a structurally thinner one may still offer usable local surfaces. This is consistent with H2b above and with the 84-symbol contradiction.\n\n**Measurement boundaries already established (Kiro, source-confirmed October 27, 2026):**\n1. **Acquisition window.** The appliance acquires chains only for expirations from 7 to 45 days out (`SqliteEvidenceStore.getEligibleExpirations`, `MIN_DTE = 7`, `MAX_DTE = 45`). Any symbol-level measure describes that observed window, not the symbol's whole options market. Widening it would be a separate acquisition decision.\n2. **No historical options-volume series.** Only the latest chain payload is retained, and the only appended time series is underlying spot (`spot_history`). Current-session option volume exists, but historical average option volume does not. Underlying share volume or AUM must not stand in for it (synthesis red flag 6).\n3. **Comparable freshness.** Cross-symbol comparisons from chains of different ages are not comparable. Each measure needs its own observation time and must disclose whether it came from refreshed or retained evidence.\n4. **v2 placement.** API v2 has no chain or option-surface read capability today. Any v2 symbol-liquidity capability would be backend-owned (Doc 77) and designed holistically (`PRIN-ARCH-HOLISTIC-DOMAIN-API`).\n\n**Unresolved (Principal Product meaning required):**\n- What \"spreads first\" and \"chain depth\" mean precisely.\n- Which days-to-expiration and moneyness ranges count as comparable.\n- What counts as a tight spread, adequate open interest and meaningful volume.\n- Whether component measurements alone are enough, or whether a composite is ever warranted. The guardrail above against a scalar structural-liquidity score still applies.\n- Whether the observation window should widen.\n- Whether option-volume history should be retained (`PL-EVID-01`, `AR8`).\n\n**Related, not double-booked:**\n- `PL-MCP-01`: owns the Talk question and its answer form.\n- `PL-EVID-01`: historical observation substrate.\n- `PL-EVID-AGE`: freshness and provenance.\n- `PL-ARCH-06`: browser-local v1 engines.\n- `AR5`: separating eligibility, acceptability and comparative fitness.\n- Roadmap North Star (question-driven design) and the Trade Finder CSP specimen, which names underlying selection and liquidity.\n\nProposed strategic disposition: no roadmap change. Proposed architectural disposition: no architecture-roadmap change; pressure is noted under `AR5`/`AR8`. Both remain proposals until reconciliation.\n\n**Explicitly not authorized:**\n- Any implementation, including v1 Deployment symbol-coverage columns. That option was deliberately deferred so a provisional metric does not look authoritative just because it appears in the application.\n- Any v2 API or MCP capability.\n- Any ranking, threshold or composite score.\n- Any change to acquisition scope or retention.\n- Any universe, servicing or suitability policy.\n\n**Why-state:** this record, the linked Talk plan entry, the October 27, 2026 journal entries on the contract Liquidity grade (`docs/journal/project-journal-5.md`), and the synthesis document above. No additional record required.\n\n**Next mode:** Principal Product definition of the open questions, then design. No work is authorized now.",
           "truncated": false,
           "tables": [
             {
@@ -3506,6 +3506,20 @@
               ]
             }
           ]
+        },
+        {
+          "heading": "Reconciliation Completion Record — `PL-EVID-OBS` v1 observed symbol-liquidity table",
+          "level": 4,
+          "content": "- **Intake:** `PL-EVID-OBS`, October 27 refinement above. Cross-referenced from `PL-MCP-01` (`docs/parking-lot-11.md`).\n- **Experiment question:** can Wheelwright use its existing market evidence to tell broadly liquid options markets apart from markets with only isolated pockets of liquidity?\n- **Strategic disposition:** no roadmap change. The table is evidence under the question-driven North Star and the Trade Finder CSP specimen (underlying selection, liquidity).\n- **Architectural disposition:** no architecture-roadmap change. Like other v1 engines, the calculation lives in the browser, computed from the published snapshot (`PL-ARCH-06`). A v2 equivalent would be a backend-owned capability (Doc 77) designed holistically. No backend, acquisition, API v2 or MCP change.\n- **Parking-lot disposition:** retained under `PL-EVID-OBS`. This lifts the October 27 refinement's Deployment deferral for this one display-only table only.\n- **Approved design (Principal):**\n  - **Window:** listed expirations with backend DTE from 7 to 45.\n  - **Contract band:** |Δ| 0.15–0.50, puts and calls. This is a provisional constant independent of recommendation policy.\n  - **Liquid:** the existing v1 grade at L1–L2, thresholds unchanged.\n  - **Default sort:** median spread, lowest first, with multi-sort.\n  - **Click-through:** selecting a symbol sets the Cash Deployment symbol filter.\n- **Principal clarifications:**\n  1. **Zero-bid in-band contracts** are in the liquid-share denominator and count as not liquid. They contribute no spread, so they cannot distort the median.\n  2. **Freshness** uses the backend admissibility verdict as authoritative, with no frontend freshness threshold. Inadmissible chains contribute nothing to current measurements, and excluded evidence stays visible.\n  3. **Limited-coverage symbols** stay visible, distinguished from liquidity quality.\n  4. **Each metric's denominator is explicit.** Missing chains, inadmissible chains, missing or invalid quotes and observed zero-bid contracts are distinct states.\n  5. **Measures stay provisional and observational.** No composite score, and no influence on trading policy.\n  6. **Preserved unchanged:** the v1 contract grade and all unrelated Deployment behavior.\n- **Provisional display rule (not a liquidity judgment):** \"limited coverage\" means fewer than 20 measured contracts, or at most one admissible expiration with measured contracts.\n- **Principal Product adjustment (October 27, 2026, after the first browser review):**\n  - **Why:** the combined \"limited coverage\" rule flagged 883 of 959 symbols, which made it uninformative.\n  - **Change:** sample sufficiency and expiration breadth are now separate. A symbol with one expiration and 200 well-quoted contracts must not be characterized the same as a symbol with six contracts.\n  - **Sample sufficiency:** fewer than 20 measured contracts is a \"thin sample\". This sets the evidence state.\n  - **Expiration breadth:** shown independently as measured/listed expirations, with a \"single\" tag when exactly one expiration is measured. It never changes the evidence state.\n  - **Layout:** the table also uses the full board width.\n  - Both rules remain provisional display rules.\n- **Why-state:** this record, the refinement above, and the October 27, 2026 review chain in the Kiro session (proposal, reviewer modifications, Kiro corrections on zero-bid, admissibility and absent symbols). No additional record required.\n- **Next authorized mode:** implementation of the display-only table and tests, then a browser specimen for Principal review before commit. Passing tests are not Product acceptance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope clarification — `PL-EVID-OBS` observed-liquidity filters for TT1 short put spread screening",
+          "level": 4,
+          "content": "- **Purpose:** support the operator's 19-session TT1 experiment (at most one short put credit spread per session). The operator filters observed evidence and exports it for a ChatGPT-assisted discussion. Wheelwright does not select trades, rank or execute.\n- **Principal decisions (recorded verbatim in substance):**\n  - Entry window 38–45 calendar DTE, preferring expirations nearest 45.\n  - Backend acquisition window stays 7–45 DTE; no expansion to 52.\n  - No change to provider cadence, scheduler, recommendation eligibility or freshness policy.\n  - Correlation and capital allocation stay outside this feature.\n  - The extension builds on the existing table; the operator controls all trading.\n  - Observed liquidity stays distinct from an executable spread.\n- **Added (all operator filters over existing published chain evidence):**\n  - A DTE range limited to observed coverage (7–45). The default preserves 7–45.\n  - Option type: All, Puts or Calls.\n  - Configurable absolute-delta band, default 0.15–0.50. This replaces the fixed band; the default behavior is unchanged.\n  - Median absolute quote spread, per share.\n  - Short-put vertical width availability at Level 1 (listed) and Level 2 (both legs quoted). Level 3 (executable vertical price) is explicitly not established. The delta band applies to the short put only.\n  - **Width-discovery refinement (Principal, final bounded refinement):** the explicit Widths input and its fixed $1, $2, $3, $5, $10 defaults are removed. Widths are discovered, not configured: every in-band short put pairs with every listed lower-strike put in the same admissible chain, with no width cap. A quoted pair needs valid two-sided quotes on both legs. The table shows quoted-width count with the narrowest–widest range, and quoted/listed pairs; the CSV carries counts, range and a per-width detail column. Liquidity calculations are unchanged.\n  - Filter-aware aggregation and CSV columns carrying the filter settings.\n- **Evidence states distinguished:**\n  - no listed expiration in range;\n  - listed but not observed;\n  - observed but not current;\n  - observed with no matching contracts;\n  - matching contracts with insufficient quote evidence;\n  - measured, with the thin-sample flag.\n- **Thin-sample threshold:** unchanged. The 20-contract rule is a Principal-approved provisional display rule (October 27 revised design). No empirical basis exists for an adaptive rule, so raw counts stay visible instead.\n- **Strategic disposition:** no roadmap change. **Architectural disposition:** no architecture-roadmap change; the calculation stays browser-local and v1 (`PL-ARCH-06`), with no backend, acquisition, API v2, MCP or Talk change.\n- **Out of scope:** acquisition beyond 45 DTE, new provider calls, scheduler tiers, Class A policy, recommendations or rankings, the Cash Deployment 1–100 Liq score, and P50 or 21-DTE management.\n- **Why-state:** this record plus the October 29 Kiro session review (the 50-DTE monthlies were listed for 956 symbols and observed for 0, and a 52-DTE window was estimated at +71% chains). No additional record required.\n- **Next authorized mode:** implementation and tests, then a market-hours browser specimen for Principal review before any commit.\n\n\n---",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -11752,6 +11766,74 @@
           "tables": []
         }
       ]
+    },
+    {
+      "id": "BUG-055",
+      "title": "Tradier adapter turns missing open interest into 0",
+      "area": "Evidence Appliance (v1) / Tradier normalization",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-055-tradier-missing-open-interest-coerced-to-zero.md",
+      "provenance": "Kiro zero-OI investigation 2026-10-29 (PL-EVID-OBS); Principal directed documentation-only filing",
+      "recordTitle": "BUG-055 — Tradier adapter turns missing open interest into 0",
+      "sections": [
+        {
+          "heading": "Observed defect",
+          "level": 2,
+          "content": "When the provider omits `open_interest` for a contract, or sends it as null or unparseable, the published evidence carries `openInterest: 0`. A reported zero and a missing value cannot be told apart downstream.\n\nThe adapter replaces a missing value with 0 in two places:\n\n1. `parseOptionObject` (`TradierAdapter.java`, about line 755): `obj.put(\"open_interest\", (int) extractDouble(json, \"open_interest\"))`. `extractDouble` is the legacy extractor; its documented behavior is \"missing/null/unparseable → 0\". Its comment justifies this by saying `open_interest` is \"always present\".\n2. `getInt(Map, key)` (about line 796) returns `0` for any value that is not a `Number`. It is used at about line 562: `int openInterest = getInt(opt, \"open_interest\")`.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "Established from source at the October 29, 2026 `main` base. TradierAdapter last changed at `4fd3ad1e`.\n\n- One read-only Tradier call for SPY 2026-12-11 puts returned `open_interest: 0` for all 19 contracts, as a numeric 0. So the **observed** zero-OI specimen (a newly listed expiration showing 100% zero OI across 3,380 contracts in the snapshot) is a real provider zero, not this defect.\n- This defect is the **latent** path. A missing or null provider value would be published as the same 0. No live specimen of a missing value has been captured.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "- **Persist facts; derive trust.** An observation's absence is a different fact from an observed zero. The adapter makes up a value.\n- The same adapter already applies the correct rule to greeks and IV (`extractNullableDouble`, \"No greek is fabricated as zero\"). Open interest does not get that treatment.\n- Consumers cannot apply missing-versus-zero rules. Since October 29, 2026 the v1 Options Market Liquidity table counts unavailable OI separately (`oiUnavailableContracts`) and keeps it out of the OI sum and the liquid-share denominator. That rule never fires for Tradier data, because the backend never publishes a missing OI.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequences",
+          "level": 2,
+          "content": "- A contract with missing OI is graded as if OI were 0: Liquidity grade L4, counted as not liquid. That affects the Cash Deployment Liq grade and the observed liquidity table.\n- OI sums treat missing values as 0.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "- In scope: open-interest normalization from the Tradier payload into published evidence.\n- Noted but not filed here: `volume` follows the same zero-default pattern (`(int) extractDouble(json, \"volume\")`). It needs its own decision.\n- Not in scope: frontend handling, which already separates unavailable from zero. Also out of scope: liquidity-grade thresholds, the 250-OI L2 rule, acquisition, cadence and the snapshot contract version.\n- Fixing this probably changes the published value from `0` to `null` for missing OI. Any such change must be checked against the frozen v1 snapshot contract (`docs/contracts/evidence-snapshot-v1.md`) and every v1 consumer before implementation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria (for a future authorized remediation)",
+          "level": 2,
+          "content": "1. A Tradier option payload with `open_interest` omitted, null or unparseable publishes as unavailable, not `0`.\n2. A payload with `open_interest: 0` still publishes `0`.\n3. The snapshot-contract impact is decided explicitly, either as a compatible change or as a version transition.\n4. Existing v1 consumers treat unavailable OI deliberately (the v1 liquidity table already does).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "None. Filing does not authorize remediation (`docs/bugs/README.md`).",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- `docs/parking-lot-9.md`: `PL-EVID-OBS` and the TT1 scope clarification.\n- `options-prototype/src/write-desk/symbol-liquidity.ts`: `oiUnavailableContracts` and `zeroOiContracts`.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
     }
   ],
   "log": [
@@ -11961,7 +12043,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 701
+      "sourceOrder": 703
     },
     {
       "plId": null,
@@ -12104,7 +12186,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 670
+      "sourceOrder": 672
     },
     {
       "plId": null,
@@ -12117,7 +12199,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 671
+      "sourceOrder": 673
     },
     {
       "plId": null,
@@ -12130,7 +12212,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-021-btc-misclassified-as-asset-purchase.md",
-      "sourceOrder": 672
+      "sourceOrder": 674
     },
     {
       "plId": null,
@@ -12143,7 +12225,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-024-call-moneyness-visualization-conflates-contract-state-with-intent.md",
-      "sourceOrder": 675
+      "sourceOrder": 677
     },
     {
       "plId": "PL-DEPLOY-BAL",
@@ -12169,7 +12251,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-022-deployable-cash-regime-unaware-folds-margin-buying-power.md",
-      "sourceOrder": 673
+      "sourceOrder": 675
     },
     {
       "plId": "PL-ROADMAP-UI",
@@ -12351,7 +12433,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-001-assigned-call-closure-projection.md",
-      "sourceOrder": 653
+      "sourceOrder": 655
     },
     {
       "plId": null,
@@ -12364,7 +12446,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-002-called-away-share-basis.md",
-      "sourceOrder": 654
+      "sourceOrder": 656
     },
     {
       "plId": null,
@@ -12377,7 +12459,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-003-produced-composite-legibility.md",
-      "sourceOrder": 655
+      "sourceOrder": 657
     },
     {
       "plId": null,
@@ -12390,7 +12472,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-004-incoherent-composed-evidence.md",
-      "sourceOrder": 656
+      "sourceOrder": 658
     },
     {
       "plId": null,
@@ -12403,7 +12485,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-005-kreature-empty-surface.md",
-      "sourceOrder": 657
+      "sourceOrder": 659
     },
     {
       "plId": null,
@@ -12416,7 +12498,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-006-capital-returned-strike-notional.md",
-      "sourceOrder": 658
+      "sourceOrder": 660
     },
     {
       "plId": null,
@@ -12429,7 +12511,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-007-unknown-basis-appears-reconciled.md",
-      "sourceOrder": 659
+      "sourceOrder": 661
     },
     {
       "plId": null,
@@ -12442,7 +12524,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-008-inflated-contract-counts.md",
-      "sourceOrder": 660
+      "sourceOrder": 662
     },
     {
       "plId": null,
@@ -12455,7 +12537,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-009-capital-label-amount-divergence.md",
-      "sourceOrder": 661
+      "sourceOrder": 663
     },
     {
       "plId": null,
@@ -12468,7 +12550,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-011-provider-zero-delta-indistinguishable-from-unavailable.md",
-      "sourceOrder": 662
+      "sourceOrder": 664
     },
     {
       "plId": null,
@@ -12481,7 +12563,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-012-deployment-empty-on-sealed-session-stale-authority.md",
-      "sourceOrder": 663
+      "sourceOrder": 665
     },
     {
       "plId": null,
@@ -12494,7 +12576,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-013-premarket-subject-admissibility-invalidates-sealed-evidence.md",
-      "sourceOrder": 664
+      "sourceOrder": 666
     },
     {
       "plId": null,
@@ -12507,7 +12589,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-014-sealed-session-completeness-reconstructed-from-mutable-state.md",
-      "sourceOrder": 665
+      "sourceOrder": 667
     },
     {
       "plId": null,
@@ -12520,7 +12602,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-015-moneyness-sparkline-folds-multiday-history-into-one-session.md",
-      "sourceOrder": 666
+      "sourceOrder": 668
     },
     {
       "plId": null,
@@ -12533,7 +12615,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-017-deployment-csv-export-row-limit.md",
-      "sourceOrder": 667
+      "sourceOrder": 669
     },
     {
       "plId": null,
@@ -12546,7 +12628,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-018-admitted-pending-symbol-not-discoverable-on-deployment.md",
-      "sourceOrder": 668
+      "sourceOrder": 670
     },
     {
       "plId": null,
@@ -12559,7 +12641,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-019-forced-offhours-acquisition-marked-inadmissible.md",
-      "sourceOrder": 669
+      "sourceOrder": 671
     },
     {
       "plId": null,
@@ -12572,7 +12654,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-023-activity-overlay-double-counts-share-sale-proceeds-into-deployable.md",
-      "sourceOrder": 674
+      "sourceOrder": 676
     },
     {
       "plId": null,
@@ -12585,7 +12667,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 700
+      "sourceOrder": 702
     },
     {
       "plId": "PL-SEM-01",
@@ -12676,7 +12758,7 @@
       "state": "INTAKE / ACTIVE RESEARCH — durable practitioner-evidence workstream; research and falsification only; no Product, policy, semantic, architecture, roadmap, or implementation consequence is authorized by this intake",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 441
+      "sourceOrder": 443
     },
     {
       "plId": "PL-SEM-01",
@@ -12715,7 +12797,7 @@
       "state": "REFINEMENT — Principal-directed thread capture and intake reconciliation completed; no new PL identity, no new LVT identity, no implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-9.md",
-      "sourceOrder": 450
+      "sourceOrder": 452
     },
     {
       "plId": "PL-BETA-01",
@@ -12728,7 +12810,7 @@
       "state": "RECONCILED intake — Principal-directed durable capture of the trusted-evaluator operating model; no private-beta agreement is yet lawyer-reviewed and no multi-user implementation is authorized by this record",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 466
+      "sourceOrder": 468
     },
     {
       "plId": "PL-OPS-CSV-01",
@@ -12741,7 +12823,7 @@
       "state": "RECONCILED intake — Principal operator-experience signal captured during BUG-026 acceptance; no workflow redesign or implementation authorized by this record.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 476
+      "sourceOrder": 478
     },
     {
       "plId": null,
@@ -12754,7 +12836,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-026-derive-inventory-collapses-additive-share-lots.md",
-      "sourceOrder": 676
+      "sourceOrder": 678
     },
     {
       "plId": null,
@@ -12767,7 +12849,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-027-activity-upload-slot-status-ephemeral.md",
-      "sourceOrder": 677
+      "sourceOrder": 679
     },
     {
       "plId": "PL-SETUP-01",
@@ -12780,7 +12862,7 @@
       "state": "RECONCILED intake — original September 26 setup/configuration discovery. See the explicitly dated September 27 and September 28 continuations below for the later Program, ATTACH implementation, rejected identity claim, bounded continuity ratification, and rejected technical design. No setup wizard or broader governance semantics are authorized by this item.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 483
+      "sourceOrder": 485
     },
     {
       "plId": "PL-DEC-RES-01",
@@ -12793,7 +12875,7 @@
       "state": "RECONCILED / ARCHITECTURE RATIFIED — ADR-021 and Doc 67 establish the bounded semantic contract; implementation remains held pending a separate bounded handoff",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 489
+      "sourceOrder": 491
     },
     {
       "plId": null,
@@ -12806,7 +12888,7 @@
       "state": "INTAKE — Principal-selected durable capture of the composable command-line Wheelwright concept; strategic/architectural reconciliation, command grammar, schemas, and implementation are unresolved and not authorized by this record.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 497
+      "sourceOrder": 499
     },
     {
       "plId": "PL-CLI-01",
@@ -12819,7 +12901,7 @@
       "state": "Bounded first slice authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 508
+      "sourceOrder": 510
     },
     {
       "plId": "PL-CLI-01",
@@ -12832,7 +12914,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 509
+      "sourceOrder": 511
     },
     {
       "plId": "PL-CLI-01",
@@ -12845,7 +12927,7 @@
       "state": "Bounded bare-fetch experiment authorized for implementation; broader `PL-CLI-01` remains INTAKE.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 519
+      "sourceOrder": 521
     },
     {
       "plId": "PL-OPS-10",
@@ -12858,7 +12940,7 @@
       "state": "INTAKE — near-term investigation; no optimization implementation authorized",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 529
+      "sourceOrder": 531
     },
     {
       "plId": "PL-CLI-01",
@@ -12871,7 +12953,7 @@
       "state": "Principal-authorized bounded CLI migration; implemented locally with deterministic verification, not independent Product acceptance or remote-main promotion.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 523
+      "sourceOrder": 525
     },
     {
       "plId": "PL-CLI-01",
@@ -12884,7 +12966,7 @@
       "state": "RECONCILED — Principal-ratified bounded Product contract; specification/OAS complete; no runtime implementation or push authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 524
+      "sourceOrder": 526
     },
     {
       "plId": "PL-CLI-01",
@@ -12897,7 +12979,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 525
+      "sourceOrder": 527
     },
     {
       "plId": "PL-API-02",
@@ -12910,7 +12992,7 @@
       "state": "PARTIALLY RESOLVED — bounded API v2 documentation Product accepted; Steps 1–5 complete and verified October 15, 2026. Original broader HTTP-boundary/domain reconciliation remains DEFERRED; no backend/domain redesign authorized.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 530
+      "sourceOrder": 532
     },
     {
       "plId": "PL-API-03",
@@ -12923,7 +13005,7 @@
       "state": "First POST direct-quote contract ratified and implemented on accepted main; bounded GET held-discovery Product contract ratified and specified, not implemented. Broader API capability work remains INTAKE; no runtime work authorized by this specification.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 539
+      "sourceOrder": 541
     },
     {
       "plId": "PL-API-03",
@@ -12936,7 +13018,7 @@
       "state": "RECONCILED — Principal-selected GET /v2/quotes contract specified; Doc 78 bounded ambiguity self-review complete; no Kiro/runtime implementation begun.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 540
+      "sourceOrder": 542
     },
     {
       "plId": "PL-CLI-01",
@@ -12949,7 +13031,7 @@
       "state": "IMPLEMENTABLE — Principal accepted bounded collection inspection, horizontal all-fields tables, explicit formats, public-field sorting/absolute/direction/limit, truthful partial ranking and human formatting, and authorized exact generic filter grammar design plus implementation/verification/documentation/commit/push.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 542
+      "sourceOrder": 544
     },
     {
       "plId": "PL-CLI-01",
@@ -12962,7 +13044,7 @@
       "state": "IMPLEMENTED / VERIFIED / PRINCIPAL ACCEPTED — current bounded CLI/table presentation through `506fd0a23a2d192950f9d15c0a81ab76365e6741` was manually accepted after screenshot review; independent review is separate.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 543
+      "sourceOrder": 545
     },
     {
       "plId": null,
@@ -12975,7 +13057,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 678
+      "sourceOrder": 680
     },
     {
       "plId": null,
@@ -12988,7 +13070,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 679
+      "sourceOrder": 681
     },
     {
       "plId": null,
@@ -13001,39 +13083,13 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-029-tradier-source-event-time-parser.md",
-      "sourceOrder": 680
+      "sourceOrder": 682
     },
     {
       "plId": null,
       "bugId": "BUG-031",
       "title": "Principal authorization and resolution — 2026-10-05",
       "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 681
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Post-resolution validation — 2026-10-05",
-      "eventKind": "reconciliation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
-      "sourceOrder": 682
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-031",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -13044,20 +13100,7 @@
     },
     {
       "plId": null,
-      "bugId": "BUG-032",
-      "title": "Principal authorization and resolution — 2026-10-05",
-      "eventKind": "implementation",
-      "establishesIntake": false,
-      "eventDateText": "2026-10-05",
-      "eventDateIso": "2026-10-05",
-      "state": null,
-      "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 684
-    },
-    {
-      "plId": null,
-      "bugId": "BUG-032",
+      "bugId": "BUG-031",
       "title": "Post-resolution validation — 2026-10-05",
       "eventKind": "reconciliation",
       "establishesIntake": false,
@@ -13065,14 +13108,27 @@
       "eventDateIso": "2026-10-05",
       "state": null,
       "headingLevel": 3,
-      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
+      "sourceOrder": 684
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-031",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-031-show-complete-table-timestamps.md",
       "sourceOrder": 685
     },
     {
       "plId": null,
       "bugId": "BUG-032",
-      "title": "Principal acceptance and closure — 2026-10-05",
-      "eventKind": "remediation",
+      "title": "Principal authorization and resolution — 2026-10-05",
+      "eventKind": "implementation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
       "eventDateIso": "2026-10-05",
@@ -13084,7 +13140,7 @@
     {
       "plId": null,
       "bugId": "BUG-032",
-      "title": "Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure",
+      "title": "Post-resolution validation — 2026-10-05",
       "eventKind": "reconciliation",
       "establishesIntake": false,
       "eventDateText": "2026-10-05",
@@ -13097,6 +13153,32 @@
     {
       "plId": null,
       "bugId": "BUG-032",
+      "title": "Principal acceptance and closure — 2026-10-05",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 688
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
+      "title": "Audit checkpoint — 2026-10-05 — Post-acceptance no-wrap compatibility failure",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "2026-10-05",
+      "eventDateIso": "2026-10-05",
+      "state": null,
+      "headingLevel": 3,
+      "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
+      "sourceOrder": 689
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-032",
       "title": "Principal authorization and resolution — 2026-10-05 — Self-contained row foreground",
       "eventKind": "implementation",
       "establishesIntake": false,
@@ -13105,7 +13187,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 688
+      "sourceOrder": 690
     },
     {
       "plId": null,
@@ -13118,7 +13200,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-032-show-change-color-scope.md",
-      "sourceOrder": 689
+      "sourceOrder": 691
     },
     {
       "plId": "PL-STRAT-01",
@@ -13131,7 +13213,7 @@
       "state": "RECONCILED — authorized bounded research experiment; no strategy admission, live trading policy, or options implementation.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 550
+      "sourceOrder": 552
     },
     {
       "plId": "PL-STRAT-01",
@@ -13144,7 +13226,7 @@
       "state": "IMPLEMENTED — research harness and evidence only; findings await Principal evaluation; no strategy admission or automatic Test 2.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 551
+      "sourceOrder": 553
     },
     {
       "plId": "PL-STRAT-01",
@@ -13157,7 +13239,7 @@
       "state": "RECONCILED — Principal accepts FAIL for the tested tactical candidate; broader strategy remains unproven; no further implementation or Test 2 authorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 552
+      "sourceOrder": 554
     },
     {
       "plId": null,
@@ -13170,7 +13252,7 @@
       "state": "ACCEPTED — Principal explicitly reported acceptance PASSED for the bounded Account discovery, CSV synchronization and Position inspection slice.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 555
+      "sourceOrder": 557
     },
     {
       "plId": "PL-CONV-01",
@@ -13183,7 +13265,7 @@
       "state": "IMPLEMENTED — R2 independently verified, deployed and Principal functionally/visually accepted; Step 6 unstarted and unauthorized.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 593
+      "sourceOrder": 595
     },
     {
       "plId": null,
@@ -13196,7 +13278,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-035-ww-accounts-exposes-full-broker-account-numbers.md",
-      "sourceOrder": 690
+      "sourceOrder": 692
     },
     {
       "plId": null,
@@ -13209,7 +13291,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 691
+      "sourceOrder": 693
     },
     {
       "plId": null,
@@ -13222,7 +13304,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-036-mixed-artifact-unknown-scope-discloses-cross-account-bytes.md",
-      "sourceOrder": 692
+      "sourceOrder": 694
     },
     {
       "plId": null,
@@ -13235,7 +13317,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-037-tastytrade-json-incomplete-source-scope.md",
-      "sourceOrder": 693
+      "sourceOrder": 695
     },
     {
       "plId": null,
@@ -13248,7 +13330,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-038-tastytrade-body-timeout.md",
-      "sourceOrder": 694
+      "sourceOrder": 696
     },
     {
       "plId": "PL-EVID-04",
@@ -13261,7 +13343,7 @@
       "state": "bounded audit completed; protocol DRAFT; data feasibility UNRESOLVED; Muse research PENDING. EVA-001 is an experimental research identity under existing Market-Priced Risk, not a new Product subsystem or parallel backlog. The physical-expectancy extension is an unaccepted research hypothesis, not promotion of the original exploratory foundation into architecture.",
       "headingLevel": 2,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 602
+      "sourceOrder": 604
     },
     {
       "plId": "PL-EVID-04",
@@ -13274,7 +13356,7 @@
       "state": "first Muse report received (report dated October 15 UTC); remaining research pending; protocol unchanged. Codex directly checked the published Goyal–Saretto paper/linked appendix, Option Alpha study/methodology and Bliss–Panigirtzoglou working paper. [Round-one verification](research/eva-001/ROUND-1-VERIFICATION.md) records scope limits, an incorrect transformation direction and evidence-grade corrections. Net returns versus factor alpha and empirical calibration versus pricing consistency remain distinct. The current experiment draft tests entry forecasts under fixed exits; lifecycle action comparison is a separate unresolved scope. No economic run or independent collective conclusion follows from this first report. Continue reconciliation of the remaining Muse evidence; no backtest or production authority changes.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 603
+      "sourceOrder": 605
     },
     {
       "plId": "PL-EVID-04",
@@ -13287,7 +13369,7 @@
       "state": "two reports received/partially checked; data feasibility UNRESOLVED; protocol DRAFT 0.2. [Second-report verification](research/eva-001/ROUND-2-VERIFICATION.md) records directly located primary counterexamples/assumption checks and distinguishes search non-discovery from absence. The draft adds an RV-only baseline, matched forecast populations and explicit separation of forecast failure, economic failure and tail uncertainty. It does not adopt borrowed spread discounts, arbitrary event-count thresholds or an automatic SPX switch. SPY iron condors remain the candidate; actual historical-option access is unverified. No complete literature certification, model implementation, outcome computation, empirical run, Product policy or new roadmap/architecture direction is established. The empirical dependency is a bounded historical quote/contract specimen within an established retrieval envelope, not another broad literature prerequisite.",
       "headingLevel": 3,
       "sourceFile": "parking-lot-10.md",
-      "sourceOrder": 604
+      "sourceOrder": 606
     },
     {
       "plId": null,
@@ -13300,7 +13382,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-041-tt-live-credit-vertical-aborts-scan.md",
-      "sourceOrder": 695
+      "sourceOrder": 697
     },
     {
       "plId": null,
@@ -13313,7 +13395,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/BUG-043-covered-position-capital-uses-single-row-marketvalue-against-aggregate-ownership.md",
-      "sourceOrder": 696
+      "sourceOrder": 698
     },
     {
       "plId": null,
@@ -13326,7 +13408,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "parking-lot-11.md",
-      "sourceOrder": 652
+      "sourceOrder": 654
     },
     {
       "plId": "PL-EVID-OBS",
@@ -13342,6 +13424,19 @@
       "sourceOrder": 440
     },
     {
+      "plId": "PL-EVID-OBS",
+      "bugId": null,
+      "title": "Reconciliation Completion Record — PL-EVID-OBS v1 observed symbol-liquidity table",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "October 27, 2026",
+      "eventDateIso": "2026-10-27",
+      "state": "RECONCILED (scoped) — a bounded v1 observational experiment authorized by the Principal (\"principal authorizes\", revised-design Option A). This scopes only the v1 display table below. It does not reconcile the broader `PL-EVID-OBS` research, and it does not define the eventual v2 capability.",
+      "headingLevel": 4,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 441
+    },
+    {
       "plId": null,
       "bugId": "BUG-050",
       "title": "Principal authorization — 2026-10-27 — fix directed; open questions answered 1A / 2A / 3A",
@@ -13352,7 +13447,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-050-covered-call-below-basis-loss-if-called-away.md",
-      "sourceOrder": 697
+      "sourceOrder": 699
     },
     {
       "plId": null,
@@ -13365,7 +13460,7 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-050-covered-call-below-basis-loss-if-called-away.md",
-      "sourceOrder": 698
+      "sourceOrder": 700
     },
     {
       "plId": null,
@@ -13378,7 +13473,20 @@
       "state": null,
       "headingLevel": 3,
       "sourceFile": "bugs/BUG-050-covered-call-below-basis-loss-if-called-away.md",
-      "sourceOrder": 699
+      "sourceOrder": 701
+    },
+    {
+      "plId": "PL-EVID-OBS",
+      "bugId": null,
+      "title": "Scope clarification — PL-EVID-OBS observed-liquidity filters for TT1 short put spread screening",
+      "eventKind": "reconciliation",
+      "establishesIntake": false,
+      "eventDateText": "October 29, 2026",
+      "eventDateIso": "2026-10-29",
+      "state": "RECONCILED (scoped extension) — Principal-directed (\"v1 Options Market Liquidity — Daily Short Put Spread Screening\" prompt) extension of the v1 observed-liquidity table above. Still display-only and observational. This promotes no strategy support into accepted Product authority. The table, Spot column and narrow-panel fix remain uncommitted, awaiting Principal acceptance; this extension does not accept them retroactively.",
+      "headingLevel": 4,
+      "sourceFile": "parking-lot-9.md",
+      "sourceOrder": 442
     }
   ],
   "intakeDateUnknown": [

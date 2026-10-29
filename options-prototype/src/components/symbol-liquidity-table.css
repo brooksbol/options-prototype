@@ -1,0 +1,61 @@
+/* Options Market Liquidity — observed (PL-EVID-OBS v1).
+   Builds on the Iron Condors card/table styles, but uses the full board width:
+   the table spans the panel with even column spacing and a slightly larger,
+   more readable type size, rather than a compact max-content block. */
+
+.sl-card {
+  /* Size rules below respond to the card's own width (board narrows when the
+     drawer is open or the window is small). */
+  container-type: inline-size;
+}
+
+.sl-card .ic-subtitle {
+  max-width: 110ch;
+}
+
+.sl-scroll {
+  width: 100%;
+  max-height: 520px;
+}
+
+.sl-table {
+  width: 100%;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.sl-table thead th {
+  padding: 6px 12px;
+}
+
+.sl-table tbody td {
+  padding: 5px 12px;
+}
+
+/* Numbers read best right-aligned when columns are spread across the width. */
+.sl-table th.ic-col-num,
+.sl-table td.ic-col-num {
+  text-align: right;
+}
+
+.sl-table tbody tr.wd-posture-row {
+  cursor: pointer;
+}
+
+.sl-table tbody tr.wd-posture-row:hover td {
+  background: var(--wd-surface-subtle, #f9fafb);
+}
+
+/* Narrow boards: tighten spacing so every column stays visible instead of
+   being pushed behind the scroll box's horizontal scrollbar (which sits below
+   the 520px viewport and is easy to miss). */
+@container (max-width: 1240px) {
+  .sl-table {
+    font-size: 10px;
+  }
+  .sl-table thead th,
+  .sl-table tbody td {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}

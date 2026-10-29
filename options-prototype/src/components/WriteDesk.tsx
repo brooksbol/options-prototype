@@ -35,6 +35,8 @@ import { BuyWriteBrief } from "./BuyWriteBrief";
 import { ContingentCallBrief } from "./ContingentCallBrief";
 import { FunnelInfographic } from "./FunnelInfographic";
 import { CrossEntryStrip } from "./CrossEntryStrip";
+import { SymbolLiquidityTable } from "./SymbolLiquidityTable";
+import type { SnapshotSymbol } from "../write-desk/symbol-liquidity";
 import type { TablePositionContext } from "../write-desk/brief-builder";
 import { loadWorkingIntents, addPendingIntent, createPendingIntent, type PendingIntent } from "../execution/pending-intent";
 import { buildWriteIntent } from "../execution/write-intent";
@@ -121,6 +123,13 @@ export function Deployment() {
   const [buyWriteExport, setBuyWriteExport] = useState<DecisionExportResult | null>(null);
   const [buyWritesCollapsed, setBuyWritesCollapsed] = useState(() => loadWorkspace().writeDeskBuyWritesCollapsed);
   const [ironCondorsCollapsed, setIronCondorsCollapsed] = useState(() => loadWorkspace().writeDeskIronCondorsCollapsed);
+  // PL-EVID-OBS v1 observed symbol liquidity (display-only experiment). Computed
+  // from each published snapshot; never feeds posture, ranking or Production v0.
+  const [symbolLiquidityCollapsed, setSymbolLiquidityCollapsed] = useState(() => loadWorkspace().writeDeskSymbolLiquidityCollapsed);
+  // Raw published symbols; the table computes rows under its own operator filter.
+  const [symbolLiquiditySymbols, setSymbolLiquiditySymbols] = useState<SnapshotSymbol[]>([]);
+  // Click-through: a symbol handed from the liquidity table to the Cash Deployment filter.
+  const [crossEntrySymbolRequest, setCrossEntrySymbolRequest] = useState<{ symbol: string; seq: number } | null>(null);
   // Buy-write table symbol filter (mirror the puts / cash deployment symbol filter)
   const [buyWriteSymbolFilter, setBuyWriteSymbolFilter] = useState<string>(() => loadWorkspace().writeDeskBuyWriteSymbol);
   const [scanTimestamp, setScanTimestamp] = useState<string | null>(null);
@@ -219,7 +228,7 @@ export function Deployment() {
   const [crossEntryCollapsed, setCrossEntryCollapsed] = useState(() => loadWorkspace().writeDeskCrossEntryCollapsed);
 
   // Section ordering (drag/reorder)
-  const defaultSectionOrder = ["cross-entry", "puts", "calls", "buy-writes", "iron-condors"];
+  const defaultSectionOrder = ["cross-entry", "symbol-liquidity", "puts", "calls", "buy-writes", "iron-condors"];
   const savedOrder = loadWorkspace().writeDeskSectionOrder;
   // Ensure all known sections are present (handles migration from older saved orders)
   const initialOrder = (() => {
@@ -511,6 +520,10 @@ export function Deployment() {
 
   // Evidence snapshot polling — merges backend evidence into IndexedDB, reruns Wheelwright
   const handleNewEvidence = useCallback(async (snapshotData: any) => {
+    // PL-EVID-OBS: observed symbol liquidity depends only on published market
+    // evidence (not portfolio state), so compute it before the portfolio gate.
+    setSymbolLiquiditySymbols(Array.isArray(snapshotData?.symbols) ? snapshotData.symbols : []);
+
     // Gate on UNKNOWN deployable cash only (null = INDETERMINATE regime → fail closed), NOT on
     // a known $0. Blocking $0 here also suppressed evidence ingestion for this callback, so a
     // fully-encumbered account never populated any candidates. A known-zero deployable proceeds:
@@ -932,6 +945,7 @@ export function Deployment() {
               onSelectPut={(c) => { selectDrawerCandidate("put", { put: c }); }}
               onSelectBuyWrite={(c) => { selectDrawerCandidate("buywrite", { buyWrite: c }); }}
               onRefreshTopOpportunities={refreshDeploymentEvidence}
+              symbolFilterRequest={crossEntrySymbolRequest}
             />
           </div>
         </section>
@@ -1389,6 +1403,22 @@ export function Deployment() {
               </div>
             )}
           </div>
+        </section>
+              )}
+
+              {sectionId === "symbol-liquidity" && symbolLiquiditySymbols.length > 0 && (
+        <section className="wd-board wd-iron-condors-board" id="wd-symbol-liquidity">
+          {/* PL-EVID-OBS v1 observed symbol options liquidity — display-only experiment. */}
+          <SymbolLiquidityTable
+            symbols={symbolLiquiditySymbols}
+            collapsed={symbolLiquidityCollapsed}
+            onToggleCollapse={() => { setSymbolLiquidityCollapsed(!symbolLiquidityCollapsed); updateWorkspace({ writeDeskSymbolLiquidityCollapsed: !symbolLiquidityCollapsed }); }}
+            onSelectSymbol={(symbol) => {
+              if (crossEntryCollapsed) { setCrossEntryCollapsed(false); updateWorkspace({ writeDeskCrossEntryCollapsed: false }); }
+              setCrossEntrySymbolRequest((prev) => ({ symbol, seq: (prev?.seq ?? 0) + 1 }));
+              document.querySelector(".wd-cross-entry-board")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          />
         </section>
               )}
 

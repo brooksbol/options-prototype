@@ -57,6 +57,18 @@ function defaultDirForKey(key: string): SortDir {
 const NULLS_LAST_KEYS: ReadonlySet<string> = new Set([
   "appreciationToStrikeDollars",
   "appreciationToStrikePct",
+  // PL-EVID-OBS observed symbol liquidity: unmeasured symbols (no current
+  // evidence, no in-band contracts, …) stay at the end in both directions —
+  // missing evidence is never ranked as illiquid.
+  "liquidSharePercent",
+  "medianSpreadPercent",
+  "bandOpenInterest",
+  "bandVolume",
+  "oldestAcquiredAtMs",
+  "spotPrice",
+  "medianAbsSpread",
+  "quotedPairsTotal",
+  "quotedWidthCount",
 ]);
 
 function extractValue(item: Record<string, unknown>, key: string): unknown {
