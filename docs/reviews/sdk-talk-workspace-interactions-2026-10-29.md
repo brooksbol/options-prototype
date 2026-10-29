@@ -59,3 +59,11 @@ New source replaces nested quantified base64 validation with a flat invalid-char
 ## Concurrent source reconciliation
 
 Remote main subsequently advanced to `b74d127faefd457a594cac149afbe45ca8a5eeb4`: the formerly dirty v1 liquidity table is now committed, with explicit v1-only/browser-local observational scope, no v2/MCP/Talk ranking authority. New canonical BUG055 records latent missing-OI-to-zero conversion, explicitly no remediation authorization and a frozen snapshot-contract decision prerequisite. Actual inspected zero-OI samples were provider-reported zeros, not demonstrated missing values. These findings update the matrix; no v1/backend/OI policy change is silently added here.
+
+## Final review and verification correction
+
+Independent [final review](sdk-talk-independent-interactions-final-review-2026-10-29.md), SHA256 `f8f2ffb3e4bb142b1e9908e9e06556359b555f8c858368a113465ffe3d288c8c`, **ACCEPT** at `fc9e5e796a254caed63d8b51e81c805b2b75a3ee`: valid large/exact4MiB rasters, boundary/padding, unknown/known/stale quote clocks, native SDK cleanup and prior financial/privacy/reauthorization/acquisition probes pass. [Integration identity review](sdk-talk-integration-identity-review-2026-10-29.md), SHA256 `256499e20f4ae0ca0291a21778b4fc64a868e5da36594f40917cdcc2bc98e88a`, confirms merge03341c0 preserves those runtime/API source trees exactly and b74's v1 implementation exactly, apart from regenerated roadmap. Neither report authorizes deployment or Principal acceptance.
+
+Final combined author run found51/52passing: the new unknown-clock negative also matched the unrelated heading “Observed constituents.” Its intended runtime behavior was independently verified, but the author previously overstated its focused-test result by not checking the redirected failure before a later successful shell command. Preserve that correction as new evidence. A test-only update restricts the assertion to the small quote-clock label; the six renderer tests now pass. Full combined rerun follows before installation. No runtime/source qualification was weakened to make it pass.
+
+Final Java v2 regression at the interaction snapshot:397tests,0failures,1skip. The earlier full estate run1055/2failures/2skips and its corrected fixture paths remain preserved; this is not relabelled a new full-estate pass.
