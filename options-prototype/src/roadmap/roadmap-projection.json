@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-27T19:18:20.403Z",
+    "generatedAt": "2026-10-29T15:16:41.849Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 53,
+      "bugTotal": 54,
       "logTotal": 125,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -11544,6 +11544,20 @@
           "content": "Principal: “there's a rendering failure. I still see a large green box of noise and i see raw, unrendered md in the answer”. Inspection of the requested latest Desktop screenshot confirms that the remaining expanded card is the **holdings** result, not the bounded balance card. The answer contains literal heading/table/list markup. Protected screenshot pixels and holdings are not copied into repository evidence.\n\nThe prior candidate's presentation correction was incomplete: only balances received a compact view; all other tools still eagerly displayed every typed source row and qualification. The conversation renderer recognized bold text alone. Passing balance tests did not establish general conversational rendering coverage.",
           "truncated": true,
           "tables": []
+        },
+        {
+          "heading": "Subsequent portfolio presentation / retrieval specimen — October 27",
+          "level": 2,
+          "content": "Principal's installed replay shows expanded Position graphs still repeating unavailable metrics and a model-generated inventory table omitting a source row. The [existing production replay receipt](../reviews/sdk-talk-real-read-profile-2026-10-27.md#production-portfolio-replay-correction--october-27-after-installed-conversation) adds a reusable backend-filtered option query with exact backend counts, direct typed-table presentation of every selected row, explicit scope/unknown CSP status and lazy provenance. Repeated unavailable metrics are grouped in deliberate graph details; raw responses remain nested and lazy. Transaction selection is independently bounded before crossing the model boundary. Native available-to-trade cash labels are rendered without inventing AWMI or governed deployable-capital semantics.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "October29 outcome-first report direction",
+          "level": 2,
+          "content": "Principal: **“no disclaimer noise. hide any of that under accordion links”**, following the closed-trades report requirement **“with totals.”** The report renders backend trade outcomes, net total and winners/losers first. Matching, estimated-fee details, source identifiers, coverage and Talk analysis use closed accordions. The exact metric label retains `Estimated net P/L` when source fee finality is not established. Workspace access/privacy text and balance/inventory qualifications are also deliberate disclosures. Unknown values remain dashes; presentation never manufactures a result. UI regression tests verify closed-by-default disclosures and lazy source creation. See the October29 receipt linked from BUG-053.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -11616,7 +11630,7 @@
         {
           "heading": "Verification",
           "level": 2,
-          "content": "Targeted admission/security/row-equivalence checks pass at development source. Actual grant reads and Sawdust reconciliation pass. Output-cap diagnosis and real-model correction pass. Combined/main/installed checks pending; record remains Open.",
+          "content": "Installed production import/grant/source reconciliation and actual SDK read verification pass; the later portfolio falsification and corrections are preserved below and in the linked runtime receipt. Final option/transaction HTTP schemas, all three Account reads, native cash-field projection and targeted SDK financial-authority specimens are author-verified. Independent review and Principal observation remain pending; record remains Open.",
           "truncated": false,
           "tables": []
         },
@@ -11624,6 +11638,102 @@
           "heading": "Related",
           "level": 2,
           "content": "PL-MCP-01; ADR-024; BUG-052 covers source/Markdown presentation separately.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Subsequent production falsification — October 27",
+          "level": 2,
+          "content": "The Principal's installed conversation finds a second gap after transport/import correction: successful holdings retrieval still omitted BIZD and inherited tt1 scope, native Fidelity `Available to trade`/`Cash and credits` labels were dropped, and absent optional quote measurements were mistaken for absent quote facts. Premium refusal based on custody alone overlooked an existing retained transaction path. This does not retroactively validate earlier completeness claims.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Subsequent production falsification — October 29",
+          "level": 2,
+          "content": "Principal reported transaction coverage stopping October15 despite later broker executions. The prior MCP adapter forced `mode=retained`, preventing the existing authorized backend read-through from being used. Existing retained last-success check was October19; last transaction date October15 was not a verified coverage endpoint. An authorized existing backend refresh acquired32 source records through October29 and recovered all four independently reported execution specimens. No new brokerage client, grants, background polling or email ingestion was needed.",
+          "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-054",
+      "title": "Talk relative dates lack trusted per-turn calendar context",
+      "area": "SDK Talk / temporal context",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-054-talk-relative-date-grounding.md",
+      "provenance": "Principal incident 2026-10-29",
+      "recordTitle": "BUG-054 — Talk relative dates lack trusted per-turn calendar context",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "On October 29 the Principal reported fresh installed answers treating “today” as October 27 and “this month” as ending October 27. The retained source dates were older than the operator date. These are operator-reported incidents, not a recovered provider-request trace.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Operator-relative calendar dates must come from the current clock in an explicit applicable timezone, never the last brokerage observation. Source, execution, receipt and conversation clocks are distinct.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence",
+          "level": 2,
+          "content": "[October 29 remediation receipt](../reviews/sdk-talk-temporal-executions-remediation-2026-10-29.md). Controlled-clock T1–T5 specimens live in `tools/talk/test/temporal-context.test.mjs`; backend interval specimens live in `TransactionExecutionsTest.java`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Consequence",
+          "level": 2,
+          "content": "Wrong requested periods can omit executions and make historical coverage look like current operational evidence.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / root cause",
+          "level": 2,
+          "content": "The installed pre-correction SDK instructions/run context supplied no trusted current clock. The host clock was October 29; no hardcoded October 27 date was found in runtime instructions. Stale-history/source anchoring is a plausible explanation for the model's particular date, not an independently established internal model trace. Missing temporal grounding is the demonstrated implementation defect.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Fresh trusted runtime calendar metadata for every SDK turn, with Denver operator and New York market calendars. No phrase router, financial calculation in Talk, provider clock rewrite or inferred account performance.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "- Current turn time supersedes earlier conversational dates; the same local conversation crosses midnight correctly.\n- Today, yesterday and month-to-date use explicit operator calendar anchors; differing market date remains explicit.\n- Backend execution periods use real timezone boundaries, including DST, and source execution timestamps.\n- Controlled clocks and actual installed SDK arguments verify the correction; privacy remains unchanged.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Per-turn native SDK dynamic instructions and run context implemented. Backend period projections preserve timezone, start/end and observation cutoffs. Author verification and installed status are recorded in the linked receipt; no independent review or Principal acceptance claimed.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Controlled-clock tests pass. Final runtime verification is recorded in the linked receipt. Remains Open pending independent review and Principal observation.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "ADR-024; PL-MCP-01; BUG-053 (transaction acquisition disconnect); BUG-052 (evidence presentation).",
           "truncated": false,
           "tables": []
         }

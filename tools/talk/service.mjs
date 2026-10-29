@@ -5,7 +5,7 @@ import {createServer} from 'node:http';
 const token=existingBackendToken(),apiKey=existingKey();
 if(!token||!apiKey)throw new Error('Existing authorized credentials are unavailable.');
 const backend=process.env.WW_BASE_URL??'http://127.0.0.1:3101';
-const app=await startPreview({port:8787,apiKey,installedBackend:{base:backend,token,profile:'AUTHORIZED_REAL_RETAINED_READS'},authorizedMarketBackend:{base:'http://127.0.0.1:3100',token}});
+const app=await startPreview({port:8787,apiKey,operatorTimeZone:'America/Denver',marketTimeZone:'America/New_York',installedBackend:{base:backend,token,profile:'AUTHORIZED_REAL_RETAINED_READS'},authorizedMarketBackend:{base:'http://127.0.0.1:3100',token}});
 // Existing preview bookmarks lead to the installed workspace, without another agent/session.
 const redirect=createServer((req,res)=>{
  res.setHeader('Cache-Control','no-store');

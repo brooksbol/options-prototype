@@ -1431,7 +1431,7 @@
       "get": {
         "operationId": "readAccountTransactions",
         "summary": "Read Account transaction history",
-        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No GET body. Requests without query retain existing full-history/read-through behavior. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No orders, strategy grouping, tax or P/L computation. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->\n\nWith mode=retained, this is a bounded provider-free query of existing admitted transaction evidence. Fidelity projection may normalize already-retained activity locally. No brokerage refresh occurs. Defaults25/max100 rows and100000 serialized bytes; capacity fails503. Exact source symbol and inclusive transaction dates are optional. Preserve all selectors and limit with nextCursor until pageComplete. Changed retained evidence invalidates the cursor422. matchedRecordCount is retained query coverage, never lifetime completeness; complete retains its existing history coverage meaning and does not imply this page is final. Source actions, reported gross value, net cash and fees remain distinct; matching a source symbol does not identify an opening cohort or associate a current construction. No premium or strategy inference. Requests without query preserve legacy read-through semantics; bounded selectors require mode=retained. Item reads continue rejecting queries.\nBounded mode also accepts order=asc|desc (default asc); reverse the existing date/execution-time/transaction-ID total order only, not a freshness or identity inference. MCP requests desc to inspect recent retained evidence first. Order is included in cursor scope and selection.",
+        "description": "Retained-first backend DB read; optional policy-bounded full source scan. Default read-through disabled; reuse 300 seconds when enabled. Source paging has one shared 10-second deadline, 100-page/25000-row/16MiB source limits; capacity or source failure never truncates into success. Complete scan admits atomically; failed scan preserves prior history and returns complete=false with retained/incomplete context. Provider source pages are not claimed atomic. Lifetime coverage remains UNKNOWN. No GET body. Requests without query retain existing full-history/read-through behavior. Instance lookup never searches outside the selected Account. Complete bounded JSON only; 16MiB response capacity fails with 503. No Order-state, strategy grouping or tax computation; bounded closed-trade projection is specified below. Fidelity serves retained admitted CSV activity without acquisition; row-equivalence identity does not establish a unique broker event. No-argument CLI history composes these Account-scoped resources.\n\n<!-- internal-only:start -->\nExplicit account.transactions.read grant required. Account and transaction IDs confer no permission. Original source access remains separately governed; the existing raw-artifact scope screen fails closed for unsupported transaction envelopes.\n<!-- internal-only:end -->\n\nWith mode=retained, this is a bounded provider-free query of existing admitted transaction evidence. Fidelity projection may normalize already-retained activity locally. No brokerage refresh occurs. Defaults25/max100 rows and100000 serialized bytes; capacity fails503. Exact source symbol and inclusive transaction dates are optional. Preserve all selectors and limit with nextCursor until pageComplete. Changed retained evidence invalidates the cursor422. matchedRecordCount is retained query coverage, never lifetime completeness; complete retains its existing history coverage meaning and does not imply this page is final. Source actions, reported gross value, net cash and fees remain distinct; matching a source symbol does not identify an opening cohort or associate a current construction. No premium or strategy inference. Requests without query preserve legacy read-through semantics; bounded selectors require explicit mode=retained or mode=policy. Item reads continue rejecting queries.\nBounded mode also accepts order=asc|desc (default asc); reverse the existing date/execution-time/transaction-ID total order only, not a freshness or identity inference. MCP requests desc to inspect recent retained evidence first. Order is included in cursor scope and selection.\n\nOctober29 governed projections: mode=policy reuses the existing authorized backend read-through/reuse policy, while mode=retained remains provider-free. First-page read-through has the existing10-second shared provider budget; subsequent pages do not refresh and changed evidence invalidates the opaque cursor. Response remains bounded100000 bytes/default25/max100 rows or whole groups. No User/grant changes or autonomous polling.\n\nview=execution-groups: explicit from/through/timeZone, source executedAt interval, native Order-ID grouping without splitting a group between pages. Source actions establish OPENING/CLOSING/MIXED/UNRESOLVED; buys/sells alone do not. Reversals, missing native Order identity and unknown actions cannot become confirmed exits. Reported gross transaction-value sums preserve known currency, never infer multiplier or opening basis. Full Order fill status, submitted time, strategy and Position/Construction association are not established by this projection and Order read permission is not bypassed. Coverage scan upper bound differs from observed transaction dates. Current provider path lacks verified lower bounds, so empty source results do not establish no executions. VERIFIED_TO_CUTOFF is reserved for an independently backend-established scoped coverage assertion, never inferred from first/last rows or client input.\n\nview=closed-trades: Principal-selected reported closed-round-trip net P/L view with row outcomes and totals. Match exactly one earlier native opening package to one native closing package by native contracts, whole quantities and opposing open/close source actions. All same-contract observations must belong solely to the pair; other cohorts, adjustments/reversals, partial closes, unknown net/currency or closes spanning the period remain unavailable. This bounded method introduces no FIFO, tax-lot or governed Position identity. Opening net cash outside the report month remains in the matching basis. Sum already-net source cash once; do not subtract fees twice or assume omitted fee components are zero. Preserve QUALIFIED_ESTIMATED_FEES when the broker reports estimates or final status is unknown. Net total and winners/losers are unavailable if a returned trade cannot be reconciled or currencies conflict. The report covers matched reported closed trades, not total Account investment performance, unrealized P/L or complete lifetime/period brokerage coverage. Source histories and evidence remain available separately; no raw ledger dump is required.",
         "security": [
           {
             "bearerAuth": []
@@ -1466,9 +1466,12 @@
             "name": "mode",
             "in": "query",
             "schema": {
-              "const": "retained"
+              "enum": [
+                "retained",
+                "policy"
+              ]
             },
-            "description": "Required for bounded selectors. No provider refresh even when read-through is enabled."
+            "description": "Retained never refreshes. Policy invokes existing configured Account history read-through/reuse on first page only, under the same transactions grant; bounded projection follows retention/admission. No trading or bypass of disabled read-through."
           },
           {
             "name": "symbol",
@@ -1529,6 +1532,27 @@
               "default": "asc"
             },
             "description": "Retained transaction-date/known execution-time/ID ordering. Descending starts with the latest retained source dates, not current brokerage state. Preserve with cursor."
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "transactions",
+                "execution-groups",
+                "closed-trades"
+              ],
+              "default": "transactions"
+            },
+            "description": "Execution and closed-trade projections require from/through/timeZone, reject symbol/order and apply actual execution instants; Account-scoped transaction read grant remains required."
+          },
+          {
+            "name": "timeZone",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Explicit available IANA timezone, required for execution-groups/closed-trades. From local start-of-day inclusive through following local midnight exclusive; DST respected. Effective cutoff is earlier of read clock and period end. No submission/source/receipt date substitution."
           }
         ],
         "responses": {
@@ -1558,6 +1582,12 @@
                     },
                     {
                       "$ref": "#/components/schemas/RetainedTransactionPage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TransactionExecutionPage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ClosedTradeReport"
                     }
                   ]
                 },
@@ -1732,6 +1762,11 @@
             "lang": "curl",
             "label": "Synthetic cURL",
             "source": "curl --request GET 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/transactions' \\\n  --header 'X-Request-Id: 11111111-1111-4111-8111-111111111111'"
+          },
+          {
+            "lang": "curl",
+            "label": "Synthetic period report",
+            "source": "curl 'https://api.example.invalid/v2/accounts/acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/transactions?mode=policy&view=closed-trades&from=2026-10-01&through=2026-10-29&timeZone=America%2FDenver&limit=10'"
           }
         ]
       }
@@ -5077,7 +5112,10 @@
             ]
           },
           "queryMode": {
-            "const": "RETAINED_ONLY"
+            "enum": [
+              "RETAINED_ONLY",
+              "POLICY"
+            ]
           },
           "matchedRecordCount": {
             "type": "integer",
@@ -5142,6 +5180,677 @@
           }
         },
         "description": "Bounded Account history. complete describes available normalized result, not lifetime history or atomic provider snapshot. Fidelity uses admitted activity rows with row-equivalence identity, unknown currency/freshness and no upstream acquisition."
+      },
+      "ExecutionPeriod": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "through",
+          "timeZone",
+          "startInclusive",
+          "endExclusive",
+          "requestedCutoff"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "through": {
+            "type": "string",
+            "format": "date"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "startInclusive": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endExclusive": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestedCutoff": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExecutionCoverage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "scannedThrough",
+          "observedFrom",
+          "observedThrough",
+          "traversal",
+          "snapshotConsistency",
+          "lifetimeCoverage",
+          "negativeConclusionSupported",
+          "unknownExecutionTimes"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "PERIOD_COMPLETENESS_NOT_ESTABLISHED",
+              "VERIFIED_TO_CUTOFF"
+            ]
+          },
+          "scannedThrough": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "observedFrom": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "observedThrough": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "traversal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "snapshotConsistency": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lifetimeCoverage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "negativeConclusionSupported": {
+            "type": "boolean"
+          },
+          "unknownExecutionTimes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "ExecutionCash": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "value",
+          "currency",
+          "method"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "QUALIFIED",
+              "UNAVAILABLE",
+              "CONFLICT"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "method": {
+            "const": "SUM_REPORTED_TRANSACTION_VALUES_NOT_PNL"
+          }
+        }
+      },
+      "ReportedExecution": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "transactionId",
+          "symbol",
+          "sourceAction",
+          "executedAt",
+          "sourceTransactionDate",
+          "quantity",
+          "price",
+          "provenance"
+        ],
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "symbol": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceAction": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "executedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sourceTransactionDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "quantity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/TransactionProvenance"
+          }
+        }
+      },
+      "TransactionExecutionGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourceOrderId",
+          "underlyingSymbols",
+          "classification",
+          "firstExecutedAt",
+          "lastExecutedAt",
+          "fillCompleteness",
+          "groupingBasis",
+          "reportedGrossCashFlow",
+          "reportedExecutions",
+          "qualifications"
+        ],
+        "properties": {
+          "sourceOrderId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "underlyingSymbols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100
+          },
+          "classification": {
+            "enum": [
+              "OPENING",
+              "CLOSING",
+              "MIXED",
+              "UNRESOLVED"
+            ]
+          },
+          "firstExecutedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastExecutedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fillCompleteness": {
+            "const": "NOT_ESTABLISHED_BY_TRANSACTIONS"
+          },
+          "groupingBasis": {
+            "enum": [
+              "ACCOUNT_BROKER_ORDER_ID",
+              "UNASSOCIATED_SOURCE_TRANSACTION"
+            ]
+          },
+          "reportedGrossCashFlow": {
+            "$ref": "#/components/schemas/ExecutionCash"
+          },
+          "reportedExecutions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportedExecution"
+            },
+            "maxItems": 25000
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          }
+        }
+      },
+      "ExecutionCounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "closingOrderGroups",
+          "openingOrderGroups",
+          "mixedOrderGroups",
+          "unresolvedOrderGroups"
+        ],
+        "properties": {
+          "closingOrderGroups": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "openingOrderGroups": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "mixedOrderGroups": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unresolvedOrderGroups": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "TransactionExecutionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "provider",
+          "environment",
+          "evidenceMode",
+          "freshness",
+          "acquisitionOutcome",
+          "checkedAt",
+          "queryMode",
+          "period",
+          "coverage",
+          "pageComplete",
+          "nextCursor",
+          "view",
+          "counts",
+          "groups",
+          "qualifications"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "provider": {
+            "const": "TASTYTRADE"
+          },
+          "environment": {
+            "const": "PRODUCTION"
+          },
+          "evidenceMode": {
+            "enum": [
+              "ACQUIRED",
+              "RETAINED",
+              "UNAVAILABLE"
+            ]
+          },
+          "freshness": {
+            "enum": [
+              "REUSABLE",
+              "STALE",
+              "UNAVAILABLE",
+              "UNVERIFIED"
+            ]
+          },
+          "acquisitionOutcome": {
+            "enum": [
+              "COMPLETE",
+              "REUSED",
+              "INCOMPLETE",
+              "UNAVAILABLE",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "checkedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "queryMode": {
+            "enum": [
+              "POLICY",
+              "RETAINED_ONLY"
+            ]
+          },
+          "period": {
+            "$ref": "#/components/schemas/ExecutionPeriod"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/ExecutionCoverage"
+          },
+          "pageComplete": {
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "view": {
+            "const": "execution-groups"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/ExecutionCounts"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionExecutionGroup"
+            },
+            "maxItems": 100
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          }
+        }
+      },
+      "ClosedTradePnl": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "value",
+          "currency",
+          "outcome",
+          "method"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "QUALIFIED",
+              "QUALIFIED_ESTIMATED_FEES",
+              "UNAVAILABLE"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+          },
+          "currency": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "outcome": {
+            "enum": [
+              "WIN",
+              "LOSS",
+              "BREAK_EVEN",
+              "UNAVAILABLE"
+            ]
+          },
+          "method": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportedClosedTrade": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "closingExecutedAt",
+          "status",
+          "netPnl",
+          "openingTransactions",
+          "closingTransactions",
+          "qualifications"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string"
+          },
+          "closingExecutedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "enum": [
+              "PROVISIONAL_GROUPING",
+              "MATCHED_REPORTED_ROUND_TRIP"
+            ]
+          },
+          "netPnl": {
+            "$ref": "#/components/schemas/ClosedTradePnl"
+          },
+          "openingTransactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 25000
+          },
+          "closingTransactions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 25000
+          },
+          "qualifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          }
+        }
+      },
+      "ClosedTradeTotals": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "netPnl",
+          "winners",
+          "losers",
+          "breakEven",
+          "matchedTrades",
+          "unavailableTrades"
+        ],
+        "properties": {
+          "netPnl": {
+            "$ref": "#/components/schemas/ClosedTradePnl"
+          },
+          "winners": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "losers": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "breakEven": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "matchedTrades": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unavailableTrades": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "ClosedTradeReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accountId",
+          "provider",
+          "environment",
+          "evidenceMode",
+          "freshness",
+          "acquisitionOutcome",
+          "checkedAt",
+          "queryMode",
+          "period",
+          "coverage",
+          "pageComplete",
+          "nextCursor",
+          "view",
+          "metric",
+          "totals",
+          "trades",
+          "qualification"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "pattern": "^acct_[a-f0-9]{32}$"
+          },
+          "provider": {
+            "const": "TASTYTRADE"
+          },
+          "environment": {
+            "const": "PRODUCTION"
+          },
+          "evidenceMode": {
+            "enum": [
+              "ACQUIRED",
+              "RETAINED",
+              "UNAVAILABLE"
+            ]
+          },
+          "freshness": {
+            "enum": [
+              "REUSABLE",
+              "STALE",
+              "UNAVAILABLE",
+              "UNVERIFIED"
+            ]
+          },
+          "acquisitionOutcome": {
+            "enum": [
+              "COMPLETE",
+              "REUSED",
+              "INCOMPLETE",
+              "UNAVAILABLE",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "checkedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "queryMode": {
+            "enum": [
+              "POLICY",
+              "RETAINED_ONLY"
+            ]
+          },
+          "period": {
+            "$ref": "#/components/schemas/ExecutionPeriod"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/ExecutionCoverage"
+          },
+          "pageComplete": {
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "view": {
+            "const": "closed-trades"
+          },
+          "metric": {
+            "const": "REPORTED_CLOSED_ROUND_TRIP_NET_PNL"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/ClosedTradeTotals"
+          },
+          "trades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportedClosedTrade"
+            },
+            "maxItems": 100
+          },
+          "qualification": {
+            "type": "string"
+          }
+        }
       }
     },
     "responses": {

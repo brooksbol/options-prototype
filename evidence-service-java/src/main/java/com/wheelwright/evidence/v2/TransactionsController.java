@@ -31,20 +31,26 @@ public class TransactionsController {
         try {
             if(accounts.get(accountId).isEmpty())return problem(ProblemCode.NOT_FOUND,id,"Account not found");
             boolean bounded=request.getParameter("mode")!=null;
-            for(String name:Collections.list(request.getParameterNames()))if(!Set.of("mode","symbol","from","through","limit","cursor","order").contains(name)||request.getParameterValues(name).length!=1)
+            for(String name:Collections.list(request.getParameterNames()))if(!Set.of("mode","symbol","from","through","limit","cursor","order","view","timeZone").contains(name)||request.getParameterValues(name).length!=1)
                 return problem(ProblemCode.INVALID_REQUEST,id,"unknown or repeated transaction selector");
             String symbol=request.getParameter("symbol"),from=request.getParameter("from"),through=request.getParameter("through"),cursor=request.getParameter("cursor");
+            String mode=request.getParameter("mode"),view=Objects.requireNonNullElse(request.getParameter("view"),"transactions"),zone=request.getParameter("timeZone");
             String order=Objects.requireNonNullElse(request.getParameter("order"),"asc");
             int limit=25;
-            if(request.getQueryString()!=null&&!request.getQueryString().isEmpty()&&!bounded||bounded&&(!"retained".equals(request.getParameter("mode"))||transactionId!=null))return problem(ProblemCode.INVALID_REQUEST,id,"retained mode required for bounded collection selection");
+            if(request.getQueryString()!=null&&!request.getQueryString().isEmpty()&&!bounded||bounded&&(!Set.of("retained","policy").contains(mode)||transactionId!=null))return problem(ProblemCode.INVALID_REQUEST,id,"documented query mode required for bounded collection selection");
             if(bounded) {
                 try {
                     String raw=request.getParameter("limit");if(raw!=null){if(!raw.matches("[0-9]{1,3}"))throw new IllegalArgumentException();limit=Integer.parseInt(raw);}
-                    if(!Set.of("asc","desc").contains(order)||limit<1||limit>100||symbol!=null&&(symbol.isBlank()||symbol.length()>128)||cursor!=null&&(cursor.isBlank()||cursor.length()>256))throw new IllegalArgumentException();
+                    if(!Set.of("transactions","execution-groups","closed-trades").contains(view)||!Set.of("asc","desc").contains(order)||limit<1||limit>100||symbol!=null&&(symbol.isBlank()||symbol.length()>128)||cursor!=null&&(cursor.isBlank()||cursor.length()>256))throw new IllegalArgumentException();
+                    if(!view.equals("transactions")) {
+                        if(from==null||through==null||zone==null||symbol!=null||request.getParameter("order")!=null)throw new IllegalArgumentException();
+                        if(!java.time.ZoneId.getAvailableZoneIds().contains(zone))throw new IllegalArgumentException();
+                    }else if(zone!=null)throw new IllegalArgumentException();
                     if(from!=null)java.time.LocalDate.parse(from);if(through!=null)java.time.LocalDate.parse(through);if(from!=null&&through!=null&&from.compareTo(through)>0)throw new IllegalArgumentException();
                 }catch(Exception e){return problem(ProblemCode.INVALID_REQUEST,id,"invalid bounded transaction selectors");}
             }
-            var result=bounded?history.retained(accountId,id,symbol,from,through,limit,cursor,order.equals("desc")):history.read(accountId,id);
+            var result=bounded?view.equals("closed-trades")?history.closedTrades(accountId,id,from,through,zone,limit,cursor,mode.equals("policy")):view.equals("execution-groups")?history.executions(accountId,id,from,through,zone,limit,cursor,mode.equals("policy")):
+                    history.bounded(accountId,id,symbol,from,through,limit,cursor,order.equals("desc"),mode.equals("policy")):history.read(accountId,id);
             if(transactionId!=null) {
                 var items=(List<?>)result.get("transactions");Object found=null;
                 for(Object item:items)if(item instanceof Map<?,?> row&&transactionId.equals(row.get("transactionId")))found=item;

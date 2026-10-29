@@ -73,6 +73,34 @@ export function evidenceView(raw) {
     }
     qualifications.push(transactionRead.qualification);
   }
+  let closedTradeSummary;
+  const closed=value.evidence?.closedTrades;
+  if(closed?.view==='closed-trades'&&Array.isArray(closed.trades)) {
+    const money=p=>{if(p?.value==null)return '—';const exact=text(p.value);return p.currency==='USD'?(exact.startsWith('-')?'−$'+exact.slice(1):'$'+exact):exact+' '+p.currency;};
+    const period=closed.period??{},total=closed.totals??{};
+    closedTradeSummary={title:`${value.account?.nickname??'Account'} · Closed Trades`,period:`${period.from} through ${period.through}`,
+      metric:total.netPnl?.value==null?'P/L unavailable':total.netPnl?.status==='QUALIFIED_ESTIMATED_FEES'?'Estimated net P/L':'Realized net P/L',
+      totals:[['Net P/L total',money(total.netPnl),total.netPnl?.outcome],['Winners',total.winners==null?'—':text(total.winners),''],['Losers',total.losers==null?'—':text(total.losers),'']],
+      rows:closed.trades.map(t=>({label:t.label,closed:(()=>{try{return new Intl.DateTimeFormat('en-US',{timeZone:period.timeZone,month:'short',day:'numeric'}).format(new Date(t.closingExecutedAt));}catch{return '—';}})(),pnl:money(t.netPnl),outcome:t.netPnl?.outcome})),
+      details:[['Metric',closed.metric],['Requested timezone',period.timeZone],['Cutoff',period.requestedCutoff],['Source scan',closed.coverage?.scannedThrough??'Unknown'],['Coverage',closed.coverage?.status??'Unknown'],['Qualification',closed.qualification],
+        ...closed.trades.flatMap(t=>[['Trade state',`${t.label} · ${t.status}`],['Net P/L status',t.netPnl?.status??'Unknown'],['Matching method',t.netPnl?.method??'Unknown'],...(t.qualifications??[]).map(q=>['Qualification',q]),['Opening source transactions',(t.openingTransactions??[]).join(', ')],['Closing source transactions',(t.closingTransactions??[]).join(', ')]])]
+    };
+  }
+  let executionSummary;
+  const activity=value.evidence?.executions;
+  if(activity?.view==='execution-groups'&&Array.isArray(activity.groups)) {
+    const period=activity.period??{},coverage=activity.coverage??{};
+    const localTime=instant=>{try{return new Intl.DateTimeFormat('en-US',{timeZone:period.timeZone,month:'short',day:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'}).format(new Date(instant));}catch{return instant??'Unavailable';}};
+    executionSummary={title:`${value.account?.nickname??'Account'} · Reported executions`,
+      period:`${period.from} through ${period.through} · ${period.timeZone}`,
+      counts:[['Closing order groups',text(activity.counts?.closingOrderGroups)],['Opening order groups',text(activity.counts?.openingOrderGroups)],['Mixed / unresolved groups',`${text(activity.counts?.mixedOrderGroups)} / ${text(activity.counts?.unresolvedOrderGroups)}`]],
+      groups:activity.groups.map(g=>({label:`${(g.underlyingSymbols??[]).join(' / ')||'Underlying unknown'} · ${g.classification}`,time:localTime(g.firstExecutedAt),cash:g.reportedGrossCashFlow?.status==='QUALIFIED'?`${g.reportedGrossCashFlow.value} ${g.reportedGrossCashFlow.currency} · reported gross cash flow before fees`:'Reported cash flow unavailable'})),
+      note:`Source scan through ${coverage.scannedThrough?localTime(coverage.scannedThrough):'unavailable'}. Period completeness ${coverage.status==='VERIFIED_TO_CUTOFF'?'verified to cutoff':'not established'}; full Order fill status remains unverified.`,
+      details:[['Read mode',activity.queryMode],['Acquisition',activity.acquisitionOutcome],['Query start',period.startInclusive],['Query end (exclusive)',period.endExclusive],['Requested cutoff',period.requestedCutoff],['Source scan cutoff',coverage.scannedThrough??'Unknown'],['Observed source dates',`${coverage.observedFrom??'Unknown'} through ${coverage.observedThrough??'Unknown'}`],
+        ...(activity.qualifications??[]).map(q=>['Qualification',q]),
+        ...activity.groups.flatMap(g=>[['Source Order',g.sourceOrderId??'Association unresolved'],['Fill coverage',g.fillCompleteness],...(g.qualifications??[]).map(q=>['Group qualification',q]),...(g.reportedExecutions??[]).map(r=>['Source transaction',`${r.transactionId} · ${r.sourceAction} · ${r.executedAt} · original ${r.provenance?.artifactId??'unknown'} · row ${text(r.provenance?.rowNumber)}`])])]
+    };
+  }
   let optionInventory;
   const optionRead=value.evidence?.optionInventory;
   if(optionRead && Array.isArray(optionRead.accounts)) {
@@ -143,5 +171,5 @@ export function evidenceView(raw) {
   if (!rows.length) rows.push(['Evidence', 'Detailed source is available below.']);
   for (const field of ['qualification', 'sourceQualification', 'scope']) if (value[field]) qualifications.push(value[field]);
   if (value.dataClassification) qualifications.unshift(value.dataClassification);
-  return { rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}), ...(optionInventory ? {optionInventory} : {}) };
+  return { ...(closedTradeSummary?{closedTradeSummary}:{}),...(executionSummary?{executionSummary}:{}),rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}), ...(optionInventory ? {optionInventory} : {}) };
 }

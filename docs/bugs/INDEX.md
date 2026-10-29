@@ -60,6 +60,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-051 | Cash Deployment Liq sort ignores secondary sorts | Write Desk (Deployment) / Cash Deployment table sorting | Not established | Resolved | [record](BUG-051-liq-sort-key-defeats-secondary-sort.md) | Principal report 2026-10-27; render specimen at 17b0e60b; Principal browser acceptance 2026-10-27 |
 | BUG-052 | Talk balance answer retrieves and displays retained history | API v2 / MCP / SDK Talk | Not established | Open | [record](BUG-052-talk-balance-history-overretrieval.md) | Principal report 2026-10-27; bounded candidate retest |
 | BUG-053 | Talk operational Account evidence is disconnected from imports and read grants | SDK Talk / v2 evidence / Fidelity admission | Not established | Open | [record](BUG-053-talk-operational-account-evidence-disconnect.md) | Principal real-data trials and production direction 2026-10-27 |
+| BUG-054 | Talk relative dates lack trusted per-turn calendar context | SDK Talk / temporal context | Not established | Open | [record](BUG-054-talk-relative-date-grounding.md) | Principal incident 2026-10-29 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 

@@ -1,0 +1,58 @@
+# SDK Talk — October29 temporal, execution and closed-trade remediation
+
+**Standing:** Author implementation/verification receipt. Independent review and Principal Product acceptance are not established. Native defect owners: [BUG-054](../bugs/BUG-054-talk-relative-date-grounding.md), [BUG-053](../bugs/BUG-053-talk-operational-account-evidence-disconnect.md), presentation [BUG-052](../bugs/BUG-052-talk-balance-history-overretrieval.md).
+
+## Authority, source and scope
+
+Principal's October29 Production Remediation Engineer assignment authorizes bounded corrections, existing permitted provider acquisition and installed verification; earlier explicit “move this work to production. no more isolated work” remains the scoped delivery direction. No new grants, credentials, provider client, autonomous polling, trading, order modification, Gmail ingestion or production accounting-engine redesign is authorized. Codex is implementer, not independent reviewer.
+
+Remote main and local HEAD at bootstrap: `a766ea0d6c833213343af9dff939082efe43fca6`. Installed predecessor implementation: `067e627f3fe16a187e29a16293b0dfe6d8572167`; main adds historical documentation. Operational v2 JAR hash before correction: `c91e9809b6af342006bb6682c4a5caee84f054e9fb70edc147018dc8092efb3e`. Talk8787/alias8814 uses operational v2 backend3101 and shared database. Existing v1/services/worktrees and unrelated dirty liquidity files are protected; no PR42 merge.
+
+Recovered authority: root/docs AGENTS and README A–F model, Codex bootstrap, known failure modes, Product-first mandate/fitness controls, ADR-024, [API v2 guardrails](../77-api-v2-architectural-guardrails.md), maintained Account/Position knowledge, ADR-014/016 accounting/association boundaries, the existing history proposal and tt-live precedent. Complete parking-lot/journal continuation sets were indexed; task-relevant spans read, not all historical entries. Gate001 remains staged/inactive. [Delivery plan](../implementation/pl-mcp-01-sdk-talk-delivery-plan-2026-10-25.md) and [October26 case study](../discovery/2026-10-26-income-wheel-real-world-product-learning.md) retain Product-learning context; earlier author reports are evidence, not independent authority.
+
+Principal subsequently selected a narrower outcome: **“Show me this month's closed-trade P/L”**, **“with totals”**, **“no disclaimer noise. hide any of that under accordion links.”** Default UI: trade, close date, net result; total, winners, losers. Matching, fees, coverage and analysis are deliberate disclosures. An accurate `Estimated net P/L` metric label preserves source fee finality without a disclaimer paragraph. Unknown results remain dashes. This selection does not ratify a default for unqualified account-month performance.
+
+## Established findings and corrected assumptions
+
+1. Host clock was October29, not October27. Installed SDK instructions/context lacked a trusted current clock. No hardcoded October27 runtime date was found. This defect permits stale-history/source anchoring; the exact internal model cause of the incident's particular date remains unproven.
+2. Existing transaction acquisition worked. MCP forced retained-only reads, so normal conversation could not use the authorized backend policy. Last-success scan was October19; the latest row October15 was incorrectly described as a coverage boundary. Last trade date is not complete-through evidence.
+3. One authorized existing backend GET refreshed32 source transactions, with complete bounded provider traversal through October29. Provider snapshot consistency remains unverified and lifetime/lower coverage unknown. Original retention/admission and normalized facts are reused; no email-derived financial original is admitted.
+4. All four Principal-supplied broker execution specimens exist after refresh: EWZ closing four rows October27 09:36:47ET; SPY opening two rows October28 10:56:14ET; QQQ opening two rows October28 11:15:39ET; XLF closing two rows October29 09:30:04ET. Dates/times are checked against executed-at, not order submission. tt1 lacks Order-read permission; transaction-backed grouping does not expose submission time/full Order state. October14 submission remains user-supplied corroboration, not a transaction projection fact.
+5. Separate authorized existing custody acquisition retained a new snapshot: SPY/QQQ/UNG present, XLF absent, consistent with the user-supplied tt-live observations. Absence alone is not execution proof.
+6. Fees are **not absent from the API data**. Normalized native net cash, commissions and estimate flags are retained. All examined target rows mark fees estimated and fee components partially reported. Missing individual components are not zero. Reported net amounts must not have commissions subtracted twice.
+7. Contrary to the premature broad “cannot calculate” interpretation, retained evidence uniquely matches one earlier native opening package to each XLE/EWZ/XLF closing package by exact contracts, whole quantities and opposing open/close actions. Opening basis can precede October. This supports a qualified reported-round-trip net result, without claiming tax-lot identity, governed Position membership or total Account return.
+
+Raw originals, exact Account identifiers, credentials, unredacted payloads and financial diagnostic values remain outside repository artifacts. Local private diagnostics are permission-restricted. Public receipts contain source-field names, counts, checks and user-supplied specimen identifiers only.
+
+## Reused path and bounded corrections
+
+Provider → existing TastytradeClient full paginated scan → existing originals/atomic transaction admission → existing normalized Account ledger → existing Account transaction route → thin existing MCP transaction tool → native SDK selection → typed outcome card.
+
+- Trusted runtime context is captured for **each operator turn** through native SDK dynamic instructions and `Runner.run` context. Operator timezone Denver; market NewYork. Current instant, local calendars, yesterday/month-to-date anchors and explicit differences supersede old history. Backend computes actual timezone/DST interval boundaries. Source, receipt, broker execution and conversation clocks remain distinct. Same conversation crosses local midnight; no phrase router.
+- Existing `/v2/accounts/{accountId}/transactions` accepts bounded `mode=policy` as well as provider-free retained selection. Existing read-through enabled/reuse300sec/deadline10sec/100pages/25000rows/16MiB policy remains unchanged. First page can refresh; cursor pages do not. No autonomous polling or streaming-current claim.
+- `view=execution-groups` requires Account/from/through/IANAzone. Native Account-scoped Order IDs keep legs together; source open/close actions classify opening/closing/mixed/unresolved. Unknown identity/actions/reversals are not confirmed exits. No strategy inference from strikes, Order permission bypass or complete-fill claim.
+- Coverage explicitly separates scan upper bound, observed source dates and missing verified lower bounds. Empty source results cannot establish no executions. A controlled backend-only verified-window specimen demonstrates a scoped negative; the live provider path does not manufacture such an assertion from rows or request fields.
+- `view=closed-trades` matches only unique whole reported round trips. Other same-contract observations/cohorts, adjustments, reversals, partial/straddling closes, missing net/currency and mixed intent leave results unavailable. Mixed/unresolved groups remain provisional rather than disappearing from totals. Sum explicit already-net broker source values in backend decimal arithmetic once. No FIFO, inferred cost basis or double fee subtraction. Estimated/unknown final-fee status remains typed. Totals and winner/loser counts are backend-owned; unresolved trades or incompatible currencies withhold totals.
+- API response is bounded100000bytes; MCP defaults10/max25 rows or whole groups, preserves Account/period/correlation scope and uses15sec timeout for the existing10sec provider budget. No raw month ledger is needed for the closed report.
+- SDK remains one general Agents SDK agent, same pinned model/dependencies/local session. It discovers the reusable tool/view naturally. UI renders exact backend results; qualifiers, source identifiers and Talk analysis are closed accordions. No UI/model financial arithmetic. Workspace privacy notice is also an accordion; security policy remains enforced.
+
+## Monthly P/L measures and remaining boundaries
+
+| Metric | Authority/evidence recovered | Current disposition |
+|---|---|---|
+| Reported closed-round-trip net P/L | Explicit Principal report direction; normalized native opening/closing executions and already-net cash | Bounded backend matching/report implemented; source fee estimates qualified |
+| Governed Position realized P/L | Existing economic-history/Position projections preserve supported reported metrics; opening association/lifecycle can be unresolved | Reuse where qualified; new report does not invent Position identity |
+| Unrealized P/L | Source custody retains day/today realized fields and requires qualified valuation clock/basis for unrealized results | Not substituted into closed report; no monthly aggregate invented |
+| Total Account monthly investment performance | No accepted unqualified default recovered; no month-opening balance/valuation (earliest acquired balance October27), full capital-flow/valuation reconciliation absent | Unresolved Product metric and missing period evidence |
+| Net option premium / execution cash | Explicit gross/net transactions, fees, deposits and adjustments retained | Different measures, never labeled profit merely because cash moved |
+| Tax realized gains / partial-lot allocation | Explicit cost-basis links absent in inspected source | No tax/FIFO engine or allocation invented |
+
+The provider advertises further reports/valuation fields; advertisement alone is not retained evidence or authority. No new statement/report acquisition is claimed. Current API transaction scan is a bounded observation, not live streaming. Order submission/status would require separately permitted source capability; existing grants remain unchanged.
+
+## Verification and delivery
+
+Final machine results, runtime revision and installed SDK outcomes are appended after executing the checks. Controlled fixtures are not real brokerage proof. Author verification is not independent acceptance. API reference remains an unpublished, acceptance-pending candidate; no release-manifest or Pages publication is authorized by this receipt.
+
+Primary implementation references: [native SDK dynamic instructions/run context](https://developers.openai.com/api/docs/guides/agents/define-agents) and [tastytrade transaction fields](https://developer.tastytrade.com/reference/transactions/getAccountsAccountNumberTransactions/). These confirm interface mechanisms, not Wheelwright Product authority or evidence that a particular private Account record was acquired.
+
+Shared memory projections: unrelated v1 edits in `docs/parking-lot-9.md`, `docs/parking-lot-11.md` and the roadmap projection were preserved. Mechanical regeneration against their pre-remediation canonical inputs exactly reproduced the existing dirty projection (ignoring its volatile generation timestamp). The current workspace projection was then regenerated and freshness checked. A separate mechanical generation from HEAD plus only this work's canonical bug changes supplies the committed projection, leaving the unrelated v1 delta unstaged. Both inputs/outputs pass the native generator's check; no projection was hand-edited and no v1 authority was absorbed.

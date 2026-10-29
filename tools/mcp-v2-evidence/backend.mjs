@@ -1,13 +1,13 @@
 import { parseShowJson } from '../../scripts/ww-show.mjs';
 export const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 // Shared only after two actual read capabilities need the same bounded, safe transport.
-export async function readBackend(path, { base, token, fetchImpl = fetch }) {
+export async function readBackend(path, { base, token, fetchImpl = fetch, timeoutMs = 5000 }) {
   const origin = new URL(base);
   if (!['http:', 'https:'].includes(origin.protocol) || origin.username || origin.password ||
       (origin.protocol === 'http:' && !['127.0.0.1', 'localhost', '[::1]'].includes(origin.hostname)) ||
       typeof token !== 'string' || !token.trim()) throw new Error('Invalid trusted backend configuration.');
   const response = await fetchImpl(new URL(path, origin), { method: 'GET', redirect: 'error',
-    signal: AbortSignal.timeout(5000), headers: { Authorization: `Bearer ${token}` } });
+    signal: AbortSignal.timeout(timeoutMs), headers: { Authorization: `Bearer ${token}` } });
   const requestId = response.headers.get('x-request-id');
   if (!UUID.test(requestId ?? '')) throw new Error('Invalid backend correlation.');
   if (!/^application\/(?:json|problem\+json)(?:;|$)/i.test(response.headers.get('content-type') ?? ''))

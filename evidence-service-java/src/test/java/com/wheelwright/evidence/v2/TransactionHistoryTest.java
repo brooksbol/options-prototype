@@ -210,4 +210,25 @@ class TransactionHistoryTest {
         }
     }
 
+    @Test void policyBoundedExecutionViewReusesExistingAcquisitionAndTransactionGrantOnly()throws Exception {
+        var prototype=rows.getFirst().deepCopy();rows.clear();
+        for(int i=0;i<2;i++){var r=prototype.deepCopy();r.put("transaction-type","Trade").put("id",800+i).put("order-id",8100).put("transaction-date","2026-10-29").put("executed-at","2026-10-29T13:30:04Z").put("action",i==0?"Buy to Close":"Sell to Close").put("value","5.0").put("value-effect",i==0?"Debit":"Credit");rows.add(r);}
+        try(var store=new SqliteEvidenceStore(temp.resolve("policy.db").toString())) {
+            var accounts=new AccountDirectory(store,"");String account=accounts.bind("fixture","TASTYTRADE","TTTEST01");
+            var h=new TransactionHistory(store.getConnection().getMetaData().getURL(),accounts,client(),json,true,Duration.ofMinutes(5),Clock.fixed(Instant.parse("2026-10-29T14:11:00Z"),ZoneOffset.UTC));
+            var auth=new BearerAuthenticator(new UserDirectory(store,accounts),"reader=reader:account.transactions.read:"+account+",orders=orders:account.orders.read:"+account);
+            var mvc=MockMvcBuilders.standaloneSetup(new TransactionsController(h,accounts,auth,json)).build();
+            String route="/v2/accounts/"+account+"/transactions?mode=policy&view=execution-groups&from=2026-10-29&through=2026-10-29&timeZone=America/Denver";
+            var response=mvc.perform(get(route).header("Authorization","Bearer reader")).andReturn().getResponse();assertThat(response.getStatus()).isEqualTo(200);var data=json.readTree(response.getContentAsString());
+            assertThat(data.path("queryMode").asText()).isEqualTo("POLICY");assertThat(data.path("acquisitionOutcome").asText()).isEqualTo("COMPLETE");assertThat(data.at("/counts/closingOrderGroups").asInt()).isEqualTo(1);assertThat(data.path("groups").get(0).path("reportedExecutions")).hasSize(2);assertThat(requests.get()).isEqualTo(1);
+            java.nio.file.Files.createDirectories(Path.of("build/reports/transactions"));java.nio.file.Files.writeString(Path.of("build/reports/transactions/executions.json"),response.getContentAsString());
+            var closedResponse=mvc.perform(get(route.replace("view=execution-groups","view=closed-trades")).header("Authorization","Bearer reader")).andReturn().getResponse();
+            assertThat(closedResponse.getStatus()).isEqualTo(200);var closed=json.readTree(closedResponse.getContentAsString());assertThat(closed.path("view").asText()).isEqualTo("closed-trades");assertThat(closed.at("/totals/netPnl/value").isNull()).isTrue();assertThat(closed.path("trades")).hasSize(1);
+            java.nio.file.Files.writeString(Path.of("build/reports/transactions/closed-trades.json"),closedResponse.getContentAsString());
+            assertThat(mvc.perform(get(route.replace("mode=policy","mode=retained")).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(200);assertThat(requests.get()).isEqualTo(1);
+            assertThat(mvc.perform(get(route).header("Authorization","Bearer orders")).andReturn().getResponse().getStatus()).isEqualTo(403);assertThat(requests.get()).isEqualTo(1);
+            for(String bad:List.of("?mode=policy&view=execution-groups","?mode=policy&view=bad","?mode=policy&timeZone=America/Denver"))assertThat(mvc.perform(get("/v2/accounts/"+account+"/transactions"+bad).header("Authorization","Bearer reader")).andReturn().getResponse().getStatus()).isEqualTo(422);
+        }
+    }
+
 }

@@ -40,7 +40,7 @@ try {
   $('profile').textContent = info.profile;
   metadataOnly = info.profile === 'Authorized real Account metadata only';
   if (info.profile === 'Authorized real retained evidence') {
-    $('notice').textContent = 'Real retained Account and market evidence under existing backend permissions. Balances, positions and quotes may be historical. Reads only; no brokerage acquisition or trades. Conversation context stays local; authorized tool results reach the configured OpenAI API with tracing and response storage disabled.';
+    $('notice').textContent = 'Real retained Account and market evidence under existing backend permissions. Balances, positions and quotes may be historical. User-initiated transaction reads may refresh brokerage evidence under existing backend policy. No trades or background polling. Conversation context stays local; authorized tool results reach the configured OpenAI API with tracing and response storage disabled.';
     $('footnote').textContent = info.deployment === 'installed' ? 'Authorized retained-data workspace · Source dates govern currentness' : 'Authorized retained-data preview · Source dates govern currentness';
   }
   if (metadataOnly) {
@@ -64,7 +64,27 @@ $('composer').addEventListener('submit', async event => {
     for (const tool of answer.tools ?? []) {
       const raw = resultText(tool.result);
       const view = evidenceView(raw);
-      if (view.optionInventory) {
+      if(view.closedTradeSummary) {
+        const source=view.closedTradeSummary,card=document.createElement('section');card.className='closed-trade-card';
+        const title=document.createElement('h3');title.textContent=source.title;card.append(title);
+        const period=document.createElement('p');period.textContent=`${source.period} · ${source.metric}`;card.append(period);
+        const totals=document.createElement('dl');totals.className='trade-totals';
+        for(const [label,value,outcome]of source.totals){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dd.className=outcome==='WIN'?'trade-gain':outcome==='LOSS'?'trade-loss':'';totals.append(dt,dd);}card.append(totals);
+        const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');for(const label of ['Trade','Closed','Net P/L']){const th=document.createElement('th');th.textContent=label;tr.append(th);}head.append(tr);table.append(head);
+        const body=document.createElement('tbody');for(const r of source.rows){const row=document.createElement('tr');for(const value of [r.label,r.closed,r.pnl]){const td=document.createElement('td');td.textContent=value;row.append(td);}row.children[2].className=r.outcome==='WIN'?'trade-gain':r.outcome==='LOSS'?'trade-loss':'';body.append(row);}table.append(body);card.append(table);
+        const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Trade details and evidence';details.append(summary);let loaded=false;details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const dl=document.createElement('dl');for(const [label,value]of source.details){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}details.append(dl);}});card.append(details);
+        article.insertBefore(card,article.querySelector('.text'));
+      } else if(view.executionSummary) {
+        const source=view.executionSummary,card=document.createElement('section');card.className='execution-card';
+        const title=document.createElement('h3');title.textContent=source.title;card.append(title);
+        const period=document.createElement('p');period.textContent=source.period;card.append(period);
+        const counts=document.createElement('dl');for(const [label,value]of source.counts){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;counts.append(dt,dd);}card.append(counts);
+        for(const group of source.groups){const row=document.createElement('p');row.textContent=`${group.label} · ${group.time} · ${group.cash}`;card.append(row);}
+        source.details.unshift(['Coverage and fill status',source.note]);
+        const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Execution source details';details.append(summary);
+        let loaded=false;details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const dl=document.createElement('dl');for(const [label,value]of source.details){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}details.append(dl);}});card.append(details);
+        article.insertBefore(card,article.querySelector('.text'));
+      } else if (view.optionInventory) {
         const inventory=view.optionInventory;
         const card=document.createElement('section');card.className='option-inventory-card';
         const title=document.createElement('h3');title.textContent=inventory.title;card.append(title);
@@ -75,7 +95,7 @@ $('composer').addEventListener('submit', async event => {
         head.append(header);table.append(head);const body=document.createElement('tbody');
         for(const row of inventory.rows){const tr=document.createElement('tr');for(const value of row){const cell=document.createElement('td');cell.textContent=value;tr.append(cell);}body.append(tr);}
         table.append(body);const scroll=document.createElement('div');scroll.className='inventory-table-scroll';scroll.append(table);card.append(scroll);
-        const note=document.createElement('p');note.className='evidence-notes';note.textContent=[inventory.note,...inventory.access].join(' ');card.append(note);
+        inventory.details.unshift(['Scope and classification',inventory.note],...inventory.access.map(value=>['Account access',value]));
         const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Option inventory source details';details.append(summary);
         let loaded=false;details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;const dl=document.createElement('dl');for(const [label,value] of inventory.details){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}details.append(dl);}});card.append(details);
         article.insertBefore(card,article.querySelector('.text'));
@@ -94,7 +114,7 @@ $('composer').addEventListener('submit', async event => {
           row.append(label,amount); facts.append(row);
         }
         card.append(facts);
-        const note = document.createElement('p'); note.className = 'evidence-notes'; note.textContent = balance.note; card.append(note);
+        balance.details.unshift(['Observation scope',balance.note]);
         const details = document.createElement('details');
         const summary = document.createElement('summary'); summary.textContent = 'Historical source details'; details.append(summary);
         let loaded = false;
@@ -146,7 +166,11 @@ $('composer').addEventListener('submit', async event => {
       }
 
     }
-    if (answer.tools?.length) {
+    if ((answer.tools??[]).some(tool=>evidenceView(resultText(tool.result)).closedTradeSummary)) {
+      const content=article.querySelector('.text');
+      const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);
+      article.insertBefore(details,content);content.remove();details.append(content);
+    } else if (answer.tools?.length) {
       const label = document.createElement('h4'); label.className = 'commentary-label'; label.textContent = 'Talk’s analysis';
       article.insertBefore(label, article.querySelector('.text'));
     }

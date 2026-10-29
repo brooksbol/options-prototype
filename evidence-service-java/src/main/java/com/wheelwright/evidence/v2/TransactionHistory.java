@@ -51,22 +51,41 @@ public class TransactionHistory {
 
     public static final class InvalidCursor extends IllegalArgumentException {}
 
+    private Map<String,Object> source(String account,String request,boolean policy)throws Exception {
+        if(policy)return read(account,request);
+        var binding=accounts.get(account).orElseThrow();
+        if(binding.brokerAssociation().broker().equals("FIDELITY"))return readFidelity(binding,request);
+        if(binding.brokerAssociation().broker().equals("TASTYTRADE"))return representation(account,request,false);
+        throw new UnsupportedOperationException();
+    }
+    public Map<String,Object> executions(String account,String request,String from,String through,String zone,int limit,String cursor,boolean policy)throws Exception {
+        synchronized(locks.computeIfAbsent(account,k->new Object())) {
+            return TransactionExecutionGroups.project(source(account,request,policy&&cursor==null),from,through,zone,limit,cursor,policy,clock.instant(),json);
+        }
+    }
+
+    public Map<String,Object> closedTrades(String account,String request,String from,String through,String zone,int limit,String cursor,boolean policy)throws Exception {
+        synchronized(locks.computeIfAbsent(account,k->new Object())) {
+            return ClosedTradeReport.project(source(account,request,policy&&cursor==null),from,through,zone,limit,cursor,policy,clock.instant(),json);
+        }
+    }
+
     /** Pure retained-source query: never invokes brokerage acquisition, even when read-through is enabled. */
     public Map<String,Object> retained(String account,String request,String symbol,String from,String through,int limit,String cursor)throws Exception {
         return retained(account,request,symbol,from,through,limit,cursor,false);
     }
     public Map<String,Object> retained(String account,String request,String symbol,String from,String through,int limit,String cursor,boolean descending)throws Exception {
+        return bounded(account,request,symbol,from,through,limit,cursor,descending,false);
+    }
+    public Map<String,Object> bounded(String account,String request,String symbol,String from,String through,int limit,String cursor,boolean descending,boolean policy)throws Exception {
         synchronized(locks.computeIfAbsent(account,k->new Object())) {
-            var binding=accounts.get(account).orElseThrow();
-            var result=binding.brokerAssociation().broker().equals("FIDELITY")?readFidelity(binding,request):
-                    binding.brokerAssociation().broker().equals("TASTYTRADE")?representation(account,request,false):null;
-            if(result==null)throw new UnsupportedOperationException();
+            var result=source(account,request,policy&&cursor==null);
             @SuppressWarnings("unchecked") var rows=(List<Map<String,Object>>)result.get("transactions");
             var selected=new ArrayList<>(rows.stream().filter(row->symbol==null||symbol.equals(row.get("symbol")))
                     .filter(row->from==null||row.get("transactionDate")!=null&&from.compareTo((String)row.get("transactionDate"))<=0)
                     .filter(row->through==null||row.get("transactionDate")!=null&&through.compareTo((String)row.get("transactionDate"))>=0).toList());
             if(descending)Collections.reverse(selected);
-            String signature=BrokerageArtifacts.sha(json.writeValueAsBytes(List.of(account,Objects.toString(symbol,""),Objects.toString(from,""),Objects.toString(through,""),limit,descending,selected)));
+            String signature=BrokerageArtifacts.sha(json.writeValueAsBytes(List.of(account,Objects.toString(symbol,""),Objects.toString(from,""),Objects.toString(through,""),limit,descending,policy,selected)));
             int offset=0;
             if(cursor!=null) {
                 try {
@@ -77,11 +96,11 @@ public class TransactionHistory {
             }
             int end=Math.min(offset+limit,selected.size());
             result.put("transactions",selected.subList(offset,end));result.put("recordCount",end-offset);
-            result.put("queryMode","RETAINED_ONLY");result.put("matchedRecordCount",selected.size());
+            result.put("queryMode",policy?"POLICY":"RETAINED_ONLY");result.put("matchedRecordCount",selected.size());
             result.put("pageComplete",end==selected.size());
             result.put("nextCursor",end==selected.size()?null:Base64.getUrlEncoder().withoutPadding().encodeToString((signature+":"+end).getBytes(StandardCharsets.UTF_8)));
             var selection=new LinkedHashMap<String,Object>();selection.put("symbol",symbol);selection.put("from",from);selection.put("through",through);selection.put("limit",limit);selection.put("order",descending?"desc":"asc");result.put("selection",selection);
-            result.put("qualification","Retained transaction observations only; no provider refresh. Page completeness is not lifetime brokerage completeness. Source actions, gross reported value, net cash and fees remain distinct. Matching a symbol does not associate an opening occurrence with a currently held construction. Fidelity identity is row equivalence, not broker-event identity. Missing evidence is not zero premium.");
+            result.put("qualification",(policy?"Backend-policy read-through; acquisition obeys existing enabled/reuse policy and grants. ":"Retained transaction observations only; no provider refresh. ")+"Page completeness is not lifetime brokerage completeness. Source actions, gross reported value, net cash and fees remain distinct. Matching a symbol does not associate an opening occurrence with a currently held construction. Fidelity identity is row equivalence, not broker-event identity. Missing evidence is not zero premium.");
             return result;
         }
     }

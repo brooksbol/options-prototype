@@ -137,7 +137,7 @@ test('filtered option inventory preserves backend rows/counts and per-Account de
 test('transaction transport requests bounded retained evidence only and preserves distinct source financial fields',async()=>{
  const {inspectTransactions}=await import('./transactions.mjs');const id='acct_'+'a'.repeat(32);const paths=[];
  const data={requestId,accountId:id,queryMode:'RETAINED_ONLY',pageComplete:false,nextCursor:'opaque',transactions:[{accountId:id,symbol:'FIXTURE',value:'100.23',netCash:'99.11',commission:'-1.12'}]};
- const result=await inspectTransactions({account:'fixture',symbol:'FIXTURE',limit:1},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data));}});
+ const result=await inspectTransactions({account:'fixture',symbol:'FIXTURE',limit:1,mode:'retained'},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data));}});
  assert.equal(paths[1],'/v2/accounts/'+id+'/transactions?mode=retained&limit=1&order=desc&symbol=FIXTURE');assert.deepEqual(JSON.parse(result.content[0].text).evidence.transactions,data);
 });
 
@@ -152,4 +152,12 @@ test('portfolio inventory mode remains all-Account and uses the bounded option r
 test('transaction model-boundary row budget rejects oversized requests before any backend read',async()=>{
  const {inspectTransactions}=await import('./transactions.mjs');
  await assert.rejects(inspectTransactions({account:'fixture',limit:100},{...config,fetchImpl(){throw new Error('Unexpected backend read');}}),/bounded to25/);
+});
+
+test('policy execution view is period/Account bound, carries native backend grouping and requests no raw ledger',async()=>{
+ const{inspectTransactions}=await import('./transactions.mjs');const id='acct_'+'a'.repeat(32);const paths=[];
+ const data={requestId,accountId:id,queryMode:'POLICY',view:'execution-groups',period:{from:'2026-10-29',through:'2026-10-29',timeZone:'America/Denver'},groups:[{classification:'CLOSING'}],pageComplete:true,nextCursor:null};
+ const result=await inspectTransactions({account:'fixture',view:'execution-groups',from:'2026-10-29',through:'2026-10-29',timeZone:'America/Denver'},{...config,fetchImpl:async url=>{paths.push(url.pathname+url.search);return response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data));}});
+ assert.match(paths[1],/mode=policy/);assert.match(paths[1],/view=execution-groups/);assert.doesNotMatch(paths[1],/order=/);assert.deepEqual(JSON.parse(result.content[0].text).evidence.executions,data);
+ data.period.timeZone='America/New_York';await assert.rejects(inspectTransactions({account:'fixture',view:'execution-groups',from:'2026-10-29',through:'2026-10-29',timeZone:'America/Denver'},{...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'fixture'}]}:data))}));
 });
