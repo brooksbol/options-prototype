@@ -245,5 +245,25 @@
   },
   "protectedPayloadsIncluded": false,
   "grantsChanged": false,
-  "policiesChanged": false
+  "policiesChanged": false,
+  "priorSubmission": {
+    "source": "405d2cbf4c436ad7526451f41492e7fccab51643",
+    "disposition": "REJECT",
+    "reviewSha256": "4ae239b757a0eec5861ec88565f3d60845665cb1d48d277a571a10f203773f4d"
+  },
+  "correctionVerification": {
+    "backend": 406,
+    "backendSkipped": 1,
+    "failures": 0,
+    "partialAllocationClosed": true,
+    "missingTriggerIncomplete": true,
+    "realRows": 4,
+    "linkedOrdersValidated": 35,
+    "currentOpeningStillUnknown": true,
+    "currentHoldingsAcquisition": {
+      "operation": "existing_authorized_tt1_holdings_acquisition",
+      "httpStatus": 200,
+      "outcome": "ACCEPTED"
+    }
+  }
 }

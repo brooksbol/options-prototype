@@ -34,4 +34,9 @@ class PortfolioComplexOrderEvidenceTest {
    for(var child:group.path("orders")){var doc=repo.list(Kind.ORDER,Set.of(account)).stream().filter(o->o.sourceKey().equals(child.path("id").asText())).findFirst();if(doc.isEmpty())continue;assertThat(doc.get().value().at("/brokerGroupStructure/triggerOrder/href").asText()).isEqualTo(trigger.get().uri());assertThat(doc.get().value().at("/brokerGroupStructure/role").asText()).isEqualTo("CHILD");}
   }assertThat(triggers).isPositive();
  }
+ @Test void absentOtocoTriggerIsExplicitlyIncompleteAndOcoTriggerIsUnsupported()throws Exception{
+  var groups=fixture.path("complexOrders").deepCopy();for(var g:groups)if(g.path("type").asText().equals("OTOCO"))((ObjectNode)g).remove("trigger-order");admit(groups);
+  for(var o:repo.list(Kind.ORDER,Set.of(account)))if(o.value().at("/brokerGroupStructure/type").asText().equals("OTOCO")){assertThat(o.value().at("/brokerGroupStructure/status").asText()).isEqualTo("INCOMPLETE");assertThat(o.value().at("/brokerGroupStructure/missingMemberCount").asInt()).isGreaterThanOrEqualTo(1);assertThat(o.value().at("/brokerGroupStructure/triggerOrder").isNull()).isTrue();assertThat(o.value().path("associations")).isEmpty();}
+  var bad=fixture.path("complexOrders").deepCopy();for(var g:bad)if(g.path("type").asText().equals("OTOCO")){((ObjectNode)g).put("type","OCO");break;}var before=repo.list(Kind.ORDER,Set.of(account));assertThatThrownBy(()->admit(bad)).hasMessageContaining("OCO cannot");assertThat(repo.list(Kind.ORDER,Set.of(account))).isEqualTo(before);
+ }
 }

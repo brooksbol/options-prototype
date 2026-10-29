@@ -19,6 +19,7 @@ public final class PortfolioComplexOrderEvidence {
   var pending=new ArrayList<Document>();int index=0;var seen=new HashSet<String>();
   for(var group:root.at("/data/items")){
    String id=group.path("id").asText();if(id.isBlank()||!group.path("account-number").asText().equals(scope)||!Set.of("OCO","OTOCO").contains(group.path("type").asText())||!group.path("orders").isArray())throw new IllegalArgumentException("unsupported complex group");
+   if(group.path("type").asText().equals("OCO")&&group.path("trigger-order").isObject())throw new IllegalArgumentException("OCO cannot report a trigger");
    var children=new ArrayList<JsonNode>();group.path("orders").forEach(children::add);if(group.path("trigger-order").isObject())children.add(group.path("trigger-order"));
    for(var child:children){String childId=child.path("id").asText();if(childId.isBlank()||!child.path("account-number").asText().equals(scope)||!seen.add(childId))throw new IllegalArgumentException("ambiguous complex child scope");
     String uri="/v2/orders/"+UUID.nameUUIDFromBytes((account.id()+":TASTYTRADE:order:"+childId).getBytes(java.nio.charset.StandardCharsets.UTF_8));var document=repo.get(connection,uri);if(document.isEmpty())continue;var order=document.get();if(order.kind()!=Kind.ORDER||!Objects.equals(order.account(),account.id()))throw new IllegalArgumentException("complex child target scope");
@@ -30,7 +31,7 @@ public final class PortfolioComplexOrderEvidence {
      var members=array();int missing=0;
      for(var component:group.path("orders")){String member=orderUri(account.id(),component.path("id").asText());if(repo.get(connection,member).filter(d->d.kind()==Kind.ORDER&&Objects.equals(d.account(),account.id())).isPresent())members.add(link(member));else missing++;}
      structure.set("childOrders",members);String triggerId=group.path("trigger-order").path("id").asText();
-     if(triggerId.isBlank())structure.putNull("triggerOrder");else{String trigger=orderUri(account.id(),triggerId);if(repo.get(connection,trigger).filter(d->d.kind()==Kind.ORDER&&Objects.equals(d.account(),account.id())).isPresent())structure.set("triggerOrder",link(trigger));else{structure.putNull("triggerOrder");missing++;}}
+     if(triggerId.isBlank()){structure.putNull("triggerOrder");if(group.path("type").asText().equals("OTOCO"))missing++;}else{String trigger=orderUri(account.id(),triggerId);if(repo.get(connection,trigger).filter(d->d.kind()==Kind.ORDER&&Objects.equals(d.account(),account.id())).isPresent())structure.set("triggerOrder",link(trigger));else{structure.putNull("triggerOrder");missing++;}}
      structure.put("missingMemberCount",missing).put("status",!agrees?"CONFLICT":missing==0?"QUALIFIED":"INCOMPLETE");
      structure.put("qualification","Native historical instruction relationship only. Not current-held origin, governance, uninterrupted custody, reservation or execution guarantee.");value.set("brokerGroupStructure",structure);
     }

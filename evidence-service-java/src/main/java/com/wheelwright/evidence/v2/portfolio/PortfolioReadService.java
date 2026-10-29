@@ -95,7 +95,7 @@ public final class PortfolioReadService {
   if(d.kind()==Kind.POSITION){n.set("orders",link("/v2/orders?positionId="+n.path("id").asText()));var c=repo.get(n.at("/currentConstruction/href").asText()).orElseThrow();var observations=observations(d.account(),now,context);
    n.set("evaluation",PortfolioMath.evaluate(c.value(),observations,now));if(d.value().at("/evaluation/historicalMarketValue").isObject())((ObjectNode)n.get("evaluation")).set("historicalMarketValue",d.value().at("/evaluation/historicalMarketValue").deepCopy());PortfolioOrderEvaluation.apply(n,c.value(),orders(d.account(),context),now,orderArtifacts(d.account(),context));if(p.hasGrant("account.orders.read:"+d.account()))for(var sourceWarning:sourceWarnings(d.account(),context)){((ObjectNode)sourceWarning).set("affected",array().add("/evaluation/management"));((ArrayNode)n.path("warnings")).add(sourceWarning);}if(d.value().at("/evaluation/economicComparison").isObject()){
     var retained=d.value().at("/evaluation/economicComparison");var original=repo.get(retained.at("/original/construction/href").asText());if(original.isPresent()&&Objects.equals(original.get().account(),d.account())&&original.get().value().path("position").equals(c.value().path("position")))((ObjectNode)n.get("evaluation")).set("economicComparison",PortfolioEconomicHistory.compare(original.get().value(),c.value(),retained.path("cumulative"),now));else ((ArrayNode)n.get("warnings")).add(warning("HISTORY_INCOMPLETE","/evaluation/economicComparison","Current constituent facts remain inspectable.","Retained original terms do not resolve in this Position and Account scope."));
-   }if(!n.path("state").asText().equals("CLOSED"))propagate(n,reconciliation(d.account(),now,context));PortfolioCurrentExposure.qualifyEvaluation(n,now);PortfolioSources.qualify(n);
+   }if(!n.path("state").asText().equals("CLOSED"))propagate(n,reconciliation(d.account(),now,context),c.value());PortfolioCurrentExposure.qualifyEvaluation(n,now);PortfolioSources.qualify(n);
   }
   if(d.kind()==Kind.CONSTRUCTION){var parent=repo.get(n.at("/position/href").asText());if(parent.isPresent()&&parent.get().value().at("/currentConstruction/href").asText().equals(d.uri())&&!parent.get().value().path("state").asText().equals("CLOSED"))qualifyConstruction(n,reconciliation(d.account(),now,context));}
   if(d.kind()==Kind.MARKET_OBSERVATION)n=PortfolioSessionEvidence.qualify(n,now,d.account()==null?Optional.empty():PortfolioSessionEvidence.read(repo,d.account(),now));
@@ -144,11 +144,13 @@ public final class PortfolioReadService {
  }
  public ObjectNode reconciliation(String account,Instant now)throws Exception{return new PortfolioReconciliation(repo).calculate(account,now);}
  /** Global contradictions qualify affected results without deleting broker-reported facts. */
- static void propagate(ObjectNode position,ObjectNode reconciliation){
+ static void propagate(ObjectNode position,ObjectNode reconciliation,JsonNode constructionValue){
   String uri=position.at("/self/href").asText(),construction=position.at("/currentConstruction/href").asText();var affected=array();String code=null;
   for(var balance:reconciliation.path("balances"))if(Set.of("OVERALLOCATED","UNKNOWN").contains(balance.path("status").asText()))for(var c:balance.path("currentConstructions"))if(c.path("href").asText().equals(construction)){affectedHolding(affected,balance.at("/inventory/holding/href").asText());code=balance.path("status").asText().equals("OVERALLOCATED")?"INVENTORY_OVERALLOCATED":"HOLDING_RECONCILIATION_CONFLICT";}
   boolean represented=false;for(var balance:reconciliation.path("balances"))for(var current:balance.path("currentConstructions"))if(current.path("href").asText().equals(construction))represented=true;
-  if(code==null&&!represented)code="HOLDING_RECONCILIATION_CONFLICT";
+  var resolvedHoldings=new HashSet<String>();for(var balance:reconciliation.path("balances"))for(var current:balance.path("currentConstructions"))if(current.path("href").asText().equals(construction))resolvedHoldings.add(balance.at("/inventory/holding/href").asText());
+  boolean completeAllocation=true;for(var leaf:leaves(constructionValue.path("composition"))){String holding=leaf.at("/allocation/holding/href").asText();if(holding.isBlank()||!resolvedHoldings.contains(holding)){completeAllocation=false;affectedHolding(affected,holding);}}
+  if(code==null&&(!represented||!completeAllocation))code="HOLDING_RECONCILIATION_CONFLICT";
   // Conservation and fungible support are different predicates. Coverage is not an
   // input to contract geometry, source marks, attributed entry or instruction dates.
   if(code==null){
