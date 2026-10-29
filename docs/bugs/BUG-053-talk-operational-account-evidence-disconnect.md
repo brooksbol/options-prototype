@@ -71,3 +71,7 @@ The real backend accepted and retained the explicitly requested holdings acquisi
 ## October29 installed bounded correction verified
 
 Independently accepted opaque snapshot/cursor corrections installed atbf6fecea. Real SDK refresh returns ACCEPTED, natural exact Position detail succeeds, and all3authorized Accounts are included in inventory. No grant expansion. Full Order/market tactical parity and qualified opening associations remain blocked; broader defect stays Open pending acceptance.
+
+## Principal-approved tt1 acquisition: real remaining semantic gap
+
+Approved tt1 Order/Account-market plus global market scope and300/30request-triggered policies are active. Ordinary installed SDK requests retain real sources with no explicit Refresh tool; current4packages reconcile. Same-originals real-source replay of actual tt-live domain/v2 agrees SPY/QQQ/UNG membership, spot/source clock and remaining DTE. V2 still lacks an established held-opening occurrence; its full-short-put aggregate cash coverage propagates CONFLICT to payoff/range/progress/checkpoints even with qualified standard option terms and quotes. This is now a demonstrated backend association/dependency gap, not missing provider integration or denied permissions. Transportcold-read5second failure corrected in separately independently accepted shared40second budget. Broader defect remains Open; no fabricated CSP/margin/origin semantics or financial parity acceptance. See activation receipt/machine evidence in existing workspace-interactions review.

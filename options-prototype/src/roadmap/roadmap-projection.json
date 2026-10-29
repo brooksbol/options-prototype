@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-29T20:17:38.912Z",
+    "generatedAt": "2026-10-29T20:55:15.226Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11723,6 +11723,13 @@
           "level": 2,
           "content": "Independently accepted opaque snapshot/cursor corrections installed atbf6fecea. Real SDK refresh returns ACCEPTED, natural exact Position detail succeeds, and all3authorized Accounts are included in inventory. No grant expansion. Full Order/market tactical parity and qualified opening associations remain blocked; broader defect stays Open pending acceptance.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal-approved tt1 acquisition: real remaining semantic gap",
+          "level": 2,
+          "content": "Approved tt1 Order/Account-market plus global market scope and300/30request-triggered policies are active. Ordinary installed SDK requests retain real sources with no explicit Refresh tool; current4packages reconcile. Same-originals real-source replay of actual tt-live domain/v2 agrees SPY/QQQ/UNG membership, spot/source clock and remaining DTE. V2 still lacks an established held-opening occurrence; its full-short-put aggregate cash coverage propagates CONFLICT to payoff/range/progress/checkpoints even with qualified standard option terms and quotes. This is now a demonstrated backend association/dependency gap, not missing provider integration or denied permissions. Transportcold-read5second failure corrected in separately independently accepted shared40second budget. Broader defect remains Open; no fabricated CSP/margin/origin semantics or financial parity acceptance.",
+          "truncated": true,
           "tables": []
         }
       ]
