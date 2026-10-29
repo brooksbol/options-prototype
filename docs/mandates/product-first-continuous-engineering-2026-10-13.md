@@ -35,3 +35,29 @@ Engineering proceeds continuously within actual delegated authority. Proof check
 **Operational interpretation (actor inference, not additional Principal quotation):** Begin with the *simplest genuinely executable end-to-end “hello world”* that establishes basic wiring, boundaries, feedback, and observable behavior, before adding domain complexity. A hello world can prove connectivity or execution flow; **it does not prove** business-semantic correctness, authorization, privacy isolation, fitness, acceptance, or readiness for deployment. Increase scope only when the next question or falsifier requires it. Where even a hello world would cause protected changes or disclosure, authorization and safety constraints still apply.
 
 **Reconciliation and recoverability:** Applies under the existing Product-first, reuse-first, early-observation and proof-carrying engineering guidance. Future actor bootstraps must recover this through the engineering mandate, rather than treating the phrase as a special-case PL-MCP-01 specification. Associated PL-MCP-01 discovery is merely one application. No new execution or implementation authorization is created by recording this clarification.
+
+
+## Principal clarification — trading operations continue while Product evolves (October 29, 2026)
+
+**Principal exact statements (October 29, 2026):**
+
+> "the real tension is between day to day tactical needs and building a durable product"
+>
+> "i make trades every day. i will do that with hacked together command line tools but i'd rather do that with a fully functional product. evolving from one to the other is the ongoing activity that should go on above the day to day tactical needs. i have a monthly income obligation. that doesn't go away just because i want architectural goodness"
+>
+> "it's ok if the work we're doing is reusable."
+
+**Product operating direction:** Daily trading is the Principal's continuing operational activity, not an engineering milestone or a dependency on unfinished Talk functionality. Product engineering continuously evolves those existing working workflows into an integrated, durable Wheelwright Product. The Principal's income obligation does not pause for architecture or engineering. This is a constraint on engineering prioritization and delivery, **not** an instruction to force trades, override risk/WAIT decisions, or relax authorization, evidence quality or financial semantics.
+
+**Reconciliation with existing Product-first mandate (engineering interpretation, not a new Principal quotation):**
+
+- Protect currently working tactical/broker/CLI procedures during Product development. Do not require the Principal to wait for parity before continuing ordinary trading; do not alter or retire a working tool until its replacement has demonstrable operator acceptance.
+- Let actual trading operations supply Product specimens, capability gaps and priorities. Reconcile them through existing canonical intake/defect/authority mechanisms rather than creating a parallel backlog.
+- Prefer vertical increments that improve a real operator workflow **and** leave behind reusable governed domain capabilities. When an increment is infrastructure-only or presentation-only, make that distinction explicit; do not manufacture a second financial engine to claim reuse.
+- Evaluate delivery on two separate axes: (1) immediate tactical operator value, and (2) durable financial meaning reusable by other clients. Do not call API/tool success alone Product acceptance, and do not require full historical accounting proof for independent tactical facts where governing contracts admit them.
+- Financial certainty remains explicit: distinguish broker-reported facts, qualified operational estimates and established continuity/accounting results; new estimate semantics require appropriate Product decisions.
+- Protect the standing daily operating workflow and monthly income context without turning financial pressure into mandatory deployment, greater risk, or unauthorized broker execution. WAIT remains a legitimate outcome.
+
+**Codex/engineering handoff:** Recover this clarification at every relevant Wheelwright Product/architecture bootstrap. Interpret the ongoing work as progressive migration of proven daily trading workflows into reusable Wheelwright capabilities—**operate every day; improve continuously; replace only when accepted as better**. Use accepted `tt live`, v1 Deployment, brokerage execution evidence and real Talk sessions as precedents. Continue ordinary authorized engineering without repeated Principal interruptions; reserve consequential grants, deployment, credentials, acquisition-policy changes, trading and unresolved Product semantic choices for their existing authority boundaries.
+
+**Standing and limits:** This preserves an explicit Principal Product direction within the existing mandate. It does not itself authorize a new implementation workstream, deployment, grant change, acquisition, brokerage trade, or acceptance of financial inference. Reconcile against current higher-precedence Product authority if a conflict arises.
