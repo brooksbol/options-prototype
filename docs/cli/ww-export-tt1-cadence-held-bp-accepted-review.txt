@@ -1,0 +1,19 @@
+**ACCEPT** — candidate `2b7e2eb822f4c6c4b4edd3efadfca400ef4f8db8`, bounded to corrections relative to `27f257fb3b23f8e629717aef21193e08adba27e1`.
+
+Recovered bootstrap and the exact prior rejection. No reproducible invariant failures remain within scope:
+
+- Overlapping sibling ownership prevents allocation, including opposite-signed cancellation with matching totals.
+- Missing, invalid, future or prior-date component clocks prevent qualification. Causal ordering and New York date boundaries pass; intraday freshness remains explicitly unguaranteed.
+- Only USD establishes currency compatibility.
+- Missing money remains unknown; genuine zero requirements and verified empty inventory remain valid.
+- No side-effect route was added. Collector/exporter routing is unchanged; no simulation or order mutation was introduced.
+
+Verification: **11 selected in-memory tests and 67 additional synthetic cases passed**. Candidate identity remained unchanged and the worktree clean.
+
+Limits: the initially selected ZIP test stopped at sandbox `mkdtemp` EPERM before assertions. The implementer-reported full 25-test/private regression pass was not independently repeated. Remote-main synchronization failed on GitHub DNS. No private configuration/finance reads, provider calls, successful file writes or installation occurred.
+
+CURRENT STATE: Candidate 2b7e2eb independently ACCEPTED within the bounded re-review scope; not installed.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE
