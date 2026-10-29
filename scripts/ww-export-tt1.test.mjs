@@ -173,3 +173,26 @@ test('missing brokerage evidence remains unavailable, not a flat-account zero',a
  assert.equal(result.manifest.counts.positions,null);assert.equal(result.manifest.counts.heldLegs,null);assert.match(result.summary,/Positions: unavailable/);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
+
+test('P50 probability remains unavailable per exact projected structure, distinct from closing debit, orders, POP and delta',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'tt1-p50-separation-'));
+ try{
+  const positions=[
+   {underlying:'AAA',expiry:'2026-12-11T21:00:00Z',credit:.65,target:.325,p50:true,p50Probability:87,pop:.87,delta:-.25,legs:[{symbol:'AAA-short'},{symbol:'AAA-long'}]},
+   {underlying:'BBB',expiry:'2026-12-18T21:00:00Z',credit:2.41,target:1,p50:false,legs:[{symbol:'BBB-short'},{symbol:'BBB-long'}]},
+   {underlying:'AAA',expiry:'2026-11-27T21:00:00Z',credit:null,target:.5,p50:true,legs:[{symbol:'AAA-other-expiry'}]},
+   {underlying:'ZERO',expiry:'2026-12-11T21:00:00Z',credit:0,target:0,p50:true}
+  ];
+  const result=await exportCadence({base:'http://localhost:9999',token:'synthetic-token',now,downloads:dir,fetchImpl:httpFixture().fetchImpl,brokerRead:async()=>({reads:[],projection:{positions},failures:[]}),sourceRevision:'synthetic-p50'});
+  const files=await unzip(result.path),account=JSON.parse(files['tt1-account-positions-orders.json']),coverage=JSON.parse(files['evidence-coverage.json']);
+  assert.equal(account.derivedPositions.length,4);
+  for(const [i,p] of account.derivedPositions.entries()){
+   assert.equal(p.underlying,positions[i].underlying);assert.equal(p.expiry,positions[i].expiry);assert.deepEqual(p.legs,positions[i].legs);
+   assert.equal(p.p50Probability,null);assert.equal(p.p50ProbabilityEvidence.status,'NOT_AVAILABLE');assert.equal(p.p50ProbabilityEvidence.unit,'PERCENT_0_TO_100');assert.equal(p.p50ProbabilityEvidence.source,null);assert.equal(p.p50ProbabilityEvidence.observedAt,null);
+   assert.equal(p.p50ClosingDebit,p.p50Objective.closingDebitPerShare);assert.equal(p.target,positions[i].target);assert.equal(p.credit,positions[i].credit);assert.equal(p.p50,positions[i].p50);
+  }
+  assert.deepEqual(account.derivedPositions.map(p=>p.p50ClosingDebit),[.325,1.205,null,0]);
+  assert.equal(account.derivedPositions[0].p50Objective.workingTargetMatches,true);assert.equal(account.derivedPositions[1].p50Objective.workingTargetMatches,false);assert.equal(account.derivedPositions[2].p50Objective.workingTargetMatches,null);
+  assert.ok(coverage.missing.some(x=>x.includes('P50 probability unavailable')));
+ }finally{await rm(dir,{recursive:true,force:true});}
+});
