@@ -589,5 +589,47 @@
       "talkAndCli": 65,
       "oas": 8
     }
+  },
+  "finalDisposition": {
+    "review": "ACCEPT within bounded source scope",
+    "source": "97c943a2661695a6d50b1dbbca40c56b8520310a",
+    "reviewSha256": "64122d5ef1c3becaeba5e2aa940884bcd062235ea4cab8b11fa2d48e5f5ff596",
+    "preview": {
+      "url": "http://127.0.0.1:8816",
+      "source": "97c943a2661695a6d50b1dbbca40c56b8520310a",
+      "standing": "RETAINED_COPY_CANDIDATE_NOT_PRODUCTION",
+      "providerAcquisitionEnabled": false,
+      "productionWritten": false,
+      "grantsLiveReadOnly": true
+    },
+    "sourceClockChecks": {
+      "spotSourceClockExactlyEqual": true,
+      "oldestMaterialSourceClockExactlyEqual": true,
+      "sourceSnapshotExactlyEqual": true
+    },
+    "preservation": {
+      "productionServicePids": [
+        77120,
+        77121,
+        87839,
+        87851
+      ],
+      "credentialFilesUnchanged": true,
+      "grantsAndPoliciesUnchanged": true,
+      "installedJarUnchanged": true,
+      "rootClean": true,
+      "mainAtVerification": "b67ff4493db8bb9f8a31f00e790aa0c44d8f608f",
+      "rootRevision": "f88a66664f71de081e8fc3916f5a7507e3ee3e51"
+    },
+    "metrics": {
+      "timeToIndependentAcceptedResultSeconds": 978,
+      "elapsedSecondsToFinalReceipt": 1032,
+      "installedOperatorDemonstration": false,
+      "candidatePreviewReady": true,
+      "mainMerged": false,
+      "productionDeployed": false,
+      "firstWorkingRealBackendCliSeconds": 279
+    },
+    "principalAcceptance": false
   }
 }

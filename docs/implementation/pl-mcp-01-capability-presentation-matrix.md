@@ -90,3 +90,5 @@ Deliberate Position/bracket details remain large (80,222/84,173normalized result
 ## Shared exact tactical candidate — October29
 
 Existing Java calculation/compact DTO now consumed by an engineer-only direct HTTP CLI and actual SDK/MCP selected view. Unchanged native web geometry/DTE/spot/degraded rendering passes actual-result replay; CLI prints metrics/clocks without economic arithmetic. Same retained QQQ vertical, all4structures retained; current origin/basis-dependent economics unknown. No installed replacement/Principal acceptance; installed financial algorithms removed:0. [Receipt](../reviews/sdk-talk-shared-tactical-result-2026-10-29.md).
+
+Shared exact tactical increment: independently ACCEPTed source97c943a2, two real-retained consumers verified; compact6705byte exact DTO versus72225expanded, actualSDKwrapper8086. Native candidate8816 available with no broker refresh. Source warnings/range regressions corrected; production8787 and installedCLI unchanged. GateA candidate useful/pendingPrincipal; GateB governed reuse demonstrated; full economic parity remains open.
