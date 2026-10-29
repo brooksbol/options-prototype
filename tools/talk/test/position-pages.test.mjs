@@ -41,3 +41,9 @@ test('expanded detail is explicit and continuation cannot change projection or e
  assert.equal(new URL(c.paths[1],c.base).searchParams.get('include'),'currentConstruction,holdingSummaries');
  await assert.rejects(inspectPositions({account:'fixture'},config({href:'/v2/positions?accountId='+id+'&projection=expanded&limit=5&cursor=x'})),/changed selectors/);
 });
+
+test('request-triggered monitoring allows bounded cold acquisition beyond the old five-second read budget',async()=>{
+ const c=config(null);const original=c.fetchImpl;c.fetchImpl=async(url,init)=>{if(url.pathname==='/v2/positions')await import('node:timers/promises').then(({setTimeout})=>setTimeout(5500,undefined,{signal:init.signal}));return original(url,init);};
+ const r=await inspectPositions({account:'fixture'},c);assert.equal(r.isError,undefined);assert.equal(c.paths.length,2);
+ const short=config(null),transport=short.fetchImpl;short.timeoutMs=10;short.fetchImpl=async(url,init)=>{if(url.pathname==='/v2/positions')await import('node:timers/promises').then(({setTimeout})=>setTimeout(100,undefined,{signal:init.signal}));return transport(url,init);};await assert.rejects(inspectPositions({account:'fixture'},short),/abort/i);
+});

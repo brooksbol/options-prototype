@@ -20,7 +20,7 @@ export async function inspectPositions({ account, state, cursor, projection = 't
   if(!includeInactive&&state===undefined)query.set('exposureStatus','OBSERVED,UNKNOWN,RETAINED,UNRECORDED_NONCLOSED');
   if (state !== undefined) query.set('state', state);
   if (cursor !== undefined) query.set('cursor', cursor);
-  const result = await readBackend('/v2/positions?' + query, config);
+  const result = await readBackend('/v2/positions?' + query, {timeoutMs:40000,...config});
   if (result.error) return problemResult(result.error);
   if (!Array.isArray(result.data?.items) || result.data.items.some(item => !UUID.test(item.id ?? '') ||
       item.account?.href !== '/v2/accounts/' + selected.id)) throw new Error('Invalid Position scope.');
@@ -47,10 +47,10 @@ export async function inspectPositionDetails({account,positionId},config){
  const inventory=await readBackend('/v2/accounts',config);if(inventory.error)return problemResult(inventory.error);
  if(inventory.data?.requestId!==inventory.requestId||!Array.isArray(inventory.data.accounts))throw new Error('Invalid Account discovery.');
  const matches=inventory.data.accounts.filter(a=>a.alias===account);if(matches.length!==1||!canonicalAccountId(matches[0].id))return {isError:true,content:[{type:'text',text:'Exact authorized Account nickname required.'}]};
- const selected=matches[0],path='/v2/positions/'+positionId,result=await readBackend(path,config);if(result.error)return problemResult(result.error,account);
+ const selected=matches[0],path='/v2/positions/'+positionId,result=await readBackend(path,{timeoutMs:40000,...config});if(result.error)return problemResult(result.error,account);
  if(result.data?.self?.href!==path||result.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Position detail scope.');
  const href=result.data.currentConstruction?.href;if(typeof href!=='string'||!href.startsWith('/v2/constructions/')||!UUID.test(href.slice('/v2/constructions/'.length)))throw new Error('Invalid Construction reference.');
- const construction=await readBackend(href,config);if(construction.error)return problemResult(construction.error,account);
+ const construction=await readBackend(href,{timeoutMs:40000,...config});if(construction.error)return problemResult(construction.error,account);
  if(construction.data?.self?.href!==href||construction.data.position?.href!==path||construction.data.account?.href!=='/v2/accounts/'+selected.id)throw new Error('Invalid Construction detail scope.');
  return {content:[{type:'text',text:JSON.stringify({requestId:result.requestId,account:{nickname:selected.alias,broker:selected.brokerAssociation?.broker},evidence:result.data,construction:construction.data,qualification:'Exact selected Position and its current immutable Construction, under backend permissions. Detail is not complete Account history or proof of current custody. Preserve source clocks, unknowns and qualifications.'})}]};
 }
