@@ -56,3 +56,14 @@ Initial author errors: relative test-edit path; malformed multi-user synthetic g
 GateA: useful real retained selected view with much smaller disclosure and native display, pending Principal observation. GateB: same governed DTO/calculation consumed by independent HTTP CLI and existing SDK/MCP, with no duplicate financial arithmetic. Installed CLI calculation paths eliminated:0. Duplication remains until separately accepted migration.
 
 No grants/policies/OAuth/trading, main merge, installed service or unrelated v1 change. Independent review pending; BUG053/ASSIM0002 retain current-origin/broader parity. Next bounded increment after acceptance: integrate compact selected representation under separate deployment authority; investigate admissible reported basis/continuity without universal accounting expansion.
+
+
+## Independent rejection and bounded correction
+
+Frozen aa77b18c independently REJECTed; [immutable review](sdk-talk-independent-shared-tactical-review-2026-10-29.md), SHA2568855cb738aad9ecedcb72517fefb7d1feae08accd78b2d9901efd9344b1142d8. Candidate/worktree/report stay frozen. Independent reviewer reproduced common acquisition warnings outside warningCodes being omitted by CLI (false “None reported”), dropped metric-specific stale warnings, and known vertical half-line rendered as unavailable bound. Identity/default/deadline/unknown/native positive controls passed. No protected data or production activity used by review.
+
+Successorcodex/shared-tactical-result-correction-20261029 preserves all common acquisition codes in the exact tactical warningCodes and detailed warnings. CLI prints provided common/metric warning codes, known ≥/≤ boundaries and material source/calendar clocks. No changed economic calculation, source association, grants or acquisition policy. Regression injects an actual controller acquisition warning and separately tests CLI common/stale warnings and both half-lines.
+
+Actual corrected-source private backend/CLI/SDK replay again passes both consumers,4inventory structures and selected2leg QQQ with unknown entry/progress.9measured backendGETs including setup/expanded comparison; zero provider requests/production writes. Exact6705bytes/expanded72225bytes remain, SDK selected wrapper8086bytes. Native corrected-assets actual-result replay again passes1SVG/2knots/mobile/keyboard/default evidence. Further4SDKrequests/51010input/457output; whole increment includes failed comparison and both candidates:12requests/153006input/1332output. This is measured verification consumption, not project billing. Re-review follows successor freeze.
+
+Successor final author checks:425backend/continuity tests,0failures,1skip;65Talk/CLI tests pass;8OAS checks/39operations pass. Runtime/API calculations/MCP financial mapping remain unchanged except source-warning preservation in exact projection; CLI interpretation corrections have focused regression proof.

@@ -354,14 +354,240 @@
   "measurements": {
     "firstWorkingRealBackendCliSecondsSinceWorktreeCreation": 279,
     "elapsedSecondsSinceWorktreeCreation": 603,
-    "sdkRequests": 8,
-    "sdkInputTokens": 101996,
-    "sdkOutputTokens": 875,
+    "sdkRequests": 12,
+    "sdkInputTokens": 153006,
+    "sdkOutputTokens": 1332,
     "modelBillingCost": null,
     "authorReviewerTokens": null,
     "providerRequests": 0,
     "principalInterruptions": 0,
     "financialCalculationsRemovedFromInstalledCli": 0,
     "demonstratedConsumers": 2
+  },
+  "correctedCandidate": {
+    "sourceFreezePending": false,
+    "priorRejectedSource": "aa77b18c6afdc3ca06eab862aa5c30bc72bab8e7",
+    "independentReportSha256": "8855cb738aad9ecedcb72517fefb7d1feae08accd78b2d9901efd9344b1142d8",
+    "realSdk": {
+      "standing": "REAL_RETAINED_PRIVATE_CANDIDATE_NOT_INSTALLED_ACCEPTANCE",
+      "firstWorkingResultMs": 7915,
+      "elapsedMs": 19895,
+      "actualConsumers": [
+        "engineer CLI direct HTTP",
+        "existing SDK MCP and native renderer result"
+      ],
+      "sameFinancialDtoExceptEvaluationClocks": true,
+      "selectedTwoLegVertical": true,
+      "allCurrentRowsRetained": 4,
+      "geometry": "TERMINAL_VALUE",
+      "entryAndProgressUnknown": true,
+      "providerRequests": 0,
+      "productionWrites": false,
+      "grantsUnchanged": true,
+      "privacy": {
+        "traceExport": false,
+        "state": "local-memory",
+        "providerStorage": false,
+        "remoteCompaction": false
+      },
+      "turns": [
+        {
+          "tools": [
+            {
+              "name": "inspect_account_positions",
+              "view": null
+            }
+          ],
+          "resultBytes": 33301,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 19522,
+            "outputTokens": 309,
+            "totalTokens": 19831,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 5212,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 9092,
+                "cached_tokens": 5212
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 5215,
+                "outputTokens": 20,
+                "totalTokens": 5235,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 5212,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 14307,
+                "outputTokens": 289,
+                "totalTokens": 14596,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 9092,
+                  "cached_tokens": 5212
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          }
+        },
+        {
+          "tools": [
+            {
+              "name": "inspect_position_details",
+              "view": "tactical"
+            }
+          ],
+          "resultBytes": 8086,
+          "usage": {
+            "requests": 2,
+            "inputTokens": 31488,
+            "outputTokens": 148,
+            "totalTokens": 31636,
+            "inputTokensDetails": [
+              {
+                "cache_write_tokens": 14620,
+                "cached_tokens": 0
+              },
+              {
+                "cache_write_tokens": 2242,
+                "cached_tokens": 14620
+              }
+            ],
+            "outputTokensDetails": [
+              {
+                "reasoning_tokens": 0
+              },
+              {
+                "reasoning_tokens": 0
+              }
+            ],
+            "requestUsageEntries": [
+              {
+                "inputTokens": 14623,
+                "outputTokens": 54,
+                "totalTokens": 14677,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 14620,
+                  "cached_tokens": 0
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              },
+              {
+                "inputTokens": 16865,
+                "outputTokens": 94,
+                "totalTokens": 16959,
+                "inputTokensDetails": {
+                  "cache_write_tokens": 2242,
+                  "cached_tokens": 14620
+                },
+                "outputTokensDetails": {
+                  "reasoning_tokens": 0
+                },
+                "endpoint": "responses.create"
+              }
+            ]
+          }
+        }
+      ],
+      "cliResultBytes": 6705,
+      "expandedDetailBytes": 72225,
+      "backendCalls": [
+        {
+          "route": "accounts",
+          "status": 200,
+          "bytes": 458
+        },
+        {
+          "route": "positions",
+          "status": 200,
+          "bytes": 28546
+        },
+        {
+          "route": "exact-position",
+          "status": 200,
+          "bytes": 6705
+        },
+        {
+          "route": "exact-position",
+          "status": 200,
+          "bytes": 46495
+        },
+        {
+          "route": "construction",
+          "status": 200,
+          "bytes": 25730
+        },
+        {
+          "route": "accounts",
+          "status": 200,
+          "bytes": 458
+        },
+        {
+          "route": "positions",
+          "status": 200,
+          "bytes": 28546
+        },
+        {
+          "route": "accounts",
+          "status": 200,
+          "bytes": 458
+        },
+        {
+          "route": "exact-position",
+          "status": 200,
+          "bytes": 6705
+        }
+      ],
+      "rawPayloadsRemainPrivate": true,
+      "principalAcceptance": false
+    },
+    "nativeUiReplay": {
+      "standing": "CANDIDATE_NATIVE_UI_REPLAY_OF_ACTUAL_RETAINED_SDK_RESULT",
+      "selectedStructures": 1,
+      "contractKnots": 2,
+      "nativePayoff": true,
+      "sourceSpotPreserved": true,
+      "noDefaultJson": true,
+      "detailsInitiallyCollapsed": true,
+      "mobileOverflow": false,
+      "keyboardDetails": true,
+      "pageErrors": 0,
+      "modelRequests": 0,
+      "protectedPixelsExported": false,
+      "principalAcceptance": false
+    },
+    "changes": "Preserve common acquisition and metric-specific warnings; preserve known half-line range. No financial-calculation or association-predicate changes.",
+    "tests": {
+      "backend": 425,
+      "backendFailures": 0,
+      "backendSkipped": 1,
+      "talkAndCli": 65,
+      "oas": 8
+    }
   }
 }
