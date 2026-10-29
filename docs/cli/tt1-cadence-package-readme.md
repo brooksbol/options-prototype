@@ -1,0 +1,17 @@
+# TT1 daily cadence evidence
+
+Upload this ZIP to ChatGPT and ask it to resume the TT1 19-session operator experiment, review held positions/exits, compare the observed put verticals and incremental portfolio exposure, and identify a candidate, alternative or WAIT for operator verification.
+
+- market-and-verticals.json: normalized observed puts and every retained lower-strike pair for the experiment's 14 ETF research candidates. Short put signed delta −0.30 to −0.20;38–45 calendar DTE; no width cap or long delta filter. All eligible expirations are preserved, preferred closest to 45 identified. Excluded nonpositive/invalid credits remain visible.
+- symbol-liquidity.csv: the actual v1 Options Market Liquidity observed calculation and shared browser CSV schema, applied to the full snapshot universe with the same 38–45/puts/0.20–0.30 filters. Default table sort, all rows, no symbol/measured-only narrowing. Per-width quoted/listed counts are evidence, not executable vertical quotes.
+- tt1-account-positions-orders.json: separate observed broker reads, existing tt live derived projections, actual fills/orders, P50 and 21-calendar-DTE objectives, and retained/current balances. Opening fills, working orders and fills closing positions are different facts. A GTD expiration does not execute a time exit.
+- evidence-coverage.json: read outcomes, per-source clocks and missing evidence.
+- manifest.json: schema, session/export dates, source generation/revisions, filters, checksums of the other five files and completion status. The manifest does not checksum itself.
+
+Observed facts retain their source fields/clocks. Pair credits, maximum loss and credit/risk are derived. Natural credit=short bid minus long ask. Midpoint credit=short midpoint minus long midpoint. Neither establishes complex-order execution. Candidate dollar values use a CONDITIONAL 100 multiplier: verify actual contract identity, multiplier and deliverable. Fees/assignment complications are excluded. Missing data stays null; normalized v1 zero OI/volume can conceal missing source observations (BUG-055); no invented replacement or grade. Provider Greek-time strings have no assigned timezone. Chain acquisition age is not individual quote age or independently timestamped spot. No new freshness threshold overrides backend admissibility.
+
+Current BP is established only from a same-day timestamped direct broker balance response, never historical retained BP. Reads are non-atomic and BP may change. Verify actual available BP, broker per-position/order BP, contract terms, live complex markets, costs and P50 tick rounding in Tastytrade before deciding. Committed BP must not be subtracted again from available BP.
+
+P50 closes at 50% of original maximum credit; time exit 21 calendar DTE, whichever occurs first. At most one new qualified short put vertical per trading session; WAIT is valid. No trade recommendation or broker instruction is issued by this command. All execution remains operator-controlled.
+
+SPY/QQQ/IWM are not independent downside risks just because tickers differ. No correlation matrix, empirical return expectancy or portfolio risk score is supplied. Quantitative joint-risk analysis requires qualified aligned histories and a separately specified method. Historical XSP research is execution-model-sensitive and does not establish TT1 profitability.

@@ -21,6 +21,8 @@ Account history uses backend policy-bounded read-through with explicit outcomes.
 Acquisition never claims suitability. Pipe commands without a format flag.
 
 Working commands:
+  export tt1-cadence [-v | --verbose]
+      Save a read-only ChatGPT evidence ZIP in ~/Downloads.
   pull [-v | --verbose] [--no-color]
       Update WW with everything so I can start doing stuff.
   history [--account ACCOUNT] [--table | --tsv | --csv | --jsonl] [--verbose]
@@ -229,6 +231,14 @@ export function parseArgs(args) {
   }
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
+  if (command === "export") {
+    if (rest.length===1 && ["--help","-h"].includes(rest[0])) return {command:"export-help"};
+    if (rest[0]!=="tt1-cadence") usage("export: use ww export tt1-cadence");
+    const options=rest.slice(1);
+    if(options.length===1 && ["--help","-h"].includes(options[0])) return {command:"export-help"};
+    if(options.some(a=>!["--verbose","-v"].includes(a)) || options.length>1) usage("export: use ww export tt1-cadence [--verbose]");
+    return {command:"export-tt1",verbose:options.length===1};
+  }
   if (command === "pull") {
     if(rest.length===1&&["--help","-h","--man"].includes(rest[0]))return {command:"command-man",page:"pull"};
     if(rest.some(a=>!['-v','--verbose','--no-color'].includes(a)))usage('pull: see ww pull --help');
@@ -755,8 +765,18 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
-  const usesBackend=['pull','history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices'].includes(parsed.command)&&!parsed.fields;
+  const usesBackend=['pull','history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices','export-tt1'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
+  if(parsed.command==='export-help') {
+    const {EXPORT_HELP}=await import('./ww-export-tt1.mjs');process.stdout.write(EXPORT_HELP+"\n");return;
+  }
+  if(parsed.command==='export-tt1') {
+    const {exportCadence}=await import('./ww-export-tt1.mjs');
+    const result=await exportCadence({base,token:await readApiToken()});
+    process.stdout.write(result.summary);
+    if(parsed.verbose)process.stderr.write(JSON.stringify({sources:result.coverage.sources,failures:result.coverage.failures,missing:result.coverage.missing})+"\n");
+    return;
+  }
   if(parsed.command==='history') {
     const token=await readApiToken();
     if(parsed.account===undefined) {
