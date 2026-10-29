@@ -342,3 +342,8 @@ Shared tactical successor97c943a2 independently ACCEPTed after preserved aa77 wa
 Test1 operator-positive; Test2 compact QQQ scope failed; Test3 exact evidence passed. Authorized bounded correction stays under existing SDK/API/MCP architecture: exact current underlying selection, conversation display scope, generic empty-analysis suppression. [Candidate/real SDK evidence](../reviews/sdk-talk-selection-2026-10-29.md). No new financial semantics, grants/policies, main merge or production deployment.
 
 Selection successorb21404f1 independently ACCEPTed after preserved379 nonempty-code rejection. Existing SQL/MCP/UI scope controls pass independently;426backend1skip/72Node/8OAS author results. Only temporary8816 updated; production/main unchanged. Principal reload/retest pending; [final receipt](../reviews/sdk-talk-selection-2026-10-29.md#independent-acceptance-and-owned-preview-update).
+
+
+### Principal bounded acceptance — October29
+
+Principal confirms corrected8816 three-turn4→QQQonly→4 PASS and accepts shared-result/selection experiment atb21404f1. Record this as bounded Product acceptance, not merely author/reviewer success. Residual empty analysis andCURRENT label scrutiny, plus full economic parity, remain separate open gaps. CURRENT implementation means≤12h policy window (also Open), not live/recent acquisition. Reviewed matching artifact/rollback prepared; main integration/production8787 deployment require the next explicit operational decision. [Acceptance and proposal](../reviews/sdk-talk-selection-2026-10-29.md#principal-bounded-product-acceptance-and-integration-decision).

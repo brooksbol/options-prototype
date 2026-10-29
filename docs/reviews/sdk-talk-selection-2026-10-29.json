@@ -555,6 +555,52 @@
       "productionSource": "b008cbe1",
       "productionChanged": false
     },
-    "principalRetestPending": true
+    "principalRetestPending": false,
+    "principalBoundedAcceptance": true
+  },
+  "principalBoundedAcceptance": {
+    "source": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+    "statement": "Scope-selection behavior accepted in the candidate",
+    "observedCounts": [
+      4,
+      1,
+      4
+    ],
+    "sharedResultExperiment": "OPERATOR_ACCEPTED_BOUNDED",
+    "productionDeployed": false,
+    "residuals": [
+      "Empty analysis tables/headings/bullet lists",
+      "CURRENT quote label semantics",
+      "Opening continuity/economic parity"
+    ],
+    "freshnessFinding": {
+      "implementedCurrentWindowSeconds": 43200,
+      "appliesDuringOpenSession": true,
+      "completedSessionExtensionSeparate": true,
+      "doesNotMeanLiveOrRecentlyAcquired": true,
+      "policyUnchanged": true
+    },
+    "integrationPreparation": {
+      "runtimeSource": "b21404f12b8162c3c54ef9a3d9c498ac490fadb0",
+      "candidateJarSha256": "abf3a1e3fb049bbcef305c15bbe937a33eb8ba27dbe3efb59e219d55fcc6748b",
+      "rollbackJarSha256": "0ce571b376ea0f340979730960982f33d98f1bd26f84eda348e4ee2ba75e9c0b",
+      "currentProductionSource": "b008cbe1",
+      "remoteMainAtPreparation": "b67ff4493db8bb9f8a31f00e790aa0c44d8f608f",
+      "integration": "fast-forward accepted candidate plus receipts, then existing controlled v2/Talk installation",
+      "configurationChanges": [],
+      "plannedServiceRestarts": [
+        "v2 evidence3101",
+        "Talk8787"
+      ],
+      "preserved": [
+        "v1Java3100",
+        "Vite5173",
+        "tt commands",
+        "credentials",
+        "grants",
+        "300/30 acquisition policies"
+      ],
+      "deploymentAuthorized": false
+    }
   }
 }
