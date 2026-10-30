@@ -509,7 +509,8 @@
     "seconds": 6
   },
   "finalActualBrowser": {
-    "source": "b5df719feb80267dae60effe83553c889bad149d",
+    "source": "f6f897e2eff531ed627a88dc42b2b3d07ebeeae2",
+    "financialSdkSource": "b5df719f",
     "standing": "FINAL_ACTUAL_SDK_ONE_QUESTION_AND_REAL_BACKEND_ALL_BROWSER_REPLAY",
     "exactPtsBdryOneCard": true,
     "noSawdustOrTt1InNamedRead": true,
@@ -569,7 +570,7 @@
   },
   "realAll": {
     "status": 200,
-    "seconds": 0.527,
+    "seconds": 0.787,
     "bytes": 98605,
     "accounts": [
       {
@@ -666,5 +667,12 @@
     "providerQuoteAcquisition": "NONE",
     "deployment": "NONE",
     "principalAcceptance": "PENDING"
+  },
+  "presentationSource": "f6f897e2eff531ed627a88dc42b2b3d07ebeeae2",
+  "presentationOverlay": {
+    "independent": "ACCEPT",
+    "reportSha256": "99a6efe91658e189f134420108446e81f16851ffa9dbc17c3e59c11419dc7d68",
+    "nativeSelectionTests": 17,
+    "fullTalkSource": "81 tests before one-line pixel-only overlay; unaffected source and focused overlay tests carry separately"
   }
 }
