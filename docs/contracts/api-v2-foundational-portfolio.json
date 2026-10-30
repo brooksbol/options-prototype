@@ -27331,7 +27331,7 @@
           },
           "spotPoint": {
             "$ref": "#/components/schemas/BoundaryValue",
-            "description": "Backend affine terminal-curve sample at the independently qualified observed underlying spot. Not a current Position market value or P/L. Absent when no qualified compatible spot exists."
+            "description": "Backend affine sample of geometry.valueKind at the independently qualified observed underlying spot. This is a hypothetical expiration value at that price (TERMINAL_VALUE or qualified GROSS_PL), not a current Position mark, executable quote, realized result or exercise outcome. Absent when no qualified compatible spot exists."
           }
         },
         "required": [
