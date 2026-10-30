@@ -1,5 +1,6 @@
 // Narrow standalone-tt adapter. ww never loads brokerage credentials in its process.
 import {main as ttMain, PRODUCTION_BASE_URL, readOrders, readComplexOrders} from './tastytrade.mjs';
+import {acquireCadenceMarket,CADENCE_SYMBOLS} from './tt-cadence-market.mjs';
 import {projectLive} from './tastytrade-live.mjs';
 import {readFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
@@ -15,7 +16,7 @@ async function boundedText(response){
  }finally{reader.releaseLock();}
 }
 
-export async function collectBroker({expectedAccount,allowSingleAccount=false,fetchImpl=fetch,env=process.env,readFile=readFileSync,now=()=>new Date()}={}) {
+export async function collectBroker({expectedAccount,allowSingleAccount=false,cadenceMarket=false,fetchImpl=fetch,env=process.env,readFile=readFileSync,now=()=>new Date()}={}) {
  const reads=[],failures=[],secrets=new Set(),numbers=new Set();let account,token;
  const guarded=async(url,options)=>{
   const u=new URL(url);if(u.origin!==PRODUCTION_BASE_URL||options.redirect!=='error')throw Error('BROKER_ROUTE_DENIED');
@@ -78,10 +79,27 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
    reads.push({path:'/margin/accounts/tt1/requirements',query:'',retrievedAt:now().toISOString(),body});
   }catch{failures.push({source:'broker held margin requirements',code:'HELD_MARGIN_READ_UNAVAILABLE'});}
  }
+ // tt live may skip its session/quote reads when custody is empty. Candidate
+ // discovery must still work for a flat TT1 account through the same GET route.
+ if(cadenceMarket&&account&&token&&!reads.some(r=>r.path==='/market-time/equities/sessions/current'))try{
+  await guarded(`${PRODUCTION_BASE_URL}/market-time/equities/sessions/current`,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`}});
+ }catch{failures.push({source:'candidate market session',code:'SESSION_UNAVAILABLE'});}
  const items=suffix=>reads.filter(r=>r.path.endsWith(suffix)).flatMap(r=>r.body?.data?.items??[]);
  const session=reads.find(r=>r.path==='/market-time/equities/sessions/current')?.body?.data;
  let projection=null;
  if(account&&!code)try{projection=projectLive({account,holdings:items('/positions'),orders:items('/orders'),complexOrders:items('/complex-orders'),quotes:items('/by-type'),now:now(),session,sessionCloseAt:session?.['close-at']});}catch{failures.push({source:'tt live projection',code:'PROJECTION_UNAVAILABLE'});}
+ let marketAcquisition=null;
+ if(cadenceMarket&&account&&token){
+  const date=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(now());
+  try{marketAcquisition=await acquireCadenceMarket({session,sessionDate:date,now,get:async path=>{
+   const u=new URL(path,PRODUCTION_BASE_URL);
+   const chain=/^\/option-chains\/([A-Z]+)\/nested$/.exec(u.pathname);
+   if(u.origin!==PRODUCTION_BASE_URL||!(chain&&CADENCE_SYMBOLS.includes(chain[1])||u.pathname==='/market-data/by-type'))throw Error('MARKET_ROUTE_DENIED');
+   if(u.pathname==='/market-data/by-type'&&((u.searchParams.get('equity-option')??'').split(',').length>99||!CADENCE_SYMBOLS.includes(u.searchParams.get('equity'))))throw Error('MARKET_BATCH_DENIED');
+   const r=await fetchImpl(u,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`,'User-Agent':'wheelwright-tt1-cadence/1.0'}});
+   const text=await boundedText(r);if(!r.ok)throw Error('HTTP_'+r.status);return {body:JSON.parse(text),retrievedAt:now().toISOString()};
+  }});}catch{marketAcquisition={mode:'UNKNOWN',startedAt:now().toISOString(),completedAt:now().toISOString(),catalogs:[],observations:[],failures:[{code:'CANDIDATE_ACQUISITION_UNAVAILABLE'}]};}
+ }
  const scrub=value=>{
   if(Array.isArray(value))return value.map(scrub);
   if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([k])=>!/(?:access.?token|refresh.?token|client.?secret|authorization|password)/i.test(k)).map(([k,v])=>[k,/account.?number/i.test(k)?'MASKED':scrub(v)]));
@@ -90,7 +108,7 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,fe
    for(const n of numbers)value=value.replaceAll(n,'MASKED');
   }return value;
  };
- return scrub({source:'tastytrade production via existing standalone tt',retrievedAt:now().toISOString(),accountLink:account?(expectedAccount?'MATCHED_BACKEND_REFERENCE':'SOLE_BROKER_ACCOUNT_OPERATOR_ESTABLISHED_TT1_CONTEXT'):'NOT_ESTABLISHED',complete:code===0&&failures.length===0,orderCoverage,reads,failures,projection,liveTsv:tsv});
+ return scrub({source:'tastytrade production via existing standalone tt',retrievedAt:now().toISOString(),accountLink:account?(expectedAccount?'MATCHED_BACKEND_REFERENCE':'SOLE_BROKER_ACCOUNT_OPERATOR_ESTABLISHED_TT1_CONTEXT'):'NOT_ESTABLISHED',complete:code===0&&failures.length===0,orderCoverage,reads,failures,projection,liveTsv:tsv,marketAcquisition});
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  try{let input='';for await(const c of process.stdin){input+=c;if(input.length>4096)throw Error();}
