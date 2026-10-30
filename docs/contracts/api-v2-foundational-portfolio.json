@@ -7195,6 +7195,13 @@
             "label": "Synthetic cURL",
             "source": "curl --request GET 'https://api.example.invalid/v2/positions'"
           }
+        ],
+        "x-public-reference-read-through-grants": [
+          "account.read:{accountId}",
+          "account.positions.read:{accountId}",
+          "account.holdings.read:{accountId}",
+          "reference.read",
+          "market.read"
         ]
       },
       "parameters": [
@@ -25784,6 +25791,9 @@
               "$ref": "#/components/schemas/EvidenceRef"
             },
             "minItems": 1
+          },
+          "terminalSettlement": {
+            "$ref": "#/components/schemas/TerminalSettlement"
           }
         },
         "required": [
@@ -30417,6 +30427,9 @@
               "$ref": "#/components/schemas/ReferenceEvidence"
             },
             "minItems": 1
+          },
+          "terminalSettlement": {
+            "$ref": "#/components/schemas/TerminalSettlement"
           }
         },
         "required": [
@@ -38865,6 +38878,9 @@
           },
           "qualification": {
             "$ref": "#/components/schemas/Status"
+          },
+          "terminalSettlement": {
+            "$ref": "#/components/schemas/CompactTerminalSettlement"
           }
         },
         "required": [
@@ -39281,6 +39297,9 @@
                 "type": "null"
               }
             ]
+          },
+          "terminalSettlement": {
+            "$ref": "#/components/schemas/CompactTerminalSettlement"
           }
         },
         "required": [],
@@ -39937,7 +39956,7 @@
           "qualification"
         ],
         "additionalProperties": false,
-        "description": "Complete bounded latest-retained custody inventory view, at most100000 UTF-8 bytes. Stale source custody remains eligible. Reuses canonical native package tactical results only for unique exact whole-source allocations; all other source quantities remain visible in explicitly qualified display contexts. Account/source clocks, market clocks and lifecycle claims stay distinct. Source details follow exact holding links. No pagination or historic lifecycle union; capacity/change/denied outcomes are explicit."
+        "description": "Bounded source-cut inventory with separately qualified financial fields. Governed request-triggered public contract-reference enrichment may establish exercise rights without renewing custody or market clocks. No opening, lifecycle, quote multiplier, P/L or collateral claim follows from terminal geometry."
       },
       "TacticalMarketClock": {
         "type": "object",
@@ -39975,6 +39994,96 @@
         ],
         "additionalProperties": false,
         "description": "Market-only clock and existing policy verdict. Future source clocks retain timestamp with null age, never silently clamp. Does not renew retained custody or imply live prices."
+      },
+      "TerminalSettlement": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "QUALIFIED",
+              "INCOMPLETE",
+              "CONFLICT"
+            ]
+          },
+          "profile": {
+            "const": "OCC_US_STANDARD_PHYSICAL_EQUITY_100"
+          },
+          "exerciseQuantity": {
+            "const": "100"
+          },
+          "currency": {
+            "const": "USD"
+          },
+          "strikeUnit": {
+            "const": "CURRENCY_PER_UNDERLYING_SHARE"
+          },
+          "consideration": {
+            "const": "STRIKE_TIMES_EXERCISE_QUANTITY"
+          },
+          "method": {
+            "const": "REPORTED_STANDARD_OPTION_WITH_OCC_EXERCISE_SPECIFICATION"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRef"
+            },
+            "minItems": 2
+          }
+        },
+        "required": [
+          "status",
+          "profile",
+          "exerciseQuantity",
+          "currency",
+          "strikeUnit",
+          "consideration",
+          "method",
+          "evidence"
+        ],
+        "additionalProperties": false,
+        "description": "Separately qualified terminal exercise rights, not a reported premium quote multiplier or complete option terms. Narrow positive US-standard physical equity100 profile: explicit Standard/American definition, exact root/right/strike/expiry/currency and100 reported delivery shares corroborated by a single same-underlying physical deliverable, plus OCC strike-per-share exercise specification. Adjusted/cash/mixed/conflicting contracts remain unsupported. This predicate may establish terminal value only; it never establishes basis, P/L, quote valuation, lifecycle, break-even or progress."
+      },
+      "CompactTerminalSettlement": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "QUALIFIED",
+              "INCOMPLETE",
+              "CONFLICT"
+            ]
+          },
+          "profile": {
+            "const": "OCC_US_STANDARD_PHYSICAL_EQUITY_100"
+          },
+          "exerciseQuantity": {
+            "const": "100"
+          },
+          "currency": {
+            "const": "USD"
+          },
+          "strikeUnit": {
+            "const": "CURRENCY_PER_UNDERLYING_SHARE"
+          },
+          "consideration": {
+            "const": "STRIKE_TIMES_EXERCISE_QUANTITY"
+          },
+          "method": {
+            "const": "REPORTED_STANDARD_OPTION_WITH_OCC_EXERCISE_SPECIFICATION"
+          }
+        },
+        "required": [
+          "status",
+          "profile",
+          "exerciseQuantity",
+          "currency",
+          "strikeUnit",
+          "consideration",
+          "method"
+        ],
+        "additionalProperties": false,
+        "description": "Compact copy of qualified exercise-right interpretation; full public reference provenance remains at the source holding Instrument and canonical detail, never a financial claim about premium units."
       }
     }
   },

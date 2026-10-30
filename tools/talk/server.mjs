@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false, retainedMetadataBackend, authorizedRetainedBackend, authorizedMarketBackend, installedBackend, clock, operatorTimeZone, marketTimeZone } = {}) {
   if (installedBackend && (authorizedRetainedBackend || retainedMetadataBackend || marketFixture || installedBackend.profile !== 'AUTHORIZED_REAL_RETAINED_READS')) throw new Error('Invalid installed Account backend.');
   const retainedBackend = installedBackend ?? authorizedRetainedBackend;
-  if (authorizedRetainedBackend && (retainedMetadataBackend || marketFixture || authorizedRetainedBackend.profile !== 'AUTHORIZED_REAL_RETAINED_READS' || authorizedRetainedBackend.providerBeans !== false)) throw new Error('Invalid authorized retained profile.');
+  if (authorizedRetainedBackend && (retainedMetadataBackend || marketFixture || authorizedRetainedBackend.profile !== 'AUTHORIZED_REAL_RETAINED_READS' || (authorizedRetainedBackend.providerBeans !== false && authorizedRetainedBackend.publicReferenceProviderOnly !== true))) throw new Error('Invalid authorized retained profile.');
   if (retainedMetadataBackend || retainedBackend) {
     const configuredBackend = retainedMetadataBackend ?? retainedBackend;
     const url = new URL(configuredBackend.base);

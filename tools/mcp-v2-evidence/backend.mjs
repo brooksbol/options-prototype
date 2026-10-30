@@ -41,3 +41,11 @@ export function problemResult(error, subject) {
   return { isError: true, content: [{ type: 'text', text: JSON.stringify({ ...error,
     ...(subject ? { subject } : {}) }) }] };
 }
+
+// Nicknames are discovered operator labels, never Account identity or authorization.
+export function selectedAccounts(accounts,nickname){
+ if(nickname===undefined)return accounts;
+ const exact=accounts.filter(a=>a.alias===nickname);if(exact.length)return exact;
+ if(typeof nickname!=='string')return [];
+ const matched=accounts.filter(a=>typeof a.alias==='string'&&a.alias.toLowerCase()===nickname.toLowerCase());return matched.length===1?matched:[];
+}

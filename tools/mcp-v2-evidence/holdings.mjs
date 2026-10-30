@@ -1,21 +1,24 @@
 import { canonicalAccountId } from '../../scripts/ww-accounts.mjs';
-import { readBackend, UUID, problemResult } from './backend.mjs';
+import { readBackend, UUID, problemResult, selectedAccounts } from './backend.mjs';
 
 /** Brokerage inventory is an existing backend resource, independent of Position lifecycle. */
-export async function inspectHoldings({ account, optionRight, side, holdings } = {}, config, optionInventory = false) {
+export async function inspectHoldings({ account, optionRight, side, holdings, contractTerms = false } = {}, config, optionInventory = false) {
   const deadline = performance.now() + (config.timeoutMs ?? 40000);
   const budget = () => { const timeoutMs = Math.floor(deadline-performance.now()); if(timeoutMs<=0)throw new Error('Inventory read deadline exceeded; no complete inventory established.'); return {...config,timeoutMs}; };
   const discovery = await readBackend('/v2/accounts', budget());
   if (discovery.error) return problemResult(discovery.error);
   if (discovery.data?.requestId !== discovery.requestId || !Array.isArray(discovery.data.accounts)) throw new Error('Invalid Account discovery.');
-  const selected = account === undefined ? discovery.data.accounts : discovery.data.accounts.filter(a => a.alias === account);
+  const selected = selectedAccounts(discovery.data.accounts,account);
   if (account !== undefined && selected.length !== 1) return { isError: true, content: [{ type: 'text', text: JSON.stringify({
     outcome: 'unavailable', explanation: 'Exact authorized Account nickname required.',
     availableAccounts: discovery.data.accounts.map(a => ({ nickname: a.alias, broker: a.brokerAssociation?.broker })) }) }] };
+  if(typeof contractTerms!=="boolean")throw new Error("Invalid contract evidence selector.");
+  if(contractTerms&&holdings===undefined)throw new Error("Contract evidence requires exact selected holding references.");
   if(holdings!==undefined){
     if(account===undefined||optionRight!==undefined||side!==undefined||!Array.isArray(holdings)||!holdings.length||holdings.length>12||new Set(holdings).size!==holdings.length)throw new Error('Exact Account and distinct selected holdings references required.');
     const details=[];for(const href of holdings){if(typeof href!=='string'||!href.startsWith('/v2/holdings/')||!UUID.test(href.slice('/v2/holdings/'.length)))throw new Error('Invalid holding reference.');const result=await readBackend(href,budget());if(result.error)return problemResult(result.error,account);if(result.data?.self?.href!==href||result.data.account?.href!=='/v2/accounts/'+selected[0].id)throw new Error('Foreign holding detail.');details.push(result.data);}
-    const text=JSON.stringify({account:{nickname:selected[0].alias,broker:selected[0].brokerAssociation?.broker},evidence:{holdingDetails:details},qualification:'Exact selected retained custody source rows. Source dates and currentness remain distinct; no lifecycle, opening package or financial inference.'});if(Buffer.byteLength(text)>100000)throw new Error('Selected detail exceeds safe capacity.');return {content:[{type:'text',text}]};
+    const contractReferences=[];if(contractTerms){const uris=[...new Set(details.map(d=>d.instrument?.href).filter(Boolean))];for(const href of uris){if(!href.startsWith('/v2/instruments/')||!UUID.test(href.slice('/v2/instruments/'.length)))throw new Error('Invalid contract reference.');const ref=await readBackend(href,budget());if(ref.error)return problemResult(ref.error,account);if(ref.data?.self?.href!==href||ref.data.account!==undefined&&ref.data.account!==null)throw new Error('Invalid shared Instrument scope.');contractReferences.push(ref.data);}}
+    const text=JSON.stringify({account:{nickname:selected[0].alias,broker:selected[0].brokerAssociation?.broker},evidence:{holdingDetails:details,...(contractTerms?{contractReferences}:{})},qualification:'Exact selected retained custody source rows. Source dates and currentness remain distinct; no lifecycle, opening package or financial inference.'});if(Buffer.byteLength(text)>100000)throw new Error('Selected detail exceeds safe capacity.');return {content:[{type:'text',text}]};
   }
   if (optionInventory || optionRight !== undefined || side !== undefined) {
     const query = new URLSearchParams();

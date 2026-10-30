@@ -56,6 +56,7 @@ public final class PortfolioAuthorization {
  public static void sanitizeRepresentation(JsonNode n,Principal p){sanitize(n,p);}
  private static void sanitize(JsonNode n,Principal p){
   if(n.isObject()){var o=(ObjectNode)n;
+   if(!p.hasGrant("reference.read"))o.remove("terminalSettlement");
    if(o.has("code")&&o.has("affected")&&o.has("establishedFacts")&&restrictedTree(o,p)){o.removeAll();o.setAll(accessWarning(""));return;}
    if(o.path("kind").asText().equals("ACCOUNT_SOURCE")&&(!p.hasGrant(o.path("requiredCapability").asText())||o.path("artifact").isObject()&&!p.hasGrant("account.artifacts.read:"+o.at("/account/href").asText().substring(o.at("/account/href").asText().lastIndexOf('/')+1)))){o.removeAll();o.put("kind","REDACTED").put("reason","INSUFFICIENT_PERMISSION");return;}
    if(o.has("value")&&o.has("dependencies")&&restricted(o,p)){redact(o);return;}

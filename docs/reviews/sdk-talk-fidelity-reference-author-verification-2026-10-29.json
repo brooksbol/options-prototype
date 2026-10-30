@@ -1,0 +1,203 @@
+{
+  "standing": "AUTHOR ACTUAL AUTHORIZED PROVIDER + PROTECTED COPY VERIFICATION; IMMUTABLE IMPLEMENTATION REVIEW PENDING",
+  "sourceBoundary": "Exact public held-series identities only; no Fidelity Account upstream request, holdings quantities/basis sent, grant/OAuth/polling/trade/production changes. Protected originals and SDK transcripts excluded.",
+  "allAccounts": {
+    "status": 200,
+    "seconds": 13.933,
+    "bytes": 91703,
+    "accounts": [
+      {
+        "nickname": "pts",
+        "status": "READ",
+        "sourceHoldings": 29,
+        "represented": 29,
+        "units": 11,
+        "nativeGeometry": 8,
+        "canonical": 0,
+        "termsUnavailable": 0,
+        "terminalOnlyProfiles": 8
+      },
+      {
+        "nickname": "sawdust",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 7,
+        "nativeGeometry": 6,
+        "canonical": 0,
+        "termsUnavailable": 0,
+        "terminalOnlyProfiles": 6
+      },
+      {
+        "nickname": "tt1",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 5,
+        "nativeGeometry": 4,
+        "canonical": 4,
+        "termsUnavailable": 0,
+        "terminalOnlyProfiles": 0
+      }
+    ]
+  },
+  "bdry": {
+    "bdryQualifiedTerminalValue": true,
+    "cappedUpperTail": true,
+    "hasSlopingLowerSegment": true,
+    "noBreakEven": true,
+    "quoteMultiplierStillUnknown": true,
+    "custodySourceDateUnchanged": true
+  },
+  "tt1": {
+    "sameSourceCutAndControlledClock": true,
+    "canonicalStructures": 4,
+    "coreFinancialDtoEquality": true
+  },
+  "initialSdk": {
+    "standing": "ACTUAL_SDK_RETAINED_COPY_NOT_PRODUCTION",
+    "elapsedSeconds": 22,
+    "turns": [
+      {
+        "turn": 1,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": true,
+            "selection": {
+              "account": "PTS",
+              "underlying": "BDRY"
+            }
+          }
+        ],
+        "inventories": [],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 11155,
+          "outputTokens": 52,
+          "totalTokens": 11207
+        },
+        "error": false
+      },
+      {
+        "turn": 2,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "pts",
+              "underlying": "BDRY"
+            }
+          },
+          {
+            "name": "inspect_account_holdings",
+            "error": false,
+            "selection": {
+              "account": "pts",
+              "contractTerms": true,
+              "selectedHoldingCount": 2
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              }
+            ],
+            "underlying": "BDRY",
+            "bytes": 4888
+          }
+        ],
+        "usage": {
+          "requests": 3,
+          "inputTokens": 23396,
+          "outputTokens": 339,
+          "totalTokens": 23735
+        },
+        "error": false
+      },
+      {
+        "turn": 3,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {}
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 7,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 91703
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 49909,
+          "outputTokens": 101,
+          "totalTokens": 50010
+        },
+        "error": false
+      },
+      {
+        "turn": 4,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "tt1"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 33723
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 88852,
+          "outputTokens": 108,
+          "totalTokens": 88960
+        },
+        "error": false
+      }
+    ]
+  }
+}

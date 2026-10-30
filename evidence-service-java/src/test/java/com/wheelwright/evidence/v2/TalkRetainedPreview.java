@@ -33,7 +33,7 @@ public final class TalkRetainedPreview {
  @Import({AccountsController.class,AccountBalancesController.class,PortfolioController.class,PortfolioTacticalInventory.class,TacticalInventoryController.class})
  static class Preview {
   @Bean(destroyMethod="close") SqliteEvidenceStore accountStore()throws Exception {
-   var copy=directory.resolve("account-snapshot.sqlite3");backup(accountSource,copy);return new SqliteEvidenceStore(copy.toString());
+   var copy=directory.resolve("account-snapshot.sqlite3");String retained=System.getenv("WW_VERIFY_REFERENCE_COPY");var input=retained==null?accountSource:Path.of(retained).toRealPath();if(retained!=null&&!"PRINCIPAL_APPROVED_FIDELITY_PUBLIC_REFERENCE_READS_20261029".equals(System.getenv("WW_VERIFY_PUBLIC_REFERENCE_POLICY")))throw new IllegalArgumentException("approved public reference copy required");if(retained!=null&&(Files.isSameFile(input,accountSource)||!Files.getPosixFilePermissions(input).equals(PosixFilePermissions.fromString("rw-------"))))throw new IllegalArgumentException("isolated reference copy required");backup(input,copy);return new SqliteEvidenceStore(copy.toString());
   }
   @Bean AccountDirectory accounts(){return new AccountDirectory(ro(accountSource));}
   @Bean BearerAuthenticator auth()throws Exception {return BearerAuthenticator.existingUser(new UserDirectory(ro(accountSource)),token,userId);}

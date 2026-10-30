@@ -20,10 +20,10 @@ export function payoffGraphic(doc,evaluation){
  const knots=points.map(p=>({x:number(p.price),y:number(p.value),label:p.price}));if(knots.some(p=>p.x==null||p.y==null))return null;
  const spot=known(evaluation.spot,'PRICE')?number(evaluation.spot.value):null;
  let low=Math.min(...(samples??knots).map(p=>p.x),...(spot==null?[]:[spot])),high=Math.max(...(samples??knots).map(p=>p.x),...(spot==null?[]:[spot]));if(high<=low)return null;
- if(!samples){const pad=(high-low)*.15;low-=pad;high+=pad;}const bottom=Math.min(0,...(samples??knots).map(p=>p.y)),top=Math.max(0,...(samples??knots).map(p=>p.y));
+ if(!samples){const pad=(high-low)*.15;low-=pad;high+=pad;}const values=(samples??knots).map(p=>p.y),terminalWindow=g.valueKind==='TERMINAL_VALUE'&&Math.min(...values)>0;const bottom=terminalWindow?Math.min(...values):Math.min(0,...values),top=Math.max(0,...values);
  const x=v=>14+(v-low)/(high-low)*232,y=v=>top===bottom?40:66-(v-bottom)/(top-bottom)*48;
  const label=`Expiration shape · ${g.valueKind==='GROSS_PL'?'gross P/L before fees':'terminal value, not P/L'} · strikes ${points.map(p=>p.price).join(', ')}${spot==null?'':` · source spot ${evaluation.spot.value} ${evaluation.spot.currency??''} · ${evaluation.spotRegion??'region unavailable'}`}`;
- const image=svg(doc,label);shape(doc,image,'line',{x1:14,y1:y(0),x2:246,y2:y(0),class:'tactical-zero'});
+ const image=svg(doc,label);if(bottom<=0&&top>=0)shape(doc,image,'line',{x1:14,y1:y(0),x2:246,y2:y(0),class:'tactical-zero'});
  const plotted=samples??[{x:low,y:knots[0].y},...knots,{x:high,y:knots.at(-1).y}];shape(doc,image,'polyline',{points:plotted.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),fill:'none',class:'tactical-payoff'});
  for(const point of knots){shape(doc,image,'circle',{cx:x(point.x),cy:y(point.y),r:2.2,class:'tactical-strike'});const t=shape(doc,image,'text',{x:x(point.x),y:81,'text-anchor':'middle',class:'tactical-axis'});t.textContent=point.label;}
  if(spot!=null){const color={NEUTRAL_PLATEAU:'plateau',TRANSITION:'transition',ADVERSE_TAIL:'loss'}[evaluation.spotRegion]??'unknown';shape(doc,image,'line',{x1:x(spot),x2:x(spot),y1:4,y2:68,class:'tactical-spot-line'});shape(doc,image,'path',{d:`M ${x(spot)-4} 5 L ${x(spot)+4} 5 L ${x(spot)} 12 Z`,class:'tactical-spot '+color});}

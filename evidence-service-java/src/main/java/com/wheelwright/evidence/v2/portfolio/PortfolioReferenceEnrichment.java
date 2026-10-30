@@ -21,13 +21,13 @@ public final class PortfolioReferenceEnrichment {
    for(var leaf:leaves(value.path("composition")))if(leaf.path("kind").asText().equals("OPTION")){
     var instrument=repo.get(c,leaf.at("/instrument/href").asText());if(instrument.isEmpty()||!instrument.get().value().path("option").isObject())continue;
     var reference=instrument.get().value().path("option");var before=(ObjectNode)leaf.path("terms");var after=before.deepCopy();boolean conflict=reference.path("qualification").asText().equals("CONFLICT");
-    for(String field:List.of("underlying","right","strike","expiration","currency","multiplier","exerciseStyle","settlement","adjustment","deliverable")){
+    for(String field:List.of("underlying","right","strike","expiration","currency","multiplier","exerciseStyle","settlement","adjustment","deliverable","terminalSettlement")){
      var next=reference.path(field);var previous=before.path(field);if(!known(next))continue;
      if(known(previous)&&!equal(field,next,previous)){conflict=true;continue;}after.set(field,next.deepCopy());
     }
     var multiplier=number(after.path("multiplier"));var delivered=number(after.at("/deliverable/0/quantity"));boolean standard=!conflict&&after.path("adjustment").asText().equals("STANDARD")&&after.path("settlement").asText().equals("PHYSICAL")&&after.path("deliverable").size()==1&&after.at("/deliverable/0/kind").asText().equals("SHARES")&&after.at("/deliverable/0/instrument/href").equals(after.at("/underlying/href"))&&multiplier!=null&&multiplier.signum()>0&&delivered!=null&&multiplier.compareTo(delivered)==0&&known(after.path("underlying"))&&known(after.path("expiration"))&&known(after.path("strike"))&&Set.of("CALL","PUT").contains(after.path("right").asText());
     after.put("qualification",conflict?"CONFLICT":standard?"QUALIFIED":"INCOMPLETE").put("payoffApplicability",standard?"STANDARD_EQUITY_INTRINSIC":after.path("adjustment").asText().equals("ADJUSTED")?"EXPLICIT_DELIVERABLE_REQUIRED":"UNKNOWN");
-    if(!withoutEvidence(after).equals(withoutEvidence(before))){for(var ref:reference.path("evidence"))((ArrayNode)after.path("evidence")).add(ref.deepCopy());leaf.set("terms",after);changed=true;if(conflict)((ArrayNode)value.path("warnings")).add(warning("INCOMPATIBLE_CONTRACT_TERMS","/composition","Original custody terms and independently reported reference terms remain inspectable.","Conflicting contract terms cannot acquire a validated named structure or exact payoff by source precedence."));}
+    if(!withoutEvidence(after).equals(withoutEvidence(before))){for(var ref:reference.path("evidence"))((ArrayNode)after.path("evidence")).add(ref.deepCopy());PortfolioTerminalSettlement.qualify(after);leaf.set("terms",after);changed=true;if(conflict)((ArrayNode)value.path("warnings")).add(warning("INCOMPATIBLE_CONTRACT_TERMS","/composition","Original custody terms and independently reported reference terms remain inspectable.","Conflicting contract terms cannot acquire a validated named structure or exact payoff by source precedence."));}
    }
    if(!changed)continue;
    String guid=UUID.randomUUID().toString(),uri="/v2/constructions/"+guid;value.put("id",guid).put("createdAt",now.toString()).put("changeKind","EVIDENCE_REINTERPRETATION").put("predecessorStatus","KNOWN");value.set("self",link(uri));value.set("predecessor",link(old.uri()));
@@ -41,5 +41,5 @@ public final class PortfolioReferenceEnrichment {
  }
  private static ObjectNode withoutEvidence(ObjectNode node){var value=node.deepCopy();value.remove("evidence");return value;}
  private static boolean known(JsonNode n){return !n.isMissingNode()&&!n.isNull()&&!(n.isTextual()&&(n.asText().isBlank()||n.asText().equals("UNKNOWN")))&&!(n.isArray()&&n.isEmpty());}
- private static boolean equal(String field,JsonNode a,JsonNode b){if(Set.of("strike","multiplier").contains(field))return number(a).compareTo(number(b))==0;return a.equals(b);}
+ private static boolean equal(String field,JsonNode a,JsonNode b){if(field.equals("terminalSettlement"))return PortfolioReferenceTerms.equivalent(field,a,b);if(Set.of("strike","multiplier").contains(field))return number(a).compareTo(number(b))==0;return a.equals(b);}
 }

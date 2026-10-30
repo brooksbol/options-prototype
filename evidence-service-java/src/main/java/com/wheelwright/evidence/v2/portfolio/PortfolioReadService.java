@@ -19,6 +19,10 @@ public final class PortfolioReadService {
  @org.springframework.beans.factory.annotation.Autowired(required=false)
  public void orderAcquisition(PortfolioOrderAcquisition acquisition){this.orderAcquisition=acquisition;}
  public ArrayNode synchronizeOrders(Set<String> scope)throws Exception{return orderAcquisition==null?array():orderAcquisition.read(scope);}
+ private PortfolioFidelityReferences fidelityReferences;
+ @org.springframework.beans.factory.annotation.Autowired(required=false)
+ public void fidelityReferences(PortfolioFidelityReferences references){this.fidelityReferences=references;}
+ public ArrayNode synchronizePublicReferences(String account,String underlying,Principal caller,long deadline)throws Exception{return fidelityReferences==null?array():fidelityReferences.read(account,underlying,caller,deadline);}
  private PortfolioMarketAcquisition marketAcquisition;
  @org.springframework.beans.factory.annotation.Autowired(required=false)
  public void marketAcquisition(PortfolioMarketAcquisition acquisition){this.marketAcquisition=acquisition;}
@@ -105,16 +109,17 @@ public final class PortfolioReadService {
    context.observations.put(account,values);
   }return context.observations.get(account);
  }
+ private static ObjectNode authorizedContract(ObjectNode construction,Principal caller){if(caller.hasGrant("reference.read"))return construction;var copy=construction.deepCopy();for(var leaf:leaves(copy.path("composition")))if(leaf.path("terms").isObject())((ObjectNode)leaf.path("terms")).remove("terminalSettlement");return copy;}
  /** The same financial evaluator and field-level authorization used by canonical Positions. */
  public ObjectNode inventoryEvaluation(String account,ObjectNode construction,Principal caller,Instant now,ReadContext context)throws Exception {
-  var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(construction,observations(account,now,context),now));
+  var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(authorizedContract(construction,caller),observations(account,now,context),now));
   return (ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");
  }
  public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
  public ObjectNode read(Document d,Principal p,Instant now,ReadContext context)throws Exception {
   ObjectNode n=d.value().deepCopy();if(d.kind()==Kind.POSITION&&n.path("state").asText().equals("CLOSED"))n.remove("exposure");
   if(d.kind()==Kind.POSITION){n.set("orders",link("/v2/orders?positionId="+n.path("id").asText()));var c=repo.get(n.at("/currentConstruction/href").asText()).orElseThrow();var observations=observations(d.account(),now,context);
-   n.set("evaluation",PortfolioMath.evaluate(c.value(),observations,now));if(d.value().at("/evaluation/historicalMarketValue").isObject())((ObjectNode)n.get("evaluation")).set("historicalMarketValue",d.value().at("/evaluation/historicalMarketValue").deepCopy());PortfolioOrderEvaluation.apply(n,c.value(),orders(d.account(),context),now,orderArtifacts(d.account(),context));if(p.hasGrant("account.orders.read:"+d.account()))for(var sourceWarning:sourceWarnings(d.account(),context)){((ObjectNode)sourceWarning).set("affected",array().add("/evaluation/management"));((ArrayNode)n.path("warnings")).add(sourceWarning);}if(d.value().at("/evaluation/economicComparison").isObject()){
+   n.set("evaluation",PortfolioMath.evaluate(authorizedContract(c.value(),p),observations,now));if(d.value().at("/evaluation/historicalMarketValue").isObject())((ObjectNode)n.get("evaluation")).set("historicalMarketValue",d.value().at("/evaluation/historicalMarketValue").deepCopy());PortfolioOrderEvaluation.apply(n,c.value(),orders(d.account(),context),now,orderArtifacts(d.account(),context));if(p.hasGrant("account.orders.read:"+d.account()))for(var sourceWarning:sourceWarnings(d.account(),context)){((ObjectNode)sourceWarning).set("affected",array().add("/evaluation/management"));((ArrayNode)n.path("warnings")).add(sourceWarning);}if(d.value().at("/evaluation/economicComparison").isObject()){
     var retained=d.value().at("/evaluation/economicComparison");var original=repo.get(retained.at("/original/construction/href").asText());if(original.isPresent()&&Objects.equals(original.get().account(),d.account())&&original.get().value().path("position").equals(c.value().path("position")))((ObjectNode)n.get("evaluation")).set("economicComparison",PortfolioEconomicHistory.compare(original.get().value(),c.value(),retained.path("cumulative"),now));else ((ArrayNode)n.get("warnings")).add(warning("HISTORY_INCOMPLETE","/evaluation/economicComparison","Current constituent facts remain inspectable.","Retained original terms do not resolve in this Position and Account scope."));
    }if(!n.path("state").asText().equals("CLOSED"))propagate(n,reconciliation(d.account(),now,context),c.value());PortfolioCurrentExposure.qualifyEvaluation(n,now);PortfolioSources.qualify(n);
   }

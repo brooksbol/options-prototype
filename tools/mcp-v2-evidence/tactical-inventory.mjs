@@ -1,5 +1,5 @@
 import {canonicalAccountId} from '../../scripts/ww-accounts.mjs';
-import {readBackend,problemResult,UUID} from './backend.mjs';
+import {readBackend,problemResult,UUID,selectedAccounts} from './backend.mjs';
 const holdingRef=href=>typeof href==='string'&&href.startsWith('/v2/holdings/')&&UUID.test(href.slice('/v2/holdings/'.length));
 /** One backend-owned inventory view; no financial association, calculations or client-side filtering. */
 export async function inspectTacticalInventory({account,underlying,cursor}={},config){
@@ -8,7 +8,7 @@ export async function inspectTacticalInventory({account,underlying,cursor}={},co
  if(underlying!==undefined&&!/^[A-Z0-9^][A-Z0-9.^/-]{0,31}$/.test(underlying))throw new Error('Canonical underlying required.');
  const found=await readBackend('/v2/accounts',budget());if(found.error)return problemResult(found.error);
  if(found.data?.requestId!==found.requestId||!Array.isArray(found.data.accounts)||found.data.accounts.some(a=>!canonicalAccountId(a.id)))throw new Error('Invalid Account discovery.');
- const selected=account===undefined?found.data.accounts:found.data.accounts.filter(a=>a.alias===account);
+ const selected=selectedAccounts(found.data.accounts,account);
  if(account!==undefined&&selected.length!==1)return {isError:true,content:[{type:'text',text:JSON.stringify({outcome:'unavailable',explanation:'Exact authorized Account nickname required.',availableAccounts:found.data.accounts.map(a=>({nickname:a.alias,broker:a.brokerAssociation?.broker}))})}]};
  const query=new URLSearchParams({view:'inventory'});if(account!==undefined)query.set('accountId',selected[0].id);if(underlying!==undefined)query.set('underlying',underlying);
  const result=await readBackend('/v2/positions?'+query,budget());if(result.error)return problemResult(result.error);
