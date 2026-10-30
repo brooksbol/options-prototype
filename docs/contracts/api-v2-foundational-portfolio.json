@@ -27328,6 +27328,10 @@
               "additionalProperties": false
             },
             "description": "Optional backend samples of the exact supplied affine geometry over a display viewport, including sloping tails. Presentation padding is not a risk threshold. Clients scale pixels, never infer financial endpoint values. Same valueKind and units as geometry."
+          },
+          "spotPoint": {
+            "$ref": "#/components/schemas/BoundaryValue",
+            "description": "Backend affine terminal-curve sample at the independently qualified observed underlying spot. Not a current Position market value or P/L. Absent when no qualified compatible spot exists."
           }
         },
         "required": [
@@ -38438,6 +38442,9 @@
               "ADVERSE_TAIL",
               "UNAVAILABLE"
             ]
+          },
+          "moneyness": {
+            "$ref": "#/components/schemas/TacticalMoneyness"
           }
         },
         "required": [
@@ -39477,6 +39484,9 @@
           },
           "spotRegion": {
             "type": "string"
+          },
+          "moneyness": {
+            "$ref": "#/components/schemas/TacticalMoneyness"
           }
         },
         "required": [
@@ -40084,6 +40094,97 @@
         ],
         "additionalProperties": false,
         "description": "Compact copy of qualified exercise-right interpretation; full public reference provenance remains at the source holding Instrument and canonical detail, never a financial claim about premium units."
+      },
+      "TacticalMoneyness": {
+        "type": "object",
+        "description": "Objective per-option-leg moneyness for supported strike-per-underlying-share contract profiles. Hypothetical regions are separate from comparison at observed spot. No whole-package ITM claim, near-ATM band, P/L, exercise/assignment outcome, desirability or Operating Regime meaning. Spot is the separately authorized evaluation observation. AT_STRIKE is exact equality, not a near-ATM tolerance.",
+        "required": [
+          "method",
+          "legs"
+        ],
+        "properties": {
+          "method": {
+            "const": "EXACT_STRIKE_COMPARISON"
+          },
+          "legs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "nodeId",
+                "status",
+                "right",
+                "strike",
+                "observedState",
+                "spotAsOf",
+                "spotWarningCodes"
+              ],
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "status": {
+                  "enum": [
+                    "QUALIFIED",
+                    "UNAVAILABLE"
+                  ]
+                },
+                "right": {
+                  "enum": [
+                    "CALL",
+                    "PUT",
+                    "UNKNOWN"
+                  ]
+                },
+                "strike": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "below": {
+                  "enum": [
+                    "ITM",
+                    "OTM"
+                  ]
+                },
+                "at": {
+                  "const": "AT_STRIKE"
+                },
+                "above": {
+                  "enum": [
+                    "ITM",
+                    "OTM"
+                  ]
+                },
+                "observedState": {
+                  "enum": [
+                    "ITM",
+                    "OTM",
+                    "AT_STRIKE",
+                    "UNAVAILABLE"
+                  ]
+                },
+                "spotAsOf": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time"
+                },
+                "spotWarningCodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
       }
     }
   },

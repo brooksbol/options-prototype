@@ -97,6 +97,7 @@ public final class PortfolioTacticalInventory {
   if(!coverage.isEmpty())n.set("shareCoverage",coverage);
   composition.set("children",children);var construction=obj();construction.set("composition",composition);construction.set("evidence",array());
   n.set("evaluation",evaluable?compactEvaluation(reader.inventoryEvaluation(account,construction,caller,now,context)):obj().put("evaluatedAt",now.toString()));n.set("warningCodes",termConflict?array().add("ASSOCIATION_UNRESOLVED").add("INCOMPATIBLE_CONTRACT_TERMS"):array().add("ASSOCIATION_UNRESOLVED"));
+  if(caller.hasGrant("reference.read"))PortfolioMoneyness.apply((ObjectNode)n.path("evaluation"),construction);
   var strikeMarkers=array();for(var part:parts)if(part.path("terms").isObject()&&!part.at("/terms/qualification").asText().equals("CONFLICT")&&part.at("/terms/strike").isTextual())strikeMarkers.add(obj().put("strike",part.at("/terms/strike").asText()).put("right",part.at("/terms/right").asText()).put("side",part.path("side").asText()).put("expiration",part.at("/terms/expiration").asText()));n.set("strikeConfiguration",strikeMarkers);var marketClock=PortfolioMarketClock.qualify(n.path("evaluation"));if(!marketClock.isEmpty())n.set("marketClock",marketClock);
   return n;
  }
