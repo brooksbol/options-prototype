@@ -12,6 +12,8 @@ export function renderCustodyInventory(doc,inventory){
   const source=dates.length?'Source: '+dates.join(', '):'';
   const receipt=receipts.length?'Received: '+receipts.join(', ')+' · broker observation time unavailable':'';
   section.append(node(doc,'p',[source,receipt,!account.complete?'Incomplete read':partial?'Partial source coverage':'Complete selected retained read'].filter(Boolean).join(' · '),'custody-source'));
+  const conflicts=[...(account.warnings??[]),...holdings.flatMap(h=>h.warnings??[])].filter(w=>w.code==='SOURCE_CONFLICT');
+  if(conflicts.length)section.append(node(doc,'p','Source conflict · retained inventory may not reflect the latest source. Inspect custody source details.','source-access'));
   for(const problem of account.problems??[])section.append(node(doc,'p',problem.code==='FORBIDDEN'?'Access denied · inventory unavailable':`${problem.title??problem.code} · inventory incomplete`,'source-access'));
   if(holdings.length){
    const scroll=node(doc,'div',null,'inventory-table-scroll'),table=node(doc,'table'),head=node(doc,'thead'),header=node(doc,'tr');

@@ -32,3 +32,9 @@ The historical API publication validator fails at its pre-existing405baseline co
 
 ## Remaining boundaries
 This corrects general retained-inventory selection/representation; it does not establish fresh Fidelity custody, continuity, closed accounting or recognized package identity for every Account. Current generic inventory shows broker rows; tt1 recognized tactical structures remain available via the established tactical view. No blind suppression of expired/opaque source rows, same-symbol merging or invented ticker resolution. Financial parity, compact cross-Account structure consolidation, residual empty analysis and freshness terminology remain open. No claim of Principal acceptance from author tests.
+
+## Independent falsification and successor correction
+
+Frozen first submission:b2b3869b3fac5f6e90444fcbc782ee7cd4909f1b remains unchanged. Independent reviewer reproduced a100076byte result passing the internal100000byte array guard, because envelope/qualification were not measured, and found material SOURCE_CONFLICT warning hidden by the native table. Source correction is authorized by the current bounded Product delegation, not by reviewer disposition. Exact immutable review is preserved separately when finalized.
+
+Successor checks the final serialized UTF-8 tool text as well as intermediate inventory, and shows one compact Account-level source-conflict note for collection or row warnings, including complete-but-prior-cut counterexamples. Technical detail remains on demand.22focusedMCP/native tests pass, including exact envelope-overrun and both warning locations. Backend/OAS/SDKselection/financial semantics unchanged. First-candidate actual retained-copy conversations remain source-applicable for selection; successor browser and runtime verification are tracked separately. No new model requests are claimed from a test rerun or source carry-through.

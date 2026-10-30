@@ -67,9 +67,11 @@ export async function inspectHoldings({ account, optionRight, side } = {}, confi
     }
     accounts.push(result);
   }
-  return { content: [{ type: 'text', text: JSON.stringify({
+  const text = JSON.stringify({
     representation: 'RETAINED_CUSTODY_INVENTORY', requestId: discovery.requestId, outcome: accounts.every(a => a.complete) ? 'COMPLETE_AUTHORIZED_READ' : 'PARTIAL',
     ...(config.syntheticFixture ? { dataClassification: 'SYNTHETIC_FIXTURE' } : {}),
     accounts, qualification: 'Brokerage holdings from each Account’s backend-selected latest retained custody cut. This is not a lifecycle OPEN filter or proof of live/current brokerage custody. Preserve source dates and snapshot coverage. A forbidden Account is not empty; incomplete reads are not full inventory. No returned rows alone do not establish an empty live Account. Holdings permission is distinct from Position lifecycle permission. Do not replace a denied holdings read with an OPEN lifecycle query or claim that unresolved lifecycle state means no holdings.'
-  }) }] };
+  });
+  if(Buffer.byteLength(text)>100000)throw new Error('Complete inventory exceeds safe response capacity; narrow the Account scope.');
+  return {content:[{type:'text',text}]};
 }

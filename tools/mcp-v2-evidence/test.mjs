@@ -190,3 +190,8 @@ test('changing custody cuts, duplicate rows and oversized inventory cannot becom
   const page=pages++;return response(JSON.stringify({items:[{id:mode==='duplicate'||page===0?requestId:'33333333-3333-4333-8333-333333333333',account:{href:'/v2/accounts/'+id},snapshotId:mode==='changed-cut'&&page===1?'other-cut':'one-cut',sourceDescription:mode==='oversize'?'x'.repeat(100001):'name'}],next:page===0?{href:'/v2/holdings?'+new URLSearchParams({accountId:id,limit:'25',cursor:'opaque'})}:null}));
  }}),/cut changed|Duplicate custody|safe response capacity/);}
 });
+
+test('entire serialized custody envelope including qualification respects100000byte boundary',async()=>{
+ const id='acct_'+'a'.repeat(32);
+ await assert.rejects(inspectHoldings({account:'pine'}, {...config,fetchImpl:async url=>response(JSON.stringify(url.pathname==='/v2/accounts'?{requestId,accounts:[{id,alias:'pine',brokerAssociation:{broker:'SYNTH'}}]}:{items:[{id:requestId,account:{href:'/v2/accounts/'+id},snapshotId:'cut',sourceInstrument:{identifier:'OPAQUE'},quantity:'12.34567890123456789',unit:'SHARE',side:'LONG',snapshotCoverage:'PARTIAL',observationDate:'2001-01-01',sourceDescription:'x'.repeat(99000)}],next:null}))}),/safe response capacity/);
+});
