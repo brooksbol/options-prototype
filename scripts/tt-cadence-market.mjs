@@ -91,7 +91,7 @@ export async function acquireCadenceMarket({get,readGreeks,session,sessionDate,n
   const remaining=LIMITS.durationMs-(now()-started);
   if(remaining>0)try{
    const contracts=result.catalogs.flatMap(c=>c.contracts).filter(c=>typeof c.streamerSymbol==='string');
-   result.greekEvents=await readGreeks({contracts,now:now(),timeoutMs:Math.min(5000,remaining),loadQuoteToken:async()=> (await read('/api-quote-tokens')).body});
+   result.greekEvents=await readGreeks({contracts,now:now(),deadlineMs:started.getTime()+LIMITS.durationMs,clock:()=>now().getTime(),timeoutMs:Math.min(5000,remaining),loadQuoteToken:async()=> (await read('/api-quote-tokens')).body});
    if(result.greekEvents.length<result.catalogs.reduce((n,c)=>n+c.contracts.length,0))result.failures.push({stage:'GREEKS',code:'GREEK_EVENT_COVERAGE_PARTIAL',observed:result.greekEvents.length,requested:result.catalogs.reduce((n,c)=>n+c.contracts.length,0)});
   }catch(e){result.failures.push({stage:'GREEKS',code:/^[A-Z0-9_]+$/.test(e.message)?e.message:'GREEK_EVENTS_UNAVAILABLE'});}
   else result.failures.push({stage:'GREEKS',code:'ACQUISITION_CAP_REACHED'});

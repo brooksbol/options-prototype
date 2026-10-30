@@ -1,0 +1,23 @@
+**REJECT** — the new Greek acquisition can exceed the shared 90-second budget.
+
+Frozen candidate: `b76edc8f936457da47a6e62fd4dbc8e6fc95e070`  
+Baseline: `c687bfe728d18d00c0753a1ed117a7a86e671c00`  
+Tree: `552bbca8aeaf9bd39d3c1439ca300804576d59c5`; worktree clean.
+
+At [tt-cadence-market.mjs:94](/Users/bollich/kiro/options-candidates/tt1-market-freshness-20261030/scripts/tt-cadence-market.mjs:94), socket timeout is calculated **before** token acquisition. The helper awaits that GET, then starts its full timer at [tastytrade-greeks.mjs:56](/Users/bollich/kiro/options-candidates/tt1-market-freshness-20261030/scripts/tastytrade-greeks.mjs:56).
+
+Concrete timing counterexample: Greek phase starts at 88,000 ms; pacing consumes 500 ms; token GET consumes 1,000 ms; socket then waits its precomputed 2,000 ms, completing at **91,500 ms**. No deadline recheck bounds that socket wait. This is a source-derived counterexample, not an additional executed probe.
+
+Checks:
+
+- Authorized two-file test run: **13 passed, 0 failed**.
+- Independent event-time gate, stale-short pair exclusions, missing-delta longs, catalog identity reuse, default100/explicit6000 bounds and token exclusion inspected.
+- Exact prior ACCEPT/REJECT reports recovered. Existing tests do not cover token latency followed by socket timeout.
+
+Limits: no private/config reads, provider or real WebSocket calls, writes, installation or ZIP execution. Full39 was not rerun; remote synchronization remains unverified.
+
+CURRENT STATE: Frozen candidate REJECTED within bounded delta review.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

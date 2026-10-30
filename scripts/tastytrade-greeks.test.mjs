@@ -58,3 +58,11 @@ test("missing and stale Greek fields remain unknown", async () => {
     "Greeks", streamers[1], Date.parse("2026-09-29T00:00:00.000Z"), 0.29,
   ]), []);
 });
+test('TT1 deadline is recomputed after definition/token acquisition; exhausted budget never opens a socket',async()=>{
+ let elapsed=0,opened=0;const Symbol=symbols[0];
+ const events=await readHeldGreeks({symbols:[Symbol],now,maxSymbols:6000,deadlineMs:2000,clock:()=>elapsed,timeoutMs:2000,
+  loadInstrument:async()=>({data:{symbol:Symbol,'streamer-symbol':streamers[0]}}),
+  loadQuoteToken:async()=>{elapsed=2500;return {data:{token:'fixture-token','dxlink-url':'wss://tasty-openapi-dxlink-md-ws.dxfeed.com/realtime'}};},
+  WebSocketImpl:class {constructor(){opened++;}}});
+ assert.deepEqual(events,[]);assert.equal(opened,0);
+});

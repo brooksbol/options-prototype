@@ -20,7 +20,7 @@ function acceptedEndpoint(raw) {
 }
 
 export async function readHeldGreeks({ symbols, loadInstrument, loadQuoteToken,
-  WebSocketImpl = WebSocket, now = new Date(), timeoutMs = SNAPSHOT_TIMEOUT_MS, maxSymbols = 100 }) {
+  WebSocketImpl = WebSocket, now = new Date(), timeoutMs = SNAPSHOT_TIMEOUT_MS, maxSymbols = 100, deadlineMs = null, clock = Date.now }) {
   if (!Array.isArray(symbols) || symbols.length === 0 || symbols.length > maxSymbols || !Number.isInteger(maxSymbols) || maxSymbols < 1 || maxSymbols > 6000 ||
       symbols.some((symbol) => !optionKey(symbol)) ||
       typeof loadInstrument !== "function" || typeof loadQuoteToken !== "function" ||
@@ -41,6 +41,8 @@ export async function readHeldGreeks({ symbols, loadInstrument, loadQuoteToken,
   if (typeof auth?.token !== "string" || !auth.token ||
       !acceptedEndpoint(auth["dxlink-url"])) return [];
 
+  const waitMs=Math.min(timeoutMs,deadlineMs===null?Infinity:deadlineMs-clock());
+  if(!Number.isFinite(waitMs)||waitMs<=0)return [];
   return new Promise((resolve) => {
     let socket;
     const observed = new Map();
@@ -53,7 +55,7 @@ export async function readHeldGreeks({ symbols, loadInstrument, loadQuoteToken,
       try { socket?.close(); } catch { /* Snapshot already complete. */ }
       resolve([...observed.values()]);
     };
-    const timer = setTimeout(finish, timeoutMs);
+    const timer = setTimeout(finish, waitMs);
     const send = (message) => {
       if (!finished && socket?.readyState === 1) socket.send(JSON.stringify(message));
     };
