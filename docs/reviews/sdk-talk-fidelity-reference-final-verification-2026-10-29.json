@@ -1,0 +1,321 @@
+{
+  "source": "89f10726ddc8a7f5b15a3800646ddb33b5ddec8b",
+  "standing": "AUTHOR_VERIFICATION_NOT_PRINCIPAL_ACCEPTANCE",
+  "backend": {
+    "status": 200,
+    "seconds": 0.292,
+    "bytes": 91703,
+    "accounts": [
+      {
+        "nickname": "pts",
+        "status": "READ",
+        "sourceHoldings": 29,
+        "represented": 29,
+        "units": 11,
+        "nativeGeometry": 8,
+        "canonical": 0,
+        "termsUnavailable": 0,
+        "terminalOnlyProfiles": 8
+      },
+      {
+        "nickname": "sawdust",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 7,
+        "nativeGeometry": 6,
+        "canonical": 0,
+        "termsUnavailable": 0,
+        "terminalOnlyProfiles": 6
+      },
+      {
+        "nickname": "tt1",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 5,
+        "nativeGeometry": 4,
+        "canonical": 4,
+        "termsUnavailable": 0,
+        "terminalOnlyProfiles": 0
+      }
+    ]
+  },
+  "bdry": {
+    "status": 200,
+    "seconds": 0.389,
+    "accounts": [
+      {
+        "nickname": "pts",
+        "status": "READ",
+        "units": 1,
+        "warnings": [
+          {
+            "code": "HOLDING_RECONCILIATION_CONFLICT"
+          }
+        ],
+        "items": [
+          {
+            "title": "BDRY",
+            "geometryStatus": "QUALIFIED",
+            "terms": [
+              {
+                "right": "CALL",
+                "qualification": "INCOMPLETE",
+                "knownMultiplier": false,
+                "adjustment": "STANDARD",
+                "settlement": "PHYSICAL"
+              },
+              {
+                "knownMultiplier": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "acquisition": {
+    "source": "89f10726ddc8a7f5b15a3800646ddb33b5ddec8b",
+    "actualPublicOriginals": 28,
+    "accepted": 28,
+    "exactAdmissionReceipts": 28,
+    "sourceBindingsValid": true
+  },
+  "browser": {
+    "source": "89f10726ddc8a7f5b15a3800646ddb33b5ddec8b",
+    "standing": "ACTUAL_SDK_RETAINED_COPY_RESULTS_BROWSER_REPLAY",
+    "counts": [
+      {
+        "turn": 1,
+        "accounts": 1,
+        "nativeStructures": 0,
+        "inventoryUnits": 1,
+        "nativePayoffGraphics": 1
+      },
+      {
+        "turn": 2,
+        "accounts": 0,
+        "nativeStructures": 0,
+        "inventoryUnits": 0,
+        "nativePayoffGraphics": 0
+      },
+      {
+        "turn": 3,
+        "accounts": 3,
+        "nativeStructures": 4,
+        "inventoryUnits": 19,
+        "nativePayoffGraphics": 18
+      },
+      {
+        "turn": 4,
+        "accounts": 1,
+        "nativeStructures": 4,
+        "inventoryUnits": 1,
+        "nativePayoffGraphics": 4
+      }
+    ],
+    "bdryRisingAndCappedTerminalCurve": true,
+    "noInventedProfitZeroOrProgress": true,
+    "defaultRawJsonAbsent": true,
+    "emptyArtifactsAbsent": true,
+    "retainedCustodyDateVisible": true,
+    "keyboardDetails": true,
+    "mobileOverflow": false,
+    "pageErrors": 0,
+    "tt1ActualPayoffSvgByteEquality": [
+      {
+        "sameSvg": true
+      },
+      {
+        "sameSvg": true
+      },
+      {
+        "sameSvg": true
+      },
+      {
+        "sameSvg": true
+      }
+    ],
+    "protectedPixelsExported": false
+  },
+  "sdk": {
+    "actualRealRetainedCopy": true,
+    "elapsedSeconds": 37,
+    "requests": 8,
+    "inputTokens": 169387,
+    "outputTokens": 890,
+    "turns": [
+      {
+        "turn": 1,
+        "tools": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "PTS",
+              "underlying": "BDRY"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              }
+            ],
+            "underlying": "BDRY",
+            "bytes": 4888
+          }
+        ],
+        "error": false
+      },
+      {
+        "turn": 2,
+        "tools": [
+          {
+            "name": "inspect_account_holdings",
+            "error": false,
+            "selection": {
+              "account": "PTS",
+              "contractTerms": true,
+              "selectedHoldingCount": 2
+            }
+          }
+        ],
+        "inventories": [],
+        "error": false
+      },
+      {
+        "turn": 3,
+        "tools": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {}
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 7,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 91703
+          }
+        ],
+        "error": false
+      },
+      {
+        "turn": 4,
+        "tools": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "tt1"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 33723
+          }
+        ],
+        "error": false
+      }
+    ]
+  },
+  "priorFailurePreserved": {
+    "firstUppercaseAccountCallFailed": true,
+    "subsequentActualSdkCorrectionPassed": true,
+    "requests": 9,
+    "inputTokens": 173312,
+    "outputTokens": 600
+  },
+  "tests": {
+    "java": {
+      "tests": 1100,
+      "suites": 186,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2
+    },
+    "talk": 78,
+    "mcp": 24,
+    "oas": 8,
+    "oasOperations": 39,
+    "actualResponseSchemaErrors": 0,
+    "javaElapsed": "5m43s"
+  },
+  "preserved": {
+    "productionSource": "107caf70569f065daf047333b494fe11d47b6902",
+    "productionJarSha256": "377b3c7e7711af71436b58b034af2152de83e836523372940dcbb1965b533e1f",
+    "main": "a4733817f82a2d9292241635a2a03177e21c39eb",
+    "credentialFilesAndGrantsUnchanged": true,
+    "protectedServicePids": [
+      77120,
+      77121,
+      98460,
+      98487
+    ],
+    "prior8819Untouched": true,
+    "reuseIntervalsUnchanged": true
+  },
+  "measurementsUnavailable": [
+    "Full engineering elapsed across prior compacted continuations",
+    "Author/reviewer internal model token counts",
+    "Monetary API cost not returned by SDK",
+    "Rejected HTTP batch attempts total"
+  ],
+  "acceptance": {
+    "independent": "ACCEPT_WITHIN_BOUNDED_SOURCE_SCOPE",
+    "principal": "NOT_YET_OBSERVED",
+    "productionDeployment": "NOT_AUTHORIZED_NOT_PERFORMED",
+    "independentReportSha256": "a4dd22a2e7d75b54f984bda6686022a9f25f73272f9e87a817acae83f2cad38b"
+  },
+  "priorRejectedCandidate": {
+    "source": "e961190a66beb22754a7ae01e0e06da8ad62954a",
+    "reason": "Unrelated same-underlying acquisition could renew an older exact series",
+    "independentReportSha256": "803228b6520e34822cab6d7015649f40993e8b5f3e39318d7500d48377681b3b",
+    "correctedInSuccessor": true,
+    "priorActualSdkRequests": 8,
+    "priorActualSdkInputTokens": 164526,
+    "priorActualSdkOutputTokens": 1650
+  },
+  "apiDocumentation": {
+    "localUnpublishedBuild": "PASS_WITH_EXISTING_EXAMPLE_WARNINGS",
+    "publicValidator": "PRE_EXISTING_405_ASSERTION_FAILURE",
+    "publication": "ACCEPTANCE_PENDING_NOT_PERFORMED"
+  }
+}
