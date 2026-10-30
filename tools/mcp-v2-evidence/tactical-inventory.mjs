@@ -2,8 +2,9 @@ import {canonicalAccountId} from '../../scripts/ww-accounts.mjs';
 import {readBackend,problemResult,UUID,selectedAccounts} from './backend.mjs';
 const holdingRef=href=>typeof href==='string'&&href.startsWith('/v2/holdings/')&&UUID.test(href.slice('/v2/holdings/'.length));
 /** One backend-owned inventory view; no financial association, calculations or client-side filtering. */
-export async function inspectTacticalInventory({account,underlying,cursor}={},config){
+export async function inspectTacticalInventory({accountScope,account,underlying,cursor}={},config){
  const end=performance.now()+(config.timeoutMs??40000),budget=()=>{const timeoutMs=Math.floor(end-performance.now());if(timeoutMs<=0)throw new Error('Inventory deadline exceeded.');return {...config,timeoutMs};};
+ if(!['ACCOUNT','ALL_AUTHORIZED'].includes(accountScope)||accountScope==='ACCOUNT'&&(typeof account!=='string'||!account.trim())||accountScope==='ALL_AUTHORIZED'&&account!==undefined)throw new Error('Explicit Account scope required: ACCOUNT with one nickname, or ALL_AUTHORIZED without account.');
  if(cursor!==undefined)throw new Error('Inventory view is complete or unavailable; no lifecycle continuation accepted.');
  if(underlying!==undefined&&!/^[A-Z0-9^][A-Z0-9.^/-]{0,31}$/.test(underlying))throw new Error('Canonical underlying required.');
  const found=await readBackend('/v2/accounts',budget());if(found.error)return problemResult(found.error);

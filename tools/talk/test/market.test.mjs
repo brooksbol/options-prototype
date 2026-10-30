@@ -53,7 +53,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.doesNotMatch(denied.content[0].text, /100.04/);
   assert.equal((await fetch(backend.base + '/v2/quotes', { method: 'POST', headers: {
     Authorization: `Bearer ${backend.token}` } })).status, 405);
-  const monitoring = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor' });
+  const monitoring = await servers[0].callToolResult('inspect_account_positions', { accountScope:'ACCOUNT',account: 'harbor' });
   const current=JSON.parse(monitoring.content[0].text);
   assert.equal(current.representation,'TACTICAL_POSITION_INVENTORY');
   assert.equal(current.accounts[0].status,'READ');
@@ -70,15 +70,19 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.match(positions.content[0].text, /125/);
   assert.equal(JSON.parse(positions.content[0].text).evidence.id,selected.id);
   const monitorSchema=tools.find(t=>t.name==='inspect_account_positions').inputSchema;
-  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','underlying']);
+  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','accountScope','underlying']);
   assert.equal(monitorSchema.additionalProperties,false);
-  const expanded = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor', projection:'expanded',includeInactive:true });
+  assert.ok(monitorSchema.required.includes('accountScope'));
+  const beforeMissingScope=(await backend.reads()).length;
+  const missingScope=await servers[0].callToolResult('inspect_account_positions',{underlying:'SPY'});
+  assert.equal(missingScope.isError,true);assert.equal((await backend.reads()).length,beforeMissingScope);
+  const expanded = await servers[0].callToolResult('inspect_account_positions', { accountScope:'ACCOUNT',account: 'harbor', projection:'expanded',includeInactive:true });
   assert.equal(expanded.isError,true);
   const beforeEmpty=(await backend.reads()).length;
-  const emptyCursor=await servers[0].callToolResult('inspect_account_positions',{account:'harbor',cursor:''});
+  const emptyCursor=await servers[0].callToolResult('inspect_account_positions',{accountScope:'ACCOUNT',account:'harbor',cursor:''});
   assert.equal(emptyCursor.isError,true);
   assert.equal((await backend.reads()).length,beforeEmpty);
-  const forbidden = await servers[0].callToolResult('inspect_account_positions', { account: 'orchard' });
+  const forbidden = await servers[0].callToolResult('inspect_account_positions', { accountScope:'ACCOUNT',account: 'orchard' });
   assert.notEqual(forbidden.isError,true); assert.equal(JSON.parse(forbidden.content[0].text).accounts[0].status,'FORBIDDEN');
   assert.doesNotMatch(forbidden.content[0].text, /7500/);
   const chat = createConversation({ servers, model: { getResponse() { throw new Error('not used'); } } });

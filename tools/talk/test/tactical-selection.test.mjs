@@ -20,3 +20,12 @@ test('universal all-Account inventory narrows by Account or exact canonical deta
  assert.deepEqual([...visibleTacticalResults([inventory([[account,[item('a')]]]),inventory([[other,[{...item('c'),account:{href:other}}]]])])],[0,1]);
  assert.deepEqual([...visibleTacticalResults([broad,inventory([[account,[item('a')],'changed']],'QQQ')])],[0,1]);assert.deepEqual([...visibleTacticalResults([broad,inventory([[account,[]]],'QQQ')])],[1]);
 });
+
+ test('an unavailable selected Account remains the visible scoped answer rather than restoring broad rows',()=>{
+  const broad=inventory([[account,[item('a')]],[other,[{...item('b'),account:{href:other}}]]]);
+  for(const status of ['FORBIDDEN','NO_RETAINED_CUSTODY','CAPACITY_UNAVAILABLE','SOURCE_CHANGED']){
+   const narrow={tacticalInventory:{underlying:'BDRY',accounts:[{account:{href:account},status,readComplete:false,items:[]}]}};
+   assert.deepEqual([...visibleTacticalResults([broad,narrow])],[1]);
+   assert.deepEqual([...visibleTacticalResults([inventory([[other,[item('b')]]]),narrow])],[0,1]);
+  }
+ });

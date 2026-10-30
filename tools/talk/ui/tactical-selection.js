@@ -40,6 +40,10 @@ function sameUnit(a,b){
 }
 function replacesInventory(before,after){
  const a=inventoryScope(before),b=inventoryScope(after);if(!a||!b||a.underlying&&b.underlying&&a.underlying!==b.underlying)return false;
+ // A later explicit unavailable subset is the answer for that scope, never a reason
+ // to restore an earlier broad inventory. This changes display, not source/cut identity.
+ const requested=after.tacticalInventory?.accounts??[],prior=before.tacticalInventory?.accounts??[];
+ if(requested.length&&requested.every(x=>x.status!=='READ'&&prior.some(y=>y.account?.href===x.account?.href)))return true;
  const sameAccounts=[...b.accounts].every(([account,cut])=>!!cut&&a.accounts.get(account)===cut);
  if(!b.items.length)return !!b.underlying&&b.complete&&sameAccounts&&b.accounts.size>0;
  if(!a.items.length)return false;const subset=(xs,ys)=>xs.every(x=>ys.some(y=>sameUnit(x,y)));
