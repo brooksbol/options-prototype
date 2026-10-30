@@ -1,5 +1,6 @@
 // Narrow standalone-tt adapter. ww never loads brokerage credentials in its process.
 import {main as ttMain, PRODUCTION_BASE_URL, readOrders, readComplexOrders} from './tastytrade.mjs';
+import {readHeldGreeks} from './tastytrade-greeks.mjs';
 import {acquireCadenceMarket,CADENCE_SYMBOLS} from './tt-cadence-market.mjs';
 import {projectLive} from './tastytrade-live.mjs';
 import {readFileSync} from 'node:fs';
@@ -95,15 +96,15 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,ca
  if(cadenceMarket&&marketContactBlocked)marketAcquisition={mode:'UNKNOWN',startedAt:now().toISOString(),completedAt:now().toISOString(),catalogs:[],observations:[],failures:[{code:'BROKER_RATE_OR_PERMISSION_BLOCK'}]};
  if(cadenceMarket&&account&&token&&!marketContactBlocked){
   const date=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(now());
-  try{marketAcquisition=await acquireCadenceMarket({session,sessionDate:date,now,get:async (path,{timeoutMs})=>{
+  try{marketAcquisition=await acquireCadenceMarket({session,sessionDate:date,now,readGreeks:async ({contracts,now,timeoutMs,loadQuoteToken})=>{const definitions=new Map(contracts.map(c=>[c.symbol,{data:{symbol:c.symbol,'streamer-symbol':c.streamerSymbol}}]));return readHeldGreeks({symbols:[...definitions.keys()],maxSymbols:6000,loadInstrument:async s=>definitions.get(s),loadQuoteToken,now,timeoutMs});},get:async (path,{timeoutMs})=>{
    const u=new URL(path,PRODUCTION_BASE_URL);
    const chain=/^\/option-chains\/([A-Z]+)\/nested$/.exec(u.pathname);
-   if(u.origin!==PRODUCTION_BASE_URL||!(chain&&CADENCE_SYMBOLS.includes(chain[1])||u.pathname==='/market-data/by-type'))throw Error('MARKET_ROUTE_DENIED');
+   if(u.origin!==PRODUCTION_BASE_URL||!(chain&&CADENCE_SYMBOLS.includes(chain[1])||u.pathname==='/market-data/by-type'||u.pathname==='/api-quote-tokens'))throw Error('MARKET_ROUTE_DENIED');
    if(u.pathname==='/market-data/by-type'&&((u.searchParams.get('equity-option')??'').split(',').length>99||!CADENCE_SYMBOLS.includes(u.searchParams.get('equity'))))throw Error('MARKET_BATCH_DENIED');
    const r=await fetchImpl(u,{method:'GET',redirect:'error',signal:AbortSignal.timeout(timeoutMs),headers:{Accept:'application/json',Authorization:`Bearer ${token}`,'User-Agent':'wheelwright-tt1-cadence/1.0'}});
    if([401,403,429].includes(r.status))marketContactBlocked=true;
    if(!r.ok){void r.body?.cancel().catch(()=>{});throw Error('HTTP_'+r.status);}
-   const text=await boundedText(r);return {body:JSON.parse(text),retrievedAt:now().toISOString()};
+   const text=await boundedText(r),body=JSON.parse(text);if(u.pathname==='/api-quote-tokens'&&typeof body?.data?.token==='string')secrets.add(body.data.token);return {body,retrievedAt:now().toISOString()};
   }});}catch{marketAcquisition={mode:'UNKNOWN',startedAt:now().toISOString(),completedAt:now().toISOString(),catalogs:[],observations:[],failures:[{code:'CANDIDATE_ACQUISITION_UNAVAILABLE'}]};}
  }
  const scrub=value=>{

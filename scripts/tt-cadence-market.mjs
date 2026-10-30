@@ -29,13 +29,13 @@ export function catalogPuts(body,symbol,date){
     const m=typeof identity==='string'?/^([A-Z0-9.]+) +(\d{6})P(\d{8})$/.exec(identity):null;
     if(!m||m[1]!==symbol||m[2]!==expiry.slice(2).replaceAll('-','')||Number(m[3])/1000!==strike||!(strike>0))throw Error('CONTRACT_IDENTITY_MISMATCH');
     const key=expiry+'|'+strike;if(keys.has(key))throw Error('AMBIGUOUS_STANDARD_GEOMETRY');keys.add(key);
-    out.push({underlying:symbol,expiration:expiry,strike,symbol:identity,multiplier:100,deliverables:g.deliverables??null,chainType:g['option-chain-type'],settlementType:e['settlement-type']??null});
+    out.push({underlying:symbol,expiration:expiry,strike,symbol:identity,streamerSymbol:row['put-streamer-symbol']??null,multiplier:100,deliverables:g.deliverables??null,chainType:g['option-chain-type'],settlementType:e['settlement-type']??null});
    }
   }
  }
  return out;
 }
-export function qualifyRow(row,spot,session,at){
+export function qualifyRow(row,spot,session,at,greek=null){
  const issues=[],t=at.getTime(),clock=instant(row?.['updated-at']),spotClock=instant(spot?.['updated-at']),open=instant(session?.['open-at']);
  const mode=marketMode(session,at);
  if(mode!=='REGULAR')issues.push(mode==='CLOSED'?'MARKET_CLOSED_RETAINED_TEST_ONLY':'MARKET_SESSION_UNKNOWN');
@@ -47,11 +47,11 @@ export function qualifyRow(row,spot,session,at){
  const sb=num(spot?.bid),sa=num(spot?.ask),spotPrice=sb!==null&&sa!==null&&sb>0&&sa>=sb?(sb+sa)/2:null;
  if(spotPrice===null)issues.push('SPOT_TWO_SIDED_QUOTE_UNAVAILABLE');
  if(row?.['is-trading-halted']===true||spot?.['is-trading-halted']===true)issues.push('TRADING_HALTED');
- if(num(row?.delta)===null)issues.push('DELTA_UNAVAILABLE');
- return {eligible:issues.length===0,status:issues.length?'UNQUALIFIED':'RECENT_BROKER_ROW_GREEK_CLOCK_NOT_SEPARATE',issues,marketQuoteObservedAt:row?.['updated-at']??null,optionRowUpdatedAt:row?.['updated-at']??null,underlyingSpotObservedAt:spot?.['updated-at']??null,underlyingSpot:spotPrice,spotPriceConvention:'underlying bid/ask midpoint from same REST batch',evaluatedAt:at.toISOString(),optionAgeSeconds:Number.isFinite(clock)?(t-clock)/1000:null,spotAgeSeconds:Number.isFinite(spotClock)?(t-spotClock)/1000:null,greeksUpdatedAt:null,greeksTimeQualification:'delta/Greeks observed in the same returned broker row; updated-at is row update time, NOT independently verified Greek calculation time',freshnessRule:{maxAgeMs:QUOTE_FRESH_MS,basis:'existing v1 DEFAULT_CACHE_TTL.quoteFreshMs; operational TT1 row-age check, not execution or model equivalence guarantee'}};
+ const greekTime=greek?.updatedAt,greekFresh=Number.isFinite(greekTime)&&greekTime<=t&&t-greekTime<=QUOTE_FRESH_MS&&greekTime>=open&&num(greek?.delta)!==null;
+ return {eligible:issues.length===0&&greekFresh,quoteRowEligible:issues.length===0,deltaAvailable:num(greek?.delta??row?.delta)!==null,greeksFreshness:greekFresh?'VERIFIED_EVENT_TIME':'NOT_ESTABLISHED',greekAgeSeconds:Number.isFinite(greekTime)?(t-greekTime)/1000:null,status:issues.length?'UNQUALIFIED':greekFresh?'RECENT_QUOTE_AND_INDEPENDENT_GREEK_EVENT':'RECENT_QUOTES_GREEKS_UNVERIFIED',issues,marketQuoteObservedAt:row?.['updated-at']??null,optionRowUpdatedAt:row?.['updated-at']??null,underlyingSpotObservedAt:spot?.['updated-at']??null,underlyingSpot:spotPrice,spotPriceConvention:'underlying bid/ask midpoint from same REST batch',evaluatedAt:at.toISOString(),optionAgeSeconds:Number.isFinite(clock)?(t-clock)/1000:null,spotAgeSeconds:Number.isFinite(spotClock)?(t-spotClock)/1000:null,greeksUpdatedAt:Number.isFinite(greekTime)?new Date(greekTime).toISOString():null,rawGreekEvent:greek,greeksTimeQualification:'delta uses independent DXLink Greeks.time when available; REST row updated-at never establishes Greek freshness. Other REST Greeks retain unverified calculation times',freshnessRule:{maxAgeMs:QUOTE_FRESH_MS,basis:'existing v1 DEFAULT_CACHE_TTL.quoteFreshMs; operational TT1 row-age check, not execution or model equivalence guarantee'}};
 }
-export async function acquireCadenceMarket({get,session,sessionDate,now=()=>new Date(),pause=ms=>new Promise(r=>setTimeout(r,ms)),symbols=CADENCE_SYMBOLS}){
- const started=now(),mode=marketMode(session,started),result={schema:'tt1-market-acquisition/v1',mode,startedAt:started.toISOString(),completedAt:null,symbolsRequested:[...symbols],catalogs:[],observations:[],failures:[],requestCount:0,limits:LIMITS,session};
+export async function acquireCadenceMarket({get,readGreeks,session,sessionDate,now=()=>new Date(),pause=ms=>new Promise(r=>setTimeout(r,ms)),symbols=CADENCE_SYMBOLS}){
+ const started=now(),mode=marketMode(session,started),result={schema:'tt1-market-acquisition/v1',mode,startedAt:started.toISOString(),completedAt:null,symbolsRequested:[...symbols],catalogs:[],observations:[],greekEvents:[],failures:[],requestCount:0,limits:LIMITS,session};
  if(mode!=='REGULAR'){result.completedAt=now().toISOString();return result;}
  let stop=false;
  const read=async path=>{
@@ -87,6 +87,15 @@ export async function acquireCadenceMarket({get,session,sessionDate,now=()=>new 
    if(stop)break;
   }
  }
+ if(!stop&&result.observations.length&&typeof readGreeks==='function'){
+  const remaining=LIMITS.durationMs-(now()-started);
+  if(remaining>0)try{
+   const contracts=result.catalogs.flatMap(c=>c.contracts).filter(c=>typeof c.streamerSymbol==='string');
+   result.greekEvents=await readGreeks({contracts,now:now(),timeoutMs:Math.min(5000,remaining),loadQuoteToken:async()=> (await read('/api-quote-tokens')).body});
+   if(result.greekEvents.length<result.catalogs.reduce((n,c)=>n+c.contracts.length,0))result.failures.push({stage:'GREEKS',code:'GREEK_EVENT_COVERAGE_PARTIAL',observed:result.greekEvents.length,requested:result.catalogs.reduce((n,c)=>n+c.contracts.length,0)});
+  }catch(e){result.failures.push({stage:'GREEKS',code:/^[A-Z0-9_]+$/.test(e.message)?e.message:'GREEK_EVENTS_UNAVAILABLE'});}
+  else result.failures.push({stage:'GREEKS',code:'ACQUISITION_CAP_REACHED'});
+ }
  result.completedAt=now().toISOString();result.modeAtCompletion=marketMode(session,now());result.unvisitedSymbols=symbols.filter(s=>!result.catalogs.some(c=>c.symbol===s));return result;
 }
 export function brokerMarketSnapshot(acquisition,at){
@@ -96,9 +105,9 @@ export function brokerMarketSnapshot(acquisition,at){
   for(const expiration of [...new Set(catalog.contracts.map(c=>c.expiration))]){
    const observations=acquisition.observations.filter(o=>o.contract.underlying===catalog.symbol&&o.contract.expiration===expiration);
    if(!observations.length)continue;
-   const puts=observations.map(o=>{const q=o.quote,ev=qualifyRow(q,o.underlyingQuote,acquisition.session,at);return {strike:o.contract.strike,symbol:o.contract.symbol,multiplier:o.contract.multiplier,deliverables:o.contract.deliverables,bid:num(q?.bid),ask:num(q?.ask),delta:num(q?.delta),gamma:num(q?.gamma),theta:num(q?.theta),vega:num(q?.vega),rho:num(q?.rho),volume:num(q?.volume),openInterest:num(q?.['open-interest']),marketEvidence:{...ev,retrievedAt:o.retrievedAt,rawQuote:q,rawUnderlyingQuote:o.underlyingQuote}};});
+   const puts=observations.map(o=>{const q=o.quote,greek=(acquisition.greekEvents??[]).find(g=>g.symbol===o.contract.symbol)??null,ev=qualifyRow(q,o.underlyingQuote,acquisition.session,at,greek);return {strike:o.contract.strike,symbol:o.contract.symbol,multiplier:o.contract.multiplier,deliverables:o.contract.deliverables,bid:num(q?.bid),ask:num(q?.ask),delta:num(greek?.delta??q?.delta),restDelta:num(q?.delta),deltaSource:greek?'DXLINK_GREEKS_EVENT':'REST_GREEK_TIME_UNVERIFIED',gamma:num(q?.gamma),theta:num(q?.theta),vega:num(q?.vega),rho:num(q?.rho),volume:num(q?.volume),openInterest:num(q?.['open-interest']),marketEvidence:{...ev,retrievedAt:o.retrievedAt,rawQuote:q,rawUnderlyingQuote:o.underlyingQuote}};});
    const retrieved=observations.map(o=>o.retrievedAt).sort().at(-1);
-   chains.push({expiration,retrievedAt:retrieved,chainAcquisitionProvenance:{kind:'chain-acquired',acquiredAt:retrieved},tt1Source:{system:'Tastytrade production REST candidate snapshots',generation:null,observationKind:'BROKER_ROW_SNAPSHOT',session:acquisition.session,greeksTimeQualification:'No independent Greek clock; preserve broker row timestamps',catalogRetrievedAt:catalog.retrievedAt},admissibility:{admissible:acquisition.modeAtCompletion==='REGULAR',basis:'explicit regular-session REST read; per-leg row qualification also required'},data:{symbol:catalog.symbol,expiration,underlying:{price:puts[0]?.marketEvidence.underlyingSpot??null},puts}});
+   chains.push({expiration,retrievedAt:retrieved,chainAcquisitionProvenance:{kind:'chain-acquired',acquiredAt:retrieved},tt1Source:{system:'Tastytrade production REST candidate snapshots',generation:null,observationKind:'BROKER_ROW_SNAPSHOT',session:acquisition.session,greeksTimeQualification:'Independent DXLink Greeks.time required for short-delta qualification; per-leg quote/spot clocks remain separate',catalogRetrievedAt:catalog.retrievedAt},admissibility:{admissible:acquisition.modeAtCompletion==='REGULAR',basis:'explicit regular-session REST read; per-leg row qualification also required'},data:{symbol:catalog.symbol,expiration,underlying:{price:puts[0]?.marketEvidence.underlyingSpot??null},puts}});
   }
   symbols.push({symbol:catalog.symbol,expirations:[...new Set(catalog.contracts.map(c=>c.expiration))].map(date=>({date})),chains});
  }

@@ -4,10 +4,10 @@ import {acquireCadenceMarket,catalogPuts,qualifyRow,marketMode,brokerMarketSnaps
 import {buildMarket,validateMarket,sessionContext} from './ww-export-tt1.mjs';
 const at=new Date('2026-10-30T14:30:00Z'),session={state:'Open','open-at':'2026-10-30T13:30:00Z','close-at':'2026-10-30T20:00:00Z'};
 const identity=(s,k)=>s+'   261211P'+String(k*1000).padStart(8,'0');
-const catalog=(symbol='GLD',strikes=[327.5,335,340,345,350,357])=>({data:{items:[{'underlying-symbol':symbol,'option-chain-type':'Standard','shares-per-contract':100,deliverables:[],expirations:[{'expiration-date':'2026-12-11',strikes:strikes.map(k=>({'strike-price':String(k),put:identity(symbol,k)}))}]}]}});
+const catalog=(symbol='GLD',strikes=[327.5,335,340,345,350,357])=>({data:{items:[{'underlying-symbol':symbol,'option-chain-type':'Standard','shares-per-contract':100,deliverables:[],expirations:[{'expiration-date':'2026-12-11',strikes:strikes.map(k=>({'strike-price':String(k),put:identity(symbol,k),'put-streamer-symbol':'.'+symbol+'261211P'+String(k)}))}]}]}});
 const spot=s=>({symbol:s,'instrument-type':'Equity',bid:'357.1',ask:'357.2','updated-at':'2026-10-30T14:29:59Z'});
 function quote(s){const strike=Number(s.slice(-8))/1000;return {symbol:s,'instrument-type':'Equity Option',bid:String(strike/40),ask:String(strike/40+.1),delta:String(strike===340?-.27:strike===345?-.32:strike===350?-.38:strike===357?-.49:-.1),'open-interest':strike===335?0:null,volume:null,'updated-at':'2026-10-30T14:29:59Z'};}
-function mock(){const calls=[];return {calls,get:async path=>{calls.push(path);const u=new URL(path,'https://api.tastyworks.com');if(u.pathname.startsWith('/option-chains/'))return {body:catalog(u.pathname.split('/')[2]),retrievedAt:at.toISOString()};assert.equal(u.pathname,'/market-data/by-type');const s=u.searchParams.get('equity'),ids=u.searchParams.get('equity-option').split(',');assert.ok(ids.length+1<=100);return {body:{data:{items:[spot(s),...ids.map(quote)]}},retrievedAt:at.toISOString()};}};}
+function mock(){const calls=[];return {calls,readGreeks:async({contracts})=>contracts.map(c=>({symbol:c.symbol,delta:Number(quote(c.symbol).delta),updatedAt:at.getTime()-1000})),get:async path=>{calls.push(path);const u=new URL(path,'https://api.tastyworks.com');if(u.pathname.startsWith('/option-chains/'))return {body:catalog(u.pathname.split('/')[2]),retrievedAt:at.toISOString()};assert.equal(u.pathname,'/market-data/by-type');const s=u.searchParams.get('equity'),ids=u.searchParams.get('equity-option').split(',');assert.ok(ids.length+1<=100);return {body:{data:{items:[spot(s),...ids.map(quote)]}},retrievedAt:at.toISOString()};}};}
 test('regular session comes from broker clock; closed/weekend/unknown never starts provider acquisition',async()=>{
  assert.equal(marketMode(session,at),'REGULAR');assert.equal(marketMode({...session,state:'Closed'},at),'UNKNOWN');
  for(const s of [{state:'Closed'},null,{state:'Open'}, {...session,state:'Open'}]){
@@ -19,10 +19,10 @@ test('all14 ETF catalogs/eligible puts acquired, exact identities and adjacent s
  const market=buildMarket(brokerMarketSnapshot(a,at),sessionContext(at),at);validateMarket(market);
  const g=market.verticalPairs.filter(p=>p.underlying==='GLD');assert.equal(g.length,2);assert.ok(g.every(p=>p.shortStrike===340&&p.shortDelta===-.27));assert.deepEqual(g.map(p=>p.width),[12.5,5]);assert.ok(g.every(p=>p.longDelta===-.1));assert.equal(g[0].observedMultiplier,100);
  const rows=market.contracts.filter(c=>c.underlying==='GLD');assert.ok(rows.some(c=>c.observed.strike===357&&c.observed.delta===-.49&&!c.shortDeltaEligible));assert.equal(rows.find(c=>c.observed.strike===335).observed.openInterest,0);assert.equal(rows.find(c=>c.observed.strike===340).observed.openInterest,null);assert.equal(rows[0].observedContractIdentity,identity('GLD',327.5));
- assert.ok(g.every(p=>!p.exclusions.length));assert.ok(g[0].source.shortObservation.greeksTimeQualification.includes('NOT independently'));
+ assert.ok(g.every(p=>!p.exclusions.length));assert.ok(g[0].source.shortObservation.greeksTimeQualification.includes('independent DXLink'));
 });
 test('quote/spot clocks fail closed for missing, old, prior-session, future, mixed-age, halt and missing delta',()=>{
- const q=quote(identity('GLD',340)),s=spot('GLD');assert.equal(qualifyRow(q,s,session,at).eligible,true);
+ const q=quote(identity('GLD',340)),s=spot('GLD');assert.equal(qualifyRow(q,s,session,at).quoteRowEligible,true);assert.equal(qualifyRow(q,s,session,at).eligible,false);assert.equal(qualifyRow(q,s,session,at,{symbol:q.symbol,delta:-.27,updatedAt:at.getTime()-1000}).eligible,true);
  for(const x of [null,'2026-10-29T14:29:59Z','2026-10-30 14:29:59','2026-10-30T14:30:01Z','2026-10-30T14:27:59Z'])assert.equal(qualifyRow({...q,'updated-at':x},s,session,at).eligible,false);
  assert.equal(qualifyRow(q,{...s,'updated-at':'2026-10-30T14:27:59Z'},session,at).eligible,false);
  assert.equal(qualifyRow({...q,delta:null},s,session,at).eligible,false);assert.equal(qualifyRow({...q,'is-trading-halted':true},s,session,at).eligible,false);
@@ -87,4 +87,13 @@ test('HTTP denial status survives unreadable bodies; collector stops market cont
   const r=await collectBroker({allowSingleAccount:true,cadenceMarket:true,fetchImpl,env:{TASTYTRADE_CLIENT_ID:'dummy-client',TASTYTRADE_CLIENT_SECRET:'dummy-secret',TASTYTRADE_REFRESH_TOKEN:'dummy-refresh'},now:()=>at});
   assert.equal(catalogs,1);assert.equal(r.marketAcquisition.failures[0].code,'HTTP_'+status);assert.equal(r.projection.positions.length,0);assert.ok(r.reads.some(x=>x.path.endsWith('/balances')));
  }
+});
+test('independent Greek clock is required for short selection; a fresh REST row cannot launder prior-day Greeks; long delta may be absent',async()=>{
+ const m=mock();m.readGreeks=async()=>[];
+ let a=await acquireCadenceMarket({...m,session,sessionDate:'2026-10-30',now:()=>at,pause:async()=>{}}),market=buildMarket(brokerMarketSnapshot(a,at),sessionContext(at),at);
+ assert.ok(market.verticalPairs.length);assert.ok(market.verticalPairs.every(p=>p.exclusions.includes('SHORT_GREEK_FRESHNESS_NOT_ESTABLISHED')));
+ m.readGreeks=async({contracts})=>contracts.filter(c=>c.strike===340).map(c=>({symbol:c.symbol,delta:-.27,updatedAt:at.getTime()-1000}));
+ const original=m.get;m.get=async path=>{const r=await original(path);if(path.startsWith('/market-data/'))for(const q of r.body.data.items)if(q.symbol!==identity(q.symbol.split(' ')[0],340))q.delta=null;return r;};
+ a=await acquireCadenceMarket({...m,symbols:['GLD'],session,sessionDate:'2026-10-30',now:()=>at,pause:async()=>{}});market=buildMarket(brokerMarketSnapshot(a,at),sessionContext(at),at);assert.equal(market.verticalPairs.length,2);assert.ok(market.verticalPairs.every(p=>p.longDelta===null&&!p.exclusions.length));
+ const q=quote(identity('GLD',340)),s=spot('GLD');const old=qualifyRow(q,s,session,at,{symbol:q.symbol,delta:-.28,updatedAt:Date.parse('2026-10-29T20:00:05Z')});assert.equal(old.quoteRowEligible,true);assert.equal(old.greeksFreshness,'NOT_ESTABLISHED');assert.equal(old.eligible,false);
 });

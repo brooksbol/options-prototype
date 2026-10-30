@@ -1,4 +1,5 @@
-// One-shot, read-only DXLink Greek snapshot for held option contracts.
+// One-shot, read-only DXLink Greek snapshot. Default held cap100 is unchanged;
+// explicit TT1 catalog callers may request a bounded maximum of6000.
 // A missing or old Greek leaves direction unknown; it never changes trade economics.
 
 const GREEK_MAX_AGE_MS = 12 * 60 * 60 * 1000;
@@ -19,8 +20,8 @@ function acceptedEndpoint(raw) {
 }
 
 export async function readHeldGreeks({ symbols, loadInstrument, loadQuoteToken,
-  WebSocketImpl = WebSocket, now = new Date(), timeoutMs = SNAPSHOT_TIMEOUT_MS }) {
-  if (!Array.isArray(symbols) || symbols.length === 0 || symbols.length > 100 ||
+  WebSocketImpl = WebSocket, now = new Date(), timeoutMs = SNAPSHOT_TIMEOUT_MS, maxSymbols = 100 }) {
+  if (!Array.isArray(symbols) || symbols.length === 0 || symbols.length > maxSymbols || !Number.isInteger(maxSymbols) || maxSymbols < 1 || maxSymbols > 6000 ||
       symbols.some((symbol) => !optionKey(symbol)) ||
       typeof loadInstrument !== "function" || typeof loadQuoteToken !== "function" ||
       !(now instanceof Date) || !Number.isFinite(now.getTime())) return [];
