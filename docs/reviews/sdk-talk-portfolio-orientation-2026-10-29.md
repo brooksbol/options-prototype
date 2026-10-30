@@ -1,6 +1,6 @@
 # Talk general portfolio orientation — October 29
 
-Standing: independently accepted bounded source correction16239e32; installation and Principal acceptance pending.
+Standing: independently accepted bounded source correction16239e32, installed at107caf70 and author-verified in production; Principal Product acceptance pending.
 
 ## Task and authority
 Principal reports that unqualified “show me my positions” silently selected PTS, rendered seven pages of historical/expired lifecycle records, opaque identifiers, repeated incomplete-page/unknown-quote cards, duplicate SPYI states and a commentary failure. Original failing tool trace is unavailable: this is Principal-reported incident evidence, not a fabricated invocation diagnosis. Principal requests bounded Account-scope/inventory correction and installed browser verification, preserving tt1 and daily operation. Existing accepted shared-result work is already pushed at43a06895. New candidate engineering proceeds separately; no grant, policy, trading, v1 or credential change is authorized by this correction.
@@ -47,3 +47,16 @@ Successor checks the final serialized UTF-8 tool text as well as intermediate in
 Final author72Talk/19MCP/193Java/8OAS tests pass. Corrected-source actual-result browser replay passes3Accounts51rows→4structures→3Accounts51rows→QQQ1→4structures, no defaultJSON/mobileoverflow/pageerrors. No new model calls for source-equivalent replay.
 
 The Principal's current request (“push what you have then” followed by bounded correction and “installed browser verification”) authorizes promotion of this reviewed bounded correction and matching v2/Talk restart for verification. This does not broaden the prior tt1 grant/policy authorization. Preserve rollback43a06895source/abf3a1e3JAR, v1processes77120/77121, all grants/credentials/policies and frozen review targets. Installation is an actual transition to verify, not implied by reviewer ACCEPT; results appended after execution. Principal Product acceptance remains pending.
+
+
+## Installed verification and preserved operational state
+
+Production8787 now runs107caf70569f065daf047333b494fe11d47b6902, reviewed runtime16239e32; JAR377b3c7e7711af71436b58b034af2152de83e836523372940dcbb1965b533e1f. Main integration was fast-forward from43a06895; runtime trees match the frozen reviewed candidate. Matching source/JAR rollback was prepared privately and not used. Only v2evidence3101 and Talk8787 restarted; v1Vite77120/Java77121 remained running, unchanged. Existing12tools/images/CSV remain; every served asset hash matches installed source, including new custody renderer.
+
+Actual installed SDK: “Show me my positions.”→all3Accounts/51latest-retained custody rows; explicit tt1shape/spot/DTE→4structures; subsequent unqualified same request→all3/51again. Exact holding IDs match independently queried backend-selected membership, one cut perAccount, source descriptions present; no commentary failure in these3turns. This is actual real authorized installed verification, not a synthetic fixture. It does not establish why the original commentary failed or guarantee future model completion.
+
+Installed SDK3turns28.758seconds,6requests/215381input/1836output tokens; response bytes95193/33575/95193. Existing authorized read-through may acquire Order/market evidence; actual provider/backend request counts were not instrumented and are NOT reported as zero. Normal runtime trace exportoff/local-memory/providerstoragedisabled/noremotecompaction verified. Session reset after engineer verification.
+
+Actual installed results replayed in actual8787served browser:3Accountgroups/51rows→4native tactical shapes→3/51; source dates and partial coverage visible, no historical lifecycle-card dump/defaultJSON, no390pxdocument overflow/pageerrors. Chat replay intercept adds0model/provider calls and does not claim a second real SDK invocation or Principal observation. No protected pixels/originals exported.
+
+Credential file hashes/effective grants unchanged. PTS/Sawdust Orders and Account-market probes remain403; existing tt1/global read scopes and300/30reuse retained. No polling, trading/OAuth, broker mutations, v1source/worktree/service changes. Frozen rejected/accepted candidates remain intact. Residual cross-Account grouped structures, historical Fidelity coverage, high model context, entry economics and separate empty/freshness UX gaps stay Open. Principal acceptance of this installed general workflow is not claimed.

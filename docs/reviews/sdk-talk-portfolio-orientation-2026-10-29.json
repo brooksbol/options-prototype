@@ -96,5 +96,151 @@
   },
   "elapsedMs": 43059,
   "providerRequests": 0,
-  "productionWrites": 0
+  "productionWrites": 0,
+  "independentReview": {
+    "rejectedSource": "b2b3869b3fac5f6e90444fcbc782ee7cd4909f1b",
+    "rejectedReportSha256": "62516efbd59feaa8d139f61bd6c2d9d094f24c17dc0b5cc70f24eefaeb6670e3",
+    "acceptedSource": "16239e324509e062b47d2345efe550f36b97183b",
+    "acceptedReportSha256": "2ff66ad78748e8a54375699f5913741240f8104d75ac62e28e7213ff21241002",
+    "scope": "BOUNDED_SOURCE_NOT_FULL_PRODUCT_ACCEPTANCE"
+  },
+  "deployment": {
+    "installed": true,
+    "source": "107caf70569f065daf047333b494fe11d47b6902",
+    "reviewSource": "16239e324509e062b47d2345efe550f36b97183b",
+    "jarSha": "377b3c7e7711af71436b58b034af2152de83e836523372940dcbb1965b533e1f",
+    "imagesEnabled": true,
+    "tools": [
+      "list_authorized_accounts",
+      "acquire_account_holdings",
+      "prepare_report_download",
+      "inspect_account_positions",
+      "inspect_position_details",
+      "inspect_order_details",
+      "inspect_account_balances",
+      "inspect_account_holdings",
+      "inspect_account_transactions",
+      "inspect_account_transaction_details",
+      "inspect_option_inventory",
+      "inspect_market_quotes"
+    ],
+    "privacy": {
+      "traceExport": false,
+      "state": "local-memory",
+      "providerStorage": false,
+      "remoteCompaction": false
+    },
+    "servedAssetHashesMatch": true,
+    "newAccountGrants": false,
+    "newAcquisitionPolicies": false
+  },
+  "installedSDK": {
+    "completed": true,
+    "standing": "INSTALLED_REAL_SDK_VERIFICATION",
+    "source": "107caf70569f065daf047333b494fe11d47b6902",
+    "reviewSource": "16239e324509e062b47d2345efe550f36b97183b",
+    "counts": [
+      {
+        "accounts": 3,
+        "rows": 51
+      },
+      {
+        "structures": 4
+      },
+      {
+        "accounts": 3,
+        "rows": 51
+      }
+    ],
+    "exactBackendMembership": true,
+    "privateSourceDescriptionsRecovered": true,
+    "singleCutPerAccount": true,
+    "accountScopeNotInherited": true,
+    "entryEconomicsNotInvented": true,
+    "privacy": {
+      "traceExport": false,
+      "state": "local-memory",
+      "providerStorage": false,
+      "remoteCompaction": false
+    },
+    "turns": [
+      {
+        "tools": [
+          "inspect_account_holdings"
+        ],
+        "bytes": 95193,
+        "usage": {
+          "requests": 2,
+          "inputTokens": 36151,
+          "outputTokens": 847,
+          "totalTokens": 36998
+        }
+      },
+      {
+        "tools": [
+          "inspect_account_positions"
+        ],
+        "bytes": 33575,
+        "usage": {
+          "requests": 2,
+          "inputTokens": 72137,
+          "outputTokens": 347,
+          "totalTokens": 72484
+        }
+      },
+      {
+        "tools": [
+          "inspect_account_holdings"
+        ],
+        "bytes": 95193,
+        "usage": {
+          "requests": 2,
+          "inputTokens": 107093,
+          "outputTokens": 642,
+          "totalTokens": 107735
+        }
+      }
+    ],
+    "elapsedMs": 28758,
+    "providerReadThroughPolicyUnchanged": true,
+    "providerRequestCount": "NOT_INSTRUMENTED",
+    "principalAcceptance": false
+  },
+  "installedBrowser": {
+    "completed": true,
+    "standing": "ACTUAL_INSTALLED_SDK_RESULTS_REPLAYED_IN_INSTALLED_SERVED_UI",
+    "counts": [
+      {
+        "accounts": 3,
+        "rows": 51
+      },
+      {
+        "structures": 4,
+        "nativeShapes": 4
+      },
+      {
+        "accounts": 3,
+        "rows": 51
+      }
+    ],
+    "defaultRawJsonAbsent": true,
+    "sourceDatesAndPartialCoverageVisible": true,
+    "historicalLifecycleCardDumpAbsent": true,
+    "mobileOverflow": false,
+    "pageErrors": 0,
+    "additionalModelRequests": 0,
+    "additionalProviderRequests": 0,
+    "protectedPixelsExported": false,
+    "principalAcceptance": false
+  },
+  "preservation": {
+    "v1FrontendPid": 77120,
+    "v1BackendPid": 77121,
+    "unchangedCredentials": true,
+    "unchangedGrants": true,
+    "unchangedAcquisitionPolicies": true,
+    "newTradingCapability": false,
+    "ptsAndSawdustOrdersAndMarketStill403": true,
+    "rollbackPreparedNotUsed": true
+  }
 }
