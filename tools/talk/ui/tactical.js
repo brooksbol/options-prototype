@@ -30,7 +30,7 @@ export function payoffGraphic(doc,evaluation){
  if(bottom<=0&&top>=0)shape(doc,image,'line',{x1:14,y1:y(0),x2:246,y2:y(0),class:'tactical-zero'});
  const plotted=samples??[{x:low,y:knots[0].y},...knots,{x:high,y:knots.at(-1).y}];shape(doc,image,'polyline',{points:plotted.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),fill:'none',class:'tactical-payoff'});
  for(const point of knots){shape(doc,image,'circle',{cx:x(point.x),cy:y(point.y),r:2.2,class:'tactical-strike'});const t=shape(doc,image,'text',{x:x(point.x),y:81,'text-anchor':'middle',class:'tactical-axis'});t.textContent=single?'Strike '+point.label:point.label;}
- if(spot!=null){const color={NEUTRAL_PLATEAU:'plateau',TRANSITION:'transition',ADVERSE_TAIL:'loss'}[evaluation.spotRegion]??'unknown';shape(doc,image,'line',{x1:x(spot),x2:x(spot),y1:4,y2:68,class:'tactical-spot-line'});if(!single)shape(doc,image,'path',{d:`M ${x(spot)-4} 5 L ${x(spot)+4} 5 L ${x(spot)} 12 Z`,class:'tactical-spot '+color});
+ if(spot!=null){const color={NEUTRAL_PLATEAU:'plateau',TRANSITION:'transition',ADVERSE_TAIL:'loss'}[evaluation.spotRegion]??'unknown';shape(doc,image,'line',{x1:x(spot),x2:x(spot),y1:single?18:4,y2:68,class:'tactical-spot-line'});if(!single)shape(doc,image,'path',{d:`M ${x(spot)-4} 5 L ${x(spot)+4} 5 L ${x(spot)} 12 Z`,class:'tactical-spot '+color});
  const point=g.spotPoint,px=number(point?.price),py=number(point?.value);if(px===spot&&py!=null){shape(doc,image,'circle',{cx:x(px),cy:y(py),r:3.5,class:'tactical-observed-spot'});}
  if(single){const text=shape(doc,image,'text',{x:bounded(x(spot),35,225),y:97,'text-anchor':'middle',class:'tactical-axis'});text.textContent='Spot '+evaluation.spot.value;}
 }

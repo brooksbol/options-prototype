@@ -128,3 +128,8 @@ Further constraints, from other authorities:
 - Formal Operating Regime ↔ Operating Program relationship (not separately ratified).
 - Where purpose/Mandate lives (Doc 61 discovery).
 - Account–Brokerage resource design and multi-broker admission (Doc 77 §2 "explicitly outside").
+
+
+### October 29 descriptive contractual charts — Principal direction
+
+For identical qualified contracts, quantities and market observations, contractual terminal geometry and option moneyness are independent of Operating Regime and whether assignment is desired. Principal: “it's simpler than that. it's ITM vs OTM” and “this is good. this doesn't require the regime, i.e, whether assignment is desired”. Objective contract facts/native descriptive visualization are distinct from regime objectives and future regime-aware decisions. ITM/OTM imply neither profit/loss nor desirability/assignment outcome; exact strike boundary does not establish a near-ATM tolerance. Unsupported adjusted/deliverable/spot facts remain unavailable. Terminal value is not current P/L, and opening/continuity/basis claims retain their own requirements. [Design/implementation/review standing](../../reviews/sdk-talk-tactical-moneyness-2026-10-29.md) records the bounded candidate; this direction does not accept its runtime, resolve ASSIM-0002 or grant trading/deployment authority.
