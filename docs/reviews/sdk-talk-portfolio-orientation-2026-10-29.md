@@ -1,6 +1,6 @@
 # Talk general portfolio orientation — October 29
 
-Standing: author-verified candidate; independent review, installation and Principal acceptance pending.
+Standing: independently accepted bounded source correction16239e32; installation and Principal acceptance pending.
 
 ## Task and authority
 Principal reports that unqualified “show me my positions” silently selected PTS, rendered seven pages of historical/expired lifecycle records, opaque identifiers, repeated incomplete-page/unknown-quote cards, duplicate SPYI states and a commentary failure. Original failing tool trace is unavailable: this is Principal-reported incident evidence, not a fabricated invocation diagnosis. Principal requests bounded Account-scope/inventory correction and installed browser verification, preserving tt1 and daily operation. Existing accepted shared-result work is already pushed at43a06895. New candidate engineering proceeds separately; no grant, policy, trading, v1 or credential change is authorized by this correction.
@@ -38,3 +38,12 @@ This corrects general retained-inventory selection/representation; it does not e
 Frozen first submission:b2b3869b3fac5f6e90444fcbc782ee7cd4909f1b remains unchanged. Independent reviewer reproduced a100076byte result passing the internal100000byte array guard, because envelope/qualification were not measured, and found material SOURCE_CONFLICT warning hidden by the native table. Source correction is authorized by the current bounded Product delegation, not by reviewer disposition. Exact immutable review is preserved separately when finalized.
 
 Successor checks the final serialized UTF-8 tool text as well as intermediate inventory, and shows one compact Account-level source-conflict note for collection or row warnings, including complete-but-prior-cut counterexamples. Technical detail remains on demand.22focusedMCP/native tests pass, including exact envelope-overrun and both warning locations. Backend/OAS/SDKselection/financial semantics unchanged. First-candidate actual retained-copy conversations remain source-applicable for selection; successor browser and runtime verification are tracked separately. No new model requests are claimed from a test rerun or source carry-through.
+
+
+## Independent disposition and authorized installed verification
+
+[Original b2 review](sdk-talk-independent-portfolio-review-2026-10-29.md) REJECT, SHA25662516efbd59feaa8d139f61bd6c2d9d094f24c17dc0b5cc70f24eefaeb6670e3, remains immutable. [Focused successor review](sdk-talk-independent-portfolio-rereview-2026-10-29.md) ACCEPTs16239e324509e062b47d2345efe550f36b97183b within bounded source scope, SHA2562ff66ad78748e8a54375699f5913741240f8104d75ac62e28e7213ff21241002. Reviewer independently verifies exact100000/100001UTF8limits including multibyte controls, Account/row visible SOURCE_CONFLICT, positive all-Account/page/denial/cut/precision/date/deadline controls. It does not certify comprehensive warning taxonomy, full Product/current-custody or financial acceptance. Other diagnostics remain in technical detail.
+
+Final author72Talk/19MCP/193Java/8OAS tests pass. Corrected-source actual-result browser replay passes3Accounts51rows→4structures→3Accounts51rows→QQQ1→4structures, no defaultJSON/mobileoverflow/pageerrors. No new model calls for source-equivalent replay.
+
+The Principal's current request (“push what you have then” followed by bounded correction and “installed browser verification”) authorizes promotion of this reviewed bounded correction and matching v2/Talk restart for verification. This does not broaden the prior tt1 grant/policy authorization. Preserve rollback43a06895source/abf3a1e3JAR, v1processes77120/77121, all grants/credentials/policies and frozen review targets. Installation is an actual transition to verify, not implied by reviewer ACCEPT; results appended after execution. Principal Product acceptance remains pending.
