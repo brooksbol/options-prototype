@@ -62,3 +62,29 @@ test('standalone collector with flat custody still reads session, preserves fina
  const r=await collectBroker({allowSingleAccount:true,cadenceMarket:true,fetchImpl,env:{TASTYTRADE_CLIENT_ID:'dummy-client',TASTYTRADE_CLIENT_SECRET:'dummy-secret',TASTYTRADE_REFRESH_TOKEN:'dummy-refresh'},now:()=>at});
  assert.equal(r.marketAcquisition.mode,'CLOSED');assert.equal(r.marketAcquisition.requestCount,0);assert.equal(r.projection.positions.length,0);assert.equal(calls.filter(([m])=>m==='POST').length,1);assert.ok(calls.some(([,p])=>p.endsWith('/sessions/current')));assert.ok(!JSON.stringify(r).includes('DUMMY1234'));assert.ok(!JSON.stringify(r).includes('dummy-token'));
 });
+test('deadline covers pacing and remaining in-flight timeout; no provider call begins after budget',async()=>{
+ let elapsed=0;const starts=[],timeouts=[],start=at.getTime();
+ const a=await acquireCadenceMarket({session,sessionDate:'2026-10-30',now:()=>new Date(start+elapsed),pause:async ms=>{elapsed+=ms;},get:async(path,{timeoutMs})=>{starts.push(elapsed);timeouts.push(timeoutMs);elapsed+=8540;return {body:{data:{items:[]}},retrievedAt:new Date(start+elapsed).toISOString()};}});
+ assert.ok(starts.every(t=>t<LIMITS.durationMs));assert.ok(elapsed<=LIMITS.durationMs);assert.equal(starts.length,10);assert.ok(a.failures.some(f=>f.code==='ACQUISITION_CAP_REACHED'));
+ assert.ok(timeouts.every((t,i)=>t<=10000&&t<=LIMITS.durationMs-starts[i]));
+});
+test('HTTP denial status survives unreadable bodies; collector stops market contacts on first429/401/403',async()=>{
+ const {collectBroker}=await import('./tt-cadence-evidence.mjs');
+ for(const status of [429,401,403]){
+  let catalogs=0;const fetchImpl=async(url,opt)=>{
+   const p=new URL(url).pathname;
+   if(p==='/oauth/token')return Response.json({access_token:'dummy-token'});
+   assert.equal(opt.method,'GET');
+   if(p==='/customers/me/accounts')return Response.json({data:{items:[{account:{'account-number':'DUMMY1234'}}]}});
+   if(p.endsWith('/positions'))return Response.json({data:{items:[]}});
+   if(p.endsWith('/orders')||p.endsWith('/complex-orders'))return Response.json({data:{items:[]},pagination:{'page-offset':0,'total-pages':0,'total-items':0}});
+   if(p.endsWith('/balances'))return Response.json({data:{currency:'USD','updated-at':at.toISOString(),'derivative-buying-power':'1000'}});
+   if(p.endsWith('/requirements'))return Response.json({data:{'account-number':'DUMMY1234',groups:[],'last-state-timestamp':at.getTime()}});
+   if(p.endsWith('/sessions/current'))return Response.json({data:session});
+   if(p.startsWith('/option-chains/')){catalogs++;return new Response(new ReadableStream({start(c){c.error(Error('unreadable body'));}}),{status});}
+   throw Error('Unexpected route');
+  };
+  const r=await collectBroker({allowSingleAccount:true,cadenceMarket:true,fetchImpl,env:{TASTYTRADE_CLIENT_ID:'dummy-client',TASTYTRADE_CLIENT_SECRET:'dummy-secret',TASTYTRADE_REFRESH_TOKEN:'dummy-refresh'},now:()=>at});
+  assert.equal(catalogs,1);assert.equal(r.marketAcquisition.failures[0].code,'HTTP_'+status);assert.equal(r.projection.positions.length,0);assert.ok(r.reads.some(x=>x.path.endsWith('/balances')));
+ }
+});

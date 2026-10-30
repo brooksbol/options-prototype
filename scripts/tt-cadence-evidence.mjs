@@ -17,7 +17,7 @@ async function boundedText(response){
 }
 
 export async function collectBroker({expectedAccount,allowSingleAccount=false,cadenceMarket=false,fetchImpl=fetch,env=process.env,readFile=readFileSync,now=()=>new Date()}={}) {
- const reads=[],failures=[],secrets=new Set(),numbers=new Set();let account,token;
+ const reads=[],failures=[],secrets=new Set(),numbers=new Set();let account,token,marketContactBlocked=false;
  const guarded=async(url,options)=>{
   const u=new URL(url);if(u.origin!==PRODUCTION_BASE_URL||options.redirect!=='error')throw Error('BROKER_ROUTE_DENIED');
   const method=options.method;
@@ -26,6 +26,7 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,ca
   if(!oauth&&!allowed)throw Error('BROKER_ROUTE_DENIED');
   if(oauth)for(const v of Object.values(JSON.parse(options.body)))if(typeof v==='string'&&v!=='refresh_token')secrets.add(v);
   let r;try{r=await fetchImpl(url,options);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'NETWORK_UNAVAILABLE'});throw Error('BROKER_NETWORK_UNAVAILABLE');}
+  if(!oauth&&[401,403,429].includes(r.status))marketContactBlocked=true;
   let text;try{text=await boundedText(r);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'RESPONSE_BODY_UNAVAILABLE'});throw Error('BROKER_BODY_UNAVAILABLE');}
   let body;try{body=JSON.parse(text);}catch{failures.push({source:u.pathname.replace(/\/accounts\/[^/]+/,'/accounts/tt1'),code:'INVALID_RESPONSE_JSON'});throw Error('BROKER_INVALID_JSON');}
   const replay=new Response(text,{status:r.status,statusText:r.statusText,headers:r.headers});
@@ -65,6 +66,7 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,ca
  if(account&&token){
   try{
    const r=await fetchImpl(`${PRODUCTION_BASE_URL}/accounts/${account}/balances?currency=USD`,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`}});
+   if([401,403,429].includes(r.status))marketContactBlocked=true;
    const text=await boundedText(r);
    if(!r.ok)throw Error();
    reads.push({path:'/accounts/tt1/balances',query:'?currency=USD',retrievedAt:now().toISOString(),body:JSON.parse(text)});
@@ -74,6 +76,7 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,ca
  if(account&&token){
   try{
    const r=await fetchImpl(`${PRODUCTION_BASE_URL}/margin/accounts/${account}/requirements`,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`}});
+   if([401,403,429].includes(r.status))marketContactBlocked=true;
    const text=await boundedText(r);if(!r.ok)throw Error();const body=JSON.parse(text);
    if(body?.data?.['account-number']!==account||!Array.isArray(body.data.groups))throw Error();
    reads.push({path:'/margin/accounts/tt1/requirements',query:'',retrievedAt:now().toISOString(),body});
@@ -89,15 +92,18 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,ca
  let projection=null;
  if(account&&!code)try{projection=projectLive({account,holdings:items('/positions'),orders:items('/orders'),complexOrders:items('/complex-orders'),quotes:items('/by-type'),now:now(),session,sessionCloseAt:session?.['close-at']});}catch{failures.push({source:'tt live projection',code:'PROJECTION_UNAVAILABLE'});}
  let marketAcquisition=null;
- if(cadenceMarket&&account&&token){
+ if(cadenceMarket&&marketContactBlocked)marketAcquisition={mode:'UNKNOWN',startedAt:now().toISOString(),completedAt:now().toISOString(),catalogs:[],observations:[],failures:[{code:'BROKER_RATE_OR_PERMISSION_BLOCK'}]};
+ if(cadenceMarket&&account&&token&&!marketContactBlocked){
   const date=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(now());
-  try{marketAcquisition=await acquireCadenceMarket({session,sessionDate:date,now,get:async path=>{
+  try{marketAcquisition=await acquireCadenceMarket({session,sessionDate:date,now,get:async (path,{timeoutMs})=>{
    const u=new URL(path,PRODUCTION_BASE_URL);
    const chain=/^\/option-chains\/([A-Z]+)\/nested$/.exec(u.pathname);
    if(u.origin!==PRODUCTION_BASE_URL||!(chain&&CADENCE_SYMBOLS.includes(chain[1])||u.pathname==='/market-data/by-type'))throw Error('MARKET_ROUTE_DENIED');
    if(u.pathname==='/market-data/by-type'&&((u.searchParams.get('equity-option')??'').split(',').length>99||!CADENCE_SYMBOLS.includes(u.searchParams.get('equity'))))throw Error('MARKET_BATCH_DENIED');
-   const r=await fetchImpl(u,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json',Authorization:`Bearer ${token}`,'User-Agent':'wheelwright-tt1-cadence/1.0'}});
-   const text=await boundedText(r);if(!r.ok)throw Error('HTTP_'+r.status);return {body:JSON.parse(text),retrievedAt:now().toISOString()};
+   const r=await fetchImpl(u,{method:'GET',redirect:'error',signal:AbortSignal.timeout(timeoutMs),headers:{Accept:'application/json',Authorization:`Bearer ${token}`,'User-Agent':'wheelwright-tt1-cadence/1.0'}});
+   if([401,403,429].includes(r.status))marketContactBlocked=true;
+   if(!r.ok){void r.body?.cancel().catch(()=>{});throw Error('HTTP_'+r.status);}
+   const text=await boundedText(r);return {body:JSON.parse(text),retrievedAt:now().toISOString()};
   }});}catch{marketAcquisition={mode:'UNKNOWN',startedAt:now().toISOString(),completedAt:now().toISOString(),catalogs:[],observations:[],failures:[{code:'CANDIDATE_ACQUISITION_UNAVAILABLE'}]};}
  }
  const scrub=value=>{

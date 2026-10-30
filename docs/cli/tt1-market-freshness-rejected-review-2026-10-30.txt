@@ -1,0 +1,29 @@
+**REJECT** — two reproducible acquisition-boundary failures.
+
+Frozen candidate: `b434908c1fc415032d8b0284a6186874ece262dc`  
+Baseline: `15977754655151be4757716b606acab4abaed1c7`  
+All six changed files reviewed; worktree remains clean.
+
+1. **HTTP denial can fail to stop acquisition.** At [tt-cadence-evidence.mjs:100](/Users/bollich/kiro/options-candidates/tt1-market-freshness-20261030/scripts/tt-cadence-evidence.mjs:100), body consumption precedes status handling. Reproduction: return HTTP 429 with a response stream that errors during reading. The collector issues **14 catalog requests**, recording `READ_FAILED` instead of stopping after the first denial. The same ordering affects 401/403. Stop disposition must survive response-body failure.
+
+2. **The advertised 90-second deadline is not enforced.** At [tt-cadence-market.mjs:58](/Users/bollich/kiro/options-candidates/tt1-market-freshness-20261030/scripts/tt-cadence-market.mjs:58), the deadline check precedes pacing; requests also receive an independent ten-second timeout. With injected GET durations of **8,540 ms** and the existing **500 ms** spacing, request 11 starts at **90,400 ms** and acquisition completes at **98,940 ms**. Recheck after pacing and bound in-flight work by the remaining deadline.
+
+Verification:
+
+- Authorized command: `node --test scripts/tt-cadence-market.test.mjs` — **8 passed, 0 failed**.
+- Two additional cap probes passed: **80 requests** maximum; **7,000 catalog contracts** trigger the 6,000-contract guard before any quote batches. Largest batch: **100 symbols**.
+- Happy-path test covers **14 catalogs, 84 option observations, 28 GETs**.
+- Identity/expiry/strike checks, Standard/100-share filtering, missing-row preservation, both-leg/spot qualification and retained-only exclusion are present.
+- Provider row clocks remain distinct from acquisition clocks. Separate Greek calculation time is explicitly unavailable; that limitation is acceptable.
+- Retained evidence remains test-only despite backend admissibility; CSV remains tied to retained v1 evidence.
+- Candidate reads stay separate from held valuation, balances/BP, P50 and exit calculations.
+
+Authority differences were inspected against locally available `origin/main` **`be685b9`**. Remote verification failed on GitHub DNS; WW-GATE remains STAGED/inactive.
+
+No operational provider calls, private specimen/config reads, repository writes, installation or ZIP tests were performed. Installed/live behavior remains unverified.
+
+CURRENT STATE: Frozen candidate REJECTED; bounded review complete.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

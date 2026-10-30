@@ -55,9 +55,15 @@ export async function acquireCadenceMarket({get,session,sessionDate,now=()=>new 
  if(mode!=='REGULAR'){result.completedAt=now().toISOString();return result;}
  let stop=false;
  const read=async path=>{
-  if(stop||result.requestCount>=LIMITS.requests||now()-started>LIMITS.durationMs)throw Error('ACQUISITION_CAP_REACHED');
-  if(result.requestCount)await pause(LIMITS.spacingMs);result.requestCount++;
-  try{return await get(path);}catch(e){if(['HTTP_429','HTTP_401','HTTP_403'].includes(e.message))stop=true;throw e;}
+  if(stop||result.requestCount>=LIMITS.requests||now()-started>=LIMITS.durationMs)throw Error('ACQUISITION_CAP_REACHED');
+  if(result.requestCount){
+   if(LIMITS.durationMs-(now()-started)<=LIMITS.spacingMs)throw Error('ACQUISITION_CAP_REACHED');
+   await pause(LIMITS.spacingMs);
+  }
+  const remaining=LIMITS.durationMs-(now()-started);
+  if(remaining<=0)throw Error('ACQUISITION_CAP_REACHED');
+  result.requestCount++;
+  try{const r=await get(path,{timeoutMs:Math.min(10000,remaining)});if(now()-started>LIMITS.durationMs)throw Error('ACQUISITION_CAP_REACHED');return r;}catch(e){if(['HTTP_429','HTTP_401','HTTP_403'].includes(e.message))stop=true;throw e;}
  };
  for(const symbol of symbols){
   if(stop)break;
