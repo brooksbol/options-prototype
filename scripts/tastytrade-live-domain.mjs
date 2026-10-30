@@ -97,6 +97,46 @@ function recognizeHeldTrade(items) {
 
 }
 
+function heldPackages(items, orders, now) {
+  if (items.length <= 2 || items.some(item => item["instrument-type"] !== "Equity Option")) return [items];
+  if (new Set(items.map(item => item.symbol)).size !== items.length) fail("overlapping held contracts are ambiguous");
+  // A filled opening instruction establishes composition; symbol/expiry and strike
+  // adjacency do not. Only whole current holding quantities are supported here.
+  const openings = orders.filter(order => order?.status === "Filled" && Array.isArray(order.legs) &&
+    order.legs.some(leg => items.some(item => item.symbol === leg?.symbol) && /to Open$/.test(leg?.action)));
+  const subsets = openings.map(order => ({ order,
+    items: items.filter(item => order.legs.some(leg => leg?.symbol === item.symbol)) }));
+  if (!subsets.some(candidate => candidate.items.length < items.length)) {
+    // Keep the accepted single-package geometry fallback (including ICs).
+    // Multiple same-right legs cannot establish independent vertical membership.
+    const rights = items.map(item => /\d{6}([CP])\d{8}$/.exec(item.symbol)?.[1]);
+    if (!openings.length && rights.every(right => right && right === rights[0])) {
+      fail("ambiguous held package membership: no filled opening orders establish independent spreads");
+    }
+    return [items];
+  }
+  const used = new Set();
+  for (const candidate of subsets) {
+    const held = candidate.items.map(item => ({ symbol: item.symbol, quantity: decimal(item.quantity),
+      direction: item["quantity-direction"] }));
+    if (!sameLegs(candidate.order.legs, held, true) || held.some(leg =>
+      !Number.isInteger(leg.quantity) || leg.quantity <= 0 || used.has(leg.symbol))) {
+      fail("ambiguous held package membership: opening orders overlap or do not reconcile to whole holdings");
+    }
+    try {
+      const { openedAt } = openingCredit(candidate.order, held, held[0].quantity);
+      if (openedAt > now.getTime()) fail("opening fill time is after the observation");
+    } catch (error) {
+      if (!(error instanceof LiveError)) throw error;
+      fail(`ambiguous held package membership: ${reason(error)}`);
+    }
+    held.forEach(leg => used.add(leg.symbol));
+  }
+  if (used.size !== items.length) fail("ambiguous held package membership: opening orders do not cover every holding");
+  // Preserve broker holding order; do not reorder the existing portfolio by fill time.
+  return subsets.sort((a, b) => items.indexOf(a.items[0]) - items.indexOf(b.items[0])).map(candidate => candidate.items);
+}
+
 function matchingExit(complexOrders, orders, held) {
   const terminal = new Set(["Filled", "Cancelled", "Rejected", "Expired"]);
   const current = new Set(["Received", "Routed", "In Flight", "Contingent", "Live",
@@ -335,8 +375,17 @@ export function projectLive({ account, holdings, orders, complexOrders, quotes, 
   const rows = [];
   const positions = [];
   const accountLabel = maskAccount(account);
+  const packages = [];
   for (const items of groups.values()) {
+    try { packages.push(...heldPackages(items, orders, now).map(items => ({ items }))); }
+    catch (error) {
+      if (!(error instanceof LiveError)) throw error;
+      packages.push({ items, error });
+    }
+  }
+  for (const { items, error: membershipError } of packages) {
     try {
+      if (membershipError) throw membershipError;
       const trade = recognizeHeldTrade(items);
       const issues = [];
       let credit = null, openedAt = null, opening = null;
