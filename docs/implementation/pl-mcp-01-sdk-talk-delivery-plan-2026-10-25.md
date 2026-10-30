@@ -359,3 +359,10 @@ Principal A executed: integrated releaseeb4f15cd/reviewed runtimeb21404f1 instal
 ### October29 general portfolio orientation installed
 
 Principal rejected ordinary portfolio selection after namedtt1acceptance. Bounded correction independently ACCEPTed16239e32 and installed107caf70: existing holdings latest-retained custody across all3Accounts, backend exact private source descriptions, internal pagination, compact native Account tables/sourceconflict visibility. Actual installedSDK3/51→tt1structures4→3/51 and installedUI replay pass. Broader BUG053 and Principal general-workflow acceptance remain Open. [Receipt](../reviews/sdk-talk-portfolio-orientation-2026-10-29.md). No new grants, policy changes, provider client or financial engine; v1/ttlive preserved.
+
+
+### Universal tactical Positions — October29 active bounded increment
+
+Principal requires one source-qualified native tactical experience across all authorized Accounts; stale Fidelity custody remains displayable. Shared accepted backend/renderer extended as existing Positions collection inventory view. Author retained-copy SDK/browser all→PTS→tt1→QQQ→evidence→all conserves 51 source holdings and preserves 4 native tt1 structures. Fidelity uses source-coded instruments, compatible share/call contexts and compact Treasury/cash variants without new lifecycle or multiplier assumptions. [Universal receipt](../reviews/sdk-talk-universal-positions-2026-10-29.md) and existing matrix/BUG053/052 own evidence and gaps.
+
+Independent `74efe666` REJECT for false Treasury maturity from an issue-date description is preserved. Explicit-role source parsing and generic intermediate empty-section cleanup are being verified in a new isolated successor under existing extended correction delegation. Original installed107caf70, maina4733817, v1/tt live, grants/policies remain unchanged. No production deployment or Principal acceptance implied.

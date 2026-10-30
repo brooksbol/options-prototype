@@ -133,3 +133,9 @@ test('generic empty lists and orphan analysis headings disappear while real code
  for(const text of ['- \n- ','### Analysis\n\n- &nbsp;\n- &#x200B;','## Analysis\n\n1. **&nbsp;**\n2. &#x2060;','### Analysis\n\n-\n  - &#160;'])assert.equal(renderMarkdown(text).trim(),'');
  for(const text of ['- `-`','- `0`','- 0','- **−$10.00**','- Parent\n  - Actual finding','### Available report'])assert.notEqual(renderMarkdown(text).trim(),'');
 });
+
+
+test('empty intermediate sections disappear without hiding following meaningful sections or parent headings',()=>{
+ const html=renderMarkdown('## Analysis\n\n| A | B |\n|---|---|\n| | |\n\n## Result\n\n0 USD\n\n## Evidence\n\n- ** **');assert.doesNotMatch(html,/>Analysis</);assert.doesNotMatch(html,/>Evidence</);assert.match(html,/>Result</);assert.match(html,/0 USD/);
+ const nested=renderMarkdown('## Position\n\n### Empty\n\n- ** **\n\n### Facts\n\n`--`');assert.match(nested,/>Position</);assert.doesNotMatch(nested,/>Empty</);assert.match(nested,/>Facts</);assert.match(nested,/<code>--<\/code>/);
+});

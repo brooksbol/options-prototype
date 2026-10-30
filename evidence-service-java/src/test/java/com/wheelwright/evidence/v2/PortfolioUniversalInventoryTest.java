@@ -52,4 +52,11 @@ class PortfolioUniversalInventoryTest {
   }
  }
 
+ @Test void fixedIncomeDateNeedsExplicitMaturityRoleRatherThanAnArbitraryIssueOrCouponDate(){
+  var expected=new LinkedHashMap<String,String>();expected.put("US TREASURY BILL ISSUED 10/01/2026",null);expected.put("US TREASURY BILL ISSUED 10/01/2026 DUE 11/05/2026","2026-11-05");expected.put("US TREASURY BILL MATURES 11/5/2026","2026-11-05");expected.put("US TREASURY BILL MATURITY DATE: 11/05/2026","2026-11-05");expected.put("US TREASURY BILL DUE 11/05/2026 MATURITY 12/05/2026",null);expected.put("US TREASURY BILL DUE 02/30/2026",null);
+  for(var fixture:expected.entrySet()){
+   var holding=obj();holding.set("sourceInstrument",obj().put("identifier","912797AAA"));var source=new PositionSnapshot.Constituent("h","912797AAA",fixture.getKey(),"Bonds/Fixed income","Cash",java.math.BigDecimal.ONE,null,null,null,null,null,List.of(1));var identity=PortfolioInventoryIdentity.identify(holding,source,"FIDELITY");assertThat(identity.path("variant").asText()).isEqualTo("TREASURY_BILL");assertThat(identity.path("maturity").isNull()?null:identity.path("maturity").asText()).as(fixture.getKey()).isEqualTo(fixture.getValue());
+  }
+ }
+
 }

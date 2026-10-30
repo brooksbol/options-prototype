@@ -98,3 +98,6 @@ Accepted bounded selected-read/representation correction deployed under Principa
 ## October29 universal Positions presentation candidate
 
 The same trusted native tactical renderer now handles multi-Account canonical structures and retained inventory variants compactly, with evidence built on demand. Generic empty Markdown paragraphs/lists and orphan headings join existing empty-table suppression; meaningful code/zero/results survive. Actual retained-copy SDK browser replay has no default raw JSON or empty artifacts, preserves native tt1 graphics, supports keyboard expansion and390px mobile. See [receipt](../reviews/sdk-talk-universal-positions-2026-10-29.md). Candidate author verification only; independent implementation review and Principal observation remain pending. Open defect standing is unchanged.
+
+
+Universal candidate review update: `74efe666` independently REJECTed for false Treasury maturity attribution from an arbitrary description date; intermediate orphan heading also reproduced. Original preserved. New isolated successor enforces explicit source-date roles and generic empty-section pruning, with additional controlled falsifiers. See the universal receipt and preserved independent report. No production, grants, or defect-closure transition.

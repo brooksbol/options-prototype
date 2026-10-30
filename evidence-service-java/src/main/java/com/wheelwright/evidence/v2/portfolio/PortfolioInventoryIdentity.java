@@ -21,8 +21,11 @@ public final class PortfolioInventoryIdentity {
     n.put("variant","OPTION");if(broker.equals("FIDELITY"))fidelityOption(n,source);
    }else if(Set.of("Stocks","ETFs").contains(source.kind())&&nativeId.matches("[A-Z][A-Z0-9./^-]{0,31}"))n.put("variant","SHARES").put("symbol",nativeId).put("underlyingSymbol",nativeId);
    else if(source.kind().equals("Bonds/Fixed income")){n.put("variant","FIXED_INCOME");if(nativeId.matches("912797[A-Z0-9]{3}"))n.put("variant","TREASURY_BILL").put("label","US Treasury bill");
-    var dates=new TreeSet<String>();var m=Pattern.compile("(?<![0-9])(\\d{2}/\\d{2}/\\d{4})(?![0-9])").matcher(source.description());while(m.find())try{dates.add(LocalDate.parse(m.group(1),DateTimeFormatter.ofPattern("MM/dd/uuuu").withResolverStyle(java.time.format.ResolverStyle.STRICT)).toString());}catch(java.time.DateTimeException ignored){}
-    if(dates.size()==1)n.put("maturity",dates.first());
+    // A date alone may be issuance, coupon, receipt or another source event; its role must be explicit.
+    var dates=new TreeSet<String>();boolean invalidMaturity=false;
+    var m=Pattern.compile("\\b(?:DUE|MATURES|MATURITY(?: DATE)?)\\s*:?\\s+(\\d{1,2}/\\d{1,2}/\\d{4})(?![0-9])",Pattern.CASE_INSENSITIVE).matcher(source.description());
+    while(m.find())try{dates.add(LocalDate.parse(m.group(1),DateTimeFormatter.ofPattern("M/d/uuuu").withResolverStyle(java.time.format.ResolverStyle.STRICT)).toString());}catch(java.time.DateTimeException ignored){invalidMaturity=true;}
+    if(!invalidMaturity&&dates.size()==1)n.put("maturity",dates.first());
    }
   }
   if(holding.path("kind").asText().equals("CASH"))n.put("variant","CASH").put("label","Reported cash");
