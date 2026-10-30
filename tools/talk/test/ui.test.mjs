@@ -1,3 +1,4 @@
+import {renderMarkdown} from '../ui/markdown.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -126,4 +127,9 @@ test('closed trades show outcomes and totals; matching, fees and analysis requir
   assert.ok(!created.some(e=>e.tag==='summary'&&e.textContent==='Talk’s analysis'));assert.equal(created.filter(e=>e.tag==='table').length,1);
   const empty=JSON.parse(raw);empty.evidence.closedTrades.trades=[];empty.evidence.closedTrades.totals={netPnl:{value:null},winners:null,losers:null};toolRaw=JSON.stringify(empty);responseText='P/L unavailable.';created.length=0;elements.get('message').value='Previous period';await elements.get('composer').listeners.submit({preventDefault(){}});assert.equal(created.filter(e=>e.tag==='table').length,0);
  }finally{delete globalThis.document;globalThis.fetch=priorFetch;}
+});
+
+test('generic empty lists and orphan analysis headings disappear while real code, numbers and nested findings survive',()=>{
+ for(const text of ['- \n- ','### Analysis\n\n- &nbsp;\n- &#x200B;','## Analysis\n\n1. **&nbsp;**\n2. &#x2060;','### Analysis\n\n-\n  - &#160;'])assert.equal(renderMarkdown(text).trim(),'');
+ for(const text of ['- `-`','- `0`','- 0','- **−$10.00**','- Parent\n  - Actual finding','### Available report'])assert.notEqual(renderMarkdown(text).trim(),'');
 });

@@ -55,14 +55,22 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
     Authorization: `Bearer ${backend.token}` } })).status, 405);
   const monitoring = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor' });
   const current=JSON.parse(monitoring.content[0].text);
-  const selected=current.evidence.items.find(p=>p.constituents.some(c=>c.kind==='LONG_SHARES'));
+  assert.equal(current.representation,'TACTICAL_POSITION_INVENTORY');
+  assert.equal(current.accounts[0].status,'READ');
+  assert.ok(current.accounts[0].items.some(p=>p.constituents.some(c=>c.identity?.variant==='SHARES')));
+  // Canonical lifecycle detail remains available; display groups never invent Position IDs.
+  const metadata=await fetch(backend.base+'/v2/accounts',{headers:{Authorization:'Bearer '+backend.token}}).then(r=>r.json());
+  const accountId=metadata.accounts.find(a=>a.alias==='harbor').id;
+  const canonical=await fetch(backend.base+'/v2/positions?accountId='+accountId,{headers:{Authorization:'Bearer '+backend.token}}).then(r=>r.json());
+  const selected=canonical.items.find(p=>p.currentConstruction);
+  assert.ok(selected?.id);
   const positions = await servers[0].callToolResult('inspect_position_details', { account: 'harbor',positionId:selected.id });
   assert.notEqual(positions.isError, true);
   assert.match(positions.content[0].text, /7500/);
   assert.match(positions.content[0].text, /125/);
   assert.equal(JSON.parse(positions.content[0].text).evidence.id,selected.id);
   const monitorSchema=tools.find(t=>t.name==='inspect_account_positions').inputSchema;
-  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','cursor','underlying']);
+  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','underlying']);
   assert.equal(monitorSchema.additionalProperties,false);
   const expanded = await servers[0].callToolResult('inspect_account_positions', { account: 'harbor', projection:'expanded',includeInactive:true });
   assert.equal(expanded.isError,true);
@@ -71,7 +79,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.equal(emptyCursor.isError,true);
   assert.equal((await backend.reads()).length,beforeEmpty);
   const forbidden = await servers[0].callToolResult('inspect_account_positions', { account: 'orchard' });
-  assert.equal(forbidden.isError, true); assert.match(forbidden.content[0].text, /FORBIDDEN/);
+  assert.notEqual(forbidden.isError,true); assert.equal(JSON.parse(forbidden.content[0].text).accounts[0].status,'FORBIDDEN');
   assert.doesNotMatch(forbidden.content[0].text, /7500/);
   const chat = createConversation({ servers, model: { getResponse() { throw new Error('not used'); } } });
   assert.deepEqual((await chat.agent.getAllTools(new RunContext({}))).map(t => t.name).sort(), ['inspect_account_positions', 'inspect_market_quotes','inspect_position_details']);

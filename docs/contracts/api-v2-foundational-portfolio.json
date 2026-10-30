@@ -158,7 +158,16 @@
               "pattern": "^[A-Z0-9^][A-Z0-9.^/-]{0,31}$",
               "maxLength": 32
             },
-            "description": "Exact canonical Instrument symbol of ANY current Construction constituent option underlying or long-equity subject. Requires reference.read; combined with authorized Account/exposure/lifecycle predicates before pagination and enrichment. Mixed-underlying Constructions match each resolved subject. Historical compositions/display names are not matched; missing/unresolved references are not matches, so empty selection does not prove complete brokerage absence."
+            "description": "Exact canonical Instrument symbol of ANY current Construction constituent option underlying or long-equity subject. Requires reference.read; combined with authorized Account/exposure/lifecycle predicates before pagination and enrichment. Mixed-underlying Constructions match each resolved subject. Historical compositions/display names are not matched; missing/unresolved references are not matches, so empty selection does not prove complete brokerage absence. With view=inventory, selects resolved broker-source subjects (including contract-coded Fidelity roots); reference.read is not used to broaden source authority. Unknown subjects are not guessed."
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "const": "inventory"
+            },
+            "description": "Explicit latest-retained tactical inventory across metadata-authorized Accounts. Optional accountId and underlying only; other collection selectors are rejected. Requires independent positions+holdings read grants per Account; denied Accounts remain named. Does not drop stale custody or manufacture trade associations. Existing bounded Order/market policy applies only under their unchanged separate grants. Underlying selects resolved source subjects, so unmatched unknown identity is not brokerage absence."
           }
         ],
         "responses": {
@@ -181,7 +190,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PositionCollection"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PositionCollection"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TacticalPositionInventory"
+                    }
+                  ]
                 },
                 "examples": {
                   "simple-position-collection": {
@@ -27280,6 +27296,28 @@
             "items": {
               "$ref": "#/components/schemas/ExactNumber"
             }
+          },
+          "displayPoints": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 258,
+            "items": {
+              "type": "object",
+              "properties": {
+                "price": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "price",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Optional backend samples of the exact supplied affine geometry over a display viewport, including sloping tails. Presentation padding is not a risk threshold. Clients scale pixels, never infer financial endpoint values. Same valueKind and units as geometry."
           }
         },
         "required": [
@@ -38481,6 +38519,9 @@
             "items": {
               "$ref": "#/components/schemas/Warning"
             }
+          },
+          "marketClock": {
+            "$ref": "#/components/schemas/TacticalMarketClock"
           }
         },
         "required": [
@@ -39045,6 +39086,895 @@
             }
           }
         ]
+      },
+      "TacticalCustodyCut": {
+        "type": "object",
+        "properties": {
+          "snapshotId": {
+            "type": "string"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentness": {
+            "const": "NOT_ESTABLISHED"
+          },
+          "dateBasis": {
+            "enum": [
+              "SOURCE_EXPORT_DAY",
+              "BACKEND_RECEIPT_DAY"
+            ]
+          },
+          "observationDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ageDays": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coverage": {
+            "enum": [
+              "PARTIAL",
+              "COMPLETE_REPORTED"
+            ]
+          },
+          "ageReferenceZone": {
+            "const": "America/New_York",
+            "description": "Calendar reference for age calculation; not an asserted source timezone."
+          },
+          "sourceClockWarning": {
+            "const": "FUTURE_SOURCE_DAY"
+          }
+        },
+        "required": [
+          "snapshotId",
+          "receivedAt",
+          "currentness",
+          "dateBasis",
+          "observationDate",
+          "ageDays",
+          "coverage"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalInventoryIdentity": {
+        "type": "object",
+        "properties": {
+          "nativeIdentifier": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "underlyingSymbol": {
+            "type": "string"
+          },
+          "custody": {
+            "type": "string"
+          },
+          "maturity": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "nativeIdentifier",
+          "basis",
+          "variant",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalInventoryTerms": {
+        "type": "object",
+        "properties": {
+          "underlyingSymbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "right": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strike": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expiration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "multiplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "qualification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "adjustment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settlement": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "TacticalInventoryConstituent": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "side": {
+            "enum": [
+              "LONG",
+              "SHORT",
+              "UNKNOWN"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "sourceUnit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "holding": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/TacticalInventoryIdentity"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/TacticalInventoryTerms"
+          },
+          "reportedMarketValue": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "observedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observationDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "quantity",
+          "side",
+          "unit",
+          "holding",
+          "identity"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalInventoryEvaluation": {
+        "type": "object",
+        "properties": {
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "spot": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "marketValue": {
+            "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "freshness": {
+            "type": "string"
+          },
+          "oldestMaterialObservationAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timeline": {
+            "type": "object",
+            "properties": {
+              "expiration": {
+                "type": "string",
+                "format": "date"
+              },
+              "calendarZone": {
+                "type": "string"
+              },
+              "remainingDays": {
+                "$ref": "#/components/schemas/TacticalMetric"
+              }
+            },
+            "required": [
+              "expiration",
+              "calendarZone",
+              "remainingDays"
+            ],
+            "additionalProperties": false
+          },
+          "payoff": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ESTABLISHED",
+                  "QUALIFIED",
+                  "INCOMPLETE",
+                  "UNSUPPORTED",
+                  "CONFLICT",
+                  "REDACTED"
+                ]
+              },
+              "geometry": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Geometry"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "warningCodes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "status",
+              "geometry",
+              "warningCodes"
+            ],
+            "additionalProperties": false
+          },
+          "range": {
+            "$ref": "#/components/schemas/TacticalRange"
+          },
+          "spotRegion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "evaluatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalInventoryGroup": {
+        "type": "object",
+        "properties": {
+          "representation": {
+            "const": "TACTICAL_INVENTORY_GROUP"
+          },
+          "inventoryBasis": {
+            "const": "COMPATIBLE_SOURCE_INVENTORY"
+          },
+          "state": {
+            "const": "UNRESOLVED"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "variant": {
+            "enum": [
+              "SHARES_AND_CALLS",
+              "SHARES",
+              "OPTION",
+              "OPTIONS_CONTEXT",
+              "TREASURY_BILLS",
+              "TREASURY_BILL",
+              "FIXED_INCOME",
+              "MONEY_MARKET",
+              "CASH",
+              "OTHER"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "underlyings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "identityBasis": {
+                  "const": "BROKER_SOURCE_IDENTITY"
+                }
+              },
+              "required": [
+                "symbol",
+                "identityBasis"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "constituents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TacticalInventoryConstituent"
+            }
+          },
+          "sourceHoldings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "custody": {
+            "type": "object",
+            "properties": {
+              "snapshotId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "snapshotId"
+            ],
+            "additionalProperties": false
+          },
+          "structure": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "COMPATIBLE_INVENTORY",
+                  "OBSERVED_INVENTORY"
+                ]
+              },
+              "authority": {
+                "type": "object",
+                "properties": {
+                  "basis": {
+                    "const": "ACCOUNT_AND_SOURCE_CUT_COMPATIBILITY"
+                  },
+                  "status": {
+                    "const": "QUALIFIED"
+                  },
+                  "qualification": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "basis",
+                  "status",
+                  "qualification"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "name",
+              "status",
+              "authority"
+            ],
+            "additionalProperties": false
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/TacticalInventoryEvaluation"
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "strikeConfiguration": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "strike": {
+                  "type": "string"
+                },
+                "right": {
+                  "type": "string"
+                },
+                "side": {
+                  "type": "string"
+                },
+                "expiration": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "strike",
+                "right",
+                "side",
+                "expiration"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "marketClock": {
+            "$ref": "#/components/schemas/TacticalMarketClock"
+          },
+          "shareCoverage": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "enum": [
+                    "SUFFICIENT",
+                    "INSUFFICIENT",
+                    "UNKNOWN"
+                  ]
+                },
+                "unit": {
+                  "const": "SHARE"
+                },
+                "eligibleQuantity": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "requiredQuantity": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reservationStatus": {
+                  "type": "string"
+                },
+                "selection": {
+                  "type": "string"
+                },
+                "qualification": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status",
+                "unit",
+                "reservationStatus",
+                "selection",
+                "qualification"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Copied existing Account inventory-reconciliation share-support assessments relevant by exact source holding links. Not inferred trade membership, reserved lots, buying power or current custody."
+          }
+        },
+        "required": [
+          "representation",
+          "inventoryBasis",
+          "state",
+          "account",
+          "variant",
+          "title",
+          "underlyings",
+          "constituents",
+          "sourceHoldings",
+          "custody",
+          "structure",
+          "evaluation",
+          "warningCodes",
+          "strikeConfiguration"
+        ],
+        "additionalProperties": false,
+        "description": "Request-local source-cut display context, not a canonical Position or Construction resource. Compatibility never establishes opening package, lifecycle continuity, governed quantity, reservation or cash-secured status. No self/id or invented instance route."
+      },
+      "InventoryCanonicalTacticalPosition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "self": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "CLOSED",
+              "UNRESOLVED"
+            ]
+          },
+          "currentConstruction": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/TacticalExposure"
+          },
+          "representation": {
+            "const": "TACTICAL_POSITION"
+          },
+          "details": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/TacticalStructure"
+          },
+          "constituents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TacticalConstituent"
+            }
+          },
+          "underlyings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string"
+                },
+                "instrument": {
+                  "$ref": "#/components/schemas/Link"
+                }
+              },
+              "required": [
+                "symbol",
+                "instrument"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/TacticalEvaluation"
+          },
+          "warningCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Warning"
+            }
+          },
+          "sourceHoldings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "custody": {
+            "type": "object",
+            "properties": {
+              "snapshotId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "snapshotId"
+            ],
+            "additionalProperties": false
+          },
+          "variant": {
+            "const": "OPTION_STRUCTURE"
+          },
+          "inventoryBasis": {
+            "const": "SOURCE_ASSOCIATED_POSITION"
+          },
+          "marketClock": {
+            "$ref": "#/components/schemas/TacticalMarketClock"
+          }
+        },
+        "required": [
+          "id",
+          "self",
+          "account",
+          "state",
+          "currentConstruction",
+          "representation",
+          "details",
+          "structure",
+          "constituents",
+          "underlyings",
+          "evaluation",
+          "warningCodes",
+          "sourceHoldings",
+          "custody",
+          "variant",
+          "inventoryBasis"
+        ],
+        "additionalProperties": false,
+        "description": "No new Position or strategy identity. Source-backed financial scope, opening occurrence and lifecycle remain separate. Names/standing require authorized reference data; source-dependent fields are redacted before compaction. Compact metrics link to expanded Position evidence; all exact values/units/methods/clocks/qualifications survive. Missing exposure stays missing."
+      },
+      "TacticalInventoryAccount": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "broker": {
+            "type": "string"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Link"
+          },
+          "status": {
+            "enum": [
+              "READ",
+              "FORBIDDEN",
+              "NO_RETAINED_CUSTODY",
+              "CAPACITY_UNAVAILABLE",
+              "SOURCE_CHANGED"
+            ]
+          },
+          "readComplete": {
+            "type": "boolean"
+          },
+          "source": {
+            "$ref": "#/components/schemas/TacticalCustodyCut"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/InventoryCanonicalTacticalPosition"
+                },
+                {
+                  "$ref": "#/components/schemas/TacticalInventoryGroup"
+                }
+              ]
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Warning"
+            }
+          },
+          "sourceHoldingCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "representedHoldingCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "nickname",
+          "broker",
+          "account",
+          "status",
+          "readComplete",
+          "items",
+          "warnings"
+        ],
+        "additionalProperties": false
+      },
+      "TacticalPositionInventory": {
+        "type": "object",
+        "properties": {
+          "representation": {
+            "const": "TACTICAL_POSITION_INVENTORY"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentCustody": {
+            "const": "NOT_ESTABLISHED"
+          },
+          "underlying": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TacticalInventoryAccount"
+            }
+          },
+          "selectionComplete": {
+            "type": "boolean"
+          },
+          "qualification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "representation",
+          "requestId",
+          "evaluatedAt",
+          "currentCustody",
+          "underlying",
+          "accounts",
+          "selectionComplete",
+          "qualification"
+        ],
+        "additionalProperties": false,
+        "description": "Complete bounded latest-retained custody inventory view, at most100000 UTF-8 bytes. Stale source custody remains eligible. Reuses canonical native package tactical results only for unique exact whole-source allocations; all other source quantities remain visible in explicitly qualified display contexts. Account/source clocks, market clocks and lifecycle claims stay distinct. Source details follow exact holding links. No pagination or historic lifecycle union; capacity/change/denied outcomes are explicit."
+      },
+      "TacticalMarketClock": {
+        "type": "object",
+        "properties": {
+          "sourceAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "basis": {
+            "enum": [
+              "OLDEST_MATERIAL_MARKET_OBSERVATION",
+              "SPOT_OBSERVATION"
+            ]
+          },
+          "policyState": {
+            "type": "string"
+          },
+          "ageSeconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sourceAt",
+          "basis",
+          "policyState",
+          "ageSeconds"
+        ],
+        "additionalProperties": false,
+        "description": "Market-only clock and existing policy verdict. Future source clocks retain timestamp with null age, never silently clamp. Does not renew retained custody or imply live prices."
       }
     }
   },

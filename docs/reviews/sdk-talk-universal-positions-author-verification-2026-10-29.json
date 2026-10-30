@@ -1,0 +1,409 @@
+{
+  "standing": "AUTHOR_VERIFICATION; INDEPENDENT REVIEW AND PRINCIPAL OBSERVATION PENDING",
+  "dataBoundary": "Authorized retained-copy profile, provider beans disabled; actual SDK calls to configured OpenAI API, tracing/storage/remote compaction disabled; private originals, transcripts and pixels excluded. Production not changed.",
+  "inventory": {
+    "status": 200,
+    "bytes": 76208,
+    "accounts": [
+      {
+        "nickname": "pts",
+        "status": "READ",
+        "sourceHoldings": 29,
+        "represented": 29,
+        "units": 11,
+        "canonical": 0,
+        "nativeGeometry": 0,
+        "variants": {
+          "MONEY_MARKET": 1,
+          "SHARES_AND_CALLS": 7,
+          "OPTION": 1,
+          "SHARES": 1,
+          "TREASURY_BILLS": 1
+        }
+      },
+      {
+        "nickname": "sawdust",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 7,
+        "canonical": 0,
+        "nativeGeometry": 0,
+        "variants": {
+          "MONEY_MARKET": 1,
+          "SHARES_AND_CALLS": 4,
+          "OPTION": 2
+        }
+      },
+      {
+        "nickname": "tt1",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 5,
+        "canonical": 4,
+        "nativeGeometry": 4,
+        "variants": {
+          "OPTION_STRUCTURE": 4,
+          "CASH": 1
+        }
+      }
+    ]
+  },
+  "sdk": {
+    "standing": "ACTUAL_SDK_RETAINED_COPY_NOT_PRODUCTION",
+    "elapsedSeconds": 45,
+    "turns": [
+      {
+        "turn": 1,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {}
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 7,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 76208
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 34692,
+          "outputTokens": 800,
+          "totalTokens": 35492
+        },
+        "error": false
+      },
+      {
+        "turn": 2,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "pts"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              }
+            ],
+            "underlying": null,
+            "bytes": 27976
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 68843,
+          "outputTokens": 366,
+          "totalTokens": 69209
+        },
+        "error": false
+      },
+      {
+        "turn": 3,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "tt1"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 33719
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 88885,
+          "outputTokens": 243,
+          "totalTokens": 89128
+        },
+        "error": false
+      },
+      {
+        "turn": 4,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "tt1",
+              "underlying": "QQQ"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 1,
+                "native": 1
+              }
+            ],
+            "underlying": "QQQ",
+            "bytes": 8346
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 102507,
+          "outputTokens": 146,
+          "totalTokens": 102653
+        },
+        "error": false
+      },
+      {
+        "turn": 5,
+        "toolCalls": [
+          {
+            "name": "inspect_position_details",
+            "error": false,
+            "selection": {
+              "account": "tt1",
+              "view": "evidence"
+            }
+          }
+        ],
+        "inventories": [],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 129775,
+          "outputTokens": 710,
+          "totalTokens": 130485
+        },
+        "error": false
+      },
+      {
+        "turn": 6,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {}
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 7,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 76208
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 179294,
+          "outputTokens": 782,
+          "totalTokens": 180076
+        },
+        "error": false
+      }
+    ]
+  },
+  "fidelityDrilldown": {
+    "standing": "ACTUAL_SDK_RETAINED_COPY_NOT_PRODUCTION",
+    "elapsedSeconds": 12,
+    "turns": [
+      {
+        "turn": 1,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "underlying": "USO"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 0,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 0,
+                "native": 0
+              }
+            ],
+            "underlying": "USO",
+            "bytes": 5149
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 12463,
+          "outputTokens": 113,
+          "totalTokens": 12576
+        },
+        "error": false
+      },
+      {
+        "turn": 2,
+        "toolCalls": [
+          {
+            "name": "inspect_account_holdings",
+            "error": false,
+            "selection": {
+              "account": "pts"
+            },
+            "exactHoldingReferences": 2
+          }
+        ],
+        "inventories": [],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 16664,
+          "outputTokens": 361,
+          "totalTokens": 17025
+        },
+        "error": false
+      }
+    ]
+  },
+  "browser": {
+    "standing": "ACTUAL_SDK_RETAINED_COPY_RESULTS_BROWSER_REPLAY",
+    "counts": [
+      {
+        "turn": 1,
+        "accounts": 3,
+        "nativeStructures": 4,
+        "inventoryUnits": 19,
+        "nativeGraphics": 18
+      },
+      {
+        "turn": 2,
+        "accounts": 1,
+        "nativeStructures": 0,
+        "inventoryUnits": 11,
+        "nativeGraphics": 8
+      },
+      {
+        "turn": 3,
+        "accounts": 1,
+        "nativeStructures": 4,
+        "inventoryUnits": 1,
+        "nativeGraphics": 4
+      },
+      {
+        "turn": 4,
+        "accounts": 1,
+        "nativeStructures": 1,
+        "inventoryUnits": 0,
+        "nativeGraphics": 1
+      },
+      {
+        "turn": 5,
+        "accounts": 0,
+        "nativeStructures": 0,
+        "inventoryUnits": 0,
+        "nativeGraphics": 0
+      },
+      {
+        "turn": 6,
+        "accounts": 3,
+        "nativeStructures": 4,
+        "inventoryUnits": 19,
+        "nativeGraphics": 18
+      }
+    ],
+    "defaultRawJsonAbsent": true,
+    "emptyArtifactsAbsent": true,
+    "retainedCustodyDateVisible": true,
+    "keyboardDetails": true,
+    "mobileOverflow": false,
+    "pageErrors": 0,
+    "protectedPixelsExported": false
+  },
+  "tt1Parity": {
+    "standing": "ACTUAL_RETAINED_COPY_SAME_SOURCE_CUT",
+    "canonicalStructures": 4,
+    "allVersusNamedVersusExact": true,
+    "contractAndQuantityParity": true,
+    "geometryParity": true,
+    "spotSourceClockParity": true,
+    "dteParity": true,
+    "unknownEntryEconomicsPreserved": true,
+    "comparisonClockNote": "Evaluation/computation clocks excluded from equality only; source spot clocks compared explicitly."
+  },
+  "limits": [
+    "Fidelity source-coded strike/right/expiry do not establish standard multiplier/deliverable; strike configuration does not claim monetary payoff.",
+    "Compatible shares/calls are not covered-call lifecycle, reserved lots or governed quantities.",
+    "No real-time acquisition in this protected-copy candidate; installed read-through policy unchanged.",
+    "Long-lived local SDK history repeats prior evidence; first-turn bound is not a total-conversation token bound."
+  ]
+}

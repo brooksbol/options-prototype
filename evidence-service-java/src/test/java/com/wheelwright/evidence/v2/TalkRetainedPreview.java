@@ -30,7 +30,7 @@ public final class TalkRetainedPreview {
   Files.setPosixFilePermissions(to,PosixFilePermissions.fromString("rw-------"));
  }
  @TestConfiguration @EnableAutoConfiguration
- @Import({AccountsController.class,AccountBalancesController.class,PortfolioController.class})
+ @Import({AccountsController.class,AccountBalancesController.class,PortfolioController.class,PortfolioTacticalInventory.class,TacticalInventoryController.class})
  static class Preview {
   @Bean(destroyMethod="close") SqliteEvidenceStore accountStore()throws Exception {
    var copy=directory.resolve("account-snapshot.sqlite3");backup(accountSource,copy);return new SqliteEvidenceStore(copy.toString());

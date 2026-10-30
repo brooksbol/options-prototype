@@ -19,8 +19,12 @@ import static com.wheelwright.evidence.v2.portfolio.PortfolioRepository.*;
 public final class PortfolioController {
  private final PortfolioReadService service;private final BearerAuthenticator auth;private final AccountDirectory accounts;private final byte[] cursorKey=new byte[32];
  public PortfolioController(PortfolioReadService service,BearerAuthenticator auth,AccountDirectory accounts){this.service=service;this.auth=auth;this.accounts=accounts;new SecureRandom().nextBytes(cursorKey);}
+ private TacticalInventoryController inventoryView;
+ @org.springframework.beans.factory.annotation.Autowired(required=false)
+ public void inventoryView(TacticalInventoryController view){this.inventoryView=view;}
  @GetMapping({"/v2/positions","/v2/positions/{positionId}","/v2/constructions","/v2/constructions/{constructionId}","/v2/constructions/models","/v2/constructions/models/{modelId}","/v2/constructions/models/{modelId}/versions/{versionId}","/v2/orders","/v2/orders/{orderId}","/v2/instruments","/v2/instruments/{instrumentId}","/v2/market-observations","/v2/market-observations/{observationId}","/v2/holdings","/v2/holdings/{holdingId}","/v2/positions/{positionId}/audit","/v2/positions/{positionId}/audit/{auditId}","/v2/accounts/{accountId}/inventory-reconciliation"})
  public ResponseEntity<JsonNode> get(HttpServletRequest request,@RequestBody(required=false) byte[] body)throws Exception {
+  if(request.getRequestURI().equals("/v2/positions")&&"inventory".equals(request.getParameter("view"))&&inventoryView!=null)return inventoryView.get(request,body);
   var ids=Collections.list(request.getHeaders("X-Request-Id"));String supplied=ids.size()==1?ids.getFirst().trim():"";boolean badCorrelation=ids.size()>1||!supplied.isEmpty()&&!validUuid(supplied);String id=!badCorrelation&&!supplied.isEmpty()?supplied:UUID.randomUUID().toString();
   if(!auth.configured())return problem(503,"CAPABILITY_UNAVAILABLE",id,"Authentication unavailable");var identity=auth.authenticate(request.getHeader("Authorization"));if(identity.isEmpty())return problem(401,"UNAUTHENTICATED",id,"Missing or invalid Bearer credential");var caller=identity.get();
   String path=request.getRequestURI();Kind kind=kind(path);String account=request.getParameter("accountId");boolean recon=path.endsWith("/inventory-reconciliation");if(recon)account=path.split("/")[3];

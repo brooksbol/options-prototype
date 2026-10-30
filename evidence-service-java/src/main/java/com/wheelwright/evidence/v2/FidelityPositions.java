@@ -11,6 +11,18 @@ import java.util.regex.Pattern;
 /** Narrow Positions export admission. Option Summary is never used to count inventory. */
 public final class FidelityPositions {
     private FidelityPositions() {}
+    /** Facts encoded by an unadjusted-root Fidelity option code, not standard deliverable/multiplier authority. */
+    public record OptionSymbol(String underlying, LocalDate expiration, String right, BigDecimal strike) {}
+    public static OptionSymbol optionSymbol(String value) {
+        if(value==null)return null;
+        var match=Pattern.compile("-?([A-Z][A-Z.]*?)(\\d{6})([CP])(\\d+(?:\\.\\d+)?)").matcher(value);
+        if(!match.matches())return null;
+        try {
+            var date=LocalDate.parse(match.group(2),DateTimeFormatter.ofPattern("uuMMdd").withResolverStyle(java.time.format.ResolverStyle.STRICT));
+            var strike=new BigDecimal(match.group(4));
+            return strike.signum()<0?null:new OptionSymbol(match.group(1),date,match.group(3).equals("C")?"CALL":"PUT",strike);
+        } catch(java.time.DateTimeException|NumberFormatException invalid){return null;}
+    }
     public static String digest(String value) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(value.getBytes(StandardCharsets.UTF_8))); }

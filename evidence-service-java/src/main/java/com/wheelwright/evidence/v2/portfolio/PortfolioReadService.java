@@ -105,6 +105,11 @@ public final class PortfolioReadService {
    context.observations.put(account,values);
   }return context.observations.get(account);
  }
+ /** The same financial evaluator and field-level authorization used by canonical Positions. */
+ public ObjectNode inventoryEvaluation(String account,ObjectNode construction,Principal caller,Instant now,ReadContext context)throws Exception {
+  var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(construction,observations(account,now,context),now));
+  return (ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");
+ }
  public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
  public ObjectNode read(Document d,Principal p,Instant now,ReadContext context)throws Exception {
   ObjectNode n=d.value().deepCopy();if(d.kind()==Kind.POSITION&&n.path("state").asText().equals("CLOSED"))n.remove("exposure");

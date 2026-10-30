@@ -9,7 +9,7 @@ test('balance capability discovered through MCP and real Java HTTP with independ
  const backend=await marketFixture();t.after(()=>backend.close());
  const servers=await connectSyntheticMcp(backend,[{name:'balance-contract',script:'../mcp-v2-evidence/server.mjs',admitted:['inspect_account_balances','inspect_account_positions']}]);t.after(()=>servers[0].close());
  const tools=await servers[0].listTools();assert.ok(tools.some(t=>t.name==='inspect_account_balances'));
- const denied=await servers[0].callToolResult('inspect_account_positions',{account:'orchard'});assert.equal(denied.isError,true);
+ const denied=await servers[0].callToolResult('inspect_account_positions',{account:'orchard'});assert.notEqual(denied.isError,true);assert.equal(JSON.parse(denied.content[0].text).accounts[0].status,'FORBIDDEN');assert.deepEqual(JSON.parse(denied.content[0].text).accounts[0].items,[]);
  const balance=await servers[0].callToolResult('inspect_account_balances',{account:'orchard'});assert.notEqual(balance.isError,true);
  assert.match(balance.content[0].text,/1000.01/);
  assert.equal(JSON.parse(balance.content[0].text).evidence.observations.length,1);

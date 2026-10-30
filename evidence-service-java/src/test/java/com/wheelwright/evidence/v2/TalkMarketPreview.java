@@ -20,7 +20,7 @@ public class TalkMarketPreview {
 
     @TestConfiguration
     @EnableAutoConfiguration
-    @Import({HeldQuotesController.class, QuoteLiquidityController.class, AccountsController.class, AccountBalancesController.class, PortfolioController.class})
+    @Import({HeldQuotesController.class, QuoteLiquidityController.class, AccountsController.class, AccountBalancesController.class, com.wheelwright.evidence.v2.portfolio.PortfolioTacticalInventory.class, com.wheelwright.evidence.v2.portfolio.TacticalInventoryController.class, PortfolioController.class})
     static class Preview {
         @Bean(destroyMethod = "close") SqliteEvidenceStore store() throws Exception {
             var store = new SqliteEvidenceStore(directory.resolve("synthetic-market.sqlite3").toString());

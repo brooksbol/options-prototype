@@ -12,3 +12,11 @@ test('Account, evidence cut, lifecycle predicates and independent named scopes a
 test('exact detail can narrow a prior result; empty narrow scope stays empty; failures do not fabricate selection',()=>{
  const broad=view([item('a'),item('b')]);const exact=view([item('a')]);delete exact.tacticalPositions.evidence.selection;assert.deepEqual([...visibleTacticalResults([broad,exact])],[1]);assert.deepEqual([...visibleTacticalResults([broad,view([],'QQQ')])],[1]);assert.deepEqual([...visibleTacticalResults([broad,{rows:[['Problem','Read failed']]}])],[0]);
 });
+
+const inventory=(entries,underlying=null)=>({tacticalInventory:{underlying,accounts:entries.map(([account,items,cut='one'])=>({account:{href:account},status:'READ',readComplete:true,source:{snapshotId:cut},items}))}});
+test('universal all-Account inventory narrows by Account or exact canonical detail and returns without erasing other turns',()=>{
+ const broad=inventory([[account,[item('a'),item('b')]],[other,[{...item('c'),account:{href:other}}]]]);const selected=inventory([[account,[item('a')]]],'QQQ');assert.deepEqual([...visibleTacticalResults([broad,selected])],[1]);assert.deepEqual([...visibleTacticalResults([selected,broad])],[1]);
+ const detail=view([item('a')]);delete detail.tacticalPositions.evidence.selection;assert.deepEqual([...visibleTacticalResults([broad,detail])],[1]);assert.deepEqual([...visibleTacticalResults([detail,broad])],[1]);
+ assert.deepEqual([...visibleTacticalResults([inventory([[account,[item('a')]]]),inventory([[other,[{...item('c'),account:{href:other}}]]])])],[0,1]);
+ assert.deepEqual([...visibleTacticalResults([broad,inventory([[account,[item('a')],'changed']],'QQQ')])],[0,1]);assert.deepEqual([...visibleTacticalResults([broad,inventory([[account,[]]],'QQQ')])],[1]);
+});

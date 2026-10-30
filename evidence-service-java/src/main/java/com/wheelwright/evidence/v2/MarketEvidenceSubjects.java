@@ -18,7 +18,6 @@ public class MarketEvidenceSubjects {
     private final PositionReadService positions;
     private final Set<String> monitoringUsers;
     private static final Pattern TT_OPTION=Pattern.compile("([A-Z][A-Z0-9.]{0,9}) +[0-9]{6}[CP][0-9]{8}");
-    private static final Pattern FIDELITY_OPTION=Pattern.compile("-?([A-Z.]+?)[0-9]{6}[CP][0-9]+(?:\\.[0-9]+)?");
     @Autowired
     public MarketEvidenceSubjects(SqliteEvidenceStore store,AccountDirectory accounts,PositionReadService positions,
             @Value("${wheelwright.market-evidence.monitoring-users:}") String users) {
@@ -76,8 +75,8 @@ public class MarketEvidenceSubjects {
     static String underlying(PositionSnapshot.Constituent h,String broker) {
         String symbol=h.contract();
         if("Options".equals(h.kind())) {
-            var m=("TASTYTRADE".equals(broker)?TT_OPTION:FIDELITY_OPTION).matcher(symbol);
-            if(!m.matches())return null;symbol=m.group(1);
+            if("FIDELITY".equals(broker)){var parsed=FidelityPositions.optionSymbol(symbol);if(parsed==null)return null;symbol=parsed.underlying();}
+            else {var m=TT_OPTION.matcher(symbol);if(!m.matches())return null;symbol=m.group(1);}
         }
         return canonical(symbol);
     }

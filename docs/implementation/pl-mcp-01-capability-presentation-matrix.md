@@ -109,3 +109,14 @@ The accepted named tt1 scope specimen did not establish general portfolio accept
 
 
 Installed general-inventory correction107caf70/reviewed16239e32: actualSDK cold3Accounts/51rows→namedtt1tactical4→general3/51, exact selected holdings membership and native browser compact tables/source dates/partial status pass. Access and presentation improve for latest-retained broker rows; complete current portfolio and cross-Account recognized structures are NOT established. Independent source ACCEPT, Principal installed general-workflow acceptance pending. Source originals/credentials remain private; v1/grants/300/30policies preserved.
+
+## October29 universal tactical Positions — latest candidate evidence
+
+| Operator specimen | Capability access | Tactical representation | Standing / remaining boundary |
+|---|---|---|---|
+| Show me my positions | Existing Positions collection inventory view; actual51source holdings across3Accounts, exact allocation conservation, bounded result76208bytes | Same native renderer:4tt1canonical structures plus19compact source inventory units; Fidelity shares/calls, options, shares, Treasury/funds retained | Author actual retained-copy SDK/browser verification; immutable review and Principal observation pending, not deployed |
+| PTS→tt1→QQQ→all | Backend Account/underlying selection; no model/host filtering or question router |11PTS units→4tt1structures+cash→1QQQ→3Accounts | Actual native SDK scope sequence passes; source age never excludes custody |
+| Selected QQQ/Fidelity evidence | Existing canonical Position detail; exact canonical holding refs scoped to Account | Deliberate bounded detail, default JSON absent | Actual SDK QQQ detail and2selected PTS holdings; rich Position detail/history context still expensive |
+| Fidelity share/call interpretation | Source-coded symbol/right/strike/expiry recovered; standard multiplier/deliverable remain unknown | Compatible inventory and strike configuration; monetary payoff only where independently qualified | No fabricated covered-call lifecycle, reservation, opening premium or CSP status |
+
+[Universal receipt](../reviews/sdk-talk-universal-positions-2026-10-29.md) owns reproducible evidence; BUG053/052 remain canonical defect owners. This is a maintained acceptance update, not another backlog or financial authority. Existing production/grants/policy/v1 behavior unchanged.
