@@ -1,0 +1,100 @@
+{
+  "completed": true,
+  "standing": "REAL_RETAINED_COPY_ACTUAL_SDK_NOT_INSTALLED",
+  "allAccounts": true,
+  "afterNamedTacticalAllAccounts": true,
+  "scopeRegression": [
+    4,
+    1,
+    4
+  ],
+  "sourceDescriptionsRecovered": true,
+  "custodyRows": [
+    {
+      "nickname": "pts",
+      "rows": 29,
+      "sourcePartial": true
+    },
+    {
+      "nickname": "sawdust",
+      "rows": 11,
+      "sourcePartial": true
+    },
+    {
+      "nickname": "tt1",
+      "rows": 11,
+      "sourcePartial": false
+    }
+  ],
+  "turns": [
+    {
+      "tools": [
+        "inspect_account_holdings"
+      ],
+      "bytes": 95193,
+      "usage": {
+        "requests": 2,
+        "inputTokens": 36150,
+        "outputTokens": 646,
+        "totalTokens": 36796
+      }
+    },
+    {
+      "tools": [
+        "inspect_account_positions"
+      ],
+      "bytes": 33573,
+      "usage": {
+        "requests": 2,
+        "inputTokens": 71731,
+        "outputTokens": 322,
+        "totalTokens": 72053
+      }
+    },
+    {
+      "tools": [
+        "inspect_account_holdings"
+      ],
+      "bytes": 95193,
+      "usage": {
+        "requests": 2,
+        "inputTokens": 106636,
+        "outputTokens": 794,
+        "totalTokens": 107430
+      }
+    },
+    {
+      "tools": [
+        "inspect_account_positions"
+      ],
+      "bytes": 9349,
+      "usage": {
+        "requests": 2,
+        "inputTokens": 135818,
+        "outputTokens": 175,
+        "totalTokens": 135993
+      }
+    },
+    {
+      "tools": [
+        "inspect_account_positions"
+      ],
+      "bytes": 33573,
+      "usage": {
+        "requests": 2,
+        "inputTokens": 147811,
+        "outputTokens": 249,
+        "totalTokens": 148060
+      }
+    }
+  ],
+  "privacy": {
+    "traceExport": false,
+    "state": "local-memory",
+    "providerStorage": false,
+    "remoteCompaction": false
+  },
+  "elapsedMs": 43059,
+  "providerRequests": 0,
+  "productionWrites": 0
+}

@@ -46,6 +46,7 @@ public final class PortfolioReadService {
  /** Request-local only: never shares private projections or stale reconciliation across callers/requests. */
  public static final class ReadContext {
   final Map<String,ObjectNode> reconciliations=new HashMap<>();
+  final Map<String,Map<String,com.wheelwright.evidence.v2.PositionSnapshot.Constituent>> holdingDescriptions=new HashMap<>();
   final Map<String,List<Document>> orders=new HashMap<>();
   final Map<String,Map<String,ObjectNode>> observations=new HashMap<>();
   final Map<String,Set<String>> orderArtifacts=new HashMap<>();
@@ -53,6 +54,21 @@ public final class PortfolioReadService {
  }
  public Map<String,String> latestHoldings(Set<String> scope)throws Exception {
   var cuts=new TreeMap<String,String>();for(String account:scope){var cut=new PortfolioSnapshots(repo).current(account);if(cut.isPresent())cuts.put(account,cut.get().snapshotId());}return cuts;
+ }
+ /** A source description is Account-private display evidence, never a canonical symbol mapping. */
+ private void describeHolding(Document d,ObjectNode value,ReadContext context)throws Exception {
+  if(d.snapshot()==null)return;
+  String key=d.account()+":"+d.snapshot();
+  if(!context.holdingDescriptions.containsKey(key)){
+   var descriptions=new HashMap<String,com.wheelwright.evidence.v2.PositionSnapshot.Constituent>();
+   var snapshot=new PortfolioSnapshots(repo).find(d.account(),d.snapshot());
+   if(snapshot.isPresent()&&Objects.equals(snapshot.get().account(),d.account()))
+    for(var holding:snapshot.get().holdings())descriptions.put(holding.holdingId(),holding);
+   context.holdingDescriptions.put(key,descriptions);
+  }
+  var source=context.holdingDescriptions.get(key).get(d.sourceKey());
+  if(source!=null&&Objects.equals(source.contract(),value.at("/sourceInstrument/identifier").asText())&&source.description()!=null&&!source.description().isBlank())
+   value.put("sourceDescription",source.description());
  }
  public ArrayNode holdingsWarnings(Set<String> scope,String selectedSnapshot)throws Exception {
   var result=array();for(String account:scope){
@@ -98,6 +114,7 @@ public final class PortfolioReadService {
    }if(!n.path("state").asText().equals("CLOSED"))propagate(n,reconciliation(d.account(),now,context),c.value());PortfolioCurrentExposure.qualifyEvaluation(n,now);PortfolioSources.qualify(n);
   }
   if(d.kind()==Kind.CONSTRUCTION){var parent=repo.get(n.at("/position/href").asText());if(parent.isPresent()&&parent.get().value().at("/currentConstruction/href").asText().equals(d.uri())&&!parent.get().value().path("state").asText().equals("CLOSED"))qualifyConstruction(n,reconciliation(d.account(),now,context));}
+  if(d.kind()==Kind.HOLDING)describeHolding(d,n,context);
   if(d.kind()==Kind.MARKET_OBSERVATION)n=PortfolioSessionEvidence.qualify(n,now,d.account()==null?Optional.empty():PortfolioSessionEvidence.read(repo,d.account(),now));
   if(d.kind()==Kind.ORDER&&!PortfolioOrderEvaluation.currentInstruction(n,orderArtifacts(d.account(),context))&&!Set.of("FILLED","CANCELED","EXPIRED","REJECTED").contains(n.path("status").asText()))((ArrayNode)n.path("warnings")).add(warning("SOURCE_CONFLICT","/status","Last reported instruction and source times remain inspectable; absence does not prove cancellation, expiration or a fill.","This retained active-status record is not present in the latest admitted bounded instruction scan. Current working state is unconfirmed."));
   if(d.kind()==Kind.ORDER)for(var warning:sourceWarnings(d.account(),context)){((ObjectNode)warning).set("affected",array().add(""));((ArrayNode)n.get("warnings")).add(warning);}

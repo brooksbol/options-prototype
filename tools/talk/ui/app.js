@@ -1,3 +1,4 @@
+import {renderCustodyInventory} from './custody-inventory.js';
 import {reportDownloadButton} from './report-downloads.js';
 import {imageComposer} from './attachments-ui.js';
 import {renderTacticalPositions} from './tactical.js';
@@ -74,7 +75,9 @@ $('composer').addEventListener('submit', async event => {
       if(tool.download)article.append(reportDownloadButton(document,tool.download,()=>csrf,error=>{$('status').textContent=error;}));
       const raw = resultText(tool.result);
       const view = resultViews[toolIndex];
-      if(view.tacticalPositions&&visibleTactical.has(toolIndex)) {
+      if(view.custodyInventory){
+        article.insertBefore(renderCustodyInventory(document,view.custodyInventory),article.querySelector('.text'));
+      } else if(view.tacticalPositions&&visibleTactical.has(toolIndex)) {
         article.insertBefore(renderTacticalPositions(document,view.tacticalPositions),article.querySelector('.text'));
       } else if(view.closedTradeSummary) {
         const source=view.closedTradeSummary,card=document.createElement('section');card.className='closed-trade-card';
@@ -181,7 +184,7 @@ $('composer').addEventListener('submit', async event => {
     }
     const analysisContent=article.querySelector('.text');
     if (!analysisContent.textContent.replace(/[\p{White_Space}\p{Cf}]/gu,'').trim()) { analysisContent.remove();
-    } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).tacticalPositions))) {
+    } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).tacticalPositions||evidenceView(resultText(tool.result)).custodyInventory))) {
       const content=article.querySelector('.text');
       const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);
       article.insertBefore(details,content);content.remove();details.append(content);

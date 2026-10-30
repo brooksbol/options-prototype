@@ -174,3 +174,19 @@ test('exact transaction detail composition uses item routes and rejects foreign 
 test('unsupported period symbol combinations return actionable correction instead of a generic read failure',async()=>{
  const{inspectTransactions}=await import('./transactions.mjs');const r=await inspectTransactions({account:'fixture',view:'closed-trades',symbol:'ABC',from:'2026-10-01',through:'2026-10-29',timeZone:'America/Denver'},{...config,fetchImpl(){throw Error('No backend read needed');}});assert.equal(r.isError,true);assert.match(r.content[0].text,/inspect_account_transaction_details/);
 });
+
+test('portfolio custody consumes pages once without exposing cursors or merging repeated instruments',async()=>{
+ const id='acct_'+'a'.repeat(32);let pages=0;const ids=['11111111-1111-4111-8111-111111111111','33333333-3333-4333-8333-333333333333'];
+ const result=await inspectHoldings({}, {...config,fetchImpl:async url=>{
+  if(url.pathname==='/v2/accounts')return response(JSON.stringify({requestId,accounts:[{id,alias:'pine'}]}));
+  assert.equal(url.pathname,'/v2/holdings');assert.equal(url.searchParams.get('accountId'),id);assert.equal(url.searchParams.has('state'),false);
+  const page=pages++;return response(JSON.stringify({items:[{id:ids[page],account:{href:'/v2/accounts/'+id},snapshotId:'one-cut',sourceInstrument:{identifier:'SAME'},sourceDescription:'Reported name',quantity:'1',snapshotCoverage:'PARTIAL'}],next:page===0?{href:'/v2/holdings?'+new URLSearchParams({accountId:id,limit:'25',cursor:'opaque'})}:null}));
+ }});const value=JSON.parse(result.content[0].text);assert.equal(value.representation,'RETAINED_CUSTODY_INVENTORY');assert.equal(value.accounts[0].complete,true);assert.equal(value.accounts[0].holdings.length,2);assert.equal(value.accounts[0].holdings[0].sourceDescription,'Reported name');assert.ok(!JSON.stringify(value).includes('opaque'));
+});
+test('changing custody cuts, duplicate rows and oversized inventory cannot become complete holdings',async()=>{
+ const id='acct_'+'a'.repeat(32);
+ for(const mode of ['changed-cut','duplicate','oversize']){let pages=0;await assert.rejects(inspectHoldings({}, {...config,fetchImpl:async url=>{
+  if(url.pathname==='/v2/accounts')return response(JSON.stringify({requestId,accounts:[{id,alias:'pine'}]}));
+  const page=pages++;return response(JSON.stringify({items:[{id:mode==='duplicate'||page===0?requestId:'33333333-3333-4333-8333-333333333333',account:{href:'/v2/accounts/'+id},snapshotId:mode==='changed-cut'&&page===1?'other-cut':'one-cut',sourceDescription:mode==='oversize'?'x'.repeat(100001):'name'}],next:page===0?{href:'/v2/holdings?'+new URLSearchParams({accountId:id,limit:'25',cursor:'opaque'})}:null}));
+ }}),/cut changed|Duplicate custody|safe response capacity/);}
+});

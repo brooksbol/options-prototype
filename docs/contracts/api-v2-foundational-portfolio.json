@@ -36722,6 +36722,10 @@
           "sourceUnit": {
             "type": "string",
             "minLength": 1
+          },
+          "sourceDescription": {
+            "type": "string",
+            "description": "Optional broker-reported description from this exact Account, custody snapshot and holding row. Display evidence only; does not establish canonical ticker equivalence, strategy membership or lifecycle continuity."
           }
         },
         "required": [

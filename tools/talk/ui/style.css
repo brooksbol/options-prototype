@@ -362,3 +362,6 @@ footer {
 #image-selection{padding:.6rem;border:1px solid var(--border,#314047);border-radius:.5rem;margin:.5rem 0;font-size:.85rem}#image-selection[hidden]{display:none}#image-selection label{display:flex;align-items:flex-start;gap:.5rem;margin-top:.5rem}#image-selection input[type=checkbox]{width:auto;flex:none;margin-top:.2rem}#image-name{overflow-wrap:anywhere}#attach{white-space:nowrap}
 
 .tactical-degraded { font-size:.8rem; color:#5c6c61; margin:.4rem 0; }
+
+.custody-inventory{border:1px solid var(--border,#333);border-radius:12px;padding:1rem;margin-bottom:1rem}.custody-account{margin-block:1.25rem}.custody-account h4{margin-bottom:.35rem}.custody-source{font-size:.85rem;color:var(--muted,#aaa)}.custody-inventory td,.custody-inventory th{text-align:left;padding:.45rem .65rem;vertical-align:top}.custody-inventory td:first-child{overflow-wrap:anywhere}
+.custody-inventory{min-width:0;overflow-wrap:anywhere}.custody-inventory table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:.85rem}.custody-inventory th,.custody-inventory td{overflow-wrap:anywhere}.custody-inventory th:first-child{width:50%}

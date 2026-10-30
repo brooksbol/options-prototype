@@ -172,5 +172,5 @@ export function evidenceView(raw) {
   if (!rows.length) rows.push(['Evidence', 'Detailed source is available below.']);
   for (const field of ['qualification', 'sourceQualification', 'scope']) if (value[field]) qualifications.push(value[field]);
   if (value.dataClassification) qualifications.unshift(value.dataClassification);
-  return { ...(value.evidence?.projection==='tactical'?{tacticalPositions:{account:value.account,evidence:value.evidence}}:{}),...(closedTradeSummary?{closedTradeSummary}:{}),...(executionSummary?{executionSummary}:{}),rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}), ...(optionInventory ? {optionInventory} : {}) };
+  return { ...(value.representation==='RETAINED_CUSTODY_INVENTORY'&&Array.isArray(value.accounts)?{custodyInventory:value}:{}),...(value.evidence?.projection==='tactical'?{tacticalPositions:{account:value.account,evidence:value.evidence}}:{}),...(closedTradeSummary?{closedTradeSummary}:{}),...(executionSummary?{executionSummary}:{}),rows, qualifications: [...new Set(qualifications)], ...(balanceSummary ? {balanceSummary} : {}), ...(optionInventory ? {optionInventory} : {}) };
 }

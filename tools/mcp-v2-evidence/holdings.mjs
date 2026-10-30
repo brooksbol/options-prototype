@@ -3,7 +3,9 @@ import { readBackend, UUID, problemResult } from './backend.mjs';
 
 /** Brokerage inventory is an existing backend resource, independent of Position lifecycle. */
 export async function inspectHoldings({ account, optionRight, side } = {}, config, optionInventory = false) {
-  const discovery = await readBackend('/v2/accounts', config);
+  const deadline = performance.now() + (config.timeoutMs ?? 40000);
+  const budget = () => { const timeoutMs = Math.floor(deadline-performance.now()); if(timeoutMs<=0)throw new Error('Inventory read deadline exceeded; no complete inventory established.'); return {...config,timeoutMs}; };
+  const discovery = await readBackend('/v2/accounts', budget());
   if (discovery.error) return problemResult(discovery.error);
   if (discovery.data?.requestId !== discovery.requestId || !Array.isArray(discovery.data.accounts)) throw new Error('Invalid Account discovery.');
   const selected = account === undefined ? discovery.data.accounts : discovery.data.accounts.filter(a => a.alias === account);
@@ -29,23 +31,32 @@ export async function inspectHoldings({ account, optionRight, side } = {}, confi
   for (const item of selected) {
     if (!canonicalAccountId(item.id)) throw new Error('Invalid Account identity.');
     const result = { nickname: item.alias, broker: item.brokerAssociation?.broker, complete: false, holdings: [], problems: [], warnings: [] };
+    const snapshots = new Set(), identifiers = new Set();
     let path = '/v2/holdings?' + new URLSearchParams({ accountId: item.id, limit: '25' });
     const seen = new Set();
     for (let page = 0; page < 20; page++) {
       if (seen.has(path)) throw new Error('Repeated holdings continuation.');
       seen.add(path);
-      const response = await readBackend(path, config);
+      const response = await readBackend(path, budget());
       if (response.error) { result.problems.push(response.error); break; }
       const data = response.data;
       if (!Array.isArray(data?.items) || data.items.some(h => !UUID.test(h.id ?? '') || h.account?.href !== '/v2/accounts/' + item.id)) throw new Error('Invalid holdings scope.');
       result.warnings.push(...(data.warnings ?? []));
-      for (const h of data.items) result.holdings.push({
-        id: h.id, sourceInstrument: h.sourceInstrument, kind: h.kind, side: h.side,
+      for (const h of data.items) {
+        if(identifiers.has(h.id)) throw new Error('Duplicate custody row across pages.');
+        identifiers.add(h.id);
+        if(typeof h.snapshotId!=='string'||!h.snapshotId)throw new Error('Missing custody source cut.');
+        snapshots.add(h.snapshotId);
+        if(snapshots.size>1)throw new Error('Custody cut changed across pages.');
+        result.holdings.push({
+        id: h.id, sourceDescription: h.sourceDescription, sourceInstrument: h.sourceInstrument, kind: h.kind, side: h.side,
         quantity: h.quantity, unit: h.unit, sourceUnit: h.sourceUnit ?? null,
         snapshotId: h.snapshotId, snapshotCoverage: h.snapshotCoverage,
         observedAt: h.observedAt, observationDate: h.observationDate, receivedAt: h.receivedAt,
         evidence: h.evidence, warnings: h.warnings
       });
+      }
+      if(Buffer.byteLength(JSON.stringify([...accounts,result]))>100000)throw new Error('Complete inventory exceeds safe response capacity; narrow the Account scope.');
       if (data.next == null) { result.complete = true; break; }
       const next = new URL(data.next.href, config.base);
       if (next.origin !== new URL(config.base).origin || next.pathname !== '/v2/holdings' ||
@@ -57,7 +68,7 @@ export async function inspectHoldings({ account, optionRight, side } = {}, confi
     accounts.push(result);
   }
   return { content: [{ type: 'text', text: JSON.stringify({
-    requestId: discovery.requestId, outcome: accounts.every(a => a.complete) ? 'COMPLETE_AUTHORIZED_READ' : 'PARTIAL',
+    representation: 'RETAINED_CUSTODY_INVENTORY', requestId: discovery.requestId, outcome: accounts.every(a => a.complete) ? 'COMPLETE_AUTHORIZED_READ' : 'PARTIAL',
     ...(config.syntheticFixture ? { dataClassification: 'SYNTHETIC_FIXTURE' } : {}),
     accounts, qualification: 'Brokerage holdings from each Account’s backend-selected latest retained custody cut. This is not a lifecycle OPEN filter or proof of live/current brokerage custody. Preserve source dates and snapshot coverage. A forbidden Account is not empty; incomplete reads are not full inventory. No returned rows alone do not establish an empty live Account. Holdings permission is distinct from Position lifecycle permission. Do not replace a denied holdings read with an OPEN lifecycle query or claim that unresolved lifecycle state means no holdings.'
   }) }] };
