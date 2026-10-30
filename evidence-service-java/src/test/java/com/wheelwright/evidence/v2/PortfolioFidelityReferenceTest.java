@@ -11,11 +11,11 @@ import static org.assertj.core.api.Assertions.*;
 class PortfolioFidelityReferenceTest {
  @TempDir Path directory;
  final class Client extends TastytradeClient {
-  int definitions,chains;String strike="10",root="ABC",chainType="Standard",currency="USD";int shares=100;boolean fail=false;
+  int definitions,chains;String series="ABC   261120C00010000";String strike="10",root="ABC",chainType="Standard",currency="USD";int shares=100;boolean fail=false;
   Client(){super("synthetic-id","synthetic-secret","synthetic-refresh");}
-  @Override public byte[] optionDefinitions(List<String> subjects)throws Exception{definitions++;if(fail)throw new IllegalStateException();var raw=obj().put("symbol",subjects.getFirst()).put("root-symbol",root).put("underlying-symbol",root).put("instrument-type","Equity Option").put("exercise-style","American").put("strike-price",strike).put("option-type","C").put("expiration-date","2026-11-20").put("option-chain-type",chainType).put("shares-per-contract",shares).put("currency",currency);var body=obj();body.set("data",obj().set("items",array().add(raw)));return JSON.writeValueAsBytes(body);}
+  @Override public byte[] optionDefinitions(List<String> subjects)throws Exception{definitions++;series=subjects.getFirst();if(fail)throw new IllegalStateException();var raw=obj().put("symbol",subjects.getFirst()).put("root-symbol",root).put("underlying-symbol",root).put("instrument-type","Equity Option").put("exercise-style","American").put("strike-price",strike).put("option-type","C").put("expiration-date","2026-11-20").put("option-chain-type",chainType).put("shares-per-contract",shares).put("currency",currency);var body=obj();body.set("data",obj().set("items",array().add(raw)));return JSON.writeValueAsBytes(body);}
   @Override public Set<String> optionDefinitionFallback(List<String> subjects,OptionDefinitionSink sink){return Set.copyOf(subjects);}
-  @Override public byte[] compactOptionChain(String symbol)throws Exception{chains++;if(fail)throw new IllegalStateException();var group=obj().put("underlying-symbol",root).put("option-chain-type",chainType).put("shares-per-contract",shares);group.set("symbols",array().add("ABC   261120C00010000"));group.set("deliverables",array().add(obj().put("deliverable-type","Shares").put("instrument-type","Equity").put("symbol",root).put("amount",shares)));var body=obj();body.set("data",obj().set("items",array().add(group)));return JSON.writeValueAsBytes(body);}
+  @Override public byte[] compactOptionChain(String symbol)throws Exception{chains++;if(fail)throw new IllegalStateException();var group=obj().put("underlying-symbol",root).put("option-chain-type",chainType).put("shares-per-contract",shares);group.set("symbols",array().add(series));group.set("deliverables",array().add(obj().put("deliverable-type","Shares").put("instrument-type","Equity").put("symbol",root).put("amount",shares)));var body=obj();body.set("data",obj().set("items",array().add(group)));return JSON.writeValueAsBytes(body);}
  }
  final class Rig implements AutoCloseable {
   final SqliteEvidenceStore db;final AccountDirectory accounts;final PortfolioRepository repo;final PortfolioReadService reader;final PortfolioTacticalInventory inventory;final Client client=new Client();final String account;Instant now=Instant.parse("2026-10-29T16:00:00Z");
@@ -30,5 +30,27 @@ class PortfolioFidelityReferenceTest {
  @Test void publicReferenceReuseExpiresOnlyWhenAnotherRequestArrives()throws Exception{try(var r=new Rig()){r.read(true,true);assertThat(r.client.definitions).isEqualTo(1);r.now=r.now.plus(Duration.ofHours(25));assertThat(r.client.definitions).isEqualTo(1);r.reader.fidelityReferences(new PortfolioFidelityReferences(r.repo,r.accounts,r.client,true,Clock.fixed(r.now,ZoneOffset.UTC)));r.read(true,true);assertThat(r.client.definitions).isEqualTo(2);assertThat(r.client.chains).isEqualTo(2);}}
 
  @Test void retainedTerminalReferenceIsNotDisclosedOrUsedWithoutReferencePermission()throws Exception{try(var r=new Rig()){r.read(true,true);var without=r.read(false,true);assertThat(without.at("/accounts/0/items/0/evaluation/payoff/geometry").isMissingNode()).isTrue();for(var part:without.at("/accounts/0/items/0/constituents"))assertThat(part.at("/terms/terminalSettlement").isMissingNode()).isTrue();var withoutMarket=r.read(true,false);assertThat(withoutMarket.at("/accounts/0/items/0/evaluation/payoff/status").asText()).isEqualTo("QUALIFIED");assertThat(r.client.definitions).isEqualTo(1);}}
+
+ @Test void anotherAccountsNewChainDoesNotRenewAnOlderExactSeries()throws Exception{try(var r=new Rig()){
+  r.read(true,true);assertThat(r.client.definitions).isEqualTo(1);
+  r.now=r.now.plus(Duration.ofHours(48));r.reader.fidelityReferences(new PortfolioFidelityReferences(r.repo,r.accounts,r.client,true,Clock.fixed(r.now,ZoneOffset.UTC)));
+  String other=r.accounts.bind("other","A2");var artifacts=new BrokerageArtifacts(r.db.getConnection().getMetaData().getURL(),JSON,new PositionReadService(r.db,JSON));String csv=PositionsTest.csv("A2,Other,ETFs,ABC,ABC fund,100,2000,0,Cash\nA2,Other,Options,-ABC261120C20,CALL (ABC) ABC NOV 20 26 $20,-1,-20,0,Cash\n","Oct-29-2026");artifacts.ingest(other,"other.csv","POSITIONS",csv.getBytes(StandardCharsets.UTF_8),UUID.randomUUID().toString());
+  var principal=new BearerAuthenticator.Principal("reader",Set.of("account.read:"+other,"account.positions.read:"+other,"account.holdings.read:"+other,"reference.read","market.read"));r.client.strike="20";r.inventory.read(other,"ABC","test",principal,r.now);assertThat(r.client.definitions).isEqualTo(2);
+  r.client.strike="10";r.read(true,true);assertThat(r.client.definitions).isEqualTo(3);assertThat(r.client.chains).isEqualTo(3);
+  // A financially unchanged reacquisition has a fresh exact-series receipt even if current DTO evidence is idempotent.
+  r.read(true,true);assertThat(r.client.definitions).isEqualTo(3);assertThat(r.client.chains).isEqualTo(3);
+ }}
+
+ @Test void incompleteOrIncompatibleAcquisitionReceiptsNeverExtendExactSeriesReuse()throws Exception{
+  for(String mode:List.of("legacy","missingSeries","wrongRoot","wrongArtifact","wrongHash","wrongType","wrongProfile","futureReceipt","futureImport","malformedClock","failed"))try(var r=new Rig()){
+   r.read(true,true);assertThat(r.client.definitions).isEqualTo(1);
+   try(var c=r.repo.connection();var q=c.prepareStatement("SELECT import_id,result FROM brokerage_import WHERE file_type='API_OPTION_CHAIN'");var rows=q.executeQuery()){
+    assertThat(rows.next()).isTrue();String id=rows.getString(1);var result=(ObjectNode)JSON.readTree(rows.getString(2));var receipt=(ObjectNode)result.path("publicReferences");
+    switch(mode){case "missingSeries"->receipt.set("series",array());case "wrongRoot"->receipt.put("root","OTHER");case "wrongArtifact"->receipt.put("sourceArtifact","foreign");case "wrongHash"->receipt.put("sourceSha256","0".repeat(64));case "wrongType"->receipt.put("sourceType","API_OPTION_DEFINITION");case "wrongProfile"->receipt.put("bindingProfileVersion",2);case "futureReceipt"->receipt.put("acquiredAt",r.now.plusSeconds(1).toString());case "malformedClock"->receipt.put("acquiredAt","unknown");default->{}}
+    try(var update=c.prepareStatement("UPDATE brokerage_import SET result=?,status=?,imported_at=? WHERE import_id=?")){update.setString(1,mode.equals("legacy")?"Legacy sentence":JSON.writeValueAsString(result));update.setString(2,mode.equals("failed")?"REJECTED":"ACCEPTED");update.setString(3,(mode.equals("futureImport")?r.now.plusSeconds(1):r.now).toString());update.setString(4,id);update.executeUpdate();}
+   }
+   r.read(true,true);assertThat(r.client.definitions).as(mode).isEqualTo(2);assertThat(r.client.chains).as(mode).isEqualTo(2);
+  }
+ }
 
 }

@@ -35,7 +35,7 @@ public final class PortfolioFidelityReferences {
   }
   if(count>100||groups.size()>10){warnings.add(unavailable("Public contract-reference subject budget exceeded; narrow Account or underlying scope."));return warnings;}
   for(var entry:groups.entrySet())synchronized(locks.computeIfAbsent(entry.getKey(),k->new Object())){
-   String root=entry.getKey();var requested=entry.getValue().keySet();restoreDefinitions(account,requested,bindings);if(fresh(root,entry.getValue().values()))continue;
+   String root=entry.getKey();var requested=entry.getValue().keySet();restoreDefinitions(account,requested,bindings);if(fresh(root,entry.getValue()))continue;
    if(!budget(deadline)){warnings.add(unavailable("Public reference deadline reached; retained custody and prior terms remain available."));break;}
    try{
     var found=new HashSet<String>();
@@ -44,7 +44,7 @@ public final class PortfolioFidelityReferences {
     if(!missing.isEmpty()&&budget(deadline)){var failed=client.optionDefinitionFallback(new ArrayList<>(missing),(symbol,bytes)->definition(account,bytes,Set.of(symbol),true,bindings));if(!failed.isEmpty())warnings.add(unavailable("Some requested public definitions are unavailable; missing terms remain unknown."));}
     if(!budget(deadline)){warnings.add(unavailable("Public reference deadline reached before chain corroboration."));break;}
     byte[] bytes=client.compactOptionChain(root);String attempt=UUID.randomUUID().toString(),artifact=PortfolioMarketAcquisition.retainSource(repo,clock,account,attempt,bytes,"API_OPTION_CHAIN",filename(root));
-    try(var c=repo.connection()){c.setAutoCommit(false);try{new PortfolioOptionReferenceSources(repo,bindings).admit(c,account,artifact,root,requested);PortfolioMarketAcquisition.finish(c,account,attempt,"ACCEPTED","Public contract reference source admitted; unknown individual terms remain unknown");c.commit();}catch(Exception e){c.rollback();try(var rejected=repo.connection()){PortfolioMarketAcquisition.finish(rejected,account,attempt,"REJECTED","Unsupported public contract reference; prior terms preserved");}throw e;}}
+    try(var c=repo.connection()){c.setAutoCommit(false);try{new PortfolioOptionReferenceSources(repo,bindings).admit(c,account,artifact,root,requested);PortfolioMarketAcquisition.finish(c,account,attempt,"ACCEPTED",receipt("CHAIN",root,requested,artifact,BrokerageArtifacts.sha(bytes),"API_OPTION_CHAIN",clock.instant()));c.commit();}catch(Exception e){c.rollback();try(var rejected=repo.connection()){PortfolioMarketAcquisition.finish(rejected,account,attempt,"REJECTED","Unsupported public contract reference; prior terms preserved");}throw e;}}
    }catch(Exception e){warnings.add(unavailable("Requested public contract definitions or deliverables unavailable; no missing terms invented."));}
   }
   return warnings;
@@ -56,11 +56,27 @@ public final class PortfolioFidelityReferences {
  }
  private Set<String> definition(String account,byte[] bytes,Set<String> requested,boolean single,Map<String,String> bindings)throws Exception{
   String attempt=UUID.randomUUID().toString(),artifact=PortfolioMarketAcquisition.retainSource(repo,clock,account,attempt,bytes,single?"API_OPTION_DEFINITION":"API_OPTION_DEFINITIONS","tastytrade-public-option-definition.json");
-  try(var c=repo.connection()){c.setAutoCommit(false);try{var found=new PortfolioOptionDefinitions(repo,bindings).admit(c,account,artifact,requested);PortfolioMarketAcquisition.finish(c,account,attempt,"ACCEPTED","Public definition source admitted; not custody, opening or market quote evidence");c.commit();return found;}catch(Exception e){c.rollback();try(var rejected=repo.connection()){PortfolioMarketAcquisition.finish(rejected,account,attempt,"REJECTED","Unsupported public definition; prior reference preserved");}throw e;}}
+  try(var c=repo.connection()){c.setAutoCommit(false);try{var found=new PortfolioOptionDefinitions(repo,bindings).admit(c,account,artifact,requested);PortfolioMarketAcquisition.finish(c,account,attempt,"ACCEPTED",receipt("DEFINITION",requested.iterator().next().substring(0,requested.iterator().next().length()-15).strip(),found,artifact,BrokerageArtifacts.sha(bytes),single?"API_OPTION_DEFINITION":"API_OPTION_DEFINITIONS",clock.instant()));c.commit();return found;}catch(Exception e){c.rollback();try(var rejected=repo.connection()){PortfolioMarketAcquisition.finish(rejected,account,attempt,"REJECTED","Unsupported public definition; prior reference preserved");}throw e;}}
  }
- private boolean fresh(String underlying,Collection<String> subjects)throws Exception{
-  for(String uri:subjects){var i=repo.get(uri);if(i.isEmpty()||!i.get().value().path("option").isObject())return false;boolean definition=false,chain=false;for(var e:i.get().value().at("/option/evidence")){String ref=e.path("reference").asText();definition|=ref.contains(":option-definition:sha256:");chain|=ref.contains(":option-chain:sha256:");}if(!definition||!chain)return false;}
-  try(var c=repo.connection();var q=c.prepareStatement("SELECT imported_at FROM brokerage_import WHERE file_type='API_OPTION_CHAIN' AND original_filename=? AND status='ACCEPTED' ORDER BY imported_at DESC,import_id DESC LIMIT 1")){q.setString(1,filename(underlying));try(var r=q.executeQuery()){if(!r.next())return false;var age=Duration.between(Instant.parse(r.getString(1)),clock.instant());return !age.isNegative()&&age.compareTo(Duration.ofDays(1))<0;}}
+ /** Reuse is exact-series acquisition coverage, not the newest read of another series on its root. */
+ private boolean fresh(String underlying,Map<String,String> subjects)throws Exception{
+  for(String uri:subjects.values()){var i=repo.get(uri);if(i.isEmpty()||!i.get().value().path("option").isObject())return false;boolean definition=false,chain=false;for(var e:i.get().value().at("/option/evidence")){String ref=e.path("reference").asText();definition|=ref.contains(":option-definition:sha256:");chain|=ref.contains(":option-chain:sha256:");}if(!definition||!chain)return false;}
+  var definitions=new HashSet<String>();var chains=new HashSet<String>();
+  // Existing accepted import results are retained admission receipts; no parallel cache/registry.
+  try(var c=repo.connection();var q=c.prepareStatement("SELECT i.imported_at,i.result,i.file_type,i.original_filename,a.sha256,a.artifact_id FROM brokerage_import i JOIN brokerage_artifact a ON a.account=i.account AND a.artifact_id=i.artifact_id WHERE i.status='ACCEPTED' AND i.imported_at>=? AND i.file_type IN ('API_OPTION_CHAIN','API_OPTION_DEFINITION','API_OPTION_DEFINITIONS') AND i.original_filename IN (?,?) ORDER BY i.imported_at DESC LIMIT 200")){
+   q.setString(1,clock.instant().minus(Duration.ofDays(1)).toString());q.setString(2,filename(underlying));q.setString(3,"tastytrade-public-option-definition.json");try(var r=q.executeQuery()){while(r.next()){
+    var age=Duration.between(Instant.parse(r.getString("imported_at")),clock.instant());if(age.isNegative()||age.compareTo(Duration.ofDays(1))>=0)continue;
+    com.fasterxml.jackson.databind.JsonNode receipt;try{receipt=JSON.readTree(r.getString("result")).path("publicReferences");}catch(Exception legacySentence){continue;}
+    if(receipt.path("version").asInt()!=1||receipt.path("bindingProfileVersion").asInt()!=1||!receipt.path("series").isArray()||!receipt.path("root").asText().equals(underlying)||!receipt.path("sourceSha256").asText().equals(r.getString("sha256"))||!receipt.path("sourceArtifact").asText().equals(r.getString("artifact_id"))||!receipt.path("sourceType").asText().equals(r.getString("file_type")))continue;
+    try{var receiptAge=Duration.between(Instant.parse(receipt.path("acquiredAt").asText()),clock.instant());if(receiptAge.isNegative()||receiptAge.compareTo(Duration.ofDays(1))>=0)continue;}catch(java.time.DateTimeException malformedClock){continue;}
+    boolean chain=r.getString("file_type").equals("API_OPTION_CHAIN");if(chain&&(!receipt.path("kind").asText().equals("CHAIN")||!receipt.path("root").asText().equals(underlying)||!r.getString("original_filename").equals(filename(underlying)))||!chain&&!receipt.path("kind").asText().equals("DEFINITION"))continue;
+    for(var series:receipt.path("series"))if(series.isTextual()&&subjects.containsKey(series.asText()))(chain?chains:definitions).add(series.asText());
+   }}
+  }
+  return definitions.containsAll(subjects.keySet())&&chains.containsAll(subjects.keySet());
+ }
+ private static String receipt(String kind,String root,Collection<String> admitted,String artifact,String sha,String type,Instant acquiredAt)throws Exception{
+  var r=obj().put("version",1).put("bindingProfileVersion",1).put("kind",kind).put("sourceArtifact",artifact).put("sourceSha256",sha).put("sourceType",type).put("acquiredAt",acquiredAt.toString());if(root!=null)r.put("root",root);var series=array();for(String s:new TreeSet<>(admitted))series.add(s);r.set("series",series);var result=obj().put("message","Public contract references admitted; not custody, opening or market quote evidence");result.set("publicReferences",r);return JSON.writeValueAsString(result);
  }
  private static boolean budget(long deadline){return deadline-System.nanoTime()>=Duration.ofSeconds(10).toNanos();}
  private static String filename(String root){return "tastytrade-public-option-chain-"+root+".json";}
