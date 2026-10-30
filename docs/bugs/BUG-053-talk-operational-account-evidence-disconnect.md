@@ -106,3 +106,6 @@ Principal rejected the generic all-Account custody table: broader scope must pre
 
 
 Universal candidate review update: `74efe666` independently REJECTed for false Treasury maturity attribution from an arbitrary description date; intermediate orphan heading also reproduced. Original preserved. New isolated successor enforces explicit source-date roles and generic empty-section pruning, with additional controlled falsifiers. See the universal receipt and preserved independent report. No production, grants, or defect-closure transition.
+
+
+Universal tactical successor `b399cfe0` independently ACCEPTed within bounded source scope after preserved74efe666 rejection. Fresh actual retained-copy SDK/browser all-Account read:3Accounts/51source holdings,4native tt1structures plus19compact units;75944-byte response and zero schema errors. Existing six-turn scope/selected-source proof retained, native mobile/keyboard checks pass. Operator-ready owned preview: http://127.0.0.1:8819/ . [Final receipt](../reviews/sdk-talk-universal-positions-2026-10-29.md#independent-acceptance-and-operator-ready-candidate). Principal observation/acceptance, main integration and production deployment remain pending; installed107caf70/maina4733817/grants/policies/v1 unchanged. BUG052/053 remain Open; reviewer acceptance does not close installed Product defects.

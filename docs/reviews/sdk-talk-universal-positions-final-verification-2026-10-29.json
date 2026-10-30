@@ -1,0 +1,175 @@
+{
+  "reviewedRuntimeSource": "b399cfe07b45a53ee4d1023c16b042c1d7170ae1",
+  "independentDisposition": "ACCEPT WITHIN BOUNDED SOURCE SCOPE",
+  "principalAcceptance": "PENDING",
+  "deployment": "NOT AUTHORIZED / NOT PERFORMED",
+  "candidate": "http://127.0.0.1:8819/",
+  "actualCorrectedInventory": {
+    "status": 200,
+    "bytes": 75944,
+    "accounts": [
+      {
+        "nickname": "pts",
+        "status": "READ",
+        "sourceHoldings": 29,
+        "represented": 29,
+        "units": 11,
+        "canonical": 0,
+        "nativeGeometry": 0,
+        "variants": {
+          "MONEY_MARKET": 1,
+          "SHARES_AND_CALLS": 7,
+          "OPTION": 1,
+          "SHARES": 1,
+          "TREASURY_BILLS": 1
+        }
+      },
+      {
+        "nickname": "sawdust",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 7,
+        "canonical": 0,
+        "nativeGeometry": 0,
+        "variants": {
+          "MONEY_MARKET": 1,
+          "SHARES_AND_CALLS": 4,
+          "OPTION": 2
+        }
+      },
+      {
+        "nickname": "tt1",
+        "status": "READ",
+        "sourceHoldings": 11,
+        "represented": 11,
+        "units": 5,
+        "canonical": 4,
+        "nativeGeometry": 4,
+        "variants": {
+          "OPTION_STRUCTURE": 4,
+          "CASH": 1
+        }
+      }
+    ]
+  },
+  "actualCorrectedSdk": {
+    "standing": "ACTUAL_SDK_RETAINED_COPY_NOT_PRODUCTION",
+    "elapsedSeconds": 6,
+    "turns": [
+      {
+        "turn": 1,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {}
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 7,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 75944
+          }
+        ],
+        "usage": {
+          "requests": 2,
+          "inputTokens": 34584,
+          "outputTokens": 360,
+          "totalTokens": 34944
+        },
+        "error": false
+      }
+    ]
+  },
+  "browser": {
+    "standing": "ACTUAL_SDK_RETAINED_COPY_RESULTS_BROWSER_REPLAY",
+    "counts": [
+      {
+        "turn": 1,
+        "accounts": 3,
+        "nativeStructures": 4,
+        "inventoryUnits": 19,
+        "nativeGraphics": 18
+      }
+    ],
+    "defaultRawJsonAbsent": true,
+    "emptyArtifactsAbsent": true,
+    "retainedCustodyDateVisible": true,
+    "keyboardDetails": true,
+    "mobileOverflow": false,
+    "pageErrors": 0,
+    "protectedPixelsExported": false
+  },
+  "tt1SameCut": {
+    "standing": "ACTUAL_RETAINED_COPY_SAME_SOURCE_CUT",
+    "canonicalStructures": 4,
+    "allVersusNamedVersusExact": true,
+    "contractAndQuantityParity": true,
+    "geometryParity": true,
+    "spotSourceClockParity": true,
+    "dteParity": true,
+    "unknownEntryEconomicsPreserved": true,
+    "comparisonClockNote": "Evaluation/computation clocks excluded from equality only; source spot clocks compared explicitly."
+  },
+  "tests": {
+    "java": 208,
+    "talk": 77,
+    "mcp": 22,
+    "oas": 8,
+    "oasOperations": 39,
+    "actualInventorySchemaErrors": 0
+  },
+  "measurements": {
+    "basis": "Filesystem birth times from initial task worktree and first successful real inventory summary; approximate wall-clock includes review/test waits.",
+    "secondsToFirstRealResult": 772,
+    "elapsedSecondsAtReceipt": 4394,
+    "actualSdkRequestsAcrossAllRecordedSpecimens": 20,
+    "actualSdkInputTokens": 702398,
+    "actualSdkOutputTokens": 4587,
+    "billingCost": null,
+    "authorReviewerModelUsage": null,
+    "backendApiRequestCount": null,
+    "principalPermissionInterruptions": 0,
+    "knownOperationalRegressions": 0,
+    "secondsToIndependentSourceAcceptance": 4217,
+    "secondsToInstalledOperatorDemonstration": null
+  },
+  "preservation": {
+    "main": "a4733817f82a2d9292241635a2a03177e21c39eb",
+    "installedSource": "107caf70569f065daf047333b494fe11d47b6902",
+    "installedServedAssetMatch": true,
+    "originalServicePidsUnchanged": true,
+    "credentialFilesUnchanged": true,
+    "effectiveGrantsUnchanged": true,
+    "policyFilesUnchanged": true,
+    "v1AndTtLiveSourceChanges": 0
+  },
+  "limits": "Protected-copy candidate with provider beans disabled, not production/current custody verification. Actual SDK results reach existing authorized OpenAI profile; raw records/images excluded here. Independent review uses separate controlled sources; Principal observation and deployment remain separate.",
+  "documentation": {
+    "localUnpublishedBuild": "PASS with existing example warnings",
+    "publicValidator": "FAIL at existing405 baseline assertion on both candidate and main",
+    "publication": "ACCEPTANCE_PENDING; no release identity refresh, Pages dispatch or publication",
+    "contractConformance": "8 tests/39operations pass; actual inventory schema0errors"
+  }
+}
