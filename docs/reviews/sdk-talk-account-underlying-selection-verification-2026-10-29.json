@@ -1,0 +1,265 @@
+{
+  "source": "4f67412ceee12a6cf512860bcaf55a70c9f3b974",
+  "standing": "AUTHOR_ACTUAL_SDK_PROTECTED_COPY_NOT_PRODUCTION",
+  "incidentRootCause": "Original failing tool arguments unavailable; omission-to-all mechanism established, exact original cause unproven",
+  "baseline": {
+    "fiveTurnNaturalReplay": "PASS_BEFORE_CORRECTION_NOT_DISPROOF_OF_INCIDENT",
+    "requests": 10,
+    "inputTokens": 415897,
+    "outputTokens": 804
+  },
+  "sdk": {
+    "seconds": 23,
+    "requests": 10,
+    "inputTokens": 189504,
+    "outputTokens": 848,
+    "turns": [
+      {
+        "turn": 1,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "underlying": "BDRY",
+              "accountScope": "ALL_AUTHORIZED"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 0,
+                "native": 0
+              }
+            ],
+            "underlying": "BDRY",
+            "bytes": 9677
+          }
+        ],
+        "error": false
+      },
+      {
+        "turn": 2,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "pts",
+              "underlying": "BDRY",
+              "accountScope": "ACCOUNT"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              }
+            ],
+            "underlying": "BDRY",
+            "bytes": 4888
+          }
+        ],
+        "error": false
+      },
+      {
+        "turn": 3,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "sawdust",
+              "underlying": "BDRY",
+              "accountScope": "ACCOUNT"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              }
+            ],
+            "underlying": "BDRY",
+            "bytes": 4892
+          }
+        ],
+        "error": false
+      },
+      {
+        "turn": 4,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "accountScope": "ALL_AUTHORIZED"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 11,
+                "native": 0
+              },
+              {
+                "nickname": "sawdust",
+                "status": "READ",
+                "units": 7,
+                "native": 0
+              },
+              {
+                "nickname": "tt1",
+                "status": "READ",
+                "units": 5,
+                "native": 4
+              }
+            ],
+            "underlying": null,
+            "bytes": 91703
+          }
+        ],
+        "error": false
+      },
+      {
+        "turn": 5,
+        "toolCalls": [
+          {
+            "name": "inspect_account_positions",
+            "error": false,
+            "selection": {
+              "account": "pts",
+              "underlying": "BDRY",
+              "accountScope": "ACCOUNT"
+            }
+          }
+        ],
+        "inventories": [
+          {
+            "accounts": [
+              {
+                "nickname": "pts",
+                "status": "READ",
+                "units": 1,
+                "native": 0
+              }
+            ],
+            "underlying": "BDRY",
+            "bytes": 4888
+          }
+        ],
+        "error": false
+      }
+    ]
+  },
+  "browser": {
+    "source": "4f67412ceee12a6cf512860bcaf55a70c9f3b974",
+    "standing": "ACTUAL_SDK_RETAINED_COPY_BROWSER_REPLAY",
+    "results": [
+      {
+        "turn": 1,
+        "accounts": [
+          "pts",
+          "sawdust",
+          "tt1"
+        ],
+        "units": 2,
+        "nativeCurves": 2
+      },
+      {
+        "turn": 2,
+        "accounts": [
+          "pts"
+        ],
+        "units": 1,
+        "nativeCurves": 1
+      },
+      {
+        "turn": 3,
+        "accounts": [
+          "sawdust"
+        ],
+        "units": 1,
+        "nativeCurves": 1
+      },
+      {
+        "turn": 4,
+        "accounts": [
+          "pts",
+          "sawdust",
+          "tt1"
+        ],
+        "units": 23,
+        "nativeCurves": 18
+      },
+      {
+        "turn": 5,
+        "accounts": [
+          "pts"
+        ],
+        "units": 1,
+        "nativeCurves": 1
+      }
+    ],
+    "acceptedBdryGeometryDtoByteUnchanged": true,
+    "terminalValueNotPlLabel": true,
+    "defaultRawJsonAbsent": true,
+    "emptyAnalysisAbsent": true,
+    "keyboardDetails": true,
+    "mobileOverflow": false,
+    "pageErrors": 0,
+    "protectedPixelsExported": false
+  },
+  "tests": {
+    "mcp": 26,
+    "talk": 79,
+    "failures": 0,
+    "javaOasFinancialSource": "BYTE_UNCHANGED; accepted preceding1100-test/two-skip result not rerun"
+  },
+  "preserved": {
+    "main": "a4733817f82a2d9292241635a2a03177e21c39eb",
+    "productionTalk": "107caf70569f065daf047333b494fe11d47b6902",
+    "priorCandidate8820": "89f10726",
+    "priorCandidate8819": "b399cfe0",
+    "credentialsGrantsAndPoliciesUnchanged": true,
+    "payoffGeometryAndRendererUnchanged": true
+  },
+  "monetaryApiCost": "NOT_RETURNED_BY_SDK",
+  "internalEngineeringTokenUsage": "UNAVAILABLE",
+  "independentReview": {
+    "disposition": "ACCEPT_WITHIN_BOUNDED_SOURCE_SCOPE",
+    "reportSha256": "894240584f2089cba1a1e7c31d3ab4b998e7513b61596c0937fec9b44138aee5"
+  },
+  "principal": "PENDING_CORRECTED_CANDIDATE_OBSERVATION",
+  "deployment": "NOT_AUTHORIZED_NOT_PERFORMED"
+}
