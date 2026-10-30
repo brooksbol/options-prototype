@@ -79,6 +79,7 @@ This is tracked as **`ASSIM-0002` (PENDING)**. The resolver is the Principal (Pr
 | Human Positions table with POSITION/CONTRACT split, PURPOSE, STATE, COLLATERAL, allocation rows | **Accepted as a future presentation target** (Oct 17 mocks). Not implemented. Mock collateral conclusions are not backend-verified | [`../../cli/ww-positions-human-presentation-2026-10-17.md`](../../cli/ww-positions-human-presentation-2026-10-17.md) |
 | Aggregate share ownership from the broker Positions export (v1) | **Accepted decision** (ADR-020); implemented in v1 | `../../07c-adrs.md` ADR-020 |
 | Position monitoring: Contract State vs Decision Pressure vs Economic Consequence | **Accepted decision** (ADR-013) | `../../07c-adrs.md` ADR-013 |
+| Universal SDK Talk tactical inventory, stale Fidelity custody, qualified terminal geometry and exact Account-plus-underlying scope | **Principal-accepted candidate behavior October 29, 2026** at runtime `4f67412c` (8821), after independent scope/source acceptance. Source-cut display contexts do not create Positions, governed membership, opening continuity or cash-secured status; terminal value is not P/L. No production deployment accepted by this event | [Acceptance and closeout](../../reviews/sdk-talk-account-underlying-selection-2026-10-29.md#principal-acceptance-and-end-of-session-closeout); [geometry source/review](../../reviews/sdk-talk-fidelity-share-call-geometry-2026-10-29.md) |
 | What is installed or running today | **UNKNOWN.** No current installed/running witness is part of this page | — |
 
 ---

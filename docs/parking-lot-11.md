@@ -25,3 +25,10 @@ The Principal requested that industry architectural guidance for MCP, OpenAI Age
 
 
 **SDK Talk delivery planning (October 25, 2026):** [PL-MCP-01 SDK Talk delivery plan](implementation/pl-mcp-01-sdk-talk-delivery-plan-2026-10-25.md) sequences an SDK/MCP walking skeleton, question-driven governed answers, financial authority UX, safety/contract verification, reuse proof and eventual Product acceptance. Planning does not authorize implementation or promote candidates to accepted state. ADR-024 governs.
+
+
+### PL-MCP-01 — October 29 universal tactical Positions candidate accepted
+
+**Date:** October 29, 2026. **State:** Principal-accepted bounded candidate; production installation separately reserved.
+
+The Principal visually accepted Fidelity BDRY’s basis-independent capped terminal shape and then explicitly accepted the corrected exact Account-plus-underlying experience at8821 (“accepted. execute end of session protocol”). Independent runtime sources: universal inventory `b399cfe0`, source-specific public-reference/terminal-right correction `89f10726`, exact scope `4f67412c`; receipts preserve earlier rejections. One native tactical vocabulary composes best retained custody across authorized Accounts without inventing freshness, governance, opening continuity, collateral, basis or P/L. [Final acceptance/closeout](reviews/sdk-talk-account-underlying-selection-2026-10-29.md#principal-acceptance-and-end-of-session-closeout) and [existing capability matrix](implementation/pl-mcp-01-capability-presentation-matrix.md) own details. This closes this bounded candidate engineering session, not PL-MCP-01 as a whole, full economic parity or all BUG052/053 concerns. Closeout authorizes ordinary accepted-main synchronization; no production deployment, grant/policy change or new workstream follows.
