@@ -1,0 +1,23 @@
+**ACCEPT** — both prior blockers are corrected; no blocking regression found within the bounded review.
+
+Frozen HEAD: `c687bfe728d18d00c0753a1ed117a7a86e671c00`  
+Rejected predecessor: `b434908c1fc415032d8b0284a6186874ece262dc`  
+Tree: `dd972f426e661be7f71ee06b9c230614f1fa521a`
+
+Verification:
+
+- `node --test scripts/tt-cadence-market.test.mjs`: **10 passed, 0 failed**, including both new regressions.
+- **9 denial-body probes passed:** HTTP 429/401/403 disposition survives missing, errored and unbounded bodies; acquisition stops after one candidate contact.
+- **18 prior-denial probes passed:** zero candidate contacts after broker permission/rate denial.
+- Pure injected-clock comparison reproduced rejected behavior: request 11 starts at **90,400 ms**, finishing at **98,940 ms**. Corrected HEAD stops after 10 requests at **89,900 ms**.
+- Pacing-overshoot and remaining-budget probes passed, including a final **5,000 ms** timeout. Accelerated signal-aware mocks verified AbortSignal propagation through both header and body waits.
+
+The diff preserves financial projection, order, P50/exit, v2 and strategy behavior. Prior broader review findings remain undisturbed; no freshness threshold changed.
+
+Limits: the implementer-reported 36-test/private regression result was **not independently rerun**. No private reads, provider calls, successful writes, installation or heavy tests occurred. HEAD remained unchanged and the worktree clean. Remote synchronization remains unverified because GitHub DNS failed; local `origin/main` is `be685b927841936c4fbbb33de15ca7283b789996`. Installed/live behavior and Principal acceptance remain unverified.
+
+CURRENT STATE: Frozen candidate independently ACCEPTED within bounded review; WW-GATE remains STAGED/inactive.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE

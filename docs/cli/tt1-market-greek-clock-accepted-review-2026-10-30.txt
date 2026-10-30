@@ -1,0 +1,22 @@
+**ACCEPT** — bounded deadline correction relative to rejected `b76edc8f936457da47a6e62fd4dbc8e6fc95e070`.
+
+Frozen HEAD: `afe50e50585e47571c69f7a2c7372431009f9025`  
+Tree: `1ba7099b0c7a33b6527c78ce5dc3664e0ee4d662`; worktree clean.
+
+Source inspection confirms:
+
+- Absolute deadline and clock propagate through market acquisition → collector → existing `readHeldGreeks`.
+- Socket wait is recomputed after definition/token awaits as the lesser of configured timeout and remaining budget. Exhaustion returns before socket construction.
+- Default standalone behavior remains unchanged for existing supported callers.
+- Other request handling, Greek gates, identities and finance logic are unchanged; prior accepted conclusions remain inherited.
+
+Requested synthetic command passed: **14 tests, 0 failures**:
+`node --test scripts/tastytrade-greeks.test.mjs scripts/tt-cadence-market.test.mjs`
+
+Limits: Full40/private specimen evidence was not independently rerun. No provider/private/config access, real WebSocket, file writes, installation or heavy checks performed. Remote synchronization remains unverified.
+
+CURRENT STATE: Frozen HEAD ACCEPTED within bounded deadline re-review.
+
+DECISION REQUIRED: NO
+
+NEXT AUTHORIZED ACTION: NONE
