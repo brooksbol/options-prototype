@@ -41,6 +41,25 @@ One dense, scannable table:
 - The ZIP may contain far fewer source-admissible than constructed pairs; show real counts when useful, and do not invent 20 qualified rows. Favor actual candidate diversity over filling the table with nearly identical widths of one symbol.
 - Trading is operator-controlled in Tastytrade, with live verification/screenshots as needed. This report must not issue trades, change orders, or represent midpoint economics as confirmed fills.
 
+## October 30 execution-learning checkpoint — operator-observed, not ratified eligibility policy
+
+The Principal's live Tastytrade verification established that a candidate can have appealing midpoint Profit/BP and modeled P50 yet fail to fill. Preserve the following operational evidence when building subsequent shortlists:
+
+- **Independent Greek freshness:** GLD 357 and IBIT 43 were selected from previous-day Greeks despite fresh chain receipts. The October 30 corrected exporter collects independently timestamped DXLink Greeks and qualifies short-put delta separately from spot/quote/chain receipt. Use those independent clocks, not merely the ZIP creation time or v1 liquidity CSV's chain-age column; exclude or qualify stale/missing short Greeks for current-session selection.
+- **Execution quality before midpoint yield:** USO 153/148 ($2.19 displayed midpoint credit) was submitted but did not fill and was canceled. Extremely wide leg markets can inflate midpoint-derived Profit/BP. Compare natural versus midpoint credit and quoted leg widths; retain broker fill/no-fill feedback as evidence, not a universal guarantee.
+- **Both-leg liquidity:** TLT 79.5/76.5 did not fill; the long put showed zero OI. IBIT 41/38 had short/long OI 1/0. Neither proves causality or means zero OI universally prevents fills, especially for new weeklies. Nonetheless display **OI S/L** and **Vol S/L** in the tactical table when observed, flag zeros and missing values distinctly (BUG-055: normalized missing OI may be coerced to zero), and prioritize better-supported quoted markets rather than selecting solely by Profit/BP. Do not invent a hard minimum OI rule without a separate decision.
+- **Breadth:** A 20-row shortlist concentrated into just three symbols did not meet the Principal's discovery intent. Rank promising underlyings first, then show one or two distinct constructions per symbol by default, expanding only when real alternatives justify it. Do not pad to 20 or pretend underlying diversity is equivalent to uncorrelated exposure.
+- **Confirmed pricing specimen:** On October 30, IWM Dec 11 268/265 opened by selling the 268 put at $3.71 and buying the 265 put at $3.13; actual opening credit **$0.58 / $58** (broker order #520298010, two fills at 12:22:03 PM EDT). This was close to the earlier indicative $57.50 midpoint and is **one positive fill observation**, not evidence that other spreads' midpoint prices are fillable. At that fill, theoretical maximum loss $242 and 50%-profit target $29, BTC target $0.29 if using exact half-credit; 21-DTE date November 20. Working closing orders are not confirmed by the notification.
+- **No additional same-session entry assumption:** Account for the newly filled IWM spread when considering further entries; distinguish historical completed attempts, submitted/canceled tickets and actual fills. Never claim an order is working merely from a screenshot or fill notification.
+
+### Updated dense report presentation
+
+For the **TT1 Opportunities** table, retain the established Rank, Symbol, DTE, Short / long, Δ, Credit, BP, P50, Profit, Profit / BP and Status concepts, and **include compact OI S/L and Vol S/L columns** (both legs). If the Principal asks to sort by Profit/BP descending, actually sort numerically; preserve prior filters and candidate exclusions across follow-up requests unless explicitly changed. Cap default output at 20 real candidates with broader underlying coverage. Do not introduce multiple tables or verbose trading commentary.
+
+P50 Profit/BP always means **half of the opening credit divided by BP**, **not** maximum profit/BP and **not** probability-weighted profit/BP. Treat quoted midpoint, real fill, and broker dry-run BP as different evidence classes.
+
+**Standing:** Accepted report-presentation refinements plus observed experimental lessons. These are not a ratified trading strategy, fixed liquidity policy, order submission authority, or authorization to alter v1/v2/Talk code.
+
 ## Expected operator usage
 
 Run `ww export tt1-cadence`, attach the ZIP, and say **TT1 Opportunities**. The response is the 20-row ranked table, not a narrative research report.
