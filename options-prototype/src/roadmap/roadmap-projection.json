@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-30T04:38:12.892Z",
+    "generatedAt": "2026-10-30T16:34:53.006Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 55,
+      "bugTotal": 56,
       "logTotal": 128,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -11928,6 +11928,100 @@
           "heading": "Related",
           "level": 2,
           "content": "- `docs/parking-lot-9.md`: `PL-EVID-OBS` and the TT1 scope clarification.\n- `options-prototype/src/write-desk/symbol-liquidity.ts`: `oiUnavailableContracts` and `zeroOiContracts`.",
+          "truncated": false,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-056",
+      "title": "TT Live merges concurrent same-underlying, same-expiration spreads",
+      "area": "CLI / tt live",
+      "severity": "Not established",
+      "status": "Resolved",
+      "recordFile": "BUG-056-tt-live-multiple-same-expiration-spreads.md",
+      "provenance": "Principal bounded repair assignment 2026-10-30",
+      "recordTitle": "BUG-056 — TT Live merges concurrent same-underlying, same-expiration spreads",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "Installed `tt live --tsv` reported IWM as `unsupported strategy` with `unsupported strategy orientation or rights` after the second IWM fill. QQQ, SPY and UNG remained recognizable. Baseline fetched/local main: `9fbd6918829c9fe76a24b75f6dfce4d6d0f35082`, clean tree after fast-forward from `a4733817`. Installed `/Users/bollich/.local/bin/tt` is a symlink to this checkout's `scripts/tt`, which invokes `scripts/tastytrade.mjs`.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "Report two independently evidenced vertical spreads separately without changing holdings, orders or strategy. Preserve each opening credit/time, DTE, P/L, exit objectives/progress and quote evidence. No held leg, opening fill or exit order may be counted twice. Missing or conflicting membership must remain explicit; shared underlying/expiration or strike proximity alone cannot establish membership.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Evidence and verified root cause",
+          "level": 2,
+          "content": "`projectLive` grouped Equity Option holdings by underlying **and expiration**, then passed the whole group to `recognizeHeldTrade`. Four IWM puts therefore entered the four-leg iron-condor branch, which requires two puts and two calls. The recognizer failed before opening-fill or exit-order linkage ran. This verifies the reported hypothesis with the refinement that the grouping key also contains expiration. The preceding documentation update did not change this code.\n\nRead-only production holdings/orders corroborated quantity one per leg, December 11 expiration, multiplier 100:\n\n\nOctober 29's former $0.30 target #519887648 and $0.81 stop #519887649 were **Cancelled**, not working profit/protective exits. The repair does not transfer October 30 management to October 29. Cancelled October 30 predecessor opening #520285725 and its contingent exits likewise confer no current management.",
+          "truncated": false,
+          "tables": [
+            {
+              "header": [
+                "Opening",
+                "Opening order",
+                "Short / long puts",
+                "Actual fill credit",
+                "Current target / stop"
+              ],
+              "rows": [
+                [
+                  "October 29",
+                  "519887647",
+                  "272.5 / 269",
+                  "$0.65",
+                  "None active in observed broad/complex evidence"
+                ],
+                [
+                  "October 30",
+                  "520298010",
+                  "268 / 265",
+                  "$0.58",
+                  "Limit #520298011 at $0.30 Debit; Stop Limit #520298012 at $0.75 trigger/limit, both Live"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Scope / authorization / reuse",
+          "level": 2,
+          "content": "The Principal explicitly assigned Codex this bounded repair, regression tests, installed read-only TT1 verification, and commit/runtime reporting. Only standalone `tt` recognition and directly related tests change. No order submission/modification/cancellation, position change, trading strategy, v1 liquidity calculation, API v2 or Talk change is authorized or performed. WW-GATE-001 remains STAGED with `experiment_started: false`; no experimental execution claim is made.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remediation",
+          "level": 2,
+          "content": "Candidate `0af729dc`: extend the existing grouping stage with a bounded filled-opening partition. A filled opening order must match exact constituent symbols, actions and whole current quantities; fill quantities/times must validate. Every holding must be covered once. Overlap, incomplete coverage, malformed/future fills or unsupported quantity allocation fail explicitly as ambiguous holdings. No quantity slicing or strike-nearest matching is introduced. Existing supported single-package geometry fallback remains; same-right multi-leg holdings without opening evidence explicitly lack membership.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "- New focused regressions: **13/13 passed**. Independent credits, opening times, DTE, P/L, progress and unique target/stop associations; cancelled prior exits; missing/overlapping openings, duplicate holdings, quantity mismatch, malformed/future fills; misleading strike adjacency; separate put/call wings that must not merge into an IC.\n- Existing credit-spread/scan focused tests: **59/59 passed**.\n- Full prescribed `node --test scripts/*.test.mjs docs/design/position-payoff-visual-contract/tests/*.test.mjs`: **399/399 passed**.\n- Replayed one unchanged read-only broker snapshot through baseline and candidate. QQQ, SPY and UNG position projections **and TSV rows were deeply equal**. IWM became exactly two recognized structures with no projection issues; four distinct held contract symbols reconcile once across those packages.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Remaining ambiguity / limits",
+          "level": 2,
+          "content": "No membership ambiguity was observed for the two current IWM spreads. Shared-contract aggregate holdings, partial allocations, overlapping historical opening evidence and incomplete opening coverage remain explicitly ambiguous; this is not a general lifecycle reconstruction engine. October 29's missing active management is observed broker evidence, not an order repair performed here. Existing quote freshness, valuation qualifications, provisional stop execution semantics and experimental movement indicators remain unchanged.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "- [BUG-041](BUG-041-tt-live-credit-vertical-aborts-scan.md)\n- [TT Live contract](../cli/tt-live-panel.md)\n- [Maintained Position meaning](../knowledge/domain/positions-and-governed-quantity.md)",
           "truncated": false,
           "tables": []
         }
