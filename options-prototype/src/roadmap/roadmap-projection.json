@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-10-30T16:34:53.006Z",
+    "generatedAt": "2026-10-30T17:10:48.205Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -42,7 +42,7 @@
       "principleTotal": 11,
       "domainEntryTotal": 36,
       "bugTotal": 56,
-      "logTotal": 128,
+      "logTotal": 129,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
       "plWithoutIntakeDate": 62
@@ -11940,7 +11940,7 @@
       "severity": "Not established",
       "status": "Resolved",
       "recordFile": "BUG-056-tt-live-multiple-same-expiration-spreads.md",
-      "provenance": "Principal bounded repair assignment 2026-10-30",
+      "provenance": "Principal bounded repair assignment and screenshot acceptance/closure 2026-10-30",
       "recordTitle": "BUG-056 — TT Live merges concurrent same-underlying, same-expiration spreads",
       "sections": [
         {
@@ -12023,6 +12023,20 @@
           "level": 2,
           "content": "- [BUG-041](BUG-041-tt-live-credit-vertical-aborts-scan.md)\n- [TT Live contract](../cli/tt-live-panel.md)\n- [Maintained Position meaning](../knowledge/domain/positions-and-governed-quantity.md)",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Principal acceptance / closure — October 30, 2026",
+          "level": 2,
+          "content": "The Principal supplied a Terminal screenshot of ordinary installed `tt live` before/after the repair and stated **“looks good”**, then explicitly instructed **“close the bug. execute end of session protocol”**. The accepted screenshot shows separate IWM rows at ≥268 and ≥272.5, distinct 42/42d and 42/43d lifespans, October 30's target/stop economics, and October 29's no-protective-exit marker; QQQ, SPY and UNG remain visible. This is Principal operator acceptance of the bounded recognition repair, beyond the prior engineering and independent-review evidence. BUG-056 is **Resolved and closed**; no implementation or acceptance work remains for this defect.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "API documentation currency at closeout",
+          "level": 3,
+          "content": "The TT workstream paths (two standalone script/test files, this bug/index, TT Live reference, journal and generated Roadmap) have no API v2 semantic/build impact. Separately, relevant runtime/OAS changes since the last deployed API documentation remain subject to the already-recorded publication boundary: [prior disposition](../reviews/sdk-talk-account-underlying-selection-2026-10-29.md#accepted-main-persistence-and-final-publication-disposition).",
+          "truncated": true,
           "tables": []
         }
       ]
@@ -12235,7 +12249,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 704
+      "sourceOrder": 705
     },
     {
       "plId": null,
@@ -12859,7 +12873,7 @@
       "state": null,
       "headingLevel": 2,
       "sourceFile": "bugs/INDEX.md",
-      "sourceOrder": 703
+      "sourceOrder": 704
     },
     {
       "plId": "PL-SEM-01",
@@ -13692,6 +13706,19 @@
       "headingLevel": 3,
       "sourceFile": "parking-lot-11.md",
       "sourceOrder": 655
+    },
+    {
+      "plId": null,
+      "bugId": "BUG-056",
+      "title": "Principal acceptance / closure — October 30, 2026",
+      "eventKind": "remediation",
+      "establishesIntake": false,
+      "eventDateText": "October 30, 2026",
+      "eventDateIso": "2026-10-30",
+      "state": null,
+      "headingLevel": 2,
+      "sourceFile": "bugs/BUG-056-tt-live-multiple-same-expiration-spreads.md",
+      "sourceOrder": 703
     }
   ],
   "intakeDateUnknown": [

@@ -62,7 +62,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-053 | Talk operational Account evidence is disconnected from imports and read grants | SDK Talk / v2 evidence / Fidelity admission | Not established | Open | [record](BUG-053-talk-operational-account-evidence-disconnect.md) | Principal real-data trials and production direction 2026-10-27 |
 | BUG-054 | Talk relative dates lack trusted per-turn calendar context | SDK Talk / temporal context | Not established | Open | [record](BUG-054-talk-relative-date-grounding.md) | Principal incident 2026-10-29 |
 | BUG-055 | Tradier adapter turns missing open interest into 0 | Evidence Appliance (v1) / Tradier normalization | Not established | Open | [record](BUG-055-tradier-missing-open-interest-coerced-to-zero.md) | Kiro zero-OI investigation 2026-10-29 (PL-EVID-OBS); Principal directed documentation-only filing |
-| BUG-056 | TT Live merges concurrent same-underlying, same-expiration spreads | CLI / tt live | Not established | Resolved | [record](BUG-056-tt-live-multiple-same-expiration-spreads.md) | Principal bounded repair assignment 2026-10-30 |
+| BUG-056 | TT Live merges concurrent same-underlying, same-expiration spreads | CLI / tt live | Not established | Resolved | [record](BUG-056-tt-live-multiple-same-expiration-spreads.md) | Principal bounded repair assignment and screenshot acceptance/closure 2026-10-30 |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
