@@ -61,3 +61,20 @@ Engineering proceeds continuously within actual delegated authority. Proof check
 **Codex/engineering handoff:** Recover this clarification at every relevant Wheelwright Product/architecture bootstrap. Interpret the ongoing work as progressive migration of proven daily trading workflows into reusable Wheelwright capabilities—**operate every day; improve continuously; replace only when accepted as better**. Use accepted `tt live`, v1 Deployment, brokerage execution evidence and real Talk sessions as precedents. Continue ordinary authorized engineering without repeated Principal interruptions; reserve consequential grants, deployment, credentials, acquisition-policy changes, trading and unresolved Product semantic choices for their existing authority boundaries.
 
 **Standing and limits:** This preserves an explicit Principal Product direction within the existing mandate. It does not itself authorize a new implementation workstream, deployment, grant change, acquisition, brokerage trade, or acceptance of financial inference. Reconcile against current higher-precedence Product authority if a conflict arises.
+
+
+## Principal UX clarification — no agent CYA language in the operator UI (October 31, 2026)
+
+**Exact Principal wording:**
+
+> "my UI is not a playground for an agent's CYA language. CYA language is visual and cognitive noise and should be avoided."
+
+**Context:** Principal observation of the Wheelwright Talk covered-call tactical view. Financial inputs and reviewed calculations had been recovered, but the operator-visible card was crowded with repetitive methodological disclaimers, provenance narration, source age/completeness paragraphs, and other actor self-protection language. The Principal values the financial result and its truthful qualification; the objection concerns unnecessary verbal and visual overhead in the tactical foreground.
+
+**Product-facing direction (interpretation; not additional Principal quotation):** The operator UI is a tactical decision surface, not an agent compliance report. Show position identity, meaningful state, financial outcome, thresholds and graphics first. Do not spend the operator's attention budget on repeated CYA boilerplate, lengthy self-justifications, full ISO timestamps, generic caveats, or verbose narrations of how the result was produced. Move supporting accounting assumptions, source lineage, warnings and explanations into concise, discoverable, normally collapsed details/evidence, while keeping the *minimum material qualification needed to avoid a misleading primary claim* visible. Avoid redundant qualifications; use purposeful source/age and estimate labels rather than paragraphs. Unsupported facts remain explicitly unknown where their absence affects the operational answer. Real authorization denials, materially unsafe ambiguity, consequential uncertainty and other necessary warnings must still be communicated clearly; hiding them merely to produce a clean UI is not authorized.
+
+**Reconciliation:** This reinforces, rather than replaces, the existing Product-first low-cognitive-load mandate, the PL-MCP-01 financial-answer UX goal (W3), the accepted 'answer first; evidence on demand' treatment, and the Principal's prior 'no disclaimer noise; hide any of that under accordion links' specimen recorded in BUG-052. ADR-024 and the Evidence Appliance's financial/provenance authority, epistemic precision and disclosure rules remain unchanged. No new financial or trading semantics are ratified by this UX clarification.
+
+**Recoverable acceptance question:** Can the operator interpret the tactical situation at a glance without reading agent CYA prose, while finding material evidentiary limits and full provenance on deliberate inspection? If the answer requires decoding repeated disclaimers, the interface has failed; if hiding a limit turns an estimate into an apparent certain/current fact, it has also failed.
+
+This is a documented Principal Product/UX requirement, not permission for unrelated code changes, deployment, grants, acquisition or brokerage actions.
