@@ -31,3 +31,8 @@ See [the pinned static-reference tooling](../../tools/api-docs/README.md), the [
 
 
 The October27 [capability audit correction candidate](../reviews/sdk-talk-capability-audit-2026-10-27.md) adds a provider-free retained broker-balance observation read in the existing Account/evidence OAS module. It preserves distinct broker-reported fields, unknowns, source/receipt/export clocks and original-source authorization. It does not establish current buying power after trades, actual debt, per-put collateral or governed availability. Candidate contract inclusion is not independent acceptance or publication; release manifest/live documentation remain unchanged pending review.
+
+
+## Accepted bounded financial tactical reference — November 1, 2026
+
+The [Principal-accepted tactical view](../reviews/sdk-talk-tactical-deletion-2026-10-31.md#principal-acceptance-and-end-of-session-closeout--november-1-2026) consumes qualified backend financial geometry from the foundational module: exact financial reference/claim level, display coordinates, break-even markers, financial regions and separately source-dated observed spot. Broker-held-basis estimates remain distinct from contractual terminal value, attributed opening economics and established lifecycle P/L. Clients format and render these results; MCP does not calculate accounting. Unknown/unsupported economics retain contractual/strike evidence without invented profitability. This bounded acceptance does not resolve universal Position identity or all-broker financial parity. The existing generated human-reference validation/publication is currently withheld; see the closeout receipt for exact failure and last verified live source. Repository OAS remains authoritative.
