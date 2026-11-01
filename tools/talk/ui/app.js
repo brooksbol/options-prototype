@@ -70,7 +70,7 @@ $('composer').addEventListener('submit', async event => {
     const answer = await post('/api/chat', { message: text,...(attachment?{attachment}:{}) });
     const article = message('assistant', answer.text || answer.error);
     const resultViews=(answer.tools??[]).map(tool=>evidenceView(resultText(tool.result)));
-    const visibleTactical=visibleTacticalResults(resultViews);
+    const visibleTactical=visibleTacticalResults(resultViews),supportingSources=[];
     for (const [toolIndex,tool] of (answer.tools ?? []).entries()) {
       if(tool.download)article.append(reportDownloadButton(document,tool.download,()=>csrf,error=>{$('status').textContent=error;}));
       const raw = resultText(tool.result);
@@ -163,40 +163,46 @@ $('composer').addEventListener('submit', async event => {
           // Access limitations remain visible even while source detail is closed.
           article.append(note);
         }
-        let loaded = false;
-        details.addEventListener('toggle',()=>{
-          if (!details.open || loaded) return;
-          loaded = true;
+        const populate=container=>{
           const table = document.createElement('dl');
           for (const [label,value] of view.rows) {
             const key = document.createElement('dt'); key.textContent = label;
             const cell = document.createElement('dd'); cell.textContent = value; table.append(key,cell);
           }
-          details.append(table);
-          const notes = document.createElement('p'); notes.className = 'evidence-notes'; notes.textContent = view.qualifications.join(' · '); details.append(notes);
+          container.append(table);
+          const notes = document.createElement('p'); notes.className = 'evidence-notes'; notes.textContent = view.qualifications.join(' · '); container.append(notes);
           const rawDetails = document.createElement('details');
           const rawSummary = document.createElement('summary'); rawSummary.textContent = 'Raw source response'; rawDetails.append(rawSummary);
           let rawLoaded = false;
           rawDetails.addEventListener('toggle',()=>{if(rawDetails.open&&!rawLoaded){rawLoaded=true;const pre=document.createElement('pre');pre.textContent=raw;rawDetails.append(pre);}});
-          details.append(rawDetails);
-        });
-        article.append(details);
+          container.append(rawDetails);
+        };
+        if(visibleTactical.size&&!tool.isError&&!access.length&&!outcome)supportingSources.push({label:summary.textContent,populate,details});
+        else{let loaded=false;details.addEventListener('toggle',()=>{if(details.open&&!loaded){loaded=true;populate(details);}});article.append(details);}
       }
 
     }
+    const supportingDetails=article.querySelector('.tactical-details');
+    if(supportingDetails&&supportingSources.length){let loaded=false;supportingDetails.addEventListener('toggle',()=>{if(supportingDetails.open&&!loaded){loaded=true;for(const source of supportingSources){const heading=document.createElement('h5');heading.textContent=source.label;supportingDetails.append(heading);source.populate(supportingDetails);}}});}
+    else for(const source of supportingSources){let loaded=false;source.details.addEventListener('toggle',()=>{if(source.details.open&&!loaded){loaded=true;source.populate(source.details);}});article.append(source.details);}
     const analysisContent=article.querySelector('.text');
     if (!analysisContent.textContent.replace(/[\p{White_Space}\p{Cf}]/gu,'').trim()) { analysisContent.remove();
     } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).tacticalPositions||evidenceView(resultText(tool.result)).custodyInventory||evidenceView(resultText(tool.result)).tacticalInventory))) {
-      const content=article.querySelector('.text');
-      const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);
-      article.insertBefore(details,content);content.remove();details.append(content);
+      const content=article.querySelector('.text'),positionDetails=visibleTactical.size?article.querySelector('.tactical-details'):null;
+      if(positionDetails){
+        content.remove();let added=false;positionDetails.addEventListener('toggle',()=>{if(positionDetails.open&&!added){added=true;const heading=document.createElement('h5');heading.textContent='Talk commentary · response-wide';positionDetails.append(heading,content);}});
+      }else{
+        const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Talk’s analysis';details.append(summary);
+        article.insertBefore(details,content);content.remove();details.append(content);
+      }
     } else if (answer.tools?.length) {
       const label = document.createElement('h4'); label.className = 'commentary-label'; label.textContent = 'Talk’s analysis';
       article.insertBefore(label, article.querySelector('.text'));
     }
+    const firstPosition=article.querySelector('.tactical-compact');if(firstPosition)requestAnimationFrame(()=>firstPosition.scrollIntoView({block:'start'}));
     $('status').textContent = answer.error ? 'Commentary failed · completed results retained' : (metadataOnly ? 'Ready · fresh local session each turn' : 'Ready · local context retained');
   } catch (error) { message('assistant', error.message); $('status').textContent = 'Request failed'; }
-  finally { $('send').disabled = !csrf; $('new').disabled = !csrf; if (csrf) $('message').focus(); }
+  finally { $('send').disabled = !csrf; $('new').disabled = !csrf; if (csrf) $('message').focus({preventScroll:true}); }
 });
 $('message').addEventListener('keydown', event => {
   if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); $('composer').requestSubmit(); }

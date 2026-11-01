@@ -25488,6 +25488,11 @@
               ]
             },
             "minItems": 0
+          },
+          "observationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Source day precision, separate from asOf instant and backend receipt; does not assert a current quote."
           }
         },
         "required": [
@@ -27265,7 +27270,8 @@
             "type": "string",
             "enum": [
               "TERMINAL_VALUE",
-              "GROSS_PL"
+              "GROSS_PL",
+              "ESTIMATED_PL"
             ]
           },
           "quantityBasis": {
@@ -27328,6 +27334,96 @@
               "additionalProperties": false
             },
             "description": "Optional backend samples of the exact supplied affine geometry over a display viewport, including sloping tails. Presentation padding is not a risk threshold. Clients scale pixels, never infer financial endpoint values. Same valueKind and units as geometry."
+          },
+          "financialReference": {
+            "type": "object",
+            "properties": {
+              "claimLevel": {
+                "const": "ESTIMATED_PL"
+              },
+              "method": {
+                "const": "BROKER_REPORTED_HELD_BASIS"
+              },
+              "netBasisDebit": {
+                "type": "string"
+              },
+              "currency": {
+                "$ref": "#/components/schemas/Currency"
+              },
+              "maximumProfit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "claimLevel",
+              "method",
+              "netBasisDebit",
+              "currency",
+              "maximumProfit",
+              "label"
+            ],
+            "additionalProperties": false,
+            "description": "Candidate conditional expiration reference using exact whole retained broker-reported basis. Excludes prior calls, distributions and future costs; does not establish attributed opening or lifecycle P/L."
+          },
+          "financialRegions": {
+            "type": "array",
+            "maxItems": 258,
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "LOSS",
+                    "PROFIT"
+                  ]
+                },
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BoundaryValue"
+                  }
+                }
+              },
+              "required": [
+                "kind",
+                "points"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Backend zero-closed polygons from the same qualified P/L affine function; clients scale pixels only. Absent for contractual terminal value."
+          },
+          "spotPoint": {
+            "$ref": "#/components/schemas/BoundaryValue"
+          },
+          "breakEvenMarkers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "price": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "approximate": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "price",
+                "label",
+                "approximate"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Backend display coordinates and labels of exact breakEvenPrices. Nonterminating rational roots have approximate decimal coordinates and an explicitly approximate rounded label; exact financial roots remain separately available. Clients do not divide or reconstruct financial roots."
           }
         },
         "required": [
@@ -30708,6 +30804,16 @@
           },
           "fees": {
             "$ref": "#/components/schemas/FeeMetric"
+          },
+          "reportedCostBasis": {
+            "$ref": "#/components/schemas/Metric"
+          },
+          "reportedBasisWholeQuantity": {
+            "type": "boolean",
+            "description": "Only exact whole source holding quantities; never pro-rated allocation or opening attribution."
+          },
+          "reportedUnderlyingSpot": {
+            "$ref": "#/components/schemas/Metric"
           }
         },
         "required": [
@@ -36777,6 +36883,12 @@
           "sourceDescription": {
             "type": "string",
             "description": "Optional broker-reported description from this exact Account, custody snapshot and holding row. Display evidence only; does not establish canonical ticker equivalence, strategy membership or lifecycle continuity."
+          },
+          "reportedCostBasis": {
+            "$ref": "#/components/schemas/Metric"
+          },
+          "reportedUnderlyingSpot": {
+            "$ref": "#/components/schemas/Metric"
           }
         },
         "required": [
@@ -38073,6 +38185,11 @@
             "items": {
               "type": "string"
             }
+          },
+          "observationDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Source day precision, separate from asOf instant and backend receipt; does not assert a current quote."
           }
         },
         "required": [
@@ -39375,6 +39492,9 @@
           "receivedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "reportedCostBasis": {
+            "$ref": "#/components/schemas/TacticalMetric"
           }
         },
         "required": [
@@ -39459,6 +39579,12 @@
                 ]
               },
               "warningCodes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "assumptions": {
                 "type": "array",
                 "items": {
                   "type": "string"

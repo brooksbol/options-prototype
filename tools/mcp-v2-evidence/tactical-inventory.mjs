@@ -25,6 +25,6 @@ export async function inspectTacticalInventory({accountScope,account,underlying,
   }
   if(a.status==='READ'){const count=x=>JSON.isRawJSON(x)?Number(x.rawJSON):x;const source=count(a.sourceHoldingCount),represented=count(a.representedHoldingCount);if(!Number.isInteger(source)||!Number.isInteger(represented)||represented!==seen.size||represented>source||underlying===undefined&&source!==represented)throw new Error('Incomplete inventory conservation.');}
  }
- const text=JSON.stringify({...d,...(config.syntheticFixture?{dataClassification:'SYNTHETIC_FIXTURE'}:{})});if(Buffer.byteLength(text)>100000)throw new Error('Complete inventory exceeds safe capacity.');
+ const text=JSON.stringify({...d,...(config.syntheticFixture?{dataClassification:'SYNTHETIC_FIXTURE'}:{})});if(Buffer.byteLength(text)>150000)throw new Error('Complete inventory exceeds safe capacity.');
  return {content:[{type:'text',text}]};
 }

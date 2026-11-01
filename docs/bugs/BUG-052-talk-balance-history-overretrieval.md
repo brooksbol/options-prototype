@@ -107,3 +107,10 @@ Universal tactical successor `b399cfe0` independently ACCEPTed within bounded so
 
 
 Separate Principal observation from8819: quotes around7,100seconds old are labeled CURRENT, consistent with existing12-hour policy but potentially misleading to a trader. Preserve this as freshness-label semantics/presentation work separate from Fidelity payoff geometry. No policy threshold, TT1 renderer or installed source changed in the current geometry investigation.
+
+
+## October31 — tactical deletion and density correction
+
+Principal explicitly rejects visible loss/profit legends and the generic historical/estimated-P&L footer as redundant CYA noise. The existing October31 Product mandate governs; this is not a new competing principle. Delete those elements rather than rephrase them. Attach source time to the observed value, retain an estimation mark at affected financial values, and preserve exact accounting/source qualifications behind one disclosure. Ordinary supporting Account metadata must not add a second foreground source accordion beside a tactical card. Failures/access denials remain visible.
+
+The [deletion receipt](../reviews/sdk-talk-tactical-deletion-2026-10-31.md) records a pre-edit actual-card audit, before/after browser measurements, independent rendered review, counterexamples and preservation boundaries. Executable regressions: `node --test tools/talk/test/tactical.test.mjs`; opt-in actual-response browser check `tools/talk/test/tactical-browser.mjs` with authorized local response/output/Playwright arguments. Semantic checks reject paraphrased footer nodes, visible financial legends, metadata accordions outside the card, loss of exact evidence and false quote clocks. Wider defect remains **Open**; neither candidate review nor this record claims Principal acceptance or permanent installation.

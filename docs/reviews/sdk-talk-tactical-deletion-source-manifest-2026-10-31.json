@@ -1,0 +1,21 @@
+{
+  "reviewedRuntime": "fdf3ca93204b01a32cce718ceaa3c3d88c258ff8",
+  "comparison": "Implementation/contract/test files are byte-identical to the retained-data candidate; private receipts/source artifacts excluded from publication.",
+  "sha256": {
+    "docs/contracts/api-v2-foundational-portfolio.json": "6fa0b431d203be1360a1fa96816a7277208b6d33aa5f330fda6aaae35005da68",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioFidelityBasis.java": "a2e9673bbab05f70e547589cf4d47380b92ba50dbf575e32dce33d3ef5e3afc5",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioMath.java": "43a9bd0eae5fe6f86d364d00b06d83ca4968743e09ecec1e185066ca880a0b75",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioPayoffPlot.java": "169cb9217f0870d71a27d8c7b87b2b4c7629ae28c953f20aec9820ac317d969c",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioReadService.java": "6814a30e660218c6f04dcceca9422ae1437982a0381b558b52d335ae1b607118",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/PortfolioTacticalInventory.java": "7eda474ed5e46563ff1847f1849b99ea5462d713290f4ad7e33dbd8088603b36",
+    "evidence-service-java/src/main/java/com/wheelwright/evidence/v2/portfolio/TacticalInventoryController.java": "620bb1311011798c372a1d0b2f0763dc7836614f01817a9aa4b9155df6c93b68",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/PortfolioFidelityBasisTest.java": "ae6d24112dbd00045d4c3a5f48de78c3c4a398a683d83e66c64f59572ccc3117",
+    "evidence-service-java/src/test/java/com/wheelwright/evidence/v2/portfolio/PortfolioBrokerBasisPayoffTest.java": "3b042a014c976afba85bc7f867947fc899cd2adb90d8ac10fe868d547ae5653a",
+    "tools/mcp-v2-evidence/tactical-inventory.mjs": "46eb360e4b07e369d1dca6b5999d8360762da9155e4890e13314ed42f752bdb1",
+    "tools/talk/test/tactical-browser.mjs": "18596897677bddbaaf79d97868a86911acb87316ed0f554be5c5f29272c99adf",
+    "tools/talk/test/tactical.test.mjs": "c6d92bd0ef8be2fe9ca11d621e09dcb70f267500f9fb3c2a91960962ed52d39d",
+    "tools/talk/ui/app.js": "2651241a613d49224e5eb839b19462de84612041b9cfbf44ee1067d48afa88a7",
+    "tools/talk/ui/style.css": "26bd41e8bd5c2ddfb459bd197fd1c40b56582df5b47c4789ba5ff4a5b5564014",
+    "tools/talk/ui/tactical.js": "d15f51b964b917221d8a12fb8d88522acd64f021e12f27f860852901e06ed505"
+  }
+}

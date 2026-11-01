@@ -12,6 +12,7 @@ function shape(doc,root,tag,attributes){const e=doc.createElementNS(SVG,tag);for
 const bounded=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
 export function payoffGraphic(doc,evaluation){
  const payoff=evaluation?.payoff,g=payoff?.geometry,points=g?.boundaries;
+ if(payoff?.status==='QUALIFIED'&&['ESTIMATED_PL','GROSS_PL'].includes(g?.valueKind)&&Array.isArray(g.financialRegions))return financialPayoffGraphic(doc,evaluation);
  if(payoff?.status!=='QUALIFIED'||!Array.isArray(points)||!points.length||g.segments?.length!==points.length+1)return null;
  // Flat-tail, bounded-risk structures can be drawn from backend-provided knots without calculating payoff.
  const samples=Array.isArray(g.displayPoints)&&g.displayPoints.length>=2?g.displayPoints.map(p=>({x:number(p.price),y:number(p.value)})):null;
@@ -27,6 +28,38 @@ export function payoffGraphic(doc,evaluation){
  const plotted=samples??[{x:low,y:knots[0].y},...knots,{x:high,y:knots.at(-1).y}];shape(doc,image,'polyline',{points:plotted.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),fill:'none',class:'tactical-payoff'});
  for(const point of knots){shape(doc,image,'circle',{cx:x(point.x),cy:y(point.y),r:2.2,class:'tactical-strike'});const t=shape(doc,image,'text',{x:x(point.x),y:81,'text-anchor':'middle',class:'tactical-axis'});t.textContent=point.label;}
  if(spot!=null){const color={NEUTRAL_PLATEAU:'plateau',TRANSITION:'transition',ADVERSE_TAIL:'loss'}[evaluation.spotRegion]??'unknown';shape(doc,image,'line',{x1:x(spot),x2:x(spot),y1:4,y2:68,class:'tactical-spot-line'});shape(doc,image,'path',{d:`M ${x(spot)-4} 5 L ${x(spot)+4} 5 L ${x(spot)} 12 Z`,class:'tactical-spot '+color});}
+ return image;
+}
+// Financial numbers and marker locations are backend results. Only currency formatting and pixel layout live here.
+function priceLabel(value,currency,{whole=false}={}){
+ const source=exact(value);if(number(value)==null)return source;
+ const label=currency==='USD'?usdDisplay(source):`${source}${currency?' '+currency:''}`;
+ return whole?label.replace(/\.00$/,''):label;
+}
+function financialPayoffGraphic(doc,evaluation){
+ const g=evaluation.payoff.geometry,points=g.displayPoints?.map(p=>({x:number(p.price),y:number(p.value)}));
+ if(!points||points.length<2||points.some(p=>p.x==null||p.y==null)||points.some((p,i)=>i&&p.x<=points[i-1].x))return null;
+ const low=points[0].x,high=points.at(-1).x,bottom=Math.min(0,...points.map(p=>p.y)),top=Math.max(0,...points.map(p=>p.y));if(high<=low)return null;
+ const x=v=>32+(v-low)/(high-low)*416,y=v=>top===bottom?60:106-(v-bottom)/(top-bottom)*90;
+ const meaning=g.financialReference?.label??(g.valueKind==='ESTIMATED_PL'?'Estimated expiration P/L':'Gross expiration P/L before fees');
+ const markers=g.breakEvenMarkers??(g.breakEvenPrices??[]).map(root=>({price:root,label:exact(root),approximate:false}));
+ const spot=g.spotPoint,spotLabel=spot&&number(spot.price)!=null?observedSpotLabel(evaluation,spot.price,g.priceCurrency):null;
+ const accessible=[meaning,'Negative region: expiration loss. Positive region: expiration profit. Dashed line: zero P/L.',spotLabel,...markers.map(m=>'Break-even '+(m.approximate?'approximately ':'')+priceLabel(m.price,g.priceCurrency)),...(g.boundaries??[]).map(p=>'Strike '+priceLabel(p.price,g.priceCurrency,{whole:true}))].filter(Boolean).join(' · ');
+ const image=svg(doc,accessible);image.setAttribute('viewBox','0 -4 480 170');image.setAttribute('class','tactical-financial-chart');
+ for(const region of g.financialRegions){if(!['LOSS','PROFIT'].includes(region.kind)||!Array.isArray(region.points))return null;const coords=region.points.map(p=>({x:number(p.price),y:number(p.value)}));if(coords.some(p=>p.x==null||p.y==null))return null;shape(doc,image,'polygon',{points:coords.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),class:region.kind==='LOSS'?'tactical-loss-area':'tactical-profit-area'});}
+ const text=(value,px,py,anchor='start',extra='')=>{const n=shape(doc,image,'text',{x:px,y:py,'text-anchor':anchor,class:'tactical-axis '+extra});n.textContent=value;return n;};
+ shape(doc,image,'line',{x1:32,x2:448,y1:y(0),y2:y(0),class:'tactical-zero'});text('0',25,y(0)+4,'end');
+ shape(doc,image,'polyline',{points:points.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),fill:'none',class:'tactical-payoff'});
+ // Price-label lanes prevent nearby spot, break-even and strike labels from colliding. This is pixel layout only.
+ const labels=[];
+ if(spotLabel&&number(spot.value)!=null){const px=x(number(spot.price));shape(doc,image,'line',{x1:px,x2:px,y1:11,y2:110,class:'tactical-spot-line'});shape(doc,image,'circle',{cx:px,cy:y(number(spot.value)),r:4,class:'tactical-observed-spot'});text(spotLabel,px,14,px>325?'end':px<115?'start':'middle','tactical-spot-label');}
+ for(const m of markers){const v=number(m.price);if(v==null)continue;const px=x(v);shape(doc,image,'circle',{cx:px,cy:y(0),r:4,class:'tactical-break-even'});labels.push({label:'Break-even '+(m.approximate||g.valueKind==='ESTIMATED_PL'?'≈':'')+priceLabel(m.price,g.priceCurrency),px,lane:0,role:'tactical-be-label'});}
+ for(const p of g.boundaries??[]){const v=number(p.price),value=number(p.value);if(v==null||value==null)continue;const px=x(v);shape(doc,image,'circle',{cx:px,cy:y(value),r:3.5,class:'tactical-strike'});labels.push({label:'Strike '+priceLabel(p.price,g.priceCurrency,{whole:true}),px,lane:1,role:'tactical-strike-label'});}
+ const lanes=[];for(const label of labels){const width=label.label.length*8.5,anchor=label.px>325?'end':label.px<115?'start':'middle';const left=anchor==='end'?label.px-width:anchor==='start'?label.px:label.px-width/2,right=left+width;let lane=label.lane;
+  while((lanes[lane]??[]).some(range=>left<range[1]+12&&right>range[0]-12))lane++;
+  (lanes[lane]??=[]).push([left,right]);text(label.label,label.px,125+lane*18,anchor,label.role);
+ }
+ if(lanes.length>2)image.setAttribute('viewBox',`0 -4 480 ${136+lanes.length*18}`);
  return image;
 }
 export function timelineGraphic(doc,timeline,checkpoint){
@@ -51,7 +84,7 @@ export function exitGraphic(doc,evaluation){
 }
 function details(doc,item){const e=node(doc,'details'),summary=node(doc,'summary','Position details and evidence');e.append(summary);let built=false;e.addEventListener('toggle',()=>{if(!e.open||built)return;built=true;const dl=node(doc,'dl');for(const[k,v]of [['Position',item.id],['Exposure',item.exposure?.status],['Association',item.structure?.authority?.basis],['Model standing',item.structure?.modelStanding],['Evaluated',item.evaluation?.evaluatedAt],['Oldest material observation',item.evaluation?.oldestMaterialObservationAt],['Geometry meaning',item.evaluation?.payoff?.geometry?.valueKind],['Warnings',(item.warningCodes??[]).join(', ')],...(item.constituents??[]).map(c=>['Constituent',`${c.symbol??c.kind} · ${c.side} ${c.quantity} ${c.unit} · ${c.terms?.right??''} ${c.terms?.strike??''} ${c.terms?.expiration??''}`])]){dl.append(node(doc,'dt',k),node(doc,'dd',exact(v)));}e.append(dl);const raw=node(doc,'details'),s=node(doc,'summary','Technical source');raw.append(s);let loaded=false;raw.addEventListener('toggle',()=>{if(raw.open&&!loaded){loaded=true;raw.append(node(doc,'pre',JSON.stringify(item,null,2)));}});e.append(raw);});return e;}
 export function renderTacticalPositions(doc,{account,evidence,compact=false,embedded=false}){
- if(compact){const report=compactTacticalPositions(doc,{account,evidence});if(!embedded){const title=node(doc,'h3',`${account.nickname} · Positions`);report.insertBefore(title,report.firstChild);}return report;}
+ if(compact){const report=compactTacticalPositions(doc,{account,evidence});report.setAttribute('aria-label',`${account.nickname} positions`);return report;}
  const report=node(doc,'section',null,'tactical-report');report.append(node(doc,'h3',`${account.nickname}${evidence.selection?.underlying?' · '+evidence.selection.underlying:''} · Positions`));if(evidence.next)report.append(node(doc,'p','This page is incomplete; more Positions follow.','source-access'));
  if(!evidence.items.length)report.append(node(doc,'p','No Positions returned for the selected scope.'));
  for(const item of evidence.items){const e=item.evaluation??{},card=node(doc,'section',null,'tactical-position');const title=(item.underlyings??[]).map(s=>s.symbol).join(' / ')||item.constituents?.[0]?.symbol||'Observed constituents';card.append(node(doc,'h4',title),node(doc,'p',`${item.structure?.name??'Unclassified construction'} · ${item.structure?.status==='VALIDATED'?'Model match':item.structure?.status??'UNKNOWN'}`,'tactical-identity'));
@@ -81,45 +114,77 @@ function componentLabel(part,sharedExpiration){
  const identity=i.variant==='TREASURY_BILL'?`Matures ${i.maturity??'unknown'} · ${i.nativeIdentifier}`:i.label||part.symbol||i.nativeIdentifier||part.sourceInstrument?.identifier||part.kind||'Reported instrument';
  const unit=part.unit==='SOURCE_UNIT'?(part.sourceUnit??'source units'):part.unit??'unit unavailable';return `${identity} · ${quantity} ${unit}${i.custody?' · '+i.custody:''}`;
 }
-function inventoryDetails(doc,item){
- const disclosure=node(doc,'details',null,'tactical-details');disclosure.append(node(doc,'summary','Position details and evidence'));let built=false;
- disclosure.addEventListener('toggle',()=>{if(!disclosure.open||built)return;built=true;const qualification=item.structure?.authority?.qualification;if(qualification)disclosure.append(node(doc,'p',qualification));
-  for(const coverage of item.shareCoverage??[])disclosure.append(node(doc,'p',`Observed-call share support ${coverage.status}: eligible ${exact(coverage.eligibleQuantity)}, required ${exact(coverage.requiredQuantity)} · ${coverage.qualification}`));
-  const dl=node(doc,'dl');for(const [label,value]of [['Basis',item.inventoryBasis??item.structure?.authority?.basis],['Continuity',item.exposure?.continuity??'Unresolved'],['Lifecycle',item.state??'Unresolved'],['Custody source day',item.custody?.observationDate],['Custody received',item.custody?.receivedAt],['Warnings',(item.warningCodes??[]).join(', ')]]){dl.append(node(doc,'dt',label),node(doc,'dd',exact(value)));}disclosure.append(dl);
-  for(const p of item.constituents??[]){disclosure.append(node(doc,'p',componentLabel(p,false)));if(p.sourceDescription)disclosure.append(node(doc,'p',p.sourceDescription));if(known(p.reportedMarketValue,'MONEY'))disclosure.append(node(doc,'p','Broker-reported source value: '+(p.reportedMarketValue.currency==='USD'?usdDisplay(p.reportedMarketValue.value):exact(p.reportedMarketValue.value)+' '+exact(p.reportedMarketValue.currency))));}
-  const raw=node(doc,'details');raw.append(node(doc,'summary','Technical source'));let loaded=false;raw.addEventListener('toggle',()=>{if(raw.open&&!loaded){loaded=true;raw.append(node(doc,'pre',JSON.stringify(item,null,2)));}});disclosure.append(raw);
+function shortDay(value,zone='UTC'){
+ if(typeof value!=='string')return null;try{const day=/^\d{4}-\d{2}-\d{2}$/.test(value);return new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:day?'UTC':zone}).format(new Date(day?value+'T12:00:00Z':value));}catch{return null;}
+}
+// Source context belongs to the observed value; never borrow custody as a quote clock.
+function observedSpotLabel(e,price=e.spot?.value,currency=e.spot?.currency){
+ const day=shortDay(e.spot?.observationDate??e.spot?.asOf,e.timeline?.calendarZone??'UTC');
+ return 'Spot '+priceLabel(price,currency)+' · '+(day??'undated');
+}
+function materialDisplayState(item,evidence){
+ const e=item.evaluation??{},source=item.custody??evidence.source??{};
+ const conflict=[...(item.warningCodes??[]),...(evidence.warnings??[]).map(w=>w.code)].some(c=>['SOURCE_CONFLICT','INCOMPATIBLE_CONTRACT_TERMS'].includes(c));
+ if(conflict)return 'Source conflict';
+ if(source.sourceClockWarning)return 'Source date unverified';
+ if(['MONEY_MARKET','CASH','TREASURY_BILLS','TREASURY_BILL'].includes(item.variant))return null;
+ const g=e.payoff?.geometry;
+ if(e.payoff?.status!=='QUALIFIED')return 'P/L unavailable';
+ if(g?.valueKind==='TERMINAL_VALUE')return 'Terminal value · P/L unavailable';
+ return null;
+}
+function displayStructure(item){
+ if(item.structure?.status==='VALIDATED'&&item.structure.name)return item.structure.name;
+ const parts=item.constituents??[],g=item.evaluation?.payoff?.geometry;
+ // Descriptive caption of already qualified capped rights; never a managed/lifecycle association or coverage calculation.
+ if(item.evaluation?.payoff?.status==='QUALIFIED'&&g?.segments?.length===2&&number(g.segments[0].slope)>0&&number(g.segments[1].slope)===0&&parts.length===2&&parts.filter(p=>p.unit==='SHARE'&&p.side==='LONG').length===1&&parts.filter(p=>p.unit==='CONTRACT'&&p.side==='SHORT'&&p.terms?.right==='CALL').length===1)return 'Covered call';
+ return item.structure?.name??'Reported inventory';
+}
+function positionContext(item){
+ const parts=[...(item.constituents??[])].sort((a,b)=>(a.unit==='SHARE'?0:1)-(b.unit==='SHARE'?0:1));
+ if(item.variant==='TREASURY_BILLS')return `${parts.length} reported ${parts.length===1?'instrument':'instruments'}`;
+ if(['MONEY_MARKET','CASH'].includes(item.variant))return item.variant==='MONEY_MARKET'?'Reported fund value':'Reported balance';
+ const g=item.evaluation?.payoff?.geometry,call=parts.find(p=>p.unit==='CONTRACT'&&p.side==='SHORT'&&p.terms?.right==='CALL');
+ const capShown=item.evaluation?.payoff?.status==='QUALIFIED'&&parts.length===2&&parts.some(p=>p.unit==='SHARE'&&p.side==='LONG')&&g?.boundaries?.length===1&&call&&exact(g.boundaries[0].price)===exact(call.terms.strike);
+ return parts.map(p=>p.unit==='SHARE'?`${exact(p.quantity)} shares`:p.unit==='CONTRACT'&&p.terms?.right?`${p.side==='SHORT'?'Short':'Long'} ${exact(p.quantity)}${capShown?'':' '+priceLabel(p.terms.strike,p.terms.currency,{whole:true})} ${p.terms.right.toLowerCase()}`:componentLabel(p,true)).join(' · ');
+}
+function inventoryDetails(doc,item,{account,evidence}){
+ const disclosure=node(doc,'details',null,'tactical-details');disclosure.append(node(doc,'summary','Details and evidence'));let built=false;
+ disclosure.addEventListener('toggle',()=>{if(!disclosure.open||built)return;built=true;
+  const dl=node(doc,'dl');const e=item.evaluation??{},g=e.payoff?.geometry;
+  const entries=[['Account',account.nickname],['Broker',account.broker],['Account read',evidence.accountReadStatus],['Read complete',evidence.readComplete],['Financial claim',g?.valueKind],['Calculation',g?.financialReference?.method],['Reference qualification',g?.financialReference?.label],['Exact break-even',(g?.breakEvenPrices??[]).map(v=>typeof v==='object'?`${v.numerator}/${v.denominator}`:v).join(', ')],['Expiration',e.timeline?.expiration],['Custody source day',item.custody?.observationDate],['Custody received',item.custody?.receivedAt],['Custody completeness',item.custody?.coverage],['Source currentness',item.custody?.currentness],['Spot source day',e.spot?.observationDate],['Spot observed',e.spot?.asOf],['Evaluated',e.evaluatedAt],['Association',item.structure?.authority?.qualification],['Continuity',item.exposure?.continuity??'Unresolved'],['Lifecycle',item.state??'Unresolved'],['Warnings',[...(item.warningCodes??[]),...(e.payoff?.warningCodes??[]),...(evidence.warnings??[]).map(w=>w.code)].join(', ')]];
+  for(const [label,value]of entries)if(value!=null&&value!==''){dl.append(node(doc,'dt',label),node(doc,'dd',exact(value)));}disclosure.append(dl);
+  for(const note of e.payoff?.assumptions??[])disclosure.append(node(doc,'p',note));
+  if(evidence.qualification)disclosure.append(node(doc,'p',evidence.qualification));
+  for(const coverage of item.shareCoverage??[])disclosure.append(node(doc,'p',`Share support ${coverage.status}: eligible ${exact(coverage.eligibleQuantity)}, required ${exact(coverage.requiredQuantity)} · ${coverage.qualification}`));
+  for(const p of item.constituents??[]){disclosure.append(node(doc,'p',componentLabel(p,false)));if(known(p.reportedCostBasis,'MONEY'))disclosure.append(node(doc,'p','Broker-reported held basis: '+priceLabel(p.reportedCostBasis.value,p.reportedCostBasis.currency)));if(p.sourceDescription)disclosure.append(node(doc,'p',p.sourceDescription));if(known(p.reportedMarketValue,'MONEY'))disclosure.append(node(doc,'p','Broker-reported source value: '+priceLabel(p.reportedMarketValue.value,p.reportedMarketValue.currency)));}
+  const timeline=timelineGraphic(doc,e.timeline,e.management?.manualCheckpoint);if(timeline)disclosure.append(timeline);const exit=exitGraphic(doc,e);if(exit)disclosure.append(exit);
+  disclosure.append(node(doc,'h5','Backend evidence'),node(doc,'pre',JSON.stringify({position:item,account,source:evidence.source,qualification:evidence.qualification,warnings:evidence.warnings},null,2)));
  });return disclosure;
 }
 function compactTacticalPositions(doc,{account,evidence}){
  const report=node(doc,'section',null,'tactical-report tactical-compact-report');
- for(const item of evidence.items){const e=item.evaluation??{},canonical=item.representation==='TACTICAL_POSITION',card=node(doc,'section',null,canonical?'tactical-position tactical-compact':'tactical-inventory-unit tactical-compact');
-  const title=item.title||(item.underlyings??[]).map(s=>s.symbol).join(' / ')||item.constituents?.[0]?.symbol||'Reported instrument';const head=node(doc,'div',null,'tactical-unit-heading');head.append(node(doc,'h4',title),node(doc,'span',item.structure?.name??'Reported inventory','tactical-identity'));card.append(head);
-  if((item.warningCodes??[]).includes('INCOMPATIBLE_CONTRACT_TERMS'))card.append(node(doc,'small','Contract terms conflict · source details required','source-access'));
-  if(item.structure?.status==='COMPATIBLE_INVENTORY')card.append(node(doc,'small','Compatible inventory · trade association unverified','tactical-status'));
-  for(const coverage of item.shareCoverage??[])if(['SUFFICIENT','INSUFFICIENT'].includes(coverage.status))card.append(node(doc,'small',`Observed-call share support: ${coverage.status.toLowerCase()} · reservation unverified`,coverage.status==='INSUFFICIENT'?'source-access':'tactical-status'));
-  const parts=item.constituents??[],expiration=e.timeline?.expiration,summary=node(doc,'div',null,'tactical-components');
-  if(item.variant==='TREASURY_BILLS')summary.append(node(doc,'p',`${parts.length} reported instruments · maturities and quantities in details`));
-  else if(['MONEY_MARKET','CASH'].includes(item.variant)){
-   for(const part of parts){if(known(part.reportedMarketValue,'MONEY'))summary.append(node(doc,'strong',part.reportedMarketValue.currency==='USD'?usdDisplay(part.reportedMarketValue.value):exact(part.reportedMarketValue.value)+' '+exact(part.reportedMarketValue.currency)));else summary.append(node(doc,'p',componentLabel(part,expiration)));}summary.append(node(doc,'small',item.variant==='MONEY_MARKET'?'Reported fund value · not deployable cash':'Reported balance · not buying power'));
-  }else for(const part of parts){summary.append(node(doc,'p',componentLabel(part,expiration)));if(part.identity?.variant==='SHARES'&&known(part.reportedMarketValue,'MONEY'))summary.append(node(doc,'small','Broker-reported source value '+(part.reportedMarketValue.currency==='USD'?usdDisplay(part.reportedMarketValue.value):exact(part.reportedMarketValue.value)+' '+exact(part.reportedMarketValue.currency))));}
-  const body=node(doc,'div',null,'tactical-compact-body');body.append(summary);const graphic=payoffGraphic(doc,e)||strikeConfigurationGraphic(doc,item.strikeConfiguration);if(graphic){const figure=node(doc,'figure');figure.append(graphic);figure.append(node(doc,'figcaption',e.payoff?.status==='QUALIFIED'?(e.payoff.geometry.valueKind==='GROSS_PL'?'Gross expiration P/L before fees':'Contractual terminal value · not P/L'):'Reported strikes · monetary payoff unavailable'));body.append(figure);}card.append(body);
-  const facts=node(doc,'div',null,'tactical-compact-facts');if(expiration)facts.append(node(doc,'span',expiration));if(known(e.timeline?.remainingDays,'DAY'))facts.append(node(doc,'span',`${exact(e.timeline.remainingDays.value)} DTE`));
-  if(known(e.spot,'PRICE')){facts.append(node(doc,'span',`Spot ${exact(e.spot.value)} ${e.spot.currency??''}`));if(e.spot.asOf)facts.append(node(doc,'small',`Quote observed ${e.spot.asOf}`));}
-  if(item.marketClock){const clock=item.marketClock,policy=clock.policyState&&clock.policyState!=='UNKNOWN'?` · policy ${clock.policyState}`:'';facts.append(node(doc,'small',`${clock.basis==='SPOT_OBSERVATION'?'Spot':'Quote'} source ${clock.sourceAt}${clock.ageSeconds==null?'':` · ${exact(clock.ageSeconds)}s old`}${policy}`));}
-  const timeline=timelineGraphic(doc,e.timeline,e.management?.manualCheckpoint);if(timeline)facts.append(timeline);const exit=exitGraphic(doc,e);if(exit){facts.append(node(doc,'span',`Indicative gross P/L ${money(e.grossUnrealizedPl)}`));facts.append(exit);}if(facts.children.length)card.append(facts);
-  card.append(inventoryDetails(doc,item));report.append(card);
+ for(const item of evidence.items){const e=item.evaluation??{},card=node(doc,'section',null,(item.representation==='TACTICAL_POSITION'?'tactical-position':'tactical-inventory-unit')+' tactical-compact');
+  const title=item.title||(item.underlyings??[]).map(s=>s.symbol).join(' / ')||item.constituents?.[0]?.symbol||'Reported instrument';
+  const header=node(doc,'div',null,'tactical-unit-heading');const structure=displayStructure(item);header.append(node(doc,'h4',`${title}${title.toLowerCase()===structure.toLowerCase()?'':' · '+structure} · ${account.nickname?.toUpperCase()??'Account'}`));card.append(header);
+  const context=node(doc,'div',null,'tactical-context');const description=positionContext(item);if(description)context.append(node(doc,'p',description));if(known(e.timeline?.remainingDays,'DAY'))context.append(node(doc,'strong',`${exact(e.timeline.remainingDays.value)} DTE`));if(context.children.length)card.append(context);
+  const payoff=payoffGraphic(doc,e),graphic=payoff||strikeConfigurationGraphic(doc,item.strikeConfiguration);
+  if(graphic){const figure=node(doc,'figure',null,'tactical-hero');figure.setAttribute('data-kind',payoff?'PAYOFF':'STRIKES');figure.append(graphic);if(payoff&&e.payoff?.geometry?.valueKind==='TERMINAL_VALUE'&&known(e.spot,'PRICE'))figure.append(node(doc,'figcaption',observedSpotLabel(e)));card.append(figure);}else if(['MONEY_MARKET','CASH'].includes(item.variant)){
+   for(const p of item.constituents??[])if(known(p.reportedMarketValue,'MONEY'))card.append(node(doc,'strong',priceLabel(p.reportedMarketValue.value,p.reportedMarketValue.currency),'tactical-balance'));
+  }
+  const footer=node(doc,'div',null,'tactical-outcome');const ref=e.payoff?.geometry?.financialReference;
+  if(ref?.maximumProfit!=null){const estimated=e.payoff.geometry.valueKind==='ESTIMATED_PL',value=(estimated?'≈':'')+(ref.currency==='USD'?usdDisplay(exact(ref.maximumProfit),{signed:true}):`${exact(ref.maximumProfit)} ${ref.currency}`);footer.append(node(doc,'span',e.payoff.geometry.valueKind==='GROSS_PL'?'Max gross expiration P/L':'Max expiration P/L'));const amount=node(doc,'strong',value);amount.setAttribute('aria-label',(estimated?'Estimated maximum expiration P/L: ':'Maximum expiration P/L: ')+value+' · '+(ref.label??''));footer.append(amount);}
+  if(footer.children.length)card.append(footer);
+  const state=materialDisplayState(item,evidence);if(state)card.append(node(doc,'small',state,'tactical-evidence-status'));card.append(inventoryDetails(doc,item,{account,evidence}));report.append(card);
  }
  return report;
 }
 export function renderTacticalInventory(doc,inventory){
- const report=node(doc,'section',null,'tactical-inventory');report.append(node(doc,'h3',inventory.underlying?`Positions · ${inventory.underlying}`:'Positions'));
- for(const account of inventory.accounts){const section=node(doc,'section',null,'tactical-account');section.append(node(doc,'h3',`${account.nickname} · ${account.broker}`));
-  if(account.status!=='READ'){section.append(node(doc,'p',account.status==='FORBIDDEN'?'Position inventory access denied.':account.status==='NO_RETAINED_CUSTODY'?'No retained custody observation.':'Complete selected inventory unavailable.','source-access'));report.append(section);continue;}
-  const source=account.source??{},date=source.observationDate,age=source.ageDays==null?'':` · ${exact(source.ageDays)} calendar days old`;
-  section.append(node(doc,'p',date?`Custody source ${date}${age} · ${source.coverage==='PARTIAL'?'partial source':'reported source'} · current custody unverified`:`Custody received ${source.receivedAt??'unknown'} · broker observation time unavailable · current custody unverified`,'tactical-custody-clock'));if(source.sourceClockWarning)section.append(node(doc,'p','Source date requires review.','source-access'));
-  if((account.warnings??[]).some(w=>w.code==='SOURCE_CONFLICT'))section.append(node(doc,'p','Source conflict · showing retained admitted evidence.','source-access'));
-  if(!account.items.length)section.append(node(doc,'p','No resolved inventory matches in this selected source cut; live absence not established.'));
-  section.append(renderTacticalPositions(doc,{account,evidence:{items:account.items.map(item=>({...item,custody:{...account.source,...item.custody}}))},compact:true,embedded:true}));report.append(section);
+ const report=node(doc,'section',null,'tactical-inventory');report.setAttribute('aria-label','Tactical positions');
+ for(const account of inventory.accounts){const section=node(doc,'section',null,'tactical-account');section.setAttribute('aria-label',`${account.nickname} positions`);
+  if(account.status!=='READ'){section.append(node(doc,'h3',account.nickname),node(doc,'p',account.status==='FORBIDDEN'?'Position inventory access denied.':account.status==='NO_RETAINED_CUSTODY'?'No retained custody observation.':'Complete selected inventory unavailable.','source-access'));report.append(section);continue;}
+  if(!account.items.length)section.append(node(doc,'p',`${account.nickname.toUpperCase()} · No matching retained positions`));
+  section.append(renderTacticalPositions(doc,{account,evidence:{source:account.source,warnings:account.warnings,accountReadStatus:account.status,readComplete:account.readComplete,qualification:inventory.qualification,items:account.items.map(item=>({...item,custody:{...account.source,...item.custody}}))},compact:true,embedded:true}));report.append(section);
  }
  return report;
 }

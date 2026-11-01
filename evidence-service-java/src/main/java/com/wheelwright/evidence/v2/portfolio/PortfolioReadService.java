@@ -51,6 +51,7 @@ public final class PortfolioReadService {
  public static final class ReadContext {
   final Map<String,ObjectNode> reconciliations=new HashMap<>();
   final Map<String,Map<String,com.wheelwright.evidence.v2.PositionSnapshot.Constituent>> holdingDescriptions=new HashMap<>();
+  final Map<String,Map<String,ObjectNode>> reportedBases=new HashMap<>();
   final Map<String,List<Document>> orders=new HashMap<>();
   final Map<String,Map<String,ObjectNode>> observations=new HashMap<>();
   final Map<String,Set<String>> orderArtifacts=new HashMap<>();
@@ -69,8 +70,10 @@ public final class PortfolioReadService {
    if(snapshot.isPresent()&&Objects.equals(snapshot.get().account(),d.account()))
     for(var holding:snapshot.get().holdings())descriptions.put(holding.holdingId(),holding);
    context.holdingDescriptions.put(key,descriptions);
+   try(var connection=repo.connection()){context.reportedBases.put(key,snapshot.isEmpty()?Map.of():PortfolioFidelityBasis.read(connection,repo,snapshot.get()));}
   }
   var source=context.holdingDescriptions.get(key).get(d.sourceKey());
+  var reportedBasis=context.reportedBases.getOrDefault(key,Map.of()).get(d.sourceKey());if(reportedBasis!=null)value.setAll(reportedBasis.deepCopy());
   if(source!=null&&Objects.equals(source.contract(),value.at("/sourceInstrument/identifier").asText())&&source.description()!=null&&!source.description().isBlank())
    value.put("sourceDescription",source.description());
  }
@@ -113,6 +116,7 @@ public final class PortfolioReadService {
  /** The same financial evaluator and field-level authorization used by canonical Positions. */
  public ObjectNode inventoryEvaluation(String account,ObjectNode construction,Principal caller,Instant now,ReadContext context)throws Exception {
   var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(authorizedContract(construction,caller),observations(account,now,context),now));
+  var evaluated=(ObjectNode)n.path("evaluation");PortfolioMath.reportedSpot(construction,evaluated);var terminal=(ObjectNode)evaluated.path("payoff");var reference=PortfolioMath.brokerBasisPayoff(authorizedContract(construction,caller),terminal);if(reference!=terminal)evaluated.set("payoff",reference);
   return (ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");
  }
  public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
