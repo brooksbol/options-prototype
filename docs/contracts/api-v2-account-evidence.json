@@ -4580,6 +4580,34 @@
           },
           "csv": {
             "$ref": "#/components/schemas/ReportCsvReference"
+          },
+          "acquisition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receivedAt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ACQUIRED",
+                  "REUSED",
+                  "FAILED",
+                  "UNAVAILABLE",
+                  "NOT_AUTHORIZED"
+                ]
+              },
+              "receivedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              }
+            },
+            "description": "Optional request-triggered balance-only acquisition or reuse outcome. Does not renew securities or establish source-event currentness."
           }
         },
         "allOf": [

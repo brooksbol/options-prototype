@@ -24,9 +24,6 @@ public final class PortfolioReadService {
  public void fidelityReferences(PortfolioFidelityReferences references){this.fidelityReferences=references;}
  public ArrayNode synchronizePublicReferences(String account,String underlying,Principal caller,long deadline)throws Exception{return fidelityReferences==null?array():fidelityReferences.read(account,underlying,caller,deadline);}
  private PortfolioMarketAcquisition marketAcquisition;
- private PortfolioObservedMarket observedMarket;
- @org.springframework.beans.factory.annotation.Autowired(required=false)
- public void observedMarket(PortfolioObservedMarket source){this.observedMarket=source;}
  @org.springframework.beans.factory.annotation.Autowired(required=false)
  public void marketAcquisition(PortfolioMarketAcquisition acquisition){this.marketAcquisition=acquisition;}
  public ArrayNode synchronizeMarket(Set<String> scope)throws Exception{return marketAcquisition==null?array():marketAcquisition.read(scope);}
@@ -52,8 +49,6 @@ public final class PortfolioReadService {
  public Optional<Document> find(String uri)throws Exception{return repo.get(uri);}
  /** Request-local only: never shares private projections or stale reconciliation across callers/requests. */
  public static final class ReadContext {
-  final Map<String,ObjectNode> observedSpots=new HashMap<>();
-  long observedMarketDeadline;
   final Map<String,ObjectNode> reconciliations=new HashMap<>();
   final Map<String,Map<String,com.wheelwright.evidence.v2.PositionSnapshot.Constituent>> holdingDescriptions=new HashMap<>();
   final Map<String,Map<String,ObjectNode>> reportedBases=new HashMap<>();
@@ -122,7 +117,7 @@ public final class PortfolioReadService {
  public ObjectNode inventoryEvaluation(String account,ObjectNode construction,Principal caller,Instant now,ReadContext context)throws Exception {
   var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(authorizedContract(construction,caller),observations(account,now,context),now));
   var evaluated=(ObjectNode)n.path("evaluation");PortfolioMath.reportedSpot(construction,evaluated);var terminal=(ObjectNode)evaluated.path("payoff");var reference=PortfolioMath.brokerBasisPayoff(authorizedContract(construction,caller),terminal);if(reference!=terminal)evaluated.set("payoff",reference);
-  var authorized=(ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");if(observedMarket!=null)observedMarket.apply(authorized,repo,caller,now,context);return authorized;
+  var authorized=(ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");return authorized;
  }
  public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
  public ObjectNode read(Document d,Principal p,Instant now,ReadContext context)throws Exception {

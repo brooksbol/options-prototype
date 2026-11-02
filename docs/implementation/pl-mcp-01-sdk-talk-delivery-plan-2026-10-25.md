@@ -410,3 +410,9 @@ conformance groups pass. Source and sanitized evidence continue in draft PR44;
 independent review and Principal Product acceptance remain pending. Permanent
 backend/Talk jobs use the corrected implementation with private rollback copies;
 no main merge or public API-reference publication is claimed by this correction.
+
+## November 2 Principal-authorized architectural recovery
+
+Principal directs bounded architectural recovery, mandatory complete-capability fitness for every new feature, confirmed market/balance/native-result repairs, systematic ten-area audit, independent falsification and safe normal8787 observation. This supersedes the preceding read-only restriction for this bounded recovery only. Existing v1/tt live, credentials/grants, acquisition ownership, original evidence and unrelated work are protected. New branch protection or consequential deployment-policy changes are not implicitly authorized.
+
+Current owner Codex; separate independent reviewer has not implemented the submission. Existing capability matrix owns the single prioritized recovery inventory; BUG052/053 retain defect lifecycle. Baseline mainc87facff; inherited unmerged PR44e78f5c71 is not accepted by this assignment. Candidate branchcodex/architectural-recovery-20261102 preserves it unchanged. Existing global quote owner and balance-only provider path are reused; no new provider, scheduler, polling or quote cache. Candidate-bound fitness and deliberate production disconnection/omission proof are required before complete capability acceptance. Principal Product acceptance remains reserved.

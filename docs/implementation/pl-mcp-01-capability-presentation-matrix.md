@@ -140,3 +140,24 @@ Principal visually accepted PTS BDRY geometry on8820 but rejected Account scope 
 ### November1 — accepted bounded covered-call financial meaning and deletion-first presentation
 
 Principal accepted corrected8787 runtimefdf3ca93 with “ACCEPTED; execute end of session protocol”. [Accepted financial/tactical receipt](../reviews/sdk-talk-tactical-deletion-2026-10-31.md#principal-acceptance-and-end-of-session-closeout--november-1-2026) supersedes “basis/P&L unavailable” only where exact supported held basis/option credit and contract terms establish the backend estimate. The native financial curve, red/green regions, zero, separate break-even/strike/dated spot and capped maximum are accepted; legends/generic CYA footer are deleted, full retained qualifications remain on demand. This is an estimated expiration reference, not lifecycle/closed/realized P/L or universal Fidelity accounting. Prior source-specific and scope acceptance remains distinct; TT1 native meaning is preserved. Permanent installation and wider economic parity remain separately open; no Operating Regime prerequisite is introduced.
+
+## Architectural recovery — November 2, 2026 (active, not Product acceptance)
+
+Principal commissions architectural damage control with mandatory complete-capability fitness and independent disconnection/omission tests. Codex owns this bounded recovery; separate reviewer did not implement the candidate. Remote baseline c87facff; inherited unmerged PR44 e78f5c71 remains author-verified only. Valid earlier bounded acceptance is preserved; none establishes complete cross-Account current monitoring.
+
+This table is the single prioritized recovery inventory; canonical defects remain BUG-052/053, not duplicated identities.
+
+| Priority / capability | Audit disposition and consequence | Recovered owner / correction and proof |
+|---|---|---|
+| 1 — Tactical positions / prices | CONFIRMED: imported spot can remain selected while independent acquisition is disconnected; misleading monitoring | Existing global POST /v2/quotes owner, source-qualified underlying binding, existing evaluator/plot. Old non-null spot must be superseded without renewing custody. Candidate verification/review pending. |
+| 1 — Balances / buying power | CONFIRMED: latest-retained read does not compose available provider contact | Existing balance-only source/retention extracted from PositionAcquisition, guarded by existing acquisition + artifact authority. Request-triggered reuse; exact/historical reads pinned. No securities refresh. Candidate verification/review pending. |
+| 2 — Source identity / selection | CONFIRMED broker/provider namespace gap; receipt-order versus source-event selection is a falsifier | Bounded qualified binding, event clock preserved; no ticker-only identity migration. Failures/missing coverage preserve qualified historical evidence without claiming currentness. |
+| 2 — Native result / commentary | CONFIRMED balance/execution cards omitted from native commentary treatment; exponent money display | Reuse native result disclosure and exact decimal formatter; actual SDK-result desktop/mobile replay. Candidate verification/review pending. |
+| 2 — Runtime / restart | KNOWN prior backend-JAR mismatch; PR44 author repair unreviewed | Exact executable/source identity, restart compatibility and rollback required before accepted handoff; health alone insufficient. |
+| 3 — Conversation / scope | PR44 author five-turn pass; not independently accepted or market-currentness proof | Retain Account/underlying/expiration intersection and native display follow-up; complete composed replay required. |
+| 3 — Holdings / acquisition | Existing explicit authorized acquisition; retained inventory is useful, not confirmed current custody | Preserve source date/quantity and failure behavior. No new defect established by this audit. |
+| 3 — Orders / options | Existing authorized read-through and reviewed membership/terms controls | Current-opening economics remain unresolved; do not infer a new defect or lifecycle claim from this audit. |
+| 3 — Transactions / financial reports | Existing policy read-through versus retained mode, bounded round-trip reporting | Coverage/current-held origin and full Account performance remain qualified; no newly confirmed defect. |
+| 3 — Generic feature acceptance | CONFIRMED missing executable cross-capability obligation | Candidate-bound source/controller/MCP/SDK/native check plus unchanged-oracle production disconnection and missing-proof rejection. CI candidate added; required-check activation separately reserved. |
+
+Tests/reviewer acceptance/Principal observation/installation are separate evidence states. Existing features without complete fitness are unverified at that claim level, not automatically defective. This recovery does not retire working v1/tt live or change financial meaning.

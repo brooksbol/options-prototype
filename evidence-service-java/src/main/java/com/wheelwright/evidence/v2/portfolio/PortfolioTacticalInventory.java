@@ -19,7 +19,10 @@ public final class PortfolioTacticalInventory {
  public ObjectNode read(String accountId,String underlying,String requestId,BearerAuthenticator.Principal caller,Instant now)throws Exception{
   return read(accountId,underlying,null,requestId,caller,now);
  }
- public ObjectNode read(String accountId,String underlying,String expiration,String requestId,BearerAuthenticator.Principal caller,Instant now)throws Exception{
+ private PortfolioPublicMarket publicMarket;
+ @org.springframework.beans.factory.annotation.Autowired(required=false) public void publicMarket(PortfolioPublicMarket source){publicMarket=source;}
+ public ObjectNode read(String accountId,String underlying,String expiration,String requestId,BearerAuthenticator.Principal caller,Instant now)throws Exception{return read(accountId,underlying,expiration,requestId,caller,now,null);}
+ public ObjectNode read(String accountId,String underlying,String expiration,String requestId,BearerAuthenticator.Principal caller,Instant now,String bearer)throws Exception{
   var selected=accounts.list().stream().filter(a->caller.hasGrant("account.read:"+a.id())).filter(a->accountId==null||accountId.equals(a.id())).toList();
   if(selected.size()>100)throw new IllegalStateException("Account inventory capacity");
   var result=obj().put("representation","TACTICAL_POSITION_INVENTORY").put("requestId",requestId).put("evaluatedAt",now.toString()).put("currentCustody","NOT_ESTABLISHED");if(underlying==null)result.putNull("underlying");else result.put("underlying",underlying);
@@ -31,7 +34,7 @@ public final class PortfolioTacticalInventory {
     else {var referenceWarnings=reader.synchronizePublicReferences(account.id(),underlying,caller,referenceDeadline);reader.synchronize(Set.of(account.id()));populate(out,account,cut.get(),underlying,expiration,caller,now);((ArrayNode)out.path("warnings")).addAll(referenceWarnings);}
    }outputs.add(out);
   }
-  result.set("accounts",outputs);result.put("selectionComplete",java.util.stream.StreamSupport.stream(outputs.spliterator(),false).allMatch(a->a.path("readComplete").asBoolean()));
+  result.set("accounts",outputs);if(publicMarket!=null)publicMarket.apply(result,repo,caller,bearer,now,referenceDeadline);result.put("selectionComplete",java.util.stream.StreamSupport.stream(outputs.spliterator(),false).allMatch(a->a.path("readComplete").asBoolean()));
   result.put("qualification","Latest retained custody by Account, not live holdings. Compatible inventory groups are display contexts, not opening packages, governed quantities, cash security or lifecycle continuity. Market clocks never renew custody."+(underlying==null?"":" Underlying selection includes resolved source subjects only; unknown identities cannot establish absence."));
   if(expiration!=null)result.put("qualification",result.path("qualification").asText()+" Expiration selects contexts containing at least one resolved, non-conflicting option with that expiration. Full companion constituents and financial evaluations are preserved; unresolved expiration is not a match.");
   if(JSON.writeValueAsBytes(result).length>150000)throw new IllegalStateException("Complete tactical inventory exceeds150000 bytes; narrow Account scope");return result;

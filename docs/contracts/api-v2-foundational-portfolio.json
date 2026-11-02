@@ -40110,6 +40110,15 @@
               }
             ],
             "description": "Requested option expiration, or null. Whole matching contexts retain companion constituents."
+          },
+          "marketAcquisition": {
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "PARTIAL",
+              "UNAVAILABLE"
+            ],
+            "description": "Completion of bounded global quote operation; per-subject fulfillment is distinct. Does not renew custody."
           }
         },
         "required": [

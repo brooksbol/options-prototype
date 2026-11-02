@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-02T18:05:16.704Z",
+    "generatedAt": "2026-11-02T19:10:48.894Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11628,6 +11628,13 @@
           "content": "Principal: “ACCEPTED; execute end of session protocol”, after observing the deletion-first8787 candidate. This supersedes prior pending-acceptance wording only for the bounded tactical card correction. [Acceptance receipt](../reviews/sdk-talk-tactical-deletion-2026-10-31.md#principal-acceptance-and-end-of-session-closeout--november-1-2026) records accepted runtimefdf3ca93, source-preserving deletion, independent rendered checks and closeout. Visible financial legends/generic footer are removed; supporting metadata uses the existing disclosure; dated spot and value-local estimates retain material meaning. Wider **BUG052 remains Open** for its broader installed/retrieval/freshness obligations. No production installation, full defect closure or lifecycle-accounting acceptance is inferred.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "November 2 architectural recovery continuation",
+          "level": 2,
+          "content": "Principal commissions bounded native-answer repair under the architectural recovery workstream. Balance/execution results were missing from existing native-result commentary collapsing; source exponent numbers bypassed ordinary currency formatting. Candidate reuses trusted native result disclosure and exact decimal presentation, retains source/evidence and distinct commentary on demand, and exercises actual SDK results in desktop/mobile browsers. Existing capability matrix owns recovery priority. Verification/reviewer/Principal acceptance remain distinct; defect stays Open pending its full scoped disposition.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -11813,6 +11820,13 @@
           "heading": "Observed-state candidate and read-only architecture handoff — November2",
           "level": 3,
           "content": "The PTF payoff-only specimen prompted a bounded retained-underlying spot fallback\nand separate dated broker open P/L rendering. Author checks and exact source/runtime\nidentity are in the existing recovery receipt. Principal subsequently challenged\nwhy other Fidelity cards still prefer October27 spot and commissioned a read-only\narchitecture investigation. The candidate remains unmerged; source precedence,\nAccount coupling and minimum necessary quote reuse require investigation, not\nanother inferred implementation grant. Wider BUG053 remains Open.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "November 2 architectural recovery — active bounded remediation",
+          "level": 2,
+          "content": "Principal authorizes architectural recovery and complete-capability fitness. Confirmed additional specimens: Fidelity historical spot remains selected without composition of global quote acquisition, and operational tastytrade buying-power reads select retained evidence without balance acquisition. Existing capability matrix owns the single ranked recovery inventory. Candidate composes existing global quote owner with qualified underlying binding and extracts the existing balance-only source path without refreshing securities. Full source/API/MCP/SDK/native fitness, unchanged-oracle production disconnection rejection and independent exact-source review are required. Status remains Open; author component passes or narrow review do not close the Product outcome. Existing runtime/credentials/grants/v1/tt live and PR44 remain protected during candidate work.",
           "truncated": false,
           "tables": []
         }

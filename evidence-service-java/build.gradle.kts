@@ -155,3 +155,11 @@ tasks.register<JavaExec>("tacticalFinancialVerification") {
         project.findProperty("verificationOutput") as? String,
         project.findProperty("verificationMode") as? String)
 }
+
+// Architectural composition specimen: raw loopback sources, real acquisition/admission/controllers.
+tasks.register<JavaExec>("architecturalFitnessBackend") {
+    dependsOn(tasks.testClasses)
+    mainClass.set("com.wheelwright.evidence.v2.ArchitecturalRecoveryFitnessTest")
+    classpath = sourceSets["test"].runtimeClasspath
+    args = listOf(project.property("fitnessReady") as String)
+}

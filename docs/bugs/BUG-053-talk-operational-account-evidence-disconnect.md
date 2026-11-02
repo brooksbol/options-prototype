@@ -179,3 +179,7 @@ why other Fidelity cards still prefer October27 spot and commissioned a read-onl
 architecture investigation. The candidate remains unmerged; source precedence,
 Account coupling and minimum necessary quote reuse require investigation, not
 another inferred implementation grant. Wider BUG053 remains Open.
+
+## November 2 architectural recovery — active bounded remediation
+
+Principal authorizes architectural recovery and complete-capability fitness. Confirmed additional specimens: Fidelity historical spot remains selected without composition of global quote acquisition, and operational tastytrade buying-power reads select retained evidence without balance acquisition. Existing capability matrix owns the single ranked recovery inventory. Candidate composes existing global quote owner with qualified underlying binding and extracts the existing balance-only source path without refreshing securities. Full source/API/MCP/SDK/native fitness, unchanged-oracle production disconnection rejection and independent exact-source review are required. Status remains Open; author component passes or narrow review do not close the Product outcome. Existing runtime/credentials/grants/v1/tt live and PR44 remain protected during candidate work.

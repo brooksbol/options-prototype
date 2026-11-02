@@ -63,6 +63,18 @@ public class PositionAcquisition {
         snapshot=snapshot.withCash(cash(accountId,account.brokerAssociation().accountNumber()));
         return finish(requestId,accountId,id,"ACCEPTED",artifact,snapshot,started,received);
     }
+    public record BalanceRefresh(String status,String receivedAt) {}
+    /** Reuses the existing balance source independently of securities acquisition. */
+    public synchronized BalanceRefresh balance(String accountId,BearerAuthenticator.Principal caller,long reuseSeconds)throws Exception {
+        if(!caller.hasGrant("account.positions.acquire:"+accountId)||!caller.hasGrant("account.artifacts.read:"+accountId))return new BalanceRefresh("NOT_AUTHORIZED",null);
+        var account=accounts.get(accountId).orElseThrow();
+        if(!account.brokerAssociation().broker().equals("TASTYTRADE")||!configured())return new BalanceRefresh("UNAVAILABLE",null);
+        try(var c=connect();var q=c.prepareStatement("SELECT imported_at FROM brokerage_import WHERE account=? AND file_type='API_BALANCES' AND status='ACCEPTED' ORDER BY imported_at DESC LIMIT 1")){
+            q.setString(1,accountId);try(var rows=q.executeQuery()){if(rows.next()){var at=Instant.parse(rows.getString(1));var age=java.time.Duration.between(at,Instant.now());if(!age.isNegative()&&age.compareTo(java.time.Duration.ofSeconds(reuseSeconds))<0)return new BalanceRefresh("REUSED",at.toString());}}
+        }
+        var result=cash(accountId,account.brokerAssociation().accountNumber());
+        return new BalanceRefresh(result.status().equals("REJECTED")||result.status().equals("FAILED")?"FAILED":"ACQUIRED",result.receivedAt());
+    }
     /** A second retained observation, not an atomic securities/cash snapshot or buying power. */
     private PositionSnapshot.CashObservation cash(String account,String brokerAccount)throws Exception {
         byte[] bytes;String received;
