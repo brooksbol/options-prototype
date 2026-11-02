@@ -105,5 +105,13 @@
     "postCloseQuoteNotCompletedSessionEvidence",
     "absentSessionDateFailsClosed",
     "sandboxEvidenceNotReusedUnderProduction"
-  ]
+  ],
+  "reuseCaseNames": {
+    "activeAgeAtThresholdReused": "I1 active age at threshold (60s) with matching session \u2192 REUSED (precise duration, no truncation)",
+    "activeAgePreciseDurationNoTruncation": "I1 active age 60s exactly (sub-second over truncates to 60 but is really 60.5s) \u2192 NOT reused",
+    "weekendCompletedSessionReuse": "I1 completed-session reuse during weekend selects the ACTUAL latest completed session (Fri)",
+    "postCloseQuoteNotCompletedSessionEvidence": "I1 quote acquired AFTER Friday close does not become Friday completed-session evidence",
+    "absentSessionDateFailsClosed": "I1 absent regularSessionDate fails closed for completed-session reuse",
+    "sandboxEvidenceNotReusedUnderProduction": "F2 same-session fresh SANDBOX evidence is NOT reused when active source is PRODUCTION"
+  }
 }
