@@ -164,3 +164,126 @@ Release.json, historical accepted36/32 record, publication dates, accepted-sourc
 **Prepared, NOT APPLIED:** proposed release identity uses reviewedd0f2 as accepted content source, the exact preview/license hashes above, current9contract-input hashes, and intended publication date2026-11-02 (reconfirm if the intended date changes). Existing previewDate remains unchanged. Hypothetical published HTML SHA after the existing single date substitution is `426219100ae4f50288c5765275984fba5aabbc3aba1ec9d0fe45f85309942133`. Local proposal `/tmp/ww-recovery-api-publication-proposal-d0f2.json` is a review aid, not authority or a durable accepted release record. Actual Principal authorization and fresh review evidence must be recorded in the existing plan/provenance before writing release.json; historic provenance fields must not masquerade as new acceptance. No proposed release field has been applied.
 
 **Execution/model disposition:** failures200559(clock-sensitive oracle),355e(JUnit display identity) and6beb(CI generated output) remain frozen and distinguished from their valid bounded documentation/source evidence. Each successor followed materially new runtime/report/environment evidence; no production source was changed to satisfy these harness assumptions. This is bounded engineering under the existing outcome delegation, not a new market-evidence architecture or prompt retry loop. The deliberate negative/omission controls were retained and strengthened. Aggregate actor/tool/token accounting is unavailable; measured author/independent/CI durations and0operational-provider/0external-model proof consumption are reported without inference.
+
+
+## Formal PAT preparation and semantic API change report — d0f2f106
+
+**Standing:** Principal proposes formal Product Acceptance Test before API publication or PR45 integration. This record prepares that test and records engineering findings; it does not supply Principal verdicts. The previous combined publication/integration proposal is not selected authorization. API-reference acceptance, PR45 integration and later permanent installation remain **three distinct decisions**. The earlier required-check activation authorization remains valid/conditional, not repeated or expired.
+
+**Frozen target:** PR45 `d0f2f10699e811ef9286c843f9896a39336d8afc`; main `c87facff6179ddb1abf4a36fa38f2a4ea0ae5151`. Both PR CI checks still SUCCESS. No source, contract, release identity, PR head, grant or protection setting is changed by PAT preparation. New semantic findings below block reference acceptance; earlier mechanical proofs retain only their established scope. Do not describe technical evidence as complete Product correctness.
+
+**Case accounting:** The supplied plan names22IDs: A1–A5(5),B1–B4(4),C1–C4(4),D1–D5(5),F1–F4(4). Its18-case label is a counting discrepancy; preserve all22named cases and the separate operational/restart gate. Principal UI assessment remains0/13; no case is promoted to Product PASS by author/test-runner evidence. Zero critical failures allowed; a missing independently supported current mark-to-market capability in B3 is recorded within the stated scope, not invented or automatically implemented.
+
+### PAT execution surface and ownership
+
+- Exact targetd0f2 now runs through the established reversible normal `http://localhost:8787` handoff. Earlier source246 was stopped through its owned wrapper; the original installed frontdoor restored successfully before the exact-candidate handoff. Private candidate8QCCuo records sourced0f2; metadata/readiness and5protected hashes verified. This is temporary source-based operation, not permanent installation.
+- Unpublished API reference is now available to the operator at `http://localhost:8790/index.html`, a temporary loopback-only standard static server exposing only the existing two-file public artifact. Its fetched HTML SHA equals27a5726150a3da09997b8925a46c3821f6a52ff9d0588473e13dce30b0d3fc3c. No public hosting, Pages publication, API execution interface or competing permanent application is introduced.
+- Principal begins with a refreshed Talk page and fresh conversation, runs A1→A5 together, then assesses B/C. Engineering leaves that session untouched while the Principal tests. Fresh provider-backed evidence obtained by ordinary authorized requests remains subject to the same disclosure/acquisition grants. Do not print protected figures or originals into public PAT records.
+- After the operator phase is complete, engineering verifies the authorized temporary restart on the same exact target and repeats the entire A1→A5 sequence, source/backend identity and rollback/protected-file checks. This post-restart target-specific five-turn proof is **PENDING**; earlier246author verification is not substituted. Do not interrupt a live PAT conversation to perform the restart.
+- F1–F3 have author/independent candidate-bound evidence for Principal inspection. F4 is **DEFERRED_PREREQUISITE**, not PASS: it requires independently authorized integration, then previously authorized protection activation/readback and safe merge-blocking proof. No broken PR may be merged to test it.
+
+| ID | Specimen | Engineering evidence / finding | Product verdict |
+|---|---|---|---|
+| A1 | show me pts | Exact target available; Principal usefulness unassessed | Pending |
+| A2 | show pts positiosn | Typo/native representation proof available; no current operator verdict | Pending |
+| A3 | show me ptf | PTS/short-put scope requires current observation | Pending |
+| A4 | tactical view | Must retain exact A3 subject in this conversation | Pending |
+| A5 | show me nov 20 options | Must retain PTS and select expiration, both rights | Pending |
+| B1 | PTF spot location | Qualified price/method/time and financial-function point proof available | Pending |
+| B2 | Eight market/custody clocks | Clock separation proof available; independent current observations where available | Pending |
+| B3 | PTF versus v1 | Distinguish actual open performance and expiration function; record missing capability | Pending |
+| B4 | BDRY accepted financial meaning | Compare strike/break-even/premium/function, not only visual shape | Pending |
+| C1 | tt1 buying power right now | Authorized acquisition/reuse proof available; operator answer/failure usefulness unassessed | Pending |
+| C2 | Currency formatting | Exact exponent normalization proof available | Pending |
+| C3 | Native answer/no duplicate narration | Rendering proof available; operator usefulness unassessed | Pending |
+| C4 | Details/evidence | Supporting source/qualification access requires operator inspection | Pending |
+| D1 | 39internal/35public inventory | Exact inventory/four exclusions below | Pending reference acceptance |
+| D2 | Semantic API diff | Confirmed balance behavior/prose and capacity wording issues | Not ready |
+| D3 | Account-independent quotes | Global interface accurate; inventory orchestration incomplete/ambiguous | Needs clarification |
+| D4 | Balance/pinned export semantics | Independent provider-free prose and unpinnedCSV mismatch confirmed | Engineering FAIL; acceptance blocked |
+| D5 | Native API reference | Prior browser/native proof; loopback exact artifact ready | Pending Principal |
+| F1 | Custody + independent newer market | Candidate-bound author/independent evidence available | Pending PAT evidence assessment |
+| F2 | Balance acquisition/reuse without holdings | Candidate-bound author/independent evidence available | Pending PAT evidence assessment |
+| F3 | Required composition disconnection | Actual unchanged-oracle market/balance failures demonstrated | Pending PAT evidence assessment |
+| F4 | Required GitHub check enforcement | No workflow on main/protection; prerequisite deliberately not bypassed | Deferred, not PASS |
+
+Operational restart is a separate pending gate: exactd0f2 initial identity/restore/handoff is verified; its full A1–A5 after the same-target temporary restart awaits completion of the operator phase.
+
+### Semantic change report: old contract → proposed contract → reason → compatibility
+
+Comparison bases are explicit: **PR base mainc87facff → targetd0f2** for PR45 changes; **historically accepted publication36/32 → implemented candidate39/35** only for publication accounting. All three later operations already existed on the PR base; PR45 does not add an endpoint or change its operationId. Preview inventory does not ratify publication scope.
+
+| Surface | Old (PR base) | Proposed/actual target | Reason | Compatibility consequence / PAT finding |
+|---|---|---|---|---|
+| GET `/v2/positions?view=inventory` selector | Account/underlying intersection; no expiration parameter | Optional ISO `expiration`, valid only in inventory view; intersects Account/underlying | A5 ordinary expiration navigation | Additive selector. Selects whole contexts containing a resolved matching PUT/CALL and preserves companion constituents/financial function. It is not arbitrary removal of other legs from a package. Other collection selectors remain rejected in inventory mode. |
+| Tactical inventory response | No returned requested-expiration field or global acquisition outcome | Optional nullable `expiration`; optional `marketAcquisition` COMPLETED/PARTIAL/UNAVAILABLE | Scope transparency and bounded acquisition result | Optional properties can affect old strict closed-schema validators. Absence is not success; operation completion/qualified observation and source freshness are distinct. No custody renewal. |
+| `Metric` / `PriceMetric` / `TacticalMetric` | Source event/day fields, no optional receipt clock | Optional `receivedAt` date-time | Preserve receipt separately from source-event `asOf`/observation day | Additive metadata; never infer a new market event or fresh custody from new receipt. Regenerate strict schemas as appropriate. |
+| `TacticalInventoryConstituent` | Reported basis fields; no separate reported open-PL property | Optional `reportedOpenPl` TacticalMetric with its own source day | Distinguish broker-reported whole-holding G/L from expiration function | No new lifecycle/current mark-to-market calculation. Missing is not zero. B3 comparison must preserve source/method/time. |
+| GET `/v2/account-balance-observations` response | No optional acquisition outcome | Optional `acquisition` status/receivedAt; statuses ACQUIRED,REUSED,FAILED,UNAVAILABLE,NOT_AUTHORIZED | C1 operational balance read-through | HTTP200 and read permission do not guarantee acquisition, currentness or completeness. Source observation time remains separate; currentness NOT_ESTABLISHED/history UNKNOWN remain. |
+| Same balance GET behavior | Provider-free retained read, including latest-source selection | Unpinned latest-source without lower bound may invoke existing balance-only Tastytrade acquisition/reuse under existing separate permissions | Reuse the authoritative provider path for ordinary buying power | **Behavior change, not merely an optional response field.** Requires artifact read; acquisition additionally requires positions.acquire. No holdings refresh, new grant or borrowing inference. Current OAS still unequivocally says provider-free/no provider calls: D2/D4 mismatch. |
+| Balance selection capacity |200artifact/32MiB complete collection guard | `all` retains200artifact guard; latest-source scans have32MiB guard without200ceiling and return at most one eligible observation | Remove established growing-history latest-source failure | Broader successful latest reads are intended. Current unqualified200limit prose needs mode-specific correction. Default all/exact artifact/sourceAtOrAfter reads remain nonacquiring. |
+| GET balance CSV | Existing contract describes single pinned observation and no acquisition | Returned artifact-pinned URL remains nonacquiring and hash-stable; controller also admits constructed unpinned latest-source CSV and may acquire before hash/export validation | Existing governed export is intended to preserve exact source/result | **Confirmed D4 implementation/contract mismatch**, described below. No authorization escalation; normal generated Talk download is safe. Correcting prose alone must not silently redefine the accepted pinned-export boundary. |
+| POST `/v2/quotes`, GET held quotes/shared observations | Existing global symbol-based acquisition; separate held reads/shared observations | Request/response/security contracts unchanged by PR45; inventory composes ordinary global acquisition for qualified Instruments | Latest market reference need not depend on custody Account/provider | No tastytrade holding required. Account independence does not remove authentication/global quote and market/reference capabilities. Held GET does not refresh; acquisition outcome does not fabricate fulfillment. |
+| Inventory acquisition documentation | View parameter partly acknowledges existing policies; general tactical-projection prose says no new provider calls | Separate inventory path now composes global POST and preserves latest eligible selected market reference | F1 independent market/custody model | Clarify view-specific orchestration, caller/configuration conditions, failure/fallback and source clocks. Do not claim all Position GET variants are falsely provider-free: projection=tactical and view=inventory are separate branches. D3 incomplete/ambiguous, not a global quote ownership defect. |
+| GET `/v2/quotes/{symbol}/liquidity` errors | OAS omitted405 although global routing already returned it | Existing shared MethodNotAllowed405 schema/headers/example documented | Runtime/document fidelity | Adds documentation of existing behavior, not a new runtime error/policy. Actual production HTTP validates method/status/Allow/correlation/no-store. |
+| Other API documentation | Later operations lacked links/tag/five typed examples; filtering lost side-arithmetic context | Source links/navigation, invented examples and preserved public arithmetic qualifications | Complete source→bundle→public/native-consumer fidelity | No real brokerage values or public auth instructions. No removed endpoint, request/security relaxation, financial algorithm or grant change. |
+| Validator/publication workflow | Whole historical b48 catalogue/36-32 preview assertion failed before current checks | Current backend/OAS→internal→public graph, examples/native/error checks and negative controls; same accepted publication guard | Separate candidate fidelity from acceptance | Green preview is not publication acceptance. `release.json`, accepted-source/input/artifact hashes, dates and Pages permissions remain unchanged and publication still refuses target inputs. |
+
+All other query definitions, request bodies, operation IDs, existing required properties, security declarations and response constraints are unchanged between PR base and target except the listed additive portfolio/account fields and documented inherited405. This is a comparison result, not a claim that all inherited prose is semantically complete. Strict response validators deserve compatibility review when additional properties appear.
+
+### Confirmed D4 findings and independent controlled evidence
+
+- OAS balance operation says **“Pure provider-free projection”** and **“No provider calls”**. Actual `AccountBalanceObservations.read` calls acquisition when artifactId absent, selection latest-source and no sourceAtOrAfter; `PositionAcquisition.balance` correctly enforces artifact-read plus positions-acquire and Tastytrade/configuration conditions. Current operation prose misdescribes this behavior.
+- OAS says200artifacts without distinguishing latest-source scanning from all-history. Backend200ceiling applies only to all; both keep32MiB. This is not permission to remove capacity checks.
+- OAS says balance CSV requires a single pinned source and does not acquire. Controller validates format/hash syntax but does not require artifactId; it calls the acquisition-capable service before checking exportability or matching hash. Four independent synthetic HTTP probes establish: wrong-hash unpinned latest CSV→422 **after1provider call**; matching-hash unpinned latest CSV→200 **after provider acquisition**; generated pinned URL→200/exact SHA **without additional acquisition**, even after expired reuse/source failure; retained/lower-bound/read-only variants→0provider calls. Securities refreshes remain0 and acquisition remains separately authorized. This is not a generated-download regression or permission escalation.
+- Evidence is reviewer-only `IndependentBalanceCsvSemanticTest` / XML and `/tmp/ww-recovery-independent-results/pat-d0f-csv-semantic-four.log`. Four probes are evidence for existing D4, not four new formal PAT cases. An initial reviewer harness Content-Type assertion failed because the fixture transport overwrote media type; the reviewer corrected its own oracle to verify actual CSV content/hash. That harness failure is not a Product failure. No live provider, operational service, protected original or frozen candidate was modified.
+
+The prior architecture/projection checks establish their actual numerical/wire/composition claims, **not** semantic reference readiness. Candidate stays frozen to preserve this PAT specimen. Before reference acceptance, reconcile actual acquisition prose, inventory orchestration and the existing pinned/nonacquiring CSV contract through the established bounded recovery process, independently verify a successor, and identify which PAT results carry through unchanged code. Do not refresh accepted hashes, waive a finding, or silently accept an enlarged export behavior. No new domain/financial architecture is required by these findings.
+
+### D1 inventory — all39internal /35public candidate operations
+
+Public means included in the unpublished human reference; it never means permission-free access. Four private exclusions remain exact.
+
+| Method | Path | Operation ID | Preview |
+|---|---|---|---|
+| GET | `/v2/account-balance-observations` | `readAccountBalanceObservations` | Public |
+| GET | `/v2/accounts` | `listAccounts` | Public |
+| GET | `/v2/accounts/{accountId}` | `readAccount` | Public |
+| GET | `/v2/accounts/{accountId}/inventory-reconciliation` | `readInventoryReconciliation` | Public |
+| GET | `/v2/accounts/{accountId}/transactions` | `readAccountTransactions` | Public |
+| GET | `/v2/accounts/{accountId}/transactions/{transactionId}` | `readAccountTransaction` | Public |
+| GET | `/v2/artifacts` | `listAccountArtifacts` | Public |
+| POST | `/v2/artifacts` | `retainAndProcessAccountArtifact` | Public |
+| GET | `/v2/artifacts/{artifactId}` | `readAccountArtifact` | Public |
+| GET | `/v2/artifacts/{artifactId}/content` | `retrieveAccountArtifactBytes` | Public |
+| POST | `/v2/artifacts/{artifactId}/imports` | `retryRetainedArtifactProcessing` | Public |
+| GET | `/v2/constructions` | `listConstructions` | Public |
+| GET | `/v2/constructions/models` | `listConstructionModels` | Public |
+| GET | `/v2/constructions/models/{modelId}` | `readConstructionModel` | Public |
+| GET | `/v2/constructions/models/{modelId}/versions/{versionId}` | `readConstructionModelVersion` | Public |
+| GET | `/v2/constructions/{constructionId}` | `readConstruction` | Public |
+| GET | `/v2/holdings` | `listBrokerHoldings` | Public |
+| GET | `/v2/holdings/{holdingId}` | `readBrokerHolding` | Public |
+| GET | `/v2/instruments` | `listInstruments` | Public |
+| GET | `/v2/instruments/{instrumentId}` | `readInstrument` | Public |
+| GET | `/v2/market-evidence-subjects` | `listRelevantMarketEvidenceSubjects` | Internal only |
+| GET | `/v2/market-observations` | `listMarketObservations` | Public |
+| GET | `/v2/market-observations/{observationId}` | `readMarketObservation` | Public |
+| GET | `/v2/me` | `readCurrentUser` | Public |
+| GET | `/v2/option-inventory` | `readOptionInventory` | Public |
+| GET | `/v2/orders` | `listOrders` | Public |
+| GET | `/v2/orders/{orderId}` | `readOrder` | Public |
+| GET | `/v2/portfolio-capital-observations` | `readPortfolioCapitalObservations` | Public |
+| POST | `/v2/position-acquisitions` | `acquireAccountPositions` | Internal only |
+| GET | `/v2/positions` | `listPositions` | Public |
+| GET | `/v2/positions/{positionId}` | `readPosition` | Public |
+| GET | `/v2/positions/{positionId}/audit` | `listPositionAudit` | Public |
+| GET | `/v2/positions/{positionId}/audit/{auditId}` | `readPositionAudit` | Public |
+| GET | `/v2/quotes` | `listHeldDirectQuotes` | Public |
+| POST | `/v2/quotes` | `acquireDirectQuotes` | Public |
+| GET | `/v2/quotes/{symbol}` | `readHeldDirectQuote` | Public |
+| GET | `/v2/quotes/{symbol}/liquidity` | `measureHeldUnderlyingQuote` | Public |
+| GET | `/v2/users` | `listUsers` | Internal only |
+| GET | `/v2/users/{userId}` | `readUser` | Internal only |
+
+**PAT acceptance order:** operator UI A/B/C first; semantic/reference D1–D5 next; inspect F1–F3 and exact-target restart receipts; separate Principal Product/reference/integration decisions only after their applicable gates pass; F4 after authorized main integration/activation; permanent installation later. No publication, integration or permanent-installation decision is requested at this preparation checkpoint.
