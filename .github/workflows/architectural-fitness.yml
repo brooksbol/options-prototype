@@ -21,8 +21,13 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: '24.18.0'
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12.15'
       - name: Install pinned consumers
         run: |
+          python -m pip install -r tools/api-docs/requirements.txt
+          npm install --global npm@11.16.0 --ignore-scripts
           npm ci --prefix tools/talk --ignore-scripts
           npm ci --prefix tools/mcp-v2-evidence --ignore-scripts
           npm ci --prefix tools/mcp-account-question --ignore-scripts

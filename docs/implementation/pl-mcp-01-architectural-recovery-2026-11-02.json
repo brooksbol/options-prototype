@@ -4,7 +4,8 @@
   "features": [
     "independent tactical market references",
     "request-triggered balance-only acquisition",
-    "native financial answer presentation"
+    "native financial answer presentation",
+    "authoritative API preview fidelity with unchanged publication acceptance guard"
   ],
   "suite": "com.wheelwright.evidence.v2.ArchitecturalRecoveryFitnessTest",
   "methods": [
@@ -74,12 +75,26 @@
     "tools/talk/ui/tactical.js",
     "tools/talk/test/position-pages.test.mjs",
     "scripts/engineering/recovery-backend.mjs",
-    "tools/talk/test/recovery-routing.test.mjs"
+    "tools/talk/test/recovery-routing.test.mjs",
+    "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml",
+    "tools/api-docs/validate.py",
+    "tools/api-docs/test_validate.py",
+    "tools/api-docs/human-specimen.mjs",
+    ".github/workflows/api-v2-pages.yml",
+    "tools/api-docs/README.md"
   ],
   "reuse": [
     "existing global POST /v2/quotes owner and ORDINARY reuse",
     "existing PositionAcquisition balance source/retention",
     "existing SDK/MCP/native renderers and test infrastructure"
   ],
-  "governing": "docs/mandates/product-first-continuous-engineering-2026-10-13.md#principal-architectural-recovery-direction--november-2-2026"
+  "governing": "docs/mandates/product-first-continuous-engineering-2026-10-13.md#principal-architectural-recovery-direction--november-2-2026",
+  "documentationMethods": [
+    "test_validate.DisclosureDeltaTest",
+    "test_validate.DocumentationFidelityTest.test_current_bundle_and_inherited_liquidity_error",
+    "test_validate.DocumentationFidelityTest.test_wire_mutations_cannot_hide_behind_valid_examples",
+    "test_validate.DocumentationFidelityTest.test_public_exclusion_identity_and_membership_remain_exact",
+    "test_validate.DocumentationFidelityTest.test_actual_validator_rejects_disconnected_source_to_bundle_boundary",
+    "test_validate.DocumentationFidelityTest.test_actual_publication_rejects_unaccepted_input"
+  ]
 }
