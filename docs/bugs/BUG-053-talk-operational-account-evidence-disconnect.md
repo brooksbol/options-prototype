@@ -168,3 +168,14 @@ Principal visually accepted PTS BDRY geometry on8820 but rejected Account scope 
 ## October 29, 2026 — Principal-accepted candidate; installation pending
 
 **October 29 Principal acceptance / session closeout:** Principal: “accepted. execute end of session protocol”, referring to corrected8821runtime `4f67412c`. Exact Account-plus-underlying scope and retained Fidelity terminal geometry are accepted candidate Product behavior; earlier geometry-only acceptance remains distinct. Independent source reviews and actual SDK/browser scope replay preserved. [Acceptance/closeout](../reviews/sdk-talk-account-underlying-selection-2026-10-29.md#principal-acceptance-and-end-of-session-closeout). Ordinary accepted-main synchronization is authorized by invoked closeout; production deployment not authorized/performed. Existing BUG052/053 remain Open for their wider installed/evidence/freshness obligations. Full opening continuity/economic parity remain unresolved; no new grants/policies/trading authority.
+
+
+### Observed-state candidate and read-only architecture handoff — November2
+
+The PTF payoff-only specimen prompted a bounded retained-underlying spot fallback
+and separate dated broker open P/L rendering. Author checks and exact source/runtime
+identity are in the existing recovery receipt. Principal subsequently challenged
+why other Fidelity cards still prefer October27 spot and commissioned a read-only
+architecture investigation. The candidate remains unmerged; source precedence,
+Account coupling and minimum necessary quote reuse require investigation, not
+another inferred implementation grant. Wider BUG053 remains Open.

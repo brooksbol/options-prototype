@@ -152,3 +152,39 @@ The original four-request installed regression also passes after the continuatio
 the unqualified `positions` request clears prior Account, underlying and expiration
 restrictions and returns all three authorized Accounts; `pts positions` narrows to
 PTS. Roadmap projection regeneration/freshness and final diff checks PASS.
+
+
+## November2 observed-state increment — completed before read-only architecture review
+
+Principal supplied a PTF payoff-only card and requested an observed underlying
+reference and separately dated broker open P/L. The candidate reuses the existing
+local evidence-appliance GET /api/evidence/quotes for an absent underlying spot,
+behind global market/reference permissions and a qualified USD equity identity.
+It performs bounded read-only local requests; it does not acquire provider data,
+change grants, refresh custody or alter financial functions. The legacy observedAt
+is chain receipt time: it is explicitly carried as receivedAt with asOf null.
+This is a retained last-price reference, not a bid/ask midpoint. The native curve
+uses backend spotPoint, with a visible cyan line/intersection marker and room for
+its dated label. Source-reported single-holding open P/L is carried separately
+with the holding export day, without aggregation or substitution from the curve.
+
+Final source f5841c53; permanent JAR SHA256
+ad3f81b7a6cb09da978eb646230e30d833078cafc819c64780f07900c9a4cb16.
+Private rollback preserves prior JAR, database and launcher source. Initial live
+verification at a88e7691 still lacked a PTF marker; request-budget initialization
+and selected-underlying work scoping were corrected before final verification.
+The final PTF backend response has an independently sourced spot/spotPoint and
+matches the Principal-supplied dated broker P/L. Desktop/mobile browser checks
+pass; the selected card was visually inspected. The source clock is not invented.
+Focused portfolio Java236, Talk90, MCP28, OAS8/39 operations pass. The complete
+five-turn installed conversation also passes after this increment.
+
+This is a bounded, unmerged candidate increment, not Product acceptance or an
+independent architecture/release ACCEPT. Existing established spot values remain
+preferred over the added absent-spot fallback. Broader cross-Account freshness,
+market identity/source selection and acquisition design are now explicitly under
+Principal-requested read-only architectural investigation. No further point fix
+or running-service change is authorized by that investigation. The investigator
+is also this candidate's author; its findings cannot substitute for independent
+acceptance of this implementation. Private financial responses/screenshots stay
+local; no source amounts are published in this receipt.
