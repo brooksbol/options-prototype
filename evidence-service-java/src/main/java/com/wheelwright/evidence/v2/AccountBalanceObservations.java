@@ -75,7 +75,7 @@ public class AccountBalanceObservations {
                 try(var rs=q.executeQuery()){while(rs.next()) {
                     String id=rs.getString("artifact_id");if(!seen.add(id))continue;
                     byte[] payload=rs.getBytes("payload");bytes+=payload.length;
-                    if(bytes>32L*1024*1024||seen.size()>200)throw new SQLException("balance read capacity exceeded");
+                    if(bytes>32L*1024*1024||selection.equals("all")&&seen.size()>200)throw new SQLException("balance read capacity exceeded");
                     String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(payload));
                     if(!hash.equals(rs.getString("sha256")))throw new SQLException("retained hash mismatch");
                     var scope=artifacts.sourceScopes(account,rs.getString("original_filename"),payload);

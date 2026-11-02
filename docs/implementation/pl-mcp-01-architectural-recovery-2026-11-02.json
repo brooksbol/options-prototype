@@ -16,7 +16,8 @@
     "wrongSecurityTypeAndCrossedQuoteCannotBindToEquity",
     "acquiredOldBalanceEventDoesNotBecomeNewMarketTime",
     "productionBootstrapWiresAndExecutesBothCapabilities",
-    "boundedTransportCancelsStalledBody"
+    "boundedTransportCancelsStalledBody",
+    "latestBalanceSelectionSurvivesMoreThanTwoHundredSourcesWithTiesAndUnknownClocks"
   ],
   "scope": [
     ".github/workflows/architectural-fitness.yml",
