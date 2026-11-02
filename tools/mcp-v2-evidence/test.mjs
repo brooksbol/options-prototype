@@ -200,6 +200,21 @@ const {inspectTacticalInventory}=await import('./tactical-inventory.mjs');
 const inventoryAccount='acct_'+'a'.repeat(32),inventoryOther='acct_'+'b'.repeat(32),sourceHolding='/v2/holdings/11111111-1111-4111-8111-111111111111';
 function tacticalFixture(){return {representation:'TACTICAL_POSITION_INVENTORY',requestId,currentCustody:'NOT_ESTABLISHED',underlying:null,accounts:[{nickname:'pine',broker:'FIDELITY',account:{href:'/v2/accounts/'+inventoryAccount},status:'READ',readComplete:true,source:{snapshotId:'cut'},sourceHoldingCount:1,representedHoldingCount:1,items:[{representation:'TACTICAL_INVENTORY_GROUP',account:{href:'/v2/accounts/'+inventoryAccount},custody:{snapshotId:'cut'},sourceHoldings:[{href:sourceHolding}],underlyings:[{symbol:'ABC'}],constituents:[],variant:'SHARES_AND_CALLS'}]},{nickname:'birch',broker:'TASTYTRADE',account:{href:'/v2/accounts/'+inventoryOther},status:'FORBIDDEN',readComplete:false,items:[]}]};}
 function tacticalConfig(mutate=()=>{}){const calls=[];return {...config,calls,fetchImpl:async url=>{calls.push(url);if(url.pathname==='/v2/accounts')return response(JSON.stringify({requestId,accounts:[{id:inventoryAccount,alias:'pine',brokerAssociation:{broker:'FIDELITY'}},{id:inventoryOther,alias:'birch',brokerAssociation:{broker:'TASTYTRADE'}}]}));const d=tacticalFixture();if(url.searchParams.has('accountId'))d.accounts=d.accounts.filter(a=>a.account.href.endsWith(url.searchParams.get('accountId')));d.underlying=url.searchParams.get('underlying');mutate(d);return response(JSON.stringify(d));}};}
+test('unknown Account stops at discovery; old installed inventory contract preserves correlated422',async()=>{
+ const unknown=tacticalConfig();
+ const unavailable=await inspectTacticalInventory({accountScope:'ACCOUNT',account:'ptf'},unknown);
+ assert.equal(unavailable.isError,true);assert.equal(unknown.calls.length,1);
+ assert.deepEqual(JSON.parse(unavailable.content[0].text).availableAccounts.map(a=>a.nickname),['pine','birch']);
+ for(const selection of [{accountScope:'ALL_AUTHORIZED'},{accountScope:'ACCOUNT',account:'pine'}]){
+  const c=tacticalConfig(),original=c.fetchImpl;
+  c.fetchImpl=async url=>url.pathname==='/v2/accounts'?original(url):response(JSON.stringify({status:422,code:'INVALID_REQUEST',title:'Invalid request',requestId,detail:'PRIVATE-BACKEND-DETAIL'}),422);
+  const result=await inspectTacticalInventory(selection,c);
+  assert.equal(result.isError,true);
+  const problem=JSON.parse(result.content[0].text);
+  assert.equal(problem.code,'INVALID_REQUEST');assert.equal(problem.status,422);assert.equal(problem.requestId,requestId);
+  assert.doesNotMatch(result.content[0].text,/PRIVATE-BACKEND-DETAIL/);
+ }
+});
 test('one backend universal view covers all discovered Accounts and narrows without model grouping/history pages',async()=>{
  const c=tacticalConfig(),r=await inspectTacticalInventory({accountScope:'ALL_AUTHORIZED'},c),d=JSON.parse(r.content[0].text);assert.equal(d.accounts.length,2);assert.equal(d.accounts[1].status,'FORBIDDEN');assert.equal(c.calls[1].searchParams.get('view'),'inventory');assert.equal(c.calls[1].searchParams.has('accountId'),false);assert.equal(c.calls.length,2);const narrow=tacticalConfig();assert.equal(JSON.parse((await inspectTacticalInventory({accountScope:'ACCOUNT',account:'pine',underlying:'ABC'},narrow)).content[0].text).accounts.length,1);assert.equal(narrow.calls[1].searchParams.get('accountId'),inventoryAccount);assert.equal(narrow.calls[1].searchParams.has('projection'),false);
 });

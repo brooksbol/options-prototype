@@ -116,6 +116,19 @@ independently of generated commentary; this is not the final financial-authority
 
 ## Privacy and tests
 
+After installing or restarting the permanent backend and Talk services, run the
+opt-in installed navigation regression from the repository root:
+
+```sh
+node tools/talk/test/installed-positions.mjs
+```
+
+This uses the real8787 SDK/MCP session and model, exercising `show me ptf`,
+`positions`, `accounts`, and `pts positions`. It prints selectors and operational
+statuses only. It requires no Operator configuration. Run it after service
+restart as well as installation: fixture tests and a healthy `/api/health` cannot
+detect an older installed backend JAR that rejects the inventory contract.
+
 Automatic trace export is disabled before SDK import and through SDK configuration;
 default trace processors are removed. Conversation state is local. Responses use
 `store:false`; provider conversations, previous-response chaining, remote compaction

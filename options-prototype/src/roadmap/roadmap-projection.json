@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-01T18:21:11.519Z",
+    "generatedAt": "2026-11-02T16:42:04.644Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11646,6 +11646,13 @@
           "level": 2,
           "content": "Talk reported old Sawdust custody despite newer Downloads exports. PTS/tt1 holdings and tt1 balances were denied because corresponding backend read grants were absent. After authorized holdings access, a successful inventory tool result still failed conversational narration.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "November2 reboot regression and recovery",
+          "level": 2,
+          "content": "After the laptop reboot, launchd restored permanent Talk8787 against the older\nOctober29 operational backend JAR. The accepted tactical candidate had used a\ntemporary backend; its accepted source had reached main, but its backend binary\nhad not been permanently installed. Valid ALL_AUTHORIZED and ACCOUNT/pts tool\narguments reached `/v2/positions?view=inventory`; the old backend returned422\n`INVALID_REQUEST` with “Unknown or repeated query parameter.” Account discovery\ncontinued to succeed. This was an installed-contract mismatch, not bad user input\nor an invalid scope decision.",
+          "truncated": true,
           "tables": []
         },
         {

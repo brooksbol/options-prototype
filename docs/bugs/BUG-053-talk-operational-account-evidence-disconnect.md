@@ -8,6 +8,28 @@
 ## Observed failure
 Talk reported old Sawdust custody despite newer Downloads exports. PTS/tt1 holdings and tt1 balances were denied because corresponding backend read grants were absent. After authorized holdings access, a successful inventory tool result still failed conversational narration.
 
+## November2 reboot regression and recovery
+
+After the laptop reboot, launchd restored permanent Talk8787 against the older
+October29 operational backend JAR. The accepted tactical candidate had used a
+temporary backend; its accepted source had reached main, but its backend binary
+had not been permanently installed. Valid ALL_AUTHORIZED and ACCOUNT/pts tool
+arguments reached `/v2/positions?view=inventory`; the old backend returned422
+`INVALID_REQUEST` with “Unknown or repeated query parameter.” Account discovery
+continued to succeed. This was an installed-contract mismatch, not bad user input
+or an invalid scope decision.
+
+The bounded recovery installs the already accepted main backend in the existing
+launchd JAR location, with private JAR/database rollback and an identity receipt.
+The service was restarted and the four actual8787 SDK/MCP conversational requests
+passed. An opt-in installed navigation regression now detects this failure across
+service restart; adapter tests preserve backend error correlation and distinguish
+schema refusal from adapter exceptions. Concise operational failures replace the
+generic “no new finding established” text. Desktop/mobile actual-result chart
+checks pass. [Recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.md).
+This resolves this reboot occurrence; wider BUG053 remains Open, and author
+verification is not independent review or new Principal Product acceptance.
+
 ## Intended semantics violated
 The real-data Product must use legitimate backend read permissions and qualified source observations. A current operator question must not silently use a disconnected October19 store when newer supplied evidence can be admitted through an existing backend path.
 
