@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 
-export async function startPreview({ port = 8810, apiKey, networkFetch = globalThis.fetch, marketFixture = false, retainedMetadataBackend, authorizedRetainedBackend, authorizedMarketBackend, installedBackend, clock, operatorTimeZone, marketTimeZone } = {}) {
+export async function startPreview({ port = 8810, apiKey, model, networkFetch = globalThis.fetch, marketFixture = false, retainedMetadataBackend, authorizedRetainedBackend, authorizedMarketBackend, installedBackend, clock, operatorTimeZone, marketTimeZone } = {}) {
   if (installedBackend && (authorizedRetainedBackend || retainedMetadataBackend || marketFixture || installedBackend.profile !== 'AUTHORIZED_REAL_RETAINED_READS')) throw new Error('Invalid installed Account backend.');
   const retainedBackend = installedBackend ?? authorizedRetainedBackend;
   if (authorizedRetainedBackend && (retainedMetadataBackend || marketFixture || authorizedRetainedBackend.profile !== 'AUTHORIZED_REAL_RETAINED_READS' || (authorizedRetainedBackend.providerBeans !== false && authorizedRetainedBackend.publicReferenceProviderOnly !== true && authorizedRetainedBackend.architecturalRecovery !== true))) throw new Error('Invalid authorized retained profile.');
@@ -49,7 +49,7 @@ export async function startPreview({ port = 8810, apiKey, networkFetch = globalT
     const tools = (await Promise.all(servers.map(async server => ({
       server: server.name, tools: (await server.listTools()).filter(tool => server.admittedToolNames.includes(tool.name))
     }))));
-    conversation = createConversation({ servers, apiKey, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend, authorizedRetainedReads: !!retainedBackend,allowImageAttachments:!!retainedBackend,clock,operatorTimeZone,marketTimeZone });
+    conversation = createConversation({ servers, apiKey, model, fetchImpl: boundary.fetch, accountMetadataOnly: !!retainedMetadataBackend, authorizedRetainedReads: !!retainedBackend,allowImageAttachments:!!retainedBackend,clock,operatorTimeZone,marketTimeZone });
     // Freeze this preview's UI bytes at startup; later candidate edits must not
     // silently change an already-running preview or introduce mismatched assets.
     const assets = Object.fromEntries([
