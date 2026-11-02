@@ -25503,6 +25503,11 @@
             "type": "string",
             "format": "date",
             "description": "Source day precision, separate from asOf instant and backend receipt; does not assert a current quote."
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source-receipt time only, distinct from asOf/source event time. Optional retained-appliance spot observations preserve their legacy receipt clock without inventing an event time."
           }
         },
         "required": [
@@ -37792,6 +37797,11 @@
               ]
             },
             "minItems": 0
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source-receipt time only, distinct from asOf/source event time. Optional retained-appliance spot observations preserve their legacy receipt clock without inventing an event time."
           }
         },
         "required": [
@@ -38200,6 +38210,11 @@
             "type": "string",
             "format": "date",
             "description": "Source day precision, separate from asOf instant and backend receipt; does not assert a current quote."
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source-receipt time only, distinct from asOf/source event time. Optional retained-appliance spot observations preserve their legacy receipt clock without inventing an event time."
           }
         },
         "required": [
@@ -39505,6 +39520,10 @@
           },
           "reportedCostBasis": {
             "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "reportedOpenPl": {
+            "$ref": "#/components/schemas/TacticalMetric",
+            "description": "Exact source-reported whole holding G/L with its own observation day. Not a normalized lifecycle result and never inferred from the expiration-payoff spot point."
           }
         },
         "required": [

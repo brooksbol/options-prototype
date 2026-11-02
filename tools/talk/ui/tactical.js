@@ -52,7 +52,7 @@ function financialPayoffGraphic(doc,evaluation){
  shape(doc,image,'polyline',{points:points.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),fill:'none',class:'tactical-payoff'});
  // Price-label lanes prevent nearby spot, break-even and strike labels from colliding. This is pixel layout only.
  const labels=[];
- if(spotLabel&&number(spot.value)!=null){const px=x(number(spot.price));shape(doc,image,'line',{x1:px,x2:px,y1:11,y2:110,class:'tactical-spot-line'});shape(doc,image,'circle',{cx:px,cy:y(number(spot.value)),r:4,class:'tactical-observed-spot'});text(spotLabel,px,14,px>325?'end':px<115?'start':'middle','tactical-spot-label');}
+ if(spotLabel&&number(spot.value)!=null){const px=x(number(spot.price));shape(doc,image,'line',{x1:px,x2:px,y1:11,y2:110,class:'tactical-spot-line'});text(spotLabel,px,14,px>325?'end':px<115?'start':'middle','tactical-spot-label');}
  for(const m of markers){const v=number(m.price);if(v==null)continue;const px=x(v);shape(doc,image,'circle',{cx:px,cy:y(0),r:4,class:'tactical-break-even'});labels.push({label:'Break-even '+(m.approximate||g.valueKind==='ESTIMATED_PL'?'≈':'')+priceLabel(m.price,g.priceCurrency),px,lane:0,role:'tactical-be-label'});}
  for(const p of g.boundaries??[]){const v=number(p.price),value=number(p.value);if(v==null||value==null)continue;const px=x(v);shape(doc,image,'circle',{cx:px,cy:y(value),r:3.5,class:'tactical-strike'});labels.push({label:'Strike '+priceLabel(p.price,g.priceCurrency,{whole:true}),px,lane:1,role:'tactical-strike-label'});}
  const lanes=[];for(const label of labels){const width=label.label.length*8.5,anchor=label.px>325?'end':label.px<115?'start':'middle';const left=anchor==='end'?label.px-width:anchor==='start'?label.px:label.px-width/2,right=left+width;let lane=label.lane;
@@ -60,6 +60,8 @@ function financialPayoffGraphic(doc,evaluation){
   (lanes[lane]??=[]).push([left,right]);text(label.label,label.px,125+lane*18,anchor,label.role);
  }
  if(lanes.length>2)image.setAttribute('viewBox',`0 -4 480 ${136+lanes.length*18}`);
+ // Draw observed state last so it remains visible when spot equals a strike or break-even.
+ if(spotLabel&&number(spot.value)!=null)shape(doc,image,'circle',{cx:x(number(spot.price)),cy:y(number(spot.value)),r:5,class:'tactical-observed-spot'});
  return image;
 }
 export function timelineGraphic(doc,timeline,checkpoint){
@@ -120,7 +122,8 @@ function shortDay(value,zone='UTC'){
 // Source context belongs to the observed value; never borrow custody as a quote clock.
 function observedSpotLabel(e,price=e.spot?.value,currency=e.spot?.currency){
  const day=shortDay(e.spot?.observationDate??e.spot?.asOf,e.timeline?.calendarZone??'UTC');
- return 'Spot '+priceLabel(price,currency)+' · '+(day??'undated');
+ const received=!day&&shortDay(e.spot?.receivedAt,e.timeline?.calendarZone??'UTC');
+ return 'Spot '+priceLabel(price,currency)+' · '+(day??(received?'received '+received:'undated'));
 }
 function materialDisplayState(item,evidence){
  const e=item.evaluation??{},source=item.custody??evidence.source??{};
@@ -175,6 +178,8 @@ function compactTacticalPositions(doc,{account,evidence}){
   const footer=node(doc,'div',null,'tactical-outcome');const ref=e.payoff?.geometry?.financialReference;
   if(ref?.maximumProfit!=null){const estimated=e.payoff.geometry.valueKind==='ESTIMATED_PL',value=(estimated?'≈':'')+(ref.currency==='USD'?usdDisplay(exact(ref.maximumProfit),{signed:true}):`${exact(ref.maximumProfit)} ${ref.currency}`);footer.append(node(doc,'span',e.payoff.geometry.valueKind==='GROSS_PL'?'Max gross expiration P/L':'Max expiration P/L'));const amount=node(doc,'strong',value);amount.setAttribute('aria-label',(estimated?'Estimated maximum expiration P/L: ':'Maximum expiration P/L: ')+value+' · '+(ref.label??''));footer.append(amount);}
   if(footer.children.length)card.append(footer);
+  if(item.constituents?.length===1){const reported=item.constituents[0].reportedOpenPl,day=shortDay(reported?.observationDate??reported?.asOf);if(known(reported,'MONEY')&&reported.origin==='BROKER_REPORTED'&&day){const row=node(doc,'p',null,'tactical-reported-pl');row.append(node(doc,'span','Broker open P/L '),node(doc,'strong',reported.currency==='USD'?usdDisplay(exact(reported.value),{signed:true}):priceLabel(reported.value,reported.currency)),node(doc,'span',' · '+day));card.append(row);}}
+  if(!known(e.spot,'PRICE')&&graphic)card.append(node(doc,'small','Spot unavailable','tactical-spot-unavailable'));
   const state=materialDisplayState(item,evidence);if(state)card.append(node(doc,'small',state,'tactical-evidence-status'));card.append(inventoryDetails(doc,item,{account,evidence}));report.append(card);
  }
  return report;
