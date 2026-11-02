@@ -123,3 +123,6 @@ Principal: “ACCEPTED; execute end of session protocol”, after observing the 
 ## November 2 architectural recovery continuation
 
 Principal commissions bounded native-answer repair under the architectural recovery workstream. Balance/execution results were missing from existing native-result commentary collapsing; source exponent numbers bypassed ordinary currency formatting. Candidate reuses trusted native result disclosure and exact decimal presentation, retains source/evidence and distinct commentary on demand, and exercises actual SDK results in desktop/mobile browsers. Existing capability matrix owns recovery priority. Verification/reviewer/Principal acceptance remain distinct; defect stays Open pending its full scoped disposition.
+
+
+November2 recovery candidate: [receipt](../reviews/sdk-talk-architectural-recovery-2026-11-02.md) records exact24695fe7 independent source acceptance plus actual5turn/8underlying/balance/native/restart proof. Required omission/disconnection fitness is implemented and CI passes. Wider defect remains Open: no Principal Product acceptance, main promotion, permanent deployment or protected required-check activation is inferred. Prior bounded reviews/failures are retained.

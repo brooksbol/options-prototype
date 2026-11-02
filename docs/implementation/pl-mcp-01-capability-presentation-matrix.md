@@ -161,3 +161,8 @@ This table is the single prioritized recovery inventory; canonical defects remai
 | 3 — Generic feature acceptance | CONFIRMED missing executable cross-capability obligation | Candidate-bound source/controller/MCP/SDK/native check plus unchanged-oracle production disconnection and missing-proof rejection. CI candidate added; required-check activation separately reserved. |
 
 Tests/reviewer acceptance/Principal observation/installation are separate evidence states. Existing features without complete fitness are unverified at that claim level, not automatically defective. This recovery does not retire working v1/tt live or change financial meaning.
+
+
+### November2 architectural recovery — verified candidate, acceptance pending
+
+[Recovery/review/operational receipt](../reviews/sdk-talk-architectural-recovery-2026-11-02.md) records exact24695fe7 independent ACCEPT, deliberate market/balance/native/host disconnection and omitted-proof rejection, all5 actual conversational requests,8 November2 underlying references with October27 custody, acquired November2 brokerage balance, desktop/mobile native output and temporary restart/rollback. Earlier ce7a39ac independent REJECT and6e3ddd98 operational REJECT remain preserved. This supersedes the recovery rows' pending source-verification status only; BUG052/053, Principal Product acceptance, main integration, permanent installation and protected required-check activation remain open. Other audited capabilities retain their existing bounded/qualified standing. No new grants, service ownership, financial semantics or v1/ttlive changes.
