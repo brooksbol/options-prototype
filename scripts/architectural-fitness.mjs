@@ -15,7 +15,7 @@ if(!profile.suite||!Array.isArray(profile.methods)||profile.methods.length<5||!p
 for(const path of git('diff','--name-only',profile.base,sha).split('\n').filter(p=>p&&!/^docs\/.*\.md$/.test(p)&&p!=='options-prototype/src/roadmap/roadmap-projection.json')){if(!profile.scope.includes(path))throw Error('Changed feature path lacks an architectural proof assignment: '+path);}
 const output=await mkdtemp(join(tmpdir(),'ww-architectural-fitness-'));
 async function command(exe,argv,cwd=root){return await new Promise((resolvePromise,reject)=>{const child=spawn(exe,argv,{cwd,env:{...process.env},stdio:['ignore','pipe','pipe']});let log='';for(const stream of [child.stdout,child.stderr])stream.on('data',b=>{log=(log+b).slice(-30000);});child.on('error',reject);child.on('exit',code=>code===0?resolvePromise(log):reject(Error(exe+' failed: '+log.slice(-4500))));});}
-const started=Date.now();await command('./gradlew',['test','--offline','--no-daemon','--rerun-tasks','--console=plain','--tests',profile.suite],join(root,'evidence-service-java'));
+const started=Date.now();await command(process.execPath,['--test','tools/talk/test/recovery-routing.test.mjs']);await command('./gradlew',['test','--offline','--no-daemon','--rerun-tasks','--console=plain','--tests',profile.suite],join(root,'evidence-service-java'));
 const xml=await readFile(join(root,'evidence-service-java/build/test-results/test/TEST-'+profile.suite+'.xml'),'utf8');
 if(/<(?:failure|error|skipped)\b/.test(xml)||!profile.methods.every(n=>xml.includes('name="'+n+'()"')))throw Error('Required behavioral proof omitted, skipped or failed.');
 let backend;try{

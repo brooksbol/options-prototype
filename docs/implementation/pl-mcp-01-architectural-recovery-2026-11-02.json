@@ -72,7 +72,9 @@
     "tools/talk/ui/style.css",
     "tools/talk/ui/tactical-selection.js",
     "tools/talk/ui/tactical.js",
-    "tools/talk/test/position-pages.test.mjs"
+    "tools/talk/test/position-pages.test.mjs",
+    "scripts/engineering/recovery-backend.mjs",
+    "tools/talk/test/recovery-routing.test.mjs"
   ],
   "reuse": [
     "existing global POST /v2/quotes owner and ORDINARY reuse",

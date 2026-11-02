@@ -163,3 +163,8 @@ tasks.register<JavaExec>("architecturalFitnessBackend") {
     classpath = sourceSets["test"].runtimeClasspath
     args = listOf(project.property("fitnessReady") as String)
 }
+
+// Resolve runtime artifacts before offline candidate proof on a clean CI runner.
+tasks.register("resolveFitnessRuntime") {
+    doLast { configurations["testRuntimeClasspath"].resolve() }
+}
