@@ -24,7 +24,7 @@ public final class PortfolioObservedMarket {
   if(base.isEmpty()||established(evaluation.path("spot"))||!caller.hasGrant("market.read")||!caller.hasGrant("reference.read"))return;
   String uri=evaluation.at("/payoff/geometry/underlying/href").asText();var instrument=repo.get(uri);if(instrument.isEmpty()||!instrument.get().value().path("kind").asText().equals("EQUITY")||!instrument.get().value().path("currency").asText().equals("USD"))return;
   String symbol=instrument.get().value().path("symbol").asText();if(!symbol.matches("[A-Z0-9^][A-Z0-9.^/-]{0,31}"))return;
-  if(!context.observedSpots.containsKey(symbol))context.observedSpots.put(symbol,read(symbol,now,context));
+  if(!context.observedSpots.containsKey(symbol)){if(context.observedMarketDeadline==0)context.observedMarketDeadline=System.nanoTime()+Duration.ofSeconds(2).toNanos();context.observedSpots.put(symbol,read(symbol,now,context));}
   var spot=context.observedSpots.get(symbol);if(spot!=null)evaluation.set("spot",spot.deepCopy());
  }
  private ObjectNode read(String symbol,Instant now,PortfolioReadService.ReadContext context){

@@ -45,21 +45,21 @@ function financialPayoffGraphic(doc,evaluation){
  const markers=g.breakEvenMarkers??(g.breakEvenPrices??[]).map(root=>({price:root,label:exact(root),approximate:false}));
  const spot=g.spotPoint,spotLabel=spot&&number(spot.price)!=null?observedSpotLabel(evaluation,spot.price,g.priceCurrency):null;
  const accessible=[meaning,'Negative region: expiration loss. Positive region: expiration profit. Dashed line: zero P/L.',spotLabel,...markers.map(m=>'Break-even '+(m.approximate?'approximately ':'')+priceLabel(m.price,g.priceCurrency)),...(g.boundaries??[]).map(p=>'Strike '+priceLabel(p.price,g.priceCurrency,{whole:true}))].filter(Boolean).join(' · ');
- const image=svg(doc,accessible);image.setAttribute('viewBox','0 -4 480 170');image.setAttribute('class','tactical-financial-chart');
+ const image=svg(doc,accessible);image.setAttribute('viewBox',spotLabel?'0 -20 480 186':'0 -4 480 170');image.setAttribute('class','tactical-financial-chart');
  for(const region of g.financialRegions){if(!['LOSS','PROFIT'].includes(region.kind)||!Array.isArray(region.points))return null;const coords=region.points.map(p=>({x:number(p.price),y:number(p.value)}));if(coords.some(p=>p.x==null||p.y==null))return null;shape(doc,image,'polygon',{points:coords.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),class:region.kind==='LOSS'?'tactical-loss-area':'tactical-profit-area'});}
  const text=(value,px,py,anchor='start',extra='')=>{const n=shape(doc,image,'text',{x:px,y:py,'text-anchor':anchor,class:'tactical-axis '+extra});n.textContent=value;return n;};
  shape(doc,image,'line',{x1:32,x2:448,y1:y(0),y2:y(0),class:'tactical-zero'});text('0',25,y(0)+4,'end');
  shape(doc,image,'polyline',{points:points.map(p=>`${x(p.x)},${y(p.y)}`).join(' '),fill:'none',class:'tactical-payoff'});
  // Price-label lanes prevent nearby spot, break-even and strike labels from colliding. This is pixel layout only.
  const labels=[];
- if(spotLabel&&number(spot.value)!=null){const px=x(number(spot.price));shape(doc,image,'line',{x1:px,x2:px,y1:11,y2:110,class:'tactical-spot-line'});text(spotLabel,px,14,px>325?'end':px<115?'start':'middle','tactical-spot-label');}
+ if(spotLabel&&number(spot.value)!=null){const px=x(number(spot.price));shape(doc,image,'line',{x1:px,x2:px,y1:11,y2:110,class:'tactical-spot-line'});text(spotLabel,px,5,px>325?'end':px<115?'start':'middle','tactical-spot-label');}
  for(const m of markers){const v=number(m.price);if(v==null)continue;const px=x(v);shape(doc,image,'circle',{cx:px,cy:y(0),r:4,class:'tactical-break-even'});labels.push({label:'Break-even '+(m.approximate||g.valueKind==='ESTIMATED_PL'?'≈':'')+priceLabel(m.price,g.priceCurrency),px,lane:0,role:'tactical-be-label'});}
  for(const p of g.boundaries??[]){const v=number(p.price),value=number(p.value);if(v==null||value==null)continue;const px=x(v);shape(doc,image,'circle',{cx:px,cy:y(value),r:3.5,class:'tactical-strike'});labels.push({label:'Strike '+priceLabel(p.price,g.priceCurrency,{whole:true}),px,lane:1,role:'tactical-strike-label'});}
  const lanes=[];for(const label of labels){const width=label.label.length*8.5,anchor=label.px>325?'end':label.px<115?'start':'middle';const left=anchor==='end'?label.px-width:anchor==='start'?label.px:label.px-width/2,right=left+width;let lane=label.lane;
   while((lanes[lane]??[]).some(range=>left<range[1]+12&&right>range[0]-12))lane++;
   (lanes[lane]??=[]).push([left,right]);text(label.label,label.px,125+lane*18,anchor,label.role);
  }
- if(lanes.length>2)image.setAttribute('viewBox',`0 -4 480 ${136+lanes.length*18}`);
+ if(lanes.length>2)image.setAttribute('viewBox',`0 ${spotLabel?-20:-4} 480 ${136+lanes.length*18+(spotLabel?16:0)}`);
  // Draw observed state last so it remains visible when spot equals a strike or break-even.
  if(spotLabel&&number(spot.value)!=null)shape(doc,image,'circle',{cx:x(number(spot.price)),cy:y(number(spot.value)),r:5,class:'tactical-observed-spot'});
  return image;

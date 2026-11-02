@@ -53,7 +53,7 @@ public final class PortfolioReadService {
  /** Request-local only: never shares private projections or stale reconciliation across callers/requests. */
  public static final class ReadContext {
   final Map<String,ObjectNode> observedSpots=new HashMap<>();
-  final long observedMarketDeadline=System.nanoTime()+java.time.Duration.ofSeconds(2).toNanos();
+  long observedMarketDeadline;
   final Map<String,ObjectNode> reconciliations=new HashMap<>();
   final Map<String,Map<String,com.wheelwright.evidence.v2.PositionSnapshot.Constituent>> holdingDescriptions=new HashMap<>();
   final Map<String,Map<String,ObjectNode>> reportedBases=new HashMap<>();
@@ -121,8 +121,8 @@ public final class PortfolioReadService {
  /** The same financial evaluator and field-level authorization used by canonical Positions. */
  public ObjectNode inventoryEvaluation(String account,ObjectNode construction,Principal caller,Instant now,ReadContext context)throws Exception {
   var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(authorizedContract(construction,caller),observations(account,now,context),now));
-  var evaluated=(ObjectNode)n.path("evaluation");if(observedMarket!=null)observedMarket.apply(evaluated,repo,caller,now,context);PortfolioMath.reportedSpot(construction,evaluated);var terminal=(ObjectNode)evaluated.path("payoff");var reference=PortfolioMath.brokerBasisPayoff(authorizedContract(construction,caller),terminal);if(reference!=terminal)evaluated.set("payoff",reference);
-  return (ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");
+  var evaluated=(ObjectNode)n.path("evaluation");PortfolioMath.reportedSpot(construction,evaluated);var terminal=(ObjectNode)evaluated.path("payoff");var reference=PortfolioMath.brokerBasisPayoff(authorizedContract(construction,caller),terminal);if(reference!=terminal)evaluated.set("payoff",reference);
+  var authorized=(ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");if(observedMarket!=null)observedMarket.apply(authorized,repo,caller,now,context);return authorized;
  }
  public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
  public ObjectNode read(Document d,Principal p,Instant now,ReadContext context)throws Exception {

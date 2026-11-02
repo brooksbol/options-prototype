@@ -70,6 +70,7 @@ public final class PortfolioTacticalInventory {
    groups.computeIfAbsent(key,k->new ArrayList<>()).add(h);
   }
   for(var group:groups.values()){
+   if(underlying!=null&&group.stream().noneMatch(h->underlying.equals(h.at("/identity/underlyingSymbol").asText())||underlying.equals(h.at("/identity/symbol").asText())))continue;
    var unit=inventoryUnit(id,cut,group,leavesByHolding,reconciliation,caller,now,context);if(matches(unit,underlying)&&matchesExpiration(unit,expiration))units.add(unit);
   }
   out.put("status","READ").put("readComplete",true);out.set("source",source(cut,holdings,now));out.set("items",units);var warnings=reader.holdingsWarnings(scope,null);warnings.addAll(acquisitionWarnings);out.set("warnings",warnings);
