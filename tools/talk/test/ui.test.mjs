@@ -131,7 +131,7 @@ test('closed trades show outcomes and totals; matching, fees and analysis requir
 
 test('generic empty lists and orphan analysis headings disappear while real code, numbers and nested findings survive',()=>{
  for(const text of ['- \n- ','### Analysis\n\n- &nbsp;\n- &#x200B;','## Analysis\n\n1. **&nbsp;**\n2. &#x2060;','### Analysis\n\n-\n  - &#160;'])assert.equal(renderMarkdown(text).trim(),'');
- for(const text of ['- `-`','- `0`','- 0','- **−$10.00**','- Parent\n  - Actual finding','### Available report'])assert.notEqual(renderMarkdown(text).trim(),'');
+ for(const text of ['- `-`','- `0`','- 0','- **−$10.00**','- Parent\n  - Actual finding','### Available report\n\nReport ready.'])assert.notEqual(renderMarkdown(text).trim(),'');
 });
 
 

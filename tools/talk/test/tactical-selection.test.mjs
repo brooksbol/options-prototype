@@ -14,6 +14,15 @@ test('exact detail can narrow a prior result; empty narrow scope stays empty; fa
 });
 
 const inventory=(entries,underlying=null)=>({tacticalInventory:{underlying,accounts:entries.map(([account,items,cut='one'])=>({account:{href:account},status:'READ',readComplete:true,source:{snapshotId:cut},items}))}});
+test('expiration narrows display without merging different dates or restoring broader rows for an empty match',()=>{
+ const broad=inventory([[account,[item('a'),item('b')]]]);
+ const dated=inventory([[account,[item('a')]]]);dated.tacticalInventory.expiration='2026-11-20';
+ const otherDate=structuredClone(dated);otherDate.tacticalInventory.expiration='2026-12-18';
+ const empty=inventory([[account,[]]]);empty.tacticalInventory.expiration='2026-11-20';
+ assert.deepEqual([...visibleTacticalResults([broad,dated])],[1]);
+ assert.deepEqual([...visibleTacticalResults([dated,otherDate])],[0,1]);
+ assert.deepEqual([...visibleTacticalResults([broad,empty])],[1]);
+});
 test('universal all-Account inventory narrows by Account or exact canonical detail and returns without erasing other turns',()=>{
  const broad=inventory([[account,[item('a'),item('b')]],[other,[{...item('c'),account:{href:other}}]]]);const selected=inventory([[account,[item('a')]]],'QQQ');assert.deepEqual([...visibleTacticalResults([broad,selected])],[1]);assert.deepEqual([...visibleTacticalResults([selected,broad])],[1]);
  const detail=view([item('a')]);delete detail.tacticalPositions.evidence.selection;assert.deepEqual([...visibleTacticalResults([broad,detail])],[1]);assert.deepEqual([...visibleTacticalResults([detail,broad])],[1]);
