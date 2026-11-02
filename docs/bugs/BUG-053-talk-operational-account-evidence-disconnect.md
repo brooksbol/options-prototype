@@ -30,6 +30,29 @@ checks pass. [Recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.m
 This resolves this reboot occurrence; wider BUG053 remains Open, and author
 verification is not independent review or new Principal Product acceptance.
 
+### Five-request conversational continuation — November2
+
+The Principal supplied the complete acceptance conversation: `show me pts` →
+`show pts positiosn` → `show me ptf` → `tactical view` → `show me nov 20 options`.
+Replaying against the corrected backend separated two remaining defects from
+the reboot mismatch. The first three turns returned native PTS results. The
+representation follow-up incorrectly borrowed a nested source ID from a
+noncanonical PTF inventory context for exact Position detail, producing404.
+The expiration request instead selected portfolio-wide PUT inventory: the
+native capability lacked expiration, and the model instructions incorrectly
+forced implicit option requests to portfolio scope.
+
+The correction extends the same backend inventory view with an exact expiration
+intersection, preserving whole companion contexts and financial evaluation.
+MCP validates the echoed selectors and returned membership. SDK/tool contracts
+keep the active inventory Account, distinguish representation from evidence
+drill-down, and require a native result in the current display turn. No host
+question router, new domain identity or financial engine is introduced. Generic
+empty Markdown sections are suppressed; support remains deliberately expandable.
+The [same recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.md)
+records the failed intermediate replay and final real-conversation/browser
+verification. Principal acceptance and independent review remain separate.
+
 ## Intended semantics violated
 The real-data Product must use legitimate backend read permissions and qualified source observations. A current operator question must not silently use a disconnected October19 store when newer supplied evidence can be admitted through an existing backend path.
 

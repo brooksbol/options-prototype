@@ -129,6 +129,26 @@ statuses only. It requires no Operator configuration. Run it after service
 restart as well as installation: fixture tests and a healthy `/api/health` cannot
 detect an older installed backend JAR that rejects the inventory contract.
 
+The five-turn PTS/PTF/representation/expiration acceptance specimen is:
+
+```sh
+node tools/talk/test/installed-positions.mjs --conversation
+```
+
+It starts a fresh local conversation, checks every native result and retained
+Account/underlying context, and saves original responses in a private temporary
+directory reported on success. The November20 expectation is2026 for this dated
+regression specimen. Its actual responses can be checked in the browser without
+additional model calls:
+
+```sh
+node tools/talk/test/conversation-browser.mjs PRIVATE_EVIDENCE_DIRECTORY tools/api-docs/node_modules/playwright/index.mjs
+```
+
+This checks all five rendered answers on desktop/mobile for native cards,
+collapsed evidence, keyboard access, empty sections and overflow. It keeps the
+responses and screenshots local; printed summaries contain no financial values.
+
 Automatic trace export is disabled before SDK import and through SDK configuration;
 default trace processors are removed. Conversation state is local. Responses use
 `store:false`; provider conversations, previous-response chaining, remote compaction

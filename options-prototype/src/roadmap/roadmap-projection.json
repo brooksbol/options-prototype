@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-02T16:42:04.644Z",
+    "generatedAt": "2026-11-02T17:14:13.925Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11652,6 +11652,13 @@
           "heading": "November2 reboot regression and recovery",
           "level": 2,
           "content": "After the laptop reboot, launchd restored permanent Talk8787 against the older\nOctober29 operational backend JAR. The accepted tactical candidate had used a\ntemporary backend; its accepted source had reached main, but its backend binary\nhad not been permanently installed. Valid ALL_AUTHORIZED and ACCOUNT/pts tool\narguments reached `/v2/positions?view=inventory`; the old backend returned422\n`INVALID_REQUEST` with “Unknown or repeated query parameter.” Account discovery\ncontinued to succeed. This was an installed-contract mismatch, not bad user input\nor an invalid scope decision.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Five-request conversational continuation — November2",
+          "level": 3,
+          "content": "The Principal supplied the complete acceptance conversation: `show me pts` →\n`show pts positiosn` → `show me ptf` → `tactical view` → `show me nov 20 options`.\nReplaying against the corrected backend separated two remaining defects from\nthe reboot mismatch. The first three turns returned native PTS results. The\nrepresentation follow-up incorrectly borrowed a nested source ID from a\nnoncanonical PTF inventory context for exact Position detail, producing404.\nThe expiration request instead selected portfolio-wide PUT inventory: the\nnative capability lacked expiration, and the model instructions incorrectly\nforced implicit option requests to portfolio scope.",
           "truncated": true,
           "tables": []
         },

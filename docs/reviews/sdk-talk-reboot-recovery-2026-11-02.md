@@ -65,3 +65,90 @@ started current Java source rather than the permanently installed JAR. The new
 installed check must run after restart; health200 alone is insufficient evidence
 of the relevant contract. This is a verification command, not an automatic boot
 gate or a claim of enforced release control.
+
+## Five-request continuation — subject, display action and expiration
+
+The Principal made the full conversation the next correction specimen:
+`show me pts` → `show pts positiosn` → `show me ptf` → `tactical view` →
+`show me nov 20 options`. This continuation is within the same regression
+assignment; correcting one adapter in isolation is insufficient.
+
+Actual replay after the reboot repair established:
+
+- Account overview, typo and PTF selection now used native PTS tactical inventory.
+- PTF was a `TACTICAL_INVENTORY_GROUP`, with no canonical item.id/self. The model
+  borrowed an ID from nested source evidence for exact Position lookup;404 was
+  correct backend behavior but a failed conversational handoff.
+- The option-inventory tool exposed no expiration selector. Existing instructions
+  forced implicit option requests to portfolio scope, and the model substituted
+  PUT for expiration. This lost PTS and the requested date.
+
+Recovery reuses the existing universal native view, SDK session and renderer.
+The falsifiable gap is an unavailable expiration predicate on that view; neither
+raw portfolio option inventory nor model-side row filtering can preserve native
+contexts and backend selection authority. The bounded extension adds
+`expiration=YYYY-MM-DD` only to `GET /v2/positions?view=inventory`, intersecting
+Account/underlying selectors. It matches at least one non-conflicting PUT/CALL
+constituent with that date and retains the whole context and unchanged evaluation.
+Companion shares or other-expiration legs remain context, not falsely relabeled
+as selected options. The native heading says “Positions with options expiring”.
+Unknown/conflicting terms are not matches. Strict date/duplicate/query/grant
+validation and current source-cut conservation remain enforced. OAS is updated;
+this is not a public-reference publication claim.
+
+Tool descriptions/instructions distinguish canonical item references from nested
+source IDs and keep active inventory scope through follow-ups. A new
+expiration-wide request keeps PTS and releases the prior PTF restriction; it
+does not invent option right or side. Explicit portfolio-wide requests still use
+all authorized Accounts. No host phrase matching, new subject registry, model
+financial calculation, grant change or separate conversational runtime is added.
+
+An intermediate actual replay at0e4af656 avoided404 but answered the representation
+request with no tool, so no native card appeared in the new reply. It failed the
+five-turn specimen and remains preserved. The final generic display contract
+explicitly states that prior tool data in model memory is not a current UI render
+action; display requests must return a native result. This addresses the
+model-to-renderer handoff, rather than treating a no-error reply as success.
+
+Java backend source is0e4af656; final SDK/tool/UI runtime ise3c33e56. The permanent
+backend JAR SHA256 is624c0d4e7a0cfb87e2a11f497cb49f5b7a992decfe4f63f3ab82205bfc535e72.
+An additional private JAR/database rollback preserves the earlier reboot repair.
+Both permanent services were restarted. BDRY financial geometry compares exactly
+equal with the previously captured accepted result; no payoff arithmetic changed.
+
+Checks completed before real replay:235 focused portfolio Java tests PASS;
+89 Talk tests PASS;28 MCP tests PASS;8 OAS conformance groups/39 operations PASS.
+Final SDK/session/error tests10 PASS after the display-contract correction.
+The initial concurrent Java/Talk fixture runs raced over shared compiled test
+outputs; those infrastructure failures were preserved, compilation restored,
+and both suites rerun serially. A presentation test formerly preserving a
+standalone heading now requires a report body, matching the Principal's explicit
+empty-heading requirement. Nonempty code, numbers, nested findings and material
+qualifications retain coverage.
+
+Final actual SDK/MCP outcomes: two separate fresh five-turn conversations
+PASS, with no tool error or raw-inventory fallback. Every reply supplies native
+PTS tactical results. PTF's representation follow-up preserves exactly the same
+source-holding references. November20 selects2026-11-20 in PTS, without a prior
+underlying restriction or invented right/side. Successful narration alone is
+not sufficient for this test.
+
+The full five-response browser replay PASS at1360×960 and390×844 (ten rendered
+turn checks): native cards, no raw inventory/table fallback, no visible technical
+response dumps or repeated generic qualifications, no empty headings/lists,
+keyboard-operable evidence and no overflow/browser errors. Supporting narration
+and exact backend evidence remain available on deliberate expansion. This is
+automated real-result browser evidence, not a claimed physical screen-reader or
+Principal visual acceptance session. An initial harness observation checked lazy
+evidence before its DOM toggle event; the corrected test waits for the actual
+evidence node rather than weakening the keyboard/content assertions.
+
+No private responses, nested source identifiers or screenshots are published.
+The new `--conversation` mode and browser companion are reproducible engineer
+checks; no automatic boot gate or general guarantee of model behavior is claimed.
+Independent review remains pending in PR44. Principal acceptance remains reserved.
+
+The original four-request installed regression also passes after the continuation:
+the unqualified `positions` request clears prior Account, underlying and expiration
+restrictions and returns all three authorized Accounts; `pts positions` narrows to
+PTS. Roadmap projection regeneration/freshness and final diff checks PASS.

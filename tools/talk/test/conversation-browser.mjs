@@ -27,7 +27,7 @@ try{
    for(const node of await article.locator('h1:visible,h2:visible,h3:visible,h4:visible,h5:visible,h6:visible,li:visible').all())assert.ok((await node.innerText()).trim(),'No empty headings or bullets');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    await page.screenshot({path:join(folder,'browser',`${viewport}-${i}.png`)});
-   const disclosure=article.locator('.tactical-details').first();await disclosure.locator('summary').focus();await page.keyboard.press('Enter');assert.equal(await disclosure.getAttribute('open'),'');assert.ok(await disclosure.locator('pre').count());await page.keyboard.press('Enter');assert.equal(await disclosure.getAttribute('open'),null);
+   const disclosure=article.locator('.tactical-details').first();await disclosure.locator('summary').focus();await page.keyboard.press('Enter');assert.equal(await disclosure.getAttribute('open'),'');await disclosure.locator('pre').first().waitFor({state:'attached'});await page.keyboard.press('Enter');assert.equal(await disclosure.getAttribute('open'),null);
    checks.push({viewport,message,native:true,noRawDump:true,noForegroundBoilerplate:true,noEmptySections:true,keyboardEvidence:true,noOverflow:true});
   }
   assert.deepEqual(errors,[]);await page.close();
