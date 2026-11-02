@@ -96,5 +96,14 @@
     "test_validate.DocumentationFidelityTest.test_public_exclusion_identity_and_membership_remain_exact",
     "test_validate.DocumentationFidelityTest.test_actual_validator_rejects_disconnected_source_to_bundle_boundary",
     "test_validate.DocumentationFidelityTest.test_actual_publication_rejects_unaccepted_input"
+  ],
+  "reuseSuite": "com.wheelwright.evidence.v2.DirectQuoteServiceTest",
+  "reuseMethods": [
+    "activeAgeAtThresholdReused",
+    "activeAgePreciseDurationNoTruncation",
+    "weekendCompletedSessionReuse",
+    "postCloseQuoteNotCompletedSessionEvidence",
+    "absentSessionDateFailsClosed",
+    "sandboxEvidenceNotReusedUnderProduction"
   ]
 }
