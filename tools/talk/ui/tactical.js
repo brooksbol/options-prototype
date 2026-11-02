@@ -181,6 +181,7 @@ function compactTacticalPositions(doc,{account,evidence}){
 }
 export function renderTacticalInventory(doc,inventory){
  const report=node(doc,'section',null,'tactical-inventory');report.setAttribute('aria-label','Tactical positions');
+ if(inventory.expiration)report.append(node(doc,'h3',`Positions with options expiring ${shortDay(inventory.expiration)??inventory.expiration}, ${inventory.expiration.slice(0,4)}`));
  for(const account of inventory.accounts){const section=node(doc,'section',null,'tactical-account');section.setAttribute('aria-label',`${account.nickname} positions`);
   if(account.status!=='READ'){section.append(node(doc,'h3',account.nickname),node(doc,'p',account.status==='FORBIDDEN'?'Position inventory access denied.':account.status==='NO_RETAINED_CUSTODY'?'No retained custody observation.':'Complete selected inventory unavailable.','source-access'));report.append(section);continue;}
   if(!account.items.length)section.append(node(doc,'p',`${account.nickname.toUpperCase()} · No matching retained positions`));

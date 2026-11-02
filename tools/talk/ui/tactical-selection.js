@@ -29,9 +29,9 @@ export function visibleTacticalResults(views){
 }
 
 function inventoryScope(view){
- if(view.tacticalInventory){const v=view.tacticalInventory,accounts=v.accounts??[];return {underlying:v.underlying,complete:accounts.every(a=>a.readComplete&&a.status==='READ'),accounts:new Map(accounts.filter(a=>a.source?.snapshotId).map(a=>[a.account.href,a.source.snapshotId])),items:accounts.flatMap(a=>(a.items??[]).map(item=>({item,account:a.account.href,cut:a.source?.snapshotId})))};}
+ if(view.tacticalInventory){const v=view.tacticalInventory,accounts=v.accounts??[];return {expiration:v.expiration,underlying:v.underlying,complete:accounts.every(a=>a.readComplete&&a.status==='READ'),accounts:new Map(accounts.filter(a=>a.source?.snapshotId).map(a=>[a.account.href,a.source.snapshotId])),items:accounts.flatMap(a=>(a.items??[]).map(item=>({item,account:a.account.href,cut:a.source?.snapshotId})))};}
  const e=view.tacticalPositions?.evidence;if(!e||e.selection?.state)return null;
- const accounts=new Map();const items=(e.items??[]).map(item=>{const account=item.account?.href,cut=item.exposure?.sourceSnapshotId;accounts.set(account,cut);return{item,account,cut};});return {underlying:e.selection?.underlying,complete:e.next==null,accounts,items};
+ const accounts=new Map();const items=(e.items??[]).map(item=>{const account=item.account?.href,cut=item.exposure?.sourceSnapshotId;accounts.set(account,cut);return{item,account,cut};});return {expiration:null,underlying:e.selection?.underlying,complete:e.next==null,accounts,items};
 }
 function sameUnit(a,b){
  if(!a.cut||a.cut!==b.cut||a.account!==b.account)return false;
@@ -39,14 +39,14 @@ function sameUnit(a,b){
  const refs=item=>(item.sourceHoldings??[]).map(r=>r.href).sort().join('|');return !!refs(a.item)&&refs(a.item)===refs(b.item);
 }
 function replacesInventory(before,after){
- const a=inventoryScope(before),b=inventoryScope(after);if(!a||!b||a.underlying&&b.underlying&&a.underlying!==b.underlying)return false;
+ const a=inventoryScope(before),b=inventoryScope(after);if(!a||!b||a.underlying&&b.underlying&&a.underlying!==b.underlying||a?.expiration&&b?.expiration&&a.expiration!==b.expiration)return false;
  // A later explicit unavailable subset is the answer for that scope, never a reason
  // to restore an earlier broad inventory. This changes display, not source/cut identity.
  const requested=after.tacticalInventory?.accounts??[],prior=before.tacticalInventory?.accounts??[];
  if(requested.length&&requested.every(x=>x.status!=='READ'&&prior.some(y=>y.account?.href===x.account?.href)))return true;
  const sameAccounts=[...b.accounts].every(([account,cut])=>!!cut&&a.accounts.get(account)===cut);
- if(!b.items.length)return !!b.underlying&&b.complete&&sameAccounts&&b.accounts.size>0;
+ if(!b.items.length)return !!(b.underlying||b.expiration)&&b.complete&&sameAccounts&&b.accounts.size>0;
  if(!a.items.length)return false;const subset=(xs,ys)=>xs.every(x=>ys.some(y=>sameUnit(x,y)));
  if(sameAccounts&&subset(b.items,a.items))return true;
- return b.complete&&!b.underlying&&subset(a.items,b.items);
+ return b.complete&&!b.underlying&&!b.expiration&&subset(a.items,b.items);
 }

@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {renderMarkdown} from '../ui/markdown.js';
 
+test('orphan headings and empty lists disappear without requiring an empty table',()=>{
+ assert.equal(renderMarkdown('### Analysis\n\n### Notes\n\n-\n- ** **').trim(),'');
+ assert.equal(renderMarkdown('### Analysis').trim(),'');
+ assert.match(renderMarkdown('### Account\n\nUseful result.\n\n### Empty'),/Useful result/);
+ assert.doesNotMatch(renderMarkdown('### Account\n\nUseful result.\n\n### Empty'),/>Empty</);
+});
+
 test('conversation headings, tables, lists, code and emphasis become semantic HTML',()=>{
  const html=renderMarkdown('### `fixture` — Fidelity\n\nSource date: **October 19, 2026**.\n\n| Instrument | Side | Quantity |\n|---|---|---|\n| FIXTURE | Long | 100 shares |\n\n### Other Accounts\n- `restricted`: **Holdings access denied (403)**.\n\n1. First\n2. Second\n\n```text\nexample\n```');
  for(const tag of ['h3','code','strong','table','thead','tbody','ul','ol','pre'])assert.match(html,new RegExp('<'+tag+'[ >]'));

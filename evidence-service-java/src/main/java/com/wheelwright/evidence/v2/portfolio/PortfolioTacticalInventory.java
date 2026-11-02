@@ -17,21 +17,26 @@ public final class PortfolioTacticalInventory {
  private final PortfolioRepository repo;private final PortfolioReadService reader;private final AccountDirectory accounts;
  public PortfolioTacticalInventory(PortfolioRepository repo,PortfolioReadService reader,AccountDirectory accounts){this.repo=repo;this.reader=reader;this.accounts=accounts;}
  public ObjectNode read(String accountId,String underlying,String requestId,BearerAuthenticator.Principal caller,Instant now)throws Exception{
+  return read(accountId,underlying,null,requestId,caller,now);
+ }
+ public ObjectNode read(String accountId,String underlying,String expiration,String requestId,BearerAuthenticator.Principal caller,Instant now)throws Exception{
   var selected=accounts.list().stream().filter(a->caller.hasGrant("account.read:"+a.id())).filter(a->accountId==null||accountId.equals(a.id())).toList();
   if(selected.size()>100)throw new IllegalStateException("Account inventory capacity");
   var result=obj().put("representation","TACTICAL_POSITION_INVENTORY").put("requestId",requestId).put("evaluatedAt",now.toString()).put("currentCustody","NOT_ESTABLISHED");if(underlying==null)result.putNull("underlying");else result.put("underlying",underlying);
+  if(expiration==null)result.putNull("expiration");else result.put("expiration",expiration);
   long referenceDeadline=System.nanoTime()+Duration.ofSeconds(25).toNanos();var outputs=array();for(var account:selected){var out=obj().put("nickname",account.alias()).put("broker",account.brokerAssociation().broker()).put("status","FORBIDDEN").put("readComplete",false);out.set("account",link("/v2/accounts/"+account.id()));out.set("items",array());out.set("warnings",array());
    if(caller.hasGrant("account.holdings.read:"+account.id())&&caller.hasGrant("account.positions.read:"+account.id())){
     reader.synchronize(Set.of(account.id()));var cut=new PortfolioSnapshots(repo).current(account.id());
     if(cut.isEmpty())out.put("status","NO_RETAINED_CUSTODY").put("readComplete",true);
-    else {var referenceWarnings=reader.synchronizePublicReferences(account.id(),underlying,caller,referenceDeadline);reader.synchronize(Set.of(account.id()));populate(out,account,cut.get(),underlying,caller,now);((ArrayNode)out.path("warnings")).addAll(referenceWarnings);}
+    else {var referenceWarnings=reader.synchronizePublicReferences(account.id(),underlying,caller,referenceDeadline);reader.synchronize(Set.of(account.id()));populate(out,account,cut.get(),underlying,expiration,caller,now);((ArrayNode)out.path("warnings")).addAll(referenceWarnings);}
    }outputs.add(out);
   }
   result.set("accounts",outputs);result.put("selectionComplete",java.util.stream.StreamSupport.stream(outputs.spliterator(),false).allMatch(a->a.path("readComplete").asBoolean()));
   result.put("qualification","Latest retained custody by Account, not live holdings. Compatible inventory groups are display contexts, not opening packages, governed quantities, cash security or lifecycle continuity. Market clocks never renew custody."+(underlying==null?"":" Underlying selection includes resolved source subjects only; unknown identities cannot establish absence."));
+  if(expiration!=null)result.put("qualification",result.path("qualification").asText()+" Expiration selects contexts containing at least one resolved, non-conflicting option with that expiration. Full companion constituents and financial evaluations are preserved; unresolved expiration is not a match.");
   if(JSON.writeValueAsBytes(result).length>150000)throw new IllegalStateException("Complete tactical inventory exceeds150000 bytes; narrow Account scope");return result;
  }
- private void populate(ObjectNode out,AccountDirectory.Account account,PositionSnapshot cut,String underlying,BearerAuthenticator.Principal caller,Instant now)throws Exception{
+ private void populate(ObjectNode out,AccountDirectory.Account account,PositionSnapshot cut,String underlying,String expiration,BearerAuthenticator.Principal caller,Instant now)throws Exception{
   String id=account.id();var scope=Set.of(id);var holdings=reader.page(Kind.HOLDING,scope,Map.of("snapshotId",cut.snapshotId()),"",false,200);
   if(holdings.size()>200){out.put("status","CAPACITY_UNAVAILABLE");return;}
   // Existing read-through is invoked only under its unchanged source grants/policy.
@@ -57,7 +62,7 @@ public final class PortfolioTacticalInventory {
   for(var entry:candidates.entrySet())if(entry.getValue().stream().allMatch(h->demand.get(h)==1)){
    var p=reader.tactical(entry.getKey(),caller,now,context);if(!entry.getValue().stream().allMatch(h->Objects.equals(documents.get(h).snapshot(),cut.snapshotId())))continue;
    p.set("sourceHoldings",refs(entry.getValue()));p.set("custody",obj().put("snapshotId",cut.snapshotId()));p.put("variant","OPTION_STRUCTURE");p.put("inventoryBasis","SOURCE_ASSOCIATED_POSITION");var marketClock=PortfolioMarketClock.qualify(p.path("evaluation"));if(!marketClock.isEmpty())p.set("marketClock",marketClock);
-   if(matches(p,underlying))units.add(p);used.addAll(entry.getValue());
+   if(matches(p,underlying)&&matchesExpiration(p,expiration))units.add(p);used.addAll(entry.getValue());
   }
   var groups=new TreeMap<String,List<ObjectNode>>();
   for(var row:rows.entrySet())if(!used.contains(row.getKey())){
@@ -65,7 +70,7 @@ public final class PortfolioTacticalInventory {
    groups.computeIfAbsent(key,k->new ArrayList<>()).add(h);
   }
   for(var group:groups.values()){
-   var unit=inventoryUnit(id,cut,group,leavesByHolding,reconciliation,caller,now,context);if(matches(unit,underlying))units.add(unit);
+   var unit=inventoryUnit(id,cut,group,leavesByHolding,reconciliation,caller,now,context);if(matches(unit,underlying)&&matchesExpiration(unit,expiration))units.add(unit);
   }
   out.put("status","READ").put("readComplete",true);out.set("source",source(cut,holdings,now));out.set("items",units);var warnings=reader.holdingsWarnings(scope,null);warnings.addAll(acquisitionWarnings);out.set("warnings",warnings);
   if(!new PortfolioSnapshots(repo).current(id).orElseThrow().snapshotId().equals(cut.snapshotId())){out.put("status","SOURCE_CHANGED").put("readComplete",false);out.set("items",array());return;}
@@ -122,5 +127,6 @@ public final class PortfolioTacticalInventory {
  private static boolean uniqueWholeAllocation(JsonNode balance,JsonNode holding,String construction){if(balance==null||!balance.path("status").asText().equals("RECONCILED")||number(balance.path("allocated"))==null||number(holding.path("quantity"))==null||number(balance.path("allocated")).compareTo(number(holding.path("quantity")))!=0||number(balance.path("residual"))==null||number(balance.path("residual")).signum()!=0)return false;return balance.path("currentConstructions").size()==1&&balance.at("/currentConstructions/0/href").asText().equals(construction);}
  private static ArrayNode refs(List<String> values){var result=array();values.forEach(v->result.add(link(v)));return result;}
  private static boolean matches(JsonNode item,String symbol){if(symbol==null)return true;for(var s:item.path("underlyings"))if(s.path("symbol").asText().equals(symbol))return true;for(var s:item.path("constituents"))if(s.path("symbol").asText().equals(symbol)||s.at("/identity/symbol").asText().equals(symbol))return true;return false;}
+ private static boolean matchesExpiration(JsonNode item,String expiration){if(expiration==null)return true;for(var part:item.path("constituents")){var terms=part.path("terms");if(expiration.equals(terms.path("expiration").asText())&&Set.of("PUT","CALL").contains(terms.path("right").asText())&&!terms.path("qualification").asText().equals("CONFLICT"))return true;}return false;}
  private static ObjectNode source(PositionSnapshot cut,List<Document> holdings,Instant now){var n=obj().put("snapshotId",cut.snapshotId()).put("receivedAt",cut.recordedAt()).put("currentness","NOT_ESTABLISHED").put("dateBasis",cut.observation()==null?"SOURCE_EXPORT_DAY":"BACKEND_RECEIPT_DAY");if(cut.observation()==null){n.put("observationDate",cut.evidenceDate());long age=ChronoUnit.DAYS.between(LocalDate.parse(cut.evidenceDate()),now.atZone(ZoneId.of("America/New_York")).toLocalDate());if(age<0)n.putNull("ageDays").put("sourceClockWarning","FUTURE_SOURCE_DAY");else n.put("ageDays",age);n.put("ageReferenceZone","America/New_York");}else n.putNull("observationDate").putNull("ageDays");n.put("coverage",cut.excludedNonPositionRows()>0||cut.cashObservation()!=null&&!cut.cashObservation().status().equals("OBSERVED")||holdings.stream().anyMatch(h->!h.value().path("snapshotCoverage").asText().equals("COMPLETE_REPORTED"))?"PARTIAL":"COMPLETE_REPORTED");return n;}
 }
