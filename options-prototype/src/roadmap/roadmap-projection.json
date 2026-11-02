@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-01T18:21:11.519Z",
+    "generatedAt": "2026-11-02T19:52:40.035Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11628,6 +11628,13 @@
           "content": "Principal: “ACCEPTED; execute end of session protocol”, after observing the deletion-first8787 candidate. This supersedes prior pending-acceptance wording only for the bounded tactical card correction. [Acceptance receipt](../reviews/sdk-talk-tactical-deletion-2026-10-31.md#principal-acceptance-and-end-of-session-closeout--november-1-2026) records accepted runtimefdf3ca93, source-preserving deletion, independent rendered checks and closeout. Visible financial legends/generic footer are removed; supporting metadata uses the existing disclosure; dated spot and value-local estimates retain material meaning. Wider **BUG052 remains Open** for its broader installed/retrieval/freshness obligations. No production installation, full defect closure or lifecycle-accounting acceptance is inferred.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "November 2 architectural recovery continuation",
+          "level": 2,
+          "content": "Principal commissions bounded native-answer repair under the architectural recovery workstream. Balance/execution results were missing from existing native-result commentary collapsing; source exponent numbers bypassed ordinary currency formatting. Candidate reuses trusted native result disclosure and exact decimal presentation, retains source/evidence and distinct commentary on demand, and exercises actual SDK results in desktop/mobile browsers. Existing capability matrix owns recovery priority. Verification/reviewer/Principal acceptance remain distinct; defect stays Open pending its full scoped disposition.",
+          "truncated": true,
+          "tables": []
         }
       ]
     },
@@ -11646,6 +11653,20 @@
           "level": 2,
           "content": "Talk reported old Sawdust custody despite newer Downloads exports. PTS/tt1 holdings and tt1 balances were denied because corresponding backend read grants were absent. After authorized holdings access, a successful inventory tool result still failed conversational narration.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "November2 reboot regression and recovery",
+          "level": 2,
+          "content": "After the laptop reboot, launchd restored permanent Talk8787 against the older\nOctober29 operational backend JAR. The accepted tactical candidate had used a\ntemporary backend; its accepted source had reached main, but its backend binary\nhad not been permanently installed. Valid ALL_AUTHORIZED and ACCOUNT/pts tool\narguments reached `/v2/positions?view=inventory`; the old backend returned422\n`INVALID_REQUEST` with “Unknown or repeated query parameter.” Account discovery\ncontinued to succeed. This was an installed-contract mismatch, not bad user input\nor an invalid scope decision.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Five-request conversational continuation — November2",
+          "level": 3,
+          "content": "The Principal supplied the complete acceptance conversation: `show me pts` →\n`show pts positiosn` → `show me ptf` → `tactical view` → `show me nov 20 options`.\nReplaying against the corrected backend separated two remaining defects from\nthe reboot mismatch. The first three turns returned native PTS results. The\nrepresentation follow-up incorrectly borrowed a nested source ID from a\nnoncanonical PTF inventory context for exact Position detail, producing404.\nThe expiration request instead selected portfolio-wide PUT inventory: the\nnative capability lacked expiration, and the model instructions incorrectly\nforced implicit option requests to portfolio scope.",
+          "truncated": true,
           "tables": []
         },
         {
@@ -11793,6 +11814,20 @@
           "level": 2,
           "content": "**October 29 Principal acceptance / session closeout:** Principal: “accepted. execute end of session protocol”, referring to corrected8821runtime `4f67412c`. Exact Account-plus-underlying scope and retained Fidelity terminal geometry are accepted candidate Product behavior; earlier geometry-only acceptance remains distinct. Independent source reviews and actual SDK/browser scope replay preserved. [Acceptance/closeout](../reviews/sdk-talk-account-underlying-selection-2026-10-29.md#principal-acceptance-and-end-of-session-closeout). Ordinary accepted-main synchronization is authorized by invoked closeout; production deployment not authorized/performed. Existing BUG052/053 remain Open for their wider installed/evidence/freshness obligations. Full opening continuity/economic parity remain unresolved; no new grants/policies/trading authority.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Observed-state candidate and read-only architecture handoff — November2",
+          "level": 3,
+          "content": "The PTF payoff-only specimen prompted a bounded retained-underlying spot fallback\nand separate dated broker open P/L rendering. Author checks and exact source/runtime\nidentity are in the existing recovery receipt. Principal subsequently challenged\nwhy other Fidelity cards still prefer October27 spot and commissioned a read-only\narchitecture investigation. The candidate remains unmerged; source precedence,\nAccount coupling and minimum necessary quote reuse require investigation, not\nanother inferred implementation grant. Wider BUG053 remains Open.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "November 2 architectural recovery — active bounded remediation",
+          "level": 2,
+          "content": "Principal authorizes architectural recovery and complete-capability fitness. Confirmed additional specimens: Fidelity historical spot remains selected without composition of global quote acquisition, and operational tastytrade buying-power reads select retained evidence without balance acquisition. Existing capability matrix owns the single ranked recovery inventory. Candidate composes existing global quote owner with qualified underlying binding and extracts the existing balance-only source path without refreshing securities. Full source/API/MCP/SDK/native fitness, unchanged-oracle production disconnection rejection and independent exact-source review are required. Status remains Open; author component passes or narrow review do not close the Product outcome. Existing runtime/credentials/grants/v1/tt live and PR44 remain protected during candidate work.",
+          "truncated": true,
           "tables": []
         }
       ]

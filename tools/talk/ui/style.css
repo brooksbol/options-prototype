@@ -351,6 +351,9 @@ footer {
 .tactical-strike { fill: #365342; }
 .tactical-axis { font: 8px system-ui; fill: currentColor; }
 .tactical-spot-line { stroke: #1696a7; stroke-width: 1; stroke-dasharray: 3 3; }
+.tactical-financial-chart .tactical-spot-line { stroke-width: 1.5; }
+.tactical-reported-pl { margin: .35rem 0; font-size: .85rem; }
+.tactical-financial-chart .tactical-observed-spot { fill: #1696a7; stroke-width: 1.5; }
 .tactical-spot,.tactical-now { fill: #1696a7; }
 .tactical-spot.plateau { fill: #16834e; }.tactical-spot.transition { fill: #ba8311; }.tactical-spot.loss { fill: #b53232; }
 .tactical-track { stroke: #c4cec2; stroke-width: 3; }.tactical-elapsed { stroke: #365342; stroke-width: 3; }

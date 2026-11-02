@@ -131,8 +131,7 @@ export function evidenceView(raw) {
       if (!field || field.status !== 'REPORTED') return 'Unavailable';
       if (field.reportedDisplay?.includes('$')) return field.reportedDisplay;
       const exact = text(field.value);
-      const [whole,fraction] = exact.split('.');
-      return observation.currency === 'USD' ? '$' + whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (fraction === undefined ? '' : '.' + fraction) : exact;
+      return observation.currency === 'USD' ? usdDisplay(exact) : exact;
     };
     const requested = observation?.broker === 'TASTYTRADE' ? [
       ['Options buying power','derivative-buying-power'], ['Equity buying power','equity-buying-power'],
@@ -152,12 +151,12 @@ export function evidenceView(raw) {
     balanceSummary = {
       title: `${value.account?.nickname ?? 'Account'} · Margin & buying power`,
       subtitle: `${observation?.broker ?? value.account?.broker ?? ''} · Retained balance from ${date}`,
-      badge: historical ? 'Historical' : 'Retained · currentness unverified',
+      badge: historical ? 'Historical' : evidence.acquisition?.status === 'ACQUIRED' ? 'Broker observation' : 'Retained observation',
       facts: observation ? requested.slice(0,6).map(([label,key]) => ({label,value:money(byName(key)),status:byName(key)?.status ?? 'MISSING'})) : [],
       note: observation ? `Retained observation; current trading capacity is not established. ${selection.mode === 'latest-source' ? 'Latest known source time' : 'Selected source time'}: ${date}. ${selection.mode !== 'latest-source' ? 'Exact artifact read; later Account sources were not compared.' : text(selection.unknownSourceTimeCount) !== '0' && selection.unknownSourceTimeCount != null ? 'Some retained source times are unknown; chronology is incomplete.' : 'No later source-dated balance is retained.'}` :
         `No single qualified balance selected (${selection.status ?? 'unscoped history'}). No financial amount established.${selection.latestKnownSourceTime ? ' Latest known source time: ' + selection.latestKnownSourceTime + '.' : ''}`,
       details: [
-        ['Selection',selection.status], ['Selected source time',selection.selectedSourceTime],
+        ['Acquisition',evidence.acquisition?.status], ['Acquisition receipt',evidence.acquisition?.receivedAt], ['Selection',selection.status], ['Selected source time',selection.selectedSourceTime],
         ['Latest known source time',selection.latestKnownSourceTime], ['Requested source at or after',selection.sourceAtOrAfter],
         ['Unknown source clocks',selection.unknownSourceTimeCount], ['Read at',selection.readAt],
         ['Observed',source?.observedAt], ['Exported',source?.exportedAt], ['Received',source?.receivedAt],

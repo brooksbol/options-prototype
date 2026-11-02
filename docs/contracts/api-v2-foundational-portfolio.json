@@ -167,7 +167,17 @@
             "schema": {
               "const": "inventory"
             },
-            "description": "Explicit latest-retained tactical inventory across metadata-authorized Accounts. Optional accountId and underlying only; other collection selectors are rejected. Requires independent positions+holdings read grants per Account; denied Accounts remain named. Does not drop stale custody or manufacture trade associations. Existing bounded Order/market policy applies only under their unchanged separate grants. Underlying selects resolved source subjects, so unmatched unknown identity is not brokerage absence."
+            "description": "Explicit latest-retained tactical inventory across metadata-authorized Accounts. Optional accountId, underlying and expiration only; other collection selectors are rejected. Requires independent positions+holdings read grants per Account; denied Accounts remain named. Does not drop stale custody or manufacture trade associations. Existing bounded Order/market policy applies only under their unchanged separate grants. Underlying selects resolved source subjects, so unmatched unknown identity is not brokerage absence."
+          },
+          {
+            "name": "expiration",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Only with view=inventory: exact option expiration date. Intersects Account and underlying scope. Selects whole tactical contexts containing at least one resolved non-conflicting PUT/CALL constituent with this expiration; preserves companion constituents, package membership and financial evaluation. Unknown/conflicting expiration is not a match. Never substitutes option right or side for expiration."
           }
         ],
         "responses": {
@@ -25493,6 +25503,11 @@
             "type": "string",
             "format": "date",
             "description": "Source day precision, separate from asOf instant and backend receipt; does not assert a current quote."
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source-receipt time only, distinct from asOf/source event time. Optional retained-appliance spot observations preserve their legacy receipt clock without inventing an event time."
           }
         },
         "required": [
@@ -37782,6 +37797,11 @@
               ]
             },
             "minItems": 0
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source-receipt time only, distinct from asOf/source event time. Optional retained-appliance spot observations preserve their legacy receipt clock without inventing an event time."
           }
         },
         "required": [
@@ -38190,6 +38210,11 @@
             "type": "string",
             "format": "date",
             "description": "Source day precision, separate from asOf instant and backend receipt; does not assert a current quote."
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Source-receipt time only, distinct from asOf/source event time. Optional retained-appliance spot observations preserve their legacy receipt clock without inventing an event time."
           }
         },
         "required": [
@@ -39495,6 +39520,10 @@
           },
           "reportedCostBasis": {
             "$ref": "#/components/schemas/TacticalMetric"
+          },
+          "reportedOpenPl": {
+            "$ref": "#/components/schemas/TacticalMetric",
+            "description": "Exact source-reported whole holding G/L with its own observation day. Not a normalized lifecycle result and never inferred from the expiration-payoff spot point."
           }
         },
         "required": [
@@ -40069,6 +40098,27 @@
           },
           "qualification": {
             "type": "string"
+          },
+          "expiration": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Requested option expiration, or null. Whole matching contexts retain companion constituents."
+          },
+          "marketAcquisition": {
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "PARTIAL",
+              "UNAVAILABLE"
+            ],
+            "description": "Completion of bounded global quote operation; per-subject fulfillment is distinct. Does not renew custody."
           }
         },
         "required": [

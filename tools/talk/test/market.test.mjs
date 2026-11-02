@@ -70,7 +70,7 @@ test('real Java v2 read/auth/error contracts through discovered MCP; no provider
   assert.match(positions.content[0].text, /125/);
   assert.equal(JSON.parse(positions.content[0].text).evidence.id,selected.id);
   const monitorSchema=tools.find(t=>t.name==='inspect_account_positions').inputSchema;
-  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','accountScope','underlying']);
+  assert.deepEqual(Object.keys(monitorSchema.properties).sort(),['account','accountScope','expiration','underlying']);
   assert.equal(monitorSchema.additionalProperties,false);
   assert.ok(monitorSchema.required.includes('accountScope'));
   const beforeMissingScope=(await backend.reads()).length;

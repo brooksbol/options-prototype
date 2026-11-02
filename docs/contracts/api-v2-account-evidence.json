@@ -1766,7 +1766,13 @@
                   "type": "string",
                   "maxLength": 100000
                 },
-                "example": "Account,Trade,Net P/L\r\nSYNTHETIC,TOTAL,\r\n"
+                "example": "Account,Trade,Net P/L\r\nSYNTHETIC,TOTAL,\r\n",
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented governed CSV representation only",
+                    "value": "\"Account\",\"Period from\",\"Period through\",\"Time zone\",\"Metric\",\"Trade\",\"Closed at\",\"Net P/L\",\"Currency\",\"Accounting amount\",\"Result status\",\"Outcome\",\"Winners\",\"Losers\",\"Coverage status\",\"Qualification\",\"Coverage details\",\"Trade qualification\",\"Provider\",\"Environment\"\r\n\"synthetic\",\"2026-10-01\",\"2026-10-15\",\"America/New_York\",\"MATCHED_REPORTED_CLOSED_TRADES\",\"TOTAL\",\"\",\"\",\"USD\",\"\",\"UNAVAILABLE\",\"\",\"0\",\"0\",\"UNKNOWN\",\"Invented incomplete example\",\"{}\",\"\",\"tastytrade\",\"SANDBOX\"\r\n"
+                  }
+                }
               }
             }
           },
@@ -2163,7 +2169,13 @@
                   "type": "string",
                   "maxLength": 100000
                 },
-                "example": "Account,Trade,Net P/L\r\nSYNTHETIC,TOTAL,\r\n"
+                "example": "Account,Trade,Net P/L\r\nSYNTHETIC,TOTAL,\r\n",
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented governed CSV representation only",
+                    "value": "\"Account\",\"Broker\",\"Currency\",\"Unit\",\"Broker field\",\"Meaning\",\"Status\",\"Reported amount\",\"Reported display\",\"Source observed at\",\"Source date\",\"Source exported at\",\"Source received at\",\"Currentness\",\"History coverage\"\r\n\"synthetic\",\"TASTYTRADE\",\"USD\",\"MONETARY\",\"cash-balance\",\"BROKER_REPORTED_CASH\",\"REPORTED\",\"100.00\",\"100.00\",\"2026-10-15T20:00:00Z\",\"\",\"\",\"2026-10-15T20:01:00Z\",\"NOT_ESTABLISHED\",\"UNKNOWN\"\r\n"
+                  }
+                }
               }
             }
           },
@@ -2355,6 +2367,43 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OptionInventory"
+                },
+                "examples": {
+                  "synthetic": {
+                    "summary": "Invented unavailable-custody selection, not empty live holdings",
+                    "value": {
+                      "requestId": "11111111-1111-4111-8111-111111111111",
+                      "selection": "EXPLICIT_ACCOUNT",
+                      "right": "PUT",
+                      "side": "SHORT",
+                      "accounts": [
+                        {
+                          "accountId": "acct_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "nickname": "synthetic",
+                          "broker": "FIDELITY",
+                          "status": "NO_RETAINED_CUSTODY",
+                          "readComplete": false,
+                          "snapshotCoverage": "UNKNOWN",
+                          "options": [],
+                          "unclassifiedOptions": []
+                        }
+                      ],
+                      "counts": {
+                        "shortPutContracts": 0,
+                        "longPutContracts": 0,
+                        "shortCallContracts": 0,
+                        "longCallContracts": 0,
+                        "unclassifiedOptionHoldings": 0,
+                        "selectedInventoryComplete": false,
+                        "cashSecuredPutContracts": null,
+                        "cashSecuredPutStatus": "NOT_ESTABLISHED_BY_INVENTORY_READ"
+                      },
+                      "currentness": "NOT_ESTABLISHED",
+                      "qualifications": [
+                        "Invented Account without retained custody; no complete or current holdings claim."
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -2387,7 +2436,11 @@
             "label": "Synthetic cURL",
             "source": "curl --request GET 'https://api.example.invalid/v2/option-inventory?right=PUT&side=SHORT'"
           }
-        ]
+        ],
+        "externalDocs": {
+          "description": "Retained option-inventory scope and source qualifications",
+          "url": "https://github.com/brooksbol/options-prototype/blob/main/docs/reviews/sdk-talk-real-read-profile-2026-10-27.md"
+        }
       }
     }
   },
@@ -4580,6 +4633,34 @@
           },
           "csv": {
             "$ref": "#/components/schemas/ReportCsvReference"
+          },
+          "acquisition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receivedAt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ACQUIRED",
+                  "REUSED",
+                  "FAILED",
+                  "UNAVAILABLE",
+                  "NOT_AUTHORIZED"
+                ]
+              },
+              "receivedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              }
+            },
+            "description": "Optional request-triggered balance-only acquisition or reuse outcome. Does not renew securities or establish source-event currentness."
           }
         },
         "allOf": [

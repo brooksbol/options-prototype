@@ -20,6 +20,14 @@ class PortfolioUniversalInventoryTest {
     assertThat(group.path("variant").asText()).isEqualTo("SHARES_AND_CALLS");assertThat(group.path("constituents")).hasSize(2);assertThat(group.at("/structure/status").asText()).isEqualTo("COMPATIBLE_INVENTORY");assertThat(group.path("strikeConfiguration")).hasSize(1);assertThat(group.at("/strikeConfiguration/0/strike").asText()).isEqualTo("10");assertThat(group.at("/evaluation/payoff/geometry").isMissingNode()).isTrue();assertThat(group.has("self")).isFalse();assertThat(group.toString()).doesNotContain("COVERED_CALL","CSP","openingCashFlow");
    }
    var filtered=service.read(a,"ABC","test",caller,Instant.parse("2026-10-29T16:00:00Z"));assertThat(filtered.path("accounts")).hasSize(1);assertThat(filtered.at("/accounts/0/items")).hasSize(1);
+   var dated=service.read(a,null,"2026-11-20","test",caller,Instant.parse("2026-10-29T16:00:00Z"));
+   assertThat(dated.path("expiration").asText()).isEqualTo("2026-11-20");
+   assertThat(dated.at("/accounts/0/items")).isEqualTo(filtered.at("/accounts/0/items"));
+   assertThat(dated.at("/accounts/0/items/0/constituents")).hasSize(2); // Shares remain companion context, never a severed option/payoff.
+   assertThat(dated.at("/accounts/0/sourceHoldingCount").asInt()).isEqualTo(4);
+   assertThat(dated.at("/accounts/0/representedHoldingCount").asInt()).isEqualTo(2);
+   assertThat(service.read(a,"ABC","2026-12-18","test",caller,Instant.parse("2026-10-29T16:00:00Z")).at("/accounts/0/items")).isEmpty();
+   assertThat(service.read(a,"OTHER","2026-11-20","test",caller,Instant.parse("2026-10-29T16:00:00Z")).at("/accounts/0/items")).isEmpty();
   }
  }
  @Test void sameCutNativePackageRetainsExactlyTheExistingTacticalFinancialMeaning()throws Exception{

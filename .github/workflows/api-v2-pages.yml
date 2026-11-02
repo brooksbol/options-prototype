@@ -66,6 +66,7 @@ jobs:
           else
             python tools/api-docs/build.py
           fi
+          python -m unittest discover -s tools/api-docs -p test_validate.py
           python tools/api-docs/validate.py
           node tools/api-docs/human-specimen.mjs
       - name: Stage exact public allowlist and record identity

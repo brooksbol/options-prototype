@@ -47,7 +47,7 @@ try{
    await safety();visited.push(op.operationId);
   }
  }
- assert.equal(visited.length,32);assert.deepEqual([...visited].sort(),[...agent.publicOperationIds].sort());
+ assert.equal(visited.length,agent.publicOperationCount);assert.deepEqual([...visited].sort(),[...agent.publicOperationIds].sort());
  await page.getByRole('link',{name:'Artifacts',exact:true}).first().click();
  await page.getByRole('heading',{name:/List retained Artifacts$/}).first().waitFor();
  await page.getByText('422',{exact:true}).last().click();
@@ -70,5 +70,5 @@ try{
   syntheticCurl:'PASS on every operation; derived from source x-codeSamples',schemasAndExamples:'Validated separately against exact OAS',
   liveApiControls:'ABSENT',publicAuthInstructions:'ABSENT',downloadOffer:'ABSENT',networkRequests:requests,unexpectedRequests:violations,pageErrors:errors,backendRequired:false};
  await writeFile(resolve(evidence,live?'live-specimen.json':'human-specimen.json'),JSON.stringify(report,null,2)+'\n');
- console.log('PASS: all32 public operations navigated; native cURL/search/mobile; no forms, API controls, private instructions or unexpected requests');
+ console.log(`PASS: all${visited.length} candidate public operations navigated; native cURL/search/mobile; no forms, API controls, private instructions or unexpected requests`);
 }finally{await browser.close();}
