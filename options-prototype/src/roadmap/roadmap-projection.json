@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-03T16:56:12.603Z",
+    "generatedAt": "2026-11-03T16:58:59.212Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11840,9 +11840,9 @@
       "title": "TT1 export hangs and exceeds package capacity",
       "area": "CLI / TT1 cadence export",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-057-tt1-export-hangs-and-exceeds-package-capacity.md",
-      "provenance": "Principal report and instrumented reproduction 2026-11-03; tested repair, Principal-directed push without independent review",
+      "provenance": "Principal report and instrumented reproduction 2026-11-03; installed source 6c573491; home-directory CLI and ZIP integrity verified",
       "recordTitle": "BUG-057 — TT1 export hangs and exceeds package capacity",
       "sections": [
         {
@@ -11907,6 +11907,13 @@
           "content": "`docs/cli/tt1-market-freshness-2026-10-30.md`; `docs/cli/ww-export-tt1-cadence.md`. BUG-056 already exists on accepted main and is unrelated; this isolated exporter branch predates its filing.",
           "truncated": false,
           "tables": []
+        },
+        {
+          "heading": "Installed verification — November 3, 2026",
+          "level": 2,
+          "content": "The subsequent Principal instruction to resolve Greek acquisition was completed in runtime `6c573491`, including this lifetime/capacity repair. Ordinary PATH `ww export tt1-cadence` from home exited 0 and produced the verified six-member `tt1-cadence-2026-11-03-20261103165739465.zip`. Its manifest identifies the installed source exactly. Publication succeeded with the larger current universe and retained all observations; previous release/configuration/tt launcher were preserved. See [BUG-058 installed verification](BUG-058-tt1-greek-subscription-message-limit.md#installed-verification--november-3-2026) for source packaging, complete Greek coverage, output checks and remaining evidence limits. This supersedes the earlier uninstalled-candidate state above; no independent-review claim is made.",
+          "truncated": false,
+          "tables": []
         }
       ]
     },
@@ -11915,9 +11922,9 @@
       "title": "TT1 Greek subscription exceeds DXLink message limit",
       "area": "CLI / TT1 Greek acquisition",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-058-tt1-greek-subscription-message-limit.md",
-      "provenance": "Principal repair direction and live protocol reproduction 2026-11-03",
+      "provenance": "Principal repair direction and live protocol reproduction 2026-11-03; installed source 6c573491, 2708/2708 Greeks",
       "recordTitle": "BUG-058 — TT1 Greek subscription exceeds DXLink message limit",
       "sections": [
         {
@@ -11965,14 +11972,14 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "Correction is on the existing exporter repair branch `codex/tt1-export-hang-20261103`, continuing the Principal's bounded repair instruction and prior direction to push without independent review. No independent-review claim is made. Installation verification remains pending at this source freeze.",
+          "content": "Correction is on the existing exporter repair branch `codex/tt1-export-hang-20261103`, continuing the Principal's bounded repair instruction and prior direction to push without independent review. No independent-review claim is made. Runtime source was frozen as `6c573491218278b5451fd445fcfc8e3eecbf35af` before packaging and installation.",
           "truncated": false,
           "tables": []
         },
         {
           "heading": "Verification",
           "level": 2,
-          "content": "33 focused tests passed, including 6,000 subscriptions across 30 messages with exactly one reset, preservation of every identity, old/stale/missing Greek rejection, unchanged absolute deadline, prompt protocol-error handling, helper exit and large ZIP publication. One private historical fixture was unavailable and skipped.",
+          "content": "33 focused tests and 44 existing Account/fetch/standalone CLI compatibility tests passed, including 6,000 subscriptions across 30 messages with exactly one reset, preservation of every identity, old/stale/missing Greek rejection, unchanged absolute deadline, prompt protocol-error handling, helper exit and large ZIP publication. One private historical fixture was unavailable and skipped.",
           "truncated": true,
           "tables": []
         },
@@ -11981,6 +11988,13 @@
           "level": 2,
           "content": "[BUG-057](BUG-057-tt1-export-hangs-and-exceeds-package-capacity.md); `docs/cli/tt1-market-freshness-2026-10-30.md`.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Installed verification — November 3, 2026",
+          "level": 2,
+          "content": "Packaged frozen source `6c573491` into `~/.local/share/wheelwright/tt1-cadence/operational-20261103-6c573491/`; all 128 packaged source hashes verified. Atomically switched only the ww launcher, retaining its previous target in the new release's `previous-ww-link.txt`. The tt launcher and both private configuration symlink targets are unchanged. The prior release remains available for rollback.",
+          "truncated": true,
           "tables": []
         }
       ]

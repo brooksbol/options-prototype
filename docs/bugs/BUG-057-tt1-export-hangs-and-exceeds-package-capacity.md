@@ -1,6 +1,6 @@
 # BUG-057 — TT1 export hangs and exceeds package capacity
 
-- **Status:** Open
+- **Status:** Resolved
 - **Severity:** Not established
 - **Area:** CLI / TT1 cadence export
 - **Provenance:** Principal report, November 3, 2026: `ww export tt1-cadence` hangs, then prints `ww: Export helper failed`.
@@ -45,3 +45,7 @@ The candidate generated `~/Downloads/tt1-cadence-2026-11-03.zip` (3,873,041 byte
 ## Related
 
 `docs/cli/tt1-market-freshness-2026-10-30.md`; `docs/cli/ww-export-tt1-cadence.md`. BUG-056 already exists on accepted main and is unrelated; this isolated exporter branch predates its filing.
+
+## Installed verification — November 3, 2026
+
+The subsequent Principal instruction to resolve Greek acquisition was completed in runtime `6c573491`, including this lifetime/capacity repair. Ordinary PATH `ww export tt1-cadence` from home exited 0 and produced the verified six-member `tt1-cadence-2026-11-03-20261103165739465.zip`. Its manifest identifies the installed source exactly. Publication succeeded with the larger current universe and retained all observations; previous release/configuration/tt launcher were preserved. See [BUG-058 installed verification](BUG-058-tt1-greek-subscription-message-limit.md#installed-verification--november-3-2026) for source packaging, complete Greek coverage, output checks and remaining evidence limits. This supersedes the earlier uninstalled-candidate state above; no independent-review claim is made.
