@@ -64,6 +64,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-055 | Tradier adapter turns missing open interest into 0 | Evidence Appliance (v1) / Tradier normalization | Not established | Open | [record](BUG-055-tradier-missing-open-interest-coerced-to-zero.md) | Kiro zero-OI investigation 2026-10-29 (PL-EVID-OBS); Principal directed documentation-only filing |
 | BUG-057 | TT1 export hangs and exceeds package capacity | CLI / TT1 cadence export | Not established | Open | [record](BUG-057-tt1-export-hangs-and-exceeds-package-capacity.md) | Principal report and instrumented reproduction 2026-11-03; tested repair, Principal-directed push without independent review |
 
+| BUG-058 | TT1 Greek subscription exceeds DXLink message limit | CLI / TT1 Greek acquisition | Not established | Open | [record](BUG-058-tt1-greek-subscription-message-limit.md) | Principal repair direction and live protocol reproduction 2026-11-03 |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:

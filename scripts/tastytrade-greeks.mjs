@@ -5,6 +5,9 @@
 const GREEK_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const SNAPSHOT_TIMEOUT_MS = 5_000;
 const FIELDS = ["eventType", "eventSymbol", "time", "delta"];
+// dxFeed recommends 200 topics per message and requires messages below 64 KB.
+const SUBSCRIPTION_BATCH = 200;
+const MAX_MESSAGE_BYTES = 60 * 1024;
 
 function optionKey(symbol) {
   const match = /^([A-Za-z0-9.]+)\s+(\d{6}[CP]\d{8})$/.exec(symbol);
@@ -43,33 +46,43 @@ export async function readHeldGreeks({ symbols, loadInstrument, loadQuoteToken,
 
   const waitMs=Math.min(timeoutMs,deadlineMs===null?Infinity:deadlineMs-clock());
   if(!Number.isFinite(waitMs)||waitMs<=0)return [];
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     let socket;
     const observed = new Map();
     let finished = false;
     let subscribed = false;
-    const finish = () => {
+    const finish = (error) => {
       if (finished) return;
       finished = true;
       clearTimeout(timer);
       try { socket?.close(); } catch { /* Snapshot already complete. */ }
-      resolve([...observed.values()]);
+      if (error) reject(error);
+      else resolve([...observed.values()]);
     };
     const timer = setTimeout(finish, waitMs);
     const send = (message) => {
-      if (!finished && socket?.readyState === 1) socket.send(JSON.stringify(message));
+      if (!finished && socket?.readyState === 1) {
+        const raw = JSON.stringify(message);
+        if (Buffer.byteLength(raw) > MAX_MESSAGE_BYTES) {
+          finish(Error('DXLINK_MESSAGE_TOO_LARGE'));return;
+        }
+        try { socket.send(raw); } catch { finish(Error('DXLINK_SEND_FAILED')); }
+      }
     };
     try {
       socket = new WebSocketImpl(auth["dxlink-url"]);
       socket.addEventListener("open", () => send({ type: "SETUP", channel: 0,
         version: "0.1-DXF-JS/0.3.0", keepaliveTimeout: 60, acceptKeepaliveTimeout: 60 }));
-      socket.addEventListener("error", finish);
-      socket.addEventListener("close", finish);
+      socket.addEventListener("error", () => finish());
+      socket.addEventListener("close", () => finish());
       socket.addEventListener("message", ({ data }) => {
         if (finished) return;
         let message;
         try { message = JSON.parse(data); } catch { return; }
-        if (message.type === "AUTH_STATE" && message.state === "UNAUTHORIZED") {
+        if (message.type === "ERROR") {
+          const code = ['INVALID_MESSAGE','UNAUTHORIZED','BAD_ACTION','TIMEOUT','UNSUPPORTED_PROTOCOL'].includes(message.error) ? message.error : 'UNKNOWN';
+          finish(Error('DXLINK_' + code));
+        } else if (message.type === "AUTH_STATE" && message.state === "UNAUTHORIZED") {
           send({ type: "AUTH", channel: 0, token: auth.token });
         } else if (message.type === "AUTH_STATE" && message.state === "AUTHORIZED") {
           send({ type: "CHANNEL_REQUEST", channel: 3, service: "FEED",
@@ -79,8 +92,11 @@ export async function readHeldGreeks({ symbols, loadInstrument, loadQuoteToken,
             acceptDataFormat: "COMPACT", acceptEventFields: { Greeks: FIELDS } });
         } else if (message.type === "FEED_CONFIG" && message.channel === 3 && !subscribed) {
           subscribed = true;
-          send({ type: "FEED_SUBSCRIPTION", channel: 3, reset: true,
-            add: [...byStreamer.keys()].map((symbol) => ({ type: "Greeks", symbol })) });
+          const topics = [...byStreamer.keys()].map((symbol) => ({ type: "Greeks", symbol }));
+          for (let offset = 0; offset < topics.length && !finished; offset += SUBSCRIPTION_BATCH) {
+            send({ type: "FEED_SUBSCRIPTION", channel: 3, reset: offset === 0,
+              add: topics.slice(offset, offset + SUBSCRIPTION_BATCH) });
+          }
         } else if (message.type === "FEED_DATA" && message.channel === 3 &&
                    Array.isArray(message.data)) {
           const data = message.data;
