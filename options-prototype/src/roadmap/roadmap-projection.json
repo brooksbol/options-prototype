@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-03T18:15:13.484Z",
+    "generatedAt": "2026-11-03T18:17:25.291Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -12004,9 +12004,9 @@
       "title": "TT1 export misses accepted IWM partition repair",
       "area": "CLI / TT1 export release composition",
       "severity": "Not established",
-      "status": "Open",
+      "status": "Resolved",
       "recordFile": "BUG-059-tt1-export-misses-accepted-iwm-partition.md",
-      "provenance": "Principal report 2026-11-03; exact accepted module reuse and source-cut replay",
+      "provenance": "Principal report 2026-11-03; installed source 4d97643c; two IWM packages, unchanged same-cut QQQ and verified ZIP",
       "recordTitle": "BUG-059 — TT1 export misses the accepted IWM partition repair",
       "sections": [
         {
@@ -12047,7 +12047,7 @@
         {
           "heading": "Remediation history",
           "level": 2,
-          "content": "Recovered accepted main `c87facff` and imported its domain module byte-for-byte (Git blob `7339561d71a8baa646214f653db65d86fee2a28c`) plus its 13 regressions into the existing exporter repair branch. Added collector-to-ZIP regression and a guard/test against duplicate aggregate margin attribution. No independent-review claim is made; this continues the Principal-directed exporter repair and earlier push-without-review instruction. Installed verification is pending at this source freeze.",
+          "content": "Recovered accepted main `c87facff` and imported its domain module byte-for-byte (Git blob `7339561d71a8baa646214f653db65d86fee2a28c`) plus its 13 regressions into the existing exporter repair branch. Added collector-to-ZIP regression and a guard/test against duplicate aggregate margin attribution. No independent-review claim is made; this continues the Principal-directed exporter repair and earlier push-without-review instruction. Runtime was frozen as `4d97643c18c04ee1343c5d50c0f6d79e37326b86` before packaging and installed verification.",
           "truncated": false,
           "tables": []
         },
@@ -12063,6 +12063,13 @@
           "level": 2,
           "content": "[BUG-057](BUG-057-tt1-export-hangs-and-exceeds-package-capacity.md); [BUG-058](BUG-058-tt1-greek-subscription-message-limit.md); accepted-main BUG-056 and ADR-016 membership/association discipline. The exporter branch predates BUG-056's canonical filing; this repair does not alter its accepted-main record or standalone tt launcher.",
           "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Installed verification — November 3, 2026",
+          "level": 2,
+          "content": "Packaged frozen source `4d97643c` into `~/.local/share/wheelwright/tt1-cadence/operational-20261103-4d97643c/` and verified all 130 packaged source hashes. The domain module's Git blob exactly matches accepted main. Switched only ww's launcher atomically, retaining source `6c573491` and its prior target for rollback. The ordinary tt launcher, private configuration links and active Talk checkout are unchanged.",
+          "truncated": true,
           "tables": []
         }
       ]
