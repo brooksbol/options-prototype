@@ -1,0 +1,62 @@
+{
+  "purpose": "NON_RELEASE_INDEPENDENT_REVIEW",
+  "sourceSha": "d0f2f10699e811ef9286c843f9896a39336d8afc",
+  "pr": 45,
+  "prState": "OPEN_DRAFT_UNMERGED",
+  "mainSha": "c87facff6179ddb1abf4a36fa38f2a4ea0ae5151",
+  "acceptedPublicationSource": "dbdd6ea037a8ed8d6be57da403e95d0f569a0300",
+  "publicOperations": 35,
+  "internalOperations": 39,
+  "internalBundleRedistributed": false,
+  "files": {
+    "CHANGE-REPORT.md": {
+      "sha256": "3dd65b8fd8e30d03421e203ba7be8520fe97395bc32d12c7071957f8f256681c",
+      "bytes": 2855,
+      "gitBlobSha": "158259df64ab19ae70bddac07c33039f74556f08"
+    },
+    "README.md": {
+      "sha256": "11a339b507526bb19a9e8d80ed9c3dc809c9b7cc5a032a2fbd6f643360591391",
+      "bytes": 1992,
+      "gitBlobSha": "d82393b5c934f933ff70a4d60524542cf8e03867"
+    },
+    "frozen-source-links.json": {
+      "sha256": "7bb6cfaf5a6b5c591bf5208029d01ee8b40e65163f4293dbb415afd9c346a92d",
+      "bytes": 2812,
+      "gitBlobSha": "34ccde47182f4a4216c2ec851bc580ff08dee5e1"
+    },
+    "openapi-public.json": {
+      "sha256": "fbcddbf6ce5c4601f011578e0fa1805d6bd0606ad2c4a20f3a3f8b52ea1daa41",
+      "bytes": 1450817,
+      "gitBlobSha": "bbfba74f73c6bebfb3f11415704ae8b72c8d030b"
+    },
+    "operation-inventory.json": {
+      "sha256": "3ce6c2a1dd39b42f7a4c601961fc1ebe04c9bfcc087bab02e4f3f733975ae295",
+      "bytes": 14170,
+      "gitBlobSha": "67625b1c259d5b2e4ef4b24c02e1a86173d5ec24"
+    },
+    "site/LICENSES.txt": {
+      "sha256": "d49296fc22d15683bf0608962baec5337440a9a93537d7bf135d4a87be3dd5b8",
+      "bytes": 43201,
+      "gitBlobSha": "ebb574fa5265ad698080fa463a4a612d4386c57c"
+    },
+    "site/index.html": {
+      "sha256": "27a5726150a3da09997b8925a46c3821f6a52ff9d0588473e13dce30b0d3fc3c",
+      "bytes": 2960092,
+      "gitBlobSha": "a0f1bd1a6c5fef566ad5664a60fa262f3fd244df"
+    }
+  },
+  "buildCommands": [
+    "python tools/api-docs/build.py OUTPUT",
+    "python tools/api-docs/validate.py OUTPUT",
+    "node tools/api-docs/human-specimen.mjs OUTPUT"
+  ],
+  "validation": {
+    "localRerun": "PASS:39internal/322typed examples;35public/290response examples; artifact docs/wire/security/pruning/allowlist",
+    "ci": "https://github.com/brooksbol/options-prototype/actions/runs/41527711520",
+    "ciNote": "PR synthetic merge0542ce7bf98da5dbdd6f8610bbd49453d9468a3d has same tree as d0f2; build PASS/deploy SKIPPED. Independent Product acceptance pending.",
+    "semanticFindings": "UNRESOLVED: see CHANGE-REPORT.md"
+  },
+  "publication": "BLOCKED_UNACCEPTED_CONTRACT_INPUTS",
+  "integration": "NOT_AUTHORIZED",
+  "runtimeChanges": "NONE_FOR_THIS_HANDOFF"
+}

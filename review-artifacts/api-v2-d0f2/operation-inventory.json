@@ -1,0 +1,318 @@
+{
+  "internalCount": 39,
+  "publicCount": 35,
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/v2/account-balance-observations",
+      "operationId": "readAccountBalanceObservations",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts",
+      "operationId": "listAccounts",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}",
+      "operationId": "readAccount",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/inventory-reconciliation",
+      "operationId": "readInventoryReconciliation",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/transactions",
+      "operationId": "readAccountTransactions",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/accounts/{accountId}/transactions/{transactionId}",
+      "operationId": "readAccountTransaction",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts",
+      "operationId": "listAccountArtifacts",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts/{artifactId}",
+      "operationId": "readAccountArtifact",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/artifacts/{artifactId}/content",
+      "operationId": "retrieveAccountArtifactBytes",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions",
+      "operationId": "listConstructions",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models",
+      "operationId": "listConstructionModels",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models/{modelId}",
+      "operationId": "readConstructionModel",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/models/{modelId}/versions/{versionId}",
+      "operationId": "readConstructionModelVersion",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/constructions/{constructionId}",
+      "operationId": "readConstruction",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/holdings",
+      "operationId": "listBrokerHoldings",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/holdings/{holdingId}",
+      "operationId": "readBrokerHolding",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/instruments",
+      "operationId": "listInstruments",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/instruments/{instrumentId}",
+      "operationId": "readInstrument",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-evidence-subjects",
+      "operationId": "listRelevantMarketEvidenceSubjects",
+      "public": false,
+      "source": "api-v2-market-evidence-subjects.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-market-evidence-subjects.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-observations",
+      "operationId": "listMarketObservations",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/market-observations/{observationId}",
+      "operationId": "readMarketObservation",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/me",
+      "operationId": "readCurrentUser",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/option-inventory",
+      "operationId": "readOptionInventory",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/orders",
+      "operationId": "listOrders",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/orders/{orderId}",
+      "operationId": "readOrder",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/portfolio-capital-observations",
+      "operationId": "readPortfolioCapitalObservations",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions",
+      "operationId": "listPositions",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}",
+      "operationId": "readPosition",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}/audit",
+      "operationId": "listPositionAudit",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/positions/{positionId}/audit/{auditId}",
+      "operationId": "readPositionAudit",
+      "public": true,
+      "source": "api-v2-foundational-portfolio.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes",
+      "operationId": "listHeldDirectQuotes",
+      "public": true,
+      "source": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes/{symbol}",
+      "operationId": "readHeldDirectQuote",
+      "public": true,
+      "source": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/quotes/{symbol}/liquidity",
+      "operationId": "measureHeldUnderlyingQuote",
+      "public": true,
+      "source": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/users",
+      "operationId": "listUsers",
+      "public": false,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "GET",
+      "path": "/v2/users/{userId}",
+      "operationId": "readUser",
+      "public": false,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/artifacts",
+      "operationId": "retainAndProcessAccountArtifact",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/artifacts/{artifactId}/imports",
+      "operationId": "retryRetainedArtifactProcessing",
+      "public": true,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/position-acquisitions",
+      "operationId": "acquireAccountPositions",
+      "public": false,
+      "source": "api-v2-account-evidence.json",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json"
+    },
+    {
+      "method": "POST",
+      "path": "/v2/quotes",
+      "operationId": "acquireDirectQuotes",
+      "public": true,
+      "source": "api-v2-direct-quote-acquisition-proposal.yaml",
+      "sourceUrl": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "sourceSha": "d0f2f10699e811ef9286c843f9896a39336d8afc",
+  "instructions": "Use github_fetch_blob with repository_full_name=brooksbol/options-prototype and gitBlobSha if github_fetch_file returns empty content. All four files are existing frozen repository sources. No internal bundle is redistributed. Resolve cross-file references starting at the YAML entry. Internal security and four excluded operations remain in these source contracts.",
+  "sources": [
+    {
+      "path": "docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml",
+      "url": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml",
+      "rawUrl": "https://raw.githubusercontent.com/brooksbol/options-prototype/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-direct-quote-acquisition-proposal.yaml",
+      "gitBlobSha": "402f3c6b83cd2c2d429578a7525f22f49e761b75",
+      "sha256": "cd3621110295b3ac3f0e3ba952313a6b7c3a27d311bd8ea4b84333875a5d58c7",
+      "bytes": 77297
+    },
+    {
+      "path": "docs/contracts/api-v2-account-evidence.json",
+      "url": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json",
+      "rawUrl": "https://raw.githubusercontent.com/brooksbol/options-prototype/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-account-evidence.json",
+      "gitBlobSha": "0784b87bc3dbf3f54d330ecf22679e4f7d544e06",
+      "sha256": "7f70194a8ccda7f0075950f5bb385723e9cd0ad70dd6139748dbe728c2a2889e",
+      "bytes": 223679
+    },
+    {
+      "path": "docs/contracts/api-v2-market-evidence-subjects.json",
+      "url": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-market-evidence-subjects.json",
+      "rawUrl": "https://raw.githubusercontent.com/brooksbol/options-prototype/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-market-evidence-subjects.json",
+      "gitBlobSha": "dea276205e2327ac621827f2d0fa352084e7490b",
+      "sha256": "159f00f23a5329b7319a275326c466e9ec8f7dd884f7215a9c27c2f36d4d6537",
+      "bytes": 17395
+    },
+    {
+      "path": "docs/contracts/api-v2-foundational-portfolio.json",
+      "url": "https://github.com/brooksbol/options-prototype/blob/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json",
+      "rawUrl": "https://raw.githubusercontent.com/brooksbol/options-prototype/d0f2f10699e811ef9286c843f9896a39336d8afc/docs/contracts/api-v2-foundational-portfolio.json",
+      "gitBlobSha": "83d6e8f2ccd48bfd8d23985d780832bb12721e03",
+      "sha256": "ac1595567aa99f8e151deeefe6c8bc5fd54c3699773e058569642889f4d7970f",
+      "bytes": 1764838
+    }
+  ]
+}
