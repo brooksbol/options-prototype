@@ -16,6 +16,14 @@ const group=b=>b.reads[2].body.data.groups[0].groups[0];
 test('exact signed-leg identity binds current BP and gross margin separately, retaining effects and clocks',()=>{
  const r=heldMarginEvidence(fixture());assert.equal(r.status,'OBSERVED_QUALIFIED');assert.equal(r.positionBindings[0].buyingPowerFootprint.amount,250);assert.equal(r.positionBindings[0].marginRequirement.amount,300);assert.equal(r.positionBindings[0].buyingPowerFootprint.effect,'Credit');assert.equal(r.source.brokerStateAt,at);assert.equal(r.reconciliation.heldMembership,'MATCH');assert.equal(r.reconciliation.groupBpToNlvMinusAvailable,'MATCH');assert.equal(r.positionBindings[0].openingBuyingPowerDebit,null);assert.equal(r.positionBindings[0].hypotheticalClosingBuyingPowerRelease,null);
 });
+test('separate same-expiry spreads cannot each inherit the full aggregate broker group BP',()=>{
+ const b=fixture();const holdings=b.reads[0].body.data.items;
+ const second=holdings.map((h,i)=>({...h,symbol:`AAA   261211P${i?'00092000':'00095000'}`}));holdings.push(...second);
+ group(b)['position-entries'].push(...second.map(h=>({'instrument-symbol':h.symbol,'instrument-type':h['instrument-type'],quantity:h['quantity-direction']==='Short'?'-1.0':'1.0'})));
+ b.projection.positions.push({...b.projection.positions[0]});
+ const r=heldMarginEvidence(b);assert.equal(r.reconciliation.heldMembership,'MATCH');assert.equal(r.reconciliation.groupBpToAccountUsedBp,'MATCH');
+ assert.equal(r.positionBindings.length,2);assert.ok(r.positionBindings.every(p=>p.buyingPowerFootprint===null&&p.brokerGroupPath===null));assert.equal(r.status,'PARTIAL');
+});
 test('changed quantity, side, contract, duplicate entries and unmatched held inventory fail binding without allocation',()=>{
  for(const change of [b=>group(b)['position-entries'][0].quantity='-2',b=>group(b)['position-entries'][0].quantity='1',b=>group(b)['position-entries'][0]['instrument-symbol']='OTHER',b=>group(b)['position-entries'].push(group(b)['position-entries'][0]),b=>b.reads[0].body.data.items.pop()]){
   const b=fixture();change(b);const r=heldMarginEvidence(b);assert.equal(r.status,'PARTIAL');assert.equal(r.positionBindings[0].buyingPowerFootprint,null);

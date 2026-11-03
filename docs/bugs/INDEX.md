@@ -66,6 +66,8 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 
 | BUG-058 | TT1 Greek subscription exceeds DXLink message limit | CLI / TT1 Greek acquisition | Not established | Resolved | [record](BUG-058-tt1-greek-subscription-message-limit.md) | Principal repair direction and live protocol reproduction 2026-11-03; installed source 6c573491, 2708/2708 Greeks |
 
+| BUG-059 | TT1 export misses accepted IWM partition repair | CLI / TT1 export release composition | Not established | Open | [record](BUG-059-tt1-export-misses-accepted-iwm-partition.md) | Principal report 2026-11-03; exact accepted module reuse and source-cut replay |
+
 ## Open-bug audit checkpoint (2026-09-22)
 
 Independent current-main audit/reverification reconciled the previously 18 Open records:

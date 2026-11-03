@@ -99,9 +99,12 @@ export function heldMarginEvidence(broker){
  if(Object.entries(result.reconciliation).some(([k,v])=>k!=='atomic'&&v==='MISMATCH'))result.issues.push('ACCOUNT_OR_GROUP_RECONCILIATION_MISMATCH');
  const globallyVerified=membership&&validClock&&currency!==null&&result.issues.length===0;
  for(const [index,p] of (broker?.projection?.positions??[]).entries()){
+  // This legacy binding knows only underlying/expiry, not individual package
+  // constituents. Never assign one aggregate group to multiple split spreads.
+  const uniqueScope=broker.projection.positions.filter(other=>other.underlying===p.underlying&&other.expiry===p.expiry).length===1;
   const rows=(Array.isArray(holdings)?holdings:[]).filter(h=>h['underlying-symbol']===p.underlying&&h['expires-at']===p.expiry);
   const target=entries(rows,{held:true});const matches=[];
-  if(p.status==='recognized'&&rows.length&&globallyVerified)for(let i=0;i<groupMaps.length;i++){
+  if(p.status==='recognized'&&uniqueScope&&rows.length&&globallyVerified)for(let i=0;i<groupMaps.length;i++){
    const g=result.riskGroups[i];if(g.includesWorkingOrder===false&&same(groupMaps[i],target)&&g.buyingPowerFootprint.status==='BROKER_REPORTED'&&g.marginRequirement.status==='BROKER_REPORTED')matches.push(g);
   }
   const match=matches.length===1?matches[0]:null;

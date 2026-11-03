@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {buildMarket,validateMarket,pairEconomics,sessionContext,balanceEvidence,exportCadence,FILTER,child} from './ww-export-tt1.mjs';
 import {buildSymbolLiquidity,symbolLiquidityCsv} from './ww-v1-shared.mjs';
 import {collectBroker} from './tt-cadence-evidence.mjs';
-import {liveEvidence} from './tastytrade-fixtures.mjs';
+import {liveEvidence,sampleTrade} from './tastytrade-fixtures.mjs';
 import {parseArgs} from './wheelwright.mjs';
 const now=new Date('2026-10-29T18:00:00Z'),context=sessionContext(now);
 const put=(strike,delta,bid,ask,openInterest=500)=>({strike,delta,bid,ask,openInterest,volume:0});
@@ -151,6 +151,39 @@ test('October29 real specimen regression (private external evidence, never a rep
  const m=buildMarket(source,context,new Date('2026-10-29T18:30:00Z'));validateMarket(m);
  assert.equal(m.contracts.length,expected.contracts.length);assert.equal(m.verticalPairs.length,expected.verticalPairs.length);assert.equal(m.verticalPairs.filter(p=>p.exclusions.includes('NONPOSITIVE_NATURAL_CREDIT')).length,45);
  for(const p of m.verticalPairs){const ref=expected.verticalPairs.find(r=>r.underlying===p.underlying&&r.expiration===p.expiration&&r.shortStrike===p.shortStrike&&r.longStrike===p.longStrike);assert.ok(ref);assert.equal(p.natural.creditPerShare,ref.natural.creditPerShare);assert.equal(p.midpoint.creditPerShare,ref.midpoint.creditPerShare);}
+});
+
+test('broker collector and published ZIP reuse accepted separate-spread recognition',async()=>{
+ const trades=[sampleTrade('IWM','261211',[['P',269],['P',272.5]],[2,2.65],[2,2.5],.3,.81),sampleTrade('IWM','261211',[['P',265],['P',268]],[2,2.58],[2,2.4],.3,.75),sampleTrade('QQQ','261218',[['P',690],['P',700]],[2,4.41],[2,6.5],1.11,3.01)];
+ for(const [i,t] of trades.entries()){
+  t.opening.id=`opening-${i}`;t.closing.id=`bracket-${i}`;t.closing.orders.forEach((o,j)=>o.id=`exit-${i}-${j}`);
+  t.quotes.forEach(q=>q['updated-at']=now.toISOString());
+ }
+ const holdings=trades.flatMap(t=>t.holdings),orders=trades.flatMap(t=>[t.opening,...t.closing.orders]);
+ const broker=await collectBroker({expectedAccount:'5WX01234',now:()=>now,env:{TASTYTRADE_CLIENT_ID:'fixture-client',TASTYTRADE_CLIENT_SECRET:'fixture-secret',TASTYTRADE_REFRESH_TOKEN:'fixture-refresh'},fetchImpl:async(url)=>{
+  const path=new URL(url).pathname;let body;
+  if(path==='/oauth/token')return Response.json({access_token:'fixture-access'});
+  if(path==='/customers/me/accounts')body={items:[{account:{'account-number':'5WX01234'}}]};
+  else if(path.endsWith('/positions'))body={items:holdings};
+  else if(path.endsWith('/orders')||path.endsWith('/complex-orders')){const items=path.endsWith('/complex-orders')?trades.map(t=>t.closing):orders;return Response.json({data:{items},pagination:{'page-offset':0,'total-pages':1,'total-items':items.length}});}
+  else if(path==='/market-data/by-type')body={items:trades.flatMap(t=>t.quotes)};
+  else if(path==='/market-time/equities/sessions/current')body={state:'Open','open-at':'2026-10-29T13:30:00Z','close-at':'2026-10-29T20:00:00Z'};
+  else if(path.endsWith('/balances'))body={'derivative-buying-power':'3000','updated-at':now.toISOString()};
+  else if(path.endsWith('/requirements'))body={'account-number':'5WX01234',groups:[],'last-state-timestamp':now.getTime()};
+  else throw Error('unexpected route');return Response.json({data:body});
+ }});
+ assert.equal(broker.complete,true);assert.equal(broker.projection.positions.length,3);
+ assert.equal(broker.liveTsv.split('\n').filter(line=>line.includes('\tIWM\t')).length,2);
+ const dir=await mkdtemp(join(tmpdir(),'tt1-split-spreads-'));
+ try{
+  const result=await exportCadence({base:'http://localhost:9999',token:'fixture-backend',now,downloads:dir,fetchImpl:httpFixture().fetchImpl,brokerRead:async()=>broker});
+  const files=await unzip(result.path),a=JSON.parse(files['tt1-account-positions-orders.json']),iwm=a.derivedPositions.filter(p=>p.symbol==='IWM');
+  assert.equal(iwm.length,2);for(const p of iwm)assert.equal(p.status,'recognized');
+  assert.ok(Math.abs(iwm[0].credit-.65)<1e-8);assert.ok(Math.abs(iwm[1].credit-.58)<1e-8);
+  assert.notEqual(iwm[0].targetOrder.id,iwm[1].targetOrder.id);
+  const qqq=a.derivedPositions.find(p=>p.symbol==='QQQ');assert.ok(Math.abs(qqq.credit-2.41)<1e-8);assert.ok(Math.abs(qqq.pnl+209)<1e-8);
+  assert.equal(result.manifest.counts.recognizedPositions,3);
+ }finally{await rm(dir,{recursive:true,force:true});}
 });
 
 test('review P1: empty holdings still read all ordinary and complex order pages, including working entries',async()=>{

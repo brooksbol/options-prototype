@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-03T16:58:59.212Z",
+    "generatedAt": "2026-11-03T18:15:13.484Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -41,7 +41,7 @@
       "comingSoonTotal": 5,
       "principleTotal": 11,
       "domainEntryTotal": 36,
-      "bugTotal": 57,
+      "bugTotal": 58,
       "logTotal": 127,
       "logIntakeEvidenceEvents": 14,
       "plWithIntakeDate": 14,
@@ -11995,6 +11995,74 @@
           "level": 2,
           "content": "Packaged frozen source `6c573491` into `~/.local/share/wheelwright/tt1-cadence/operational-20261103-6c573491/`; all 128 packaged source hashes verified. Atomically switched only the ww launcher, retaining its previous target in the new release's `previous-ww-link.txt`. The tt launcher and both private configuration symlink targets are unchanged. The prior release remains available for rollback.",
           "truncated": true,
+          "tables": []
+        }
+      ]
+    },
+    {
+      "id": "BUG-059",
+      "title": "TT1 export misses accepted IWM partition repair",
+      "area": "CLI / TT1 export release composition",
+      "severity": "Not established",
+      "status": "Open",
+      "recordFile": "BUG-059-tt1-export-misses-accepted-iwm-partition.md",
+      "provenance": "Principal report 2026-11-03; exact accepted module reuse and source-cut replay",
+      "recordTitle": "BUG-059 — TT1 export misses the accepted IWM partition repair",
+      "sections": [
+        {
+          "heading": "Observed failure",
+          "level": 2,
+          "content": "The installed exporter release `6c573491` bundled a pre-BUG-056 `tastytrade-live-domain.mjs`. The November 3 18:05:57 export therefore represented the four same-expiry IWM legs as one unsupported structure, although ordinary tt live had the accepted opening-order partition fix.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Intended semantics violated",
+          "level": 2,
+          "content": "The exporter reuses standalone tt recognition. Equivalent broker evidence must yield its accepted two separately evidenced IWM packages, credits, opening times and exit associations. The exporter must not reinstate a resolved recognition defect through stale release dependencies.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Diagnosis / accepted precedent",
+          "level": 2,
+          "content": "Accepted BUG-056 implementation `0af729dc5369a7be2eef2d9f988eaef2b1ad07e5` partitions whole current holdings using validated filled opening orders, not strike proximity or shared expiry. Its 13 dedicated regressions and Principal acceptance are recorded in accepted-main `docs/bugs/BUG-056-tt-live-multiple-same-expiration-spreads.md`. That module was absent from the older exporter delivery branch. This is a new consumer/release defect; BUG-056 remains resolved.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Scope / non-goals",
+          "level": 2,
+          "content": "Reuse the exact accepted domain module and tests; no second recognition algorithm or new Position identity. Preserve the repaired Greek stream, freshness gates, all raw brokerage evidence and calculations for other holdings. The export's legacy held-margin binder knows only underlying/expiry; after splitting positions it must withhold ambiguous aggregate BP rather than assign one full group twice. No pro-rata allocation or margin-model expansion. No orders, trading strategy, v2/Talk/service, credential or grant changes.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Acceptance criteria",
+          "level": 2,
+          "content": "The collector, TSV and published ZIP contain two recognized IWM packages with distinct opening credits and exit associations. Four held contracts reconcile once. Replay of one identical source cut leaves QQQ and every non-IWM position deeply equal. Multiple same-scope packages cannot each inherit full aggregate group BP. Verify ordinary installed export and complete independent Greek coverage after packaging.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Remediation history",
+          "level": 2,
+          "content": "Recovered accepted main `c87facff` and imported its domain module byte-for-byte (Git blob `7339561d71a8baa646214f653db65d86fee2a28c`) plus its 13 regressions into the existing exporter repair branch. Added collector-to-ZIP regression and a guard/test against duplicate aggregate margin attribution. No independent-review claim is made; this continues the Principal-directed exporter repair and earlier push-without-review instruction. Installed verification is pending at this source freeze.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Verification",
+          "level": 2,
+          "content": "Replayed the exact private 18:05:57 ZIP through old and corrected modules using the original observation instant. Old output was deeply equal to the stored projection, establishing a faithful reproduction. Corrected output had six recognized structures, including two IWM packages with opening credits $0.58 and $0.65 and distinct source opening instants. The former retained its target/stop; the latter retained absent exits. All non-IWM positions were deeply equal, including QQQ's $241 opening credit and estimated gross unrealized loss of $222.50 at that source cut. These are historical snapshot figures, not a current liquidation quote or instruction.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Related",
+          "level": 2,
+          "content": "[BUG-057](BUG-057-tt1-export-hangs-and-exceeds-package-capacity.md); [BUG-058](BUG-058-tt1-greek-subscription-message-limit.md); accepted-main BUG-056 and ADR-016 membership/association discipline. The exporter branch predates BUG-056's canonical filing; this repair does not alter its accepted-main record or standalone tt launcher.",
+          "truncated": false,
           "tables": []
         }
       ]
