@@ -71,6 +71,7 @@ test('real ZIP: shared CSV reconciliation, hashes, modes, collision safety, part
   const f=httpFixture({deny:true}),options={base:'http://localhost:9999',token:'synthetic-token',now,downloads:dir,fetchImpl:f.fetchImpl,brokerRead:async()=>({reads:[],projection:{positions:[]},failures:[]}),sourceRevision:'synthetic-test'};
   const first=await exportCadence(options),second=await exportCadence(options);assert.notEqual(first.path,second.path);
   const files=await unzip(first.path);assert.equal(Object.keys(files).length,6);assert.ok(!JSON.stringify(files).includes('5WX01234'));assert.ok(!JSON.stringify(files).includes('synthetic-token'));
+  for(const [name,content] of Object.entries(files))if(name.endsWith('.json')&&name!=='manifest.json')assert.equal(content,JSON.stringify(JSON.parse(content))+'\n');
   const manifest=JSON.parse(files['manifest.json']);assert.equal(manifest.completionStatus,'PARTIAL');assert.equal(manifest.collectionCompletion,'PARTIAL');assert.ok(manifest.readFailures.some(r=>r.code==='HTTP_403'));
   const {createHash}=await import('node:crypto');for(const item of manifest.files)assert.equal(createHash('sha256').update(files[item.name]).digest('hex'),item.sha256);
   const shared=buildSymbolLiquidity(snapshot().symbols,FILTER);assert.equal(files['symbol-liquidity.csv'],symbolLiquidityCsv(shared.rows,FILTER));
@@ -79,9 +80,44 @@ test('real ZIP: shared CSV reconciliation, hashes, modes, collision safety, part
   await assert.rejects(exportCadence({...options,fetchImpl:httpFixture({offline:true}).fetchImpl}),/No usable evidence/);assert.equal((await readdir(dir)).length,2);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
+test('one-shot broker helper flushes its complete JSON and exits despite lingering read resources',()=>{
+ const preload=`
+  setInterval(()=>{},1000);
+  globalThis.fetch=async(url)=>{
+   const path=new URL(url).pathname;let body;
+   if(path==='/oauth/token')return Response.json({access_token:'test-access'});
+   if(path==='/customers/me/accounts')body={items:[{account:{'account-number':'TEST1234'}}]};
+   else if(path.endsWith('/positions'))body={items:[]};
+   else if(/\\/(orders|complex-orders)$/.test(path))return Response.json({data:{items:[]},pagination:{'page-offset':0,'total-pages':1,'total-items':0}});
+   else if(path.endsWith('/balances'))body={'derivative-buying-power':'0'};
+   else if(path.endsWith('/requirements'))body={'account-number':'TEST1234',groups:[]};
+   else if(path==='/market-time/equities/sessions/current')body={state:'Closed'};
+   else throw Error('unexpected route');
+   return Response.json({data:body});
+  };`;
+ const result=spawnSync(process.execPath,['--import','data:text/javascript;base64,'+Buffer.from(preload).toString('base64'),new URL('./tt-cadence-evidence.mjs',import.meta.url).pathname],{
+  input:JSON.stringify({allowSingleAccount:true,cadenceMarket:true}),encoding:'utf8',timeout:3000,
+  env:{...process.env,TASTYTRADE_CLIENT_ID:'test-client',TASTYTRADE_CLIENT_SECRET:'test-secret',TASTYTRADE_REFRESH_TOKEN:'test-refresh'},
+ });
+ assert.equal(result.error,undefined);assert.equal(result.status,0);assert.equal(result.stderr,'');
+ const body=JSON.parse(result.stdout);assert.equal(body.complete,true);assert.equal(body.marketAcquisition.mode,'CLOSED');
+ assert.equal(body.orderCoverage.orders,'COMPLETE');assert.ok(!result.stdout.includes('test-access'));
+});
 test('atomic ZIP writer refuses inconsistent hashes without an apparently complete result',async()=>{
  const dir=await mkdtemp(join(tmpdir(),'tt1-zip-fail-'));try{
   await assert.rejects(child('python3',[new URL('./ww-export-zip.py',import.meta.url).pathname],JSON.stringify({downloads:dir,files:{'manifest.json':'{}'}})),/helper failed/);assert.deepEqual(await readdir(dir),[]);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});
+test('ZIP writer preserves a complete market component above the former 64 MiB bound',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'tt1-large-zip-'));
+ try{
+  const {createHash}=await import('node:crypto');
+  const files={'market-and-verticals.json':JSON.stringify({evidence:'x'.repeat(64*1024*1024)}),'tt1-account-positions-orders.json':'{}','evidence-coverage.json':'{}','symbol-liquidity.csv':'symbol\n','README.md':'test\n'};
+  const manifest={files:Object.entries(files).map(([name,content])=>({name,bytes:Buffer.byteLength(content),sha256:createHash('sha256').update(content).digest('hex')}))};
+  files['manifest.json']=JSON.stringify(manifest);
+  const path=(await child('python3',[new URL('./ww-export-zip.py',import.meta.url).pathname],JSON.stringify({files,downloads:dir,sessionDate:'2026-11-03',stamp:'test'}))).trim();
+  const check=spawnSync('python3',['-c',"import sys,zipfile,json,hashlib; z=zipfile.ZipFile(sys.argv[1]); m=json.loads(z.read('manifest.json')); assert z.testzip() is None; assert len(z.namelist())==6; [(lambda b: (len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256']) or sys.exit(1))(z.read(r['name'])) for r in m['files']]",path],{encoding:'utf8'});
+  assert.equal(check.status,0,check.stderr);assert.equal((await readdir(dir)).length,1);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
 test('standalone broker uses OAuth + allowlisted GETs, reuses projection, strips account and credentials',async()=>{

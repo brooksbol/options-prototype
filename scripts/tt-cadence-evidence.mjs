@@ -119,6 +119,10 @@ export async function collectBroker({expectedAccount,allowSingleAccount=false,ca
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  try{let input='';for await(const c of process.stdin){input+=c;if(input.length>4096)throw Error();}
- const result=await collectBroker(JSON.parse(input));process.stdout.write(JSON.stringify(result));
- }catch{process.stderr.write('TT1 broker evidence unavailable\n');process.exitCode=1;}
+ const result=await collectBroker(JSON.parse(input));
+ // This dedicated one-shot process owns its read-only sockets. A DXLink peer
+ // may leave the close handshake open after the snapshot deadline. Flush the
+ // complete result before exiting rather than waiting on that socket forever.
+ process.stdout.write(JSON.stringify(result),error=>process.exit(error?1:0));
+ }catch{process.stderr.write('TT1 broker evidence unavailable\n',()=>process.exit(1));}
 }

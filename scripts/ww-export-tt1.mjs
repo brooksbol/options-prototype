@@ -50,7 +50,9 @@ export function hasFinancialEvidence({snapshot,broker,retained,inventory}){
   typeof o?.sourceIdentifier==='string'&&observedNumber(o.quantity)!==null));
  return Boolean(brokerFact||retainedFact||inventoryFact);
 }
-const json=x=>JSON.stringify(x,(_,v)=>typeof v==='number'&&!Number.isFinite(v)?null:v,2)+'\n';
+// Pair evidence repeats source observations. Limit serialization overhead
+// without dropping any values or changing the parsed representation.
+const json=x=>JSON.stringify(x,(_,v)=>typeof v==='number'&&!Number.isFinite(v)?null:v)+'\n';
 const sha=s=>createHash('sha256').update(s).digest('hex');
 export const nyDate=at=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(at);
 const epoch=date=>{if(typeof date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(date))return NaN;const x=Date.parse(date+'T00:00:00Z');return Number.isFinite(x)&&new Date(x).toISOString().slice(0,10)===date?x:NaN;};

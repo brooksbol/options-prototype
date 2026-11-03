@@ -62,6 +62,7 @@ Each row points to the authoritative `BUG-NNN-*.md` record, which carries the fu
 | BUG-053 | Talk operational Account evidence is disconnected from imports and read grants | SDK Talk / v2 evidence / Fidelity admission | Not established | Open | [record](BUG-053-talk-operational-account-evidence-disconnect.md) | Principal real-data trials and production direction 2026-10-27 |
 | BUG-054 | Talk relative dates lack trusted per-turn calendar context | SDK Talk / temporal context | Not established | Open | [record](BUG-054-talk-relative-date-grounding.md) | Principal incident 2026-10-29 |
 | BUG-055 | Tradier adapter turns missing open interest into 0 | Evidence Appliance (v1) / Tradier normalization | Not established | Open | [record](BUG-055-tradier-missing-open-interest-coerced-to-zero.md) | Kiro zero-OI investigation 2026-10-29 (PL-EVID-OBS); Principal directed documentation-only filing |
+| BUG-057 | TT1 export hangs and exceeds package capacity | CLI / TT1 cadence export | Not established | Open | [record](BUG-057-tt1-export-hangs-and-exceeds-package-capacity.md) | Principal report and instrumented reproduction 2026-11-03; tested repair, Principal-directed push without independent review |
 
 ## Open-bug audit checkpoint (2026-09-22)
 
