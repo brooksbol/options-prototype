@@ -329,6 +329,25 @@ class ArchiveTests(unittest.TestCase):
             with zipfile.ZipFile(output) as z:
                 self.assertEqual(z.read("sources/" + loaded["sha256"] + ".zip"), before)
                 self.assertIsNone(z.testzip())
+                record = json.loads(z.read("experimental-record.json"))
+                generator = record["generator"]
+                self.assertEqual(m.digest(z.read(generator["file"])), generator["sha256"])
+                self.assertTrue(generator["pythonVersion"])
+                detached = root / "detached"
+                z.extractall(detached)  # Our own verified, constant-inventory output.
+            # Detach from original package/notes locations and the repository tool.
+            saved_path = root / "saved-cadence.zip"
+            path.rename(saved_path)
+            replay = subprocess.run(["python3", "-B", str(detached / generator["file"]),
+                "--input", str(detached / "replay-input.json"), "--output", str(root / "replayed")],
+                capture_output=True, text=True)
+            self.assertEqual(replay.returncode, 0, replay.stderr)
+            with zipfile.ZipFile(replay.stdout.strip()) as z:
+                repeated = json.loads(z.read("experimental-record.json"))
+                self.assertEqual(record["decisions"], repeated["decisions"])
+                self.assertEqual(record["sources"], repeated["sources"])
+                self.assertEqual(record["generator"], repeated["generator"])
+            saved_path.rename(path)
             self.assertEqual(path.read_bytes(), before)
             payloads["README.md"] = b"tampered"
             with zipfile.ZipFile(path, "w") as z:

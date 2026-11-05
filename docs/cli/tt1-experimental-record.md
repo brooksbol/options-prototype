@@ -158,6 +158,17 @@ bridge. A computed unexplained residual is never relabeled fees or trading loss.
   criteria, rationale or evaluation; never invented content.
 - `sources/<sha256>.zip`: exact original cadence bytes, verified before use.
 - `history.jsonl`: exact supplied transaction source, if any.
+- `generator/tt1-experimental-record.py`: exact standalone reconciler source.
+  Its SHA-256 and Python implementation/version are pinned in both the derived
+  record and output manifest. A schema label is not an implementation identity.
+- `replay-input.json`: derived input with only package/history locations rewritten
+  to the preserved archive members; original operator bytes remain separate.
+  After verifying/extracting the archive, an offline replay can run
+  `python3 -B generator/tt1-experimental-record.py --input replay-input.json --output PRIVATE_DIRECTORY`.
+  Match the recorded Python runtime for exact algorithm reproduction. A replay
+  has a new composition time; it does not backdate a new decision or prove earlier
+  recording. The original composition cut and all then-supplied evidence remain
+  inspectable in the original record.
 - `experimental-record.json`: source identities; pinned decisions; raw opening
   evidence; actual profit/stop/TIF/GTD configurations; native replacement links;
   receipt/cancellation periods; fills; costs where supported; balances; marks;
@@ -228,6 +239,11 @@ must not exceed artifact receipt; receipts/context must not exceed composition.
 Planned GTD/option expiration and future-effective declared policy are distinct
 from occurred events and remain representable without pretending they happened.
 
-R3 has a parameterized event-class/boundary test matrix. Independent review is
-pending at this freeze. No installation, operational change or Principal Product
-acceptance is claimed.
+R3 `a7c986b3c771b5314a0a0edb79a4195d56fa21c8` passed independent financial and
+temporal falsifiers, but was REJECTED solely for missing reconciler provenance.
+The implementer identified that omission during review; the reviewer independently
+confirmed it. R3 remains frozen. R4 attaches the exact standalone reconciler,
+hash/runtime identity and detached replay input; the archive regression actually
+replays after the original source-package path has been removed. Independent R4
+review is pending at this freeze. No installation, operational change or
+Principal Product acceptance is claimed.

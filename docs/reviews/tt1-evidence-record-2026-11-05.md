@@ -81,5 +81,28 @@ before-instruction, after-source/before-composition, and future-composition cuts
 valid future planned dates remain admissible. This changes evidence qualification,
 not the trading policy, broker trigger semantics or authority model.
 
-Final exact R3 identity and independent disposition are recorded after submission.
+R3 immutable identity: `a7c986b3c771b5314a0a0edb79a4195d56fa21c8`.
+Independent review: **REJECT solely for missing generator provenance**.
+The implementer raised this omission during review; the reviewer independently
+confirmed that neither record nor manifest identified the reconciler source or
+runtime. Cadence producer revisions do not identify the separate derivation that
+produces experimental results. A detached archive could not distinguish results
+produced by earlier rejected algorithms.
+
+Prior invariant fixes independently passed 31 reviewer specimens plus additional
+update-clock/transaction-receipt cases, Python25, Node42/one private-fixture skip,
+and independently checked six-ZIP/reference lifecycle/post-exit evidence. No further
+financial/temporal blocker was found in that tested scope. R3 remains unchanged.
+
+## R4 — bounded generator-provenance correction
+
+The output now contains the exact standalone generator source, its SHA-256 and
+Python implementation/version in the record and manifest. Original operator
+bytes remain intact. A derived replay input changes only source file locations
+to archive members and names the original composition time without overriding
+the actual new replay clock. The regression detaches from the original cadence
+path and runs the archived standalone generator, comparing pinned decisions,
+source identities and generator identity.
+
+Exact R4 source and independent disposition are recorded after submission.
 No installation is authorized by either tests or review ACCEPT.

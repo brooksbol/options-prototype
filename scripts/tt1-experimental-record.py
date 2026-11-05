@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import re
+import sys
 import tempfile
 import zipfile
 from zoneinfo import ZoneInfo
@@ -483,6 +484,8 @@ def build_record(source, packages, history=None, recorded_at=None):
                              qualification="NONATOMIC_OBSERVATION_NOT_REALIZED_PL"))
     movements = [r for r in rows if r.get("kind") == "MONEY_MOVEMENT"]
     return dict(schema="tt1-experimental-record/v1", recordedAt=recorded_at, experiment=source["experiment"], policies=list(policies.values()),
+                generator=dict(file="generator/tt1-experimental-record.py", sha256=digest(read_bytes(Path(__file__))),
+                               pythonImplementation=sys.implementation.name, pythonVersion=".".join(map(str, sys.version_info[:3]))),
                 standing="OFFLINE_OPERATOR_RESEARCH_ARTIFACT; NOT_BACKEND_ADMITTED_DECISION_OR_TRADING_AUTHORITY",
                 sources=[{k: p[k] for k in ["sha256", "manifestSha256", "collectedThrough", "sourceRevision", "sessionDate"]} for p in packages],
                 historyCoverage=coverage, moneyMovements=movements, decisions=decisions, lifecycles=lifecycles,
@@ -534,12 +537,23 @@ def publish(input_path, destination):
     history = read_bytes(input_path.parent / source["history"]["path"]) if source.get("history") else None
     record = build_record(source, packages, history)
     files = {"operator-source.json": source_raw, "experimental-record.json": encoded(record), "review.txt": review(record).encode()}
+    generator = read_bytes(Path(__file__))
+    require(digest(generator) == record["generator"]["sha256"], "Generator changed during composition")
+    files[record["generator"]["file"]] = generator
     for package in packages:
         files["sources/" + package["sha256"] + ".zip"] = package["raw"]
     if history is not None:
         files["history.jsonl"] = history
+    # Original operator bytes stay intact. Only file locations change in this
+    # derived replay input so a detached artifact does not depend on home paths.
+    replay = dict(source)
+    replay["packages"] = ["sources/" + p["sha256"] + ".zip" for p in packages]
+    if source.get("history"):
+        replay["history"] = dict(source["history"], path="history.jsonl")
+    replay["replayOfRecordedAt"] = record["recordedAt"]
+    files["replay-input.json"] = encoded(replay)
     require(sum(map(len, files.values())) <= LIMIT, "Experimental record capacity exceeded")
-    files["manifest.json"] = encoded(dict(schema="tt1-experimental-package/v1", recordedAt=record["recordedAt"],
+    files["manifest.json"] = encoded(dict(schema="tt1-experimental-package/v1", recordedAt=record["recordedAt"], generator=record["generator"],
         files=[dict(name=k, sha256=digest(v), bytes=len(v)) for k, v in files.items()]))
     destination.mkdir(parents=True, exist_ok=True)
     descriptor, temporary = tempfile.mkstemp(prefix=".tt1-record-", suffix=".partial", dir=destination)
