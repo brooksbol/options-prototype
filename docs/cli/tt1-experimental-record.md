@@ -45,7 +45,7 @@ Existing facilities and limits were inspected before coding:
 |---|---|
 | Six-member cadence ZIP | Exact source bytes, manifest/hash checks, market/position/order context and independent clocks |
 | Existing verified ZIP publisher | Same private-mode, verification, fsync and atomic no-clobber publication pattern; existing publisher remains unchanged |
-| `ww history --account tt1 --jsonl` | Accept its already-saved, provenance-bearing output; do not invoke read-through acquisition during offline composition |
+| `ww history --account tt1 --jsonl` / `TransactionHistory.retained` | Accept already-saved provenance-bearing JSONL; the backend also has a pure retained-only function. Offline verification called that function with a read-only SQLite URL, null provider client and acquisition disabled, then reused the existing JSONL renderer. No public CLI/backend read-through request was made |
 | Governed Decision retention | Existing ADR-019 slice supports its own evaluator and context, not an established TT1 operator-note contract; not repurposed by inventing evaluator/Program authority |
 | v2 Artifact upload | Supported brokerage CSV intake, not arbitrary TT1 notes/ZIP admission; no new API or schema added |
 | Standalone held-package recognizer | Its output is retained as valuation/context. Closed-order tracing needs fills no longer in custody; this bounded composition matches native complex-group IDs plus exact reversed constituents, not current holdings or strike proximity |
@@ -245,5 +245,21 @@ The implementer identified that omission during review; the reviewer independent
 confirmed it. R3 remains frozen. R4 attaches the exact standalone reconciler,
 hash/runtime identity and detached replay input; the archive regression actually
 replays after the original source-package path has been removed. Independent R4
-review is pending at this freeze. No installation, operational change or
-Principal Product acceptance is claimed.
+review **ACCEPTED** immutable `4885d601f22c5771a7d8814b89218665667d4a3d` for this
+bounded capability. The reviewer independently verified every output hash/length,
+generator/runtime provenance, original notes and private permissions; removed all
+original source paths; and replayed using only archived inputs/code. All derived
+fields matched except actual newer composition time. Prior invariant probes also
+passed. Review acceptance does not establish final accounting, scientific success,
+Product acceptance or installation authority.
+
+Additional private verification reused `TransactionHistory.retained` against a
+read-only existing SQLite source and the existing JSONL renderer, with no provider
+client or live acquisition. It supplied a stale 32-record cut, explicitly not
+complete. The resulting private archive includes those retained money movements,
+while final costs/cumulative net results and the account bridge remain unresolved.
+No public brokerage records or source extracts were added to Git.
+
+No installed files, launchers, services, schedules, grants, credentials, broker
+orders or trading parameters changed. Operational exporter remains `4d97643c`.
+Installation requires separate Principal authorization.

@@ -1,5 +1,10 @@
 # TT1 cadence evidence export
 
+November 5 companion: [offline `ww export tt1-record`](tt1-experimental-record.md)
+is an independently reviewed engineering candidate for composing already-retained
+cadence evidence and operator notes. It is not installed and does not change this
+six-member cadence format, acquisition behavior, trading rules or live tools.
+
 Task: Principal-authorized bounded implementation, October 29, 2026. Scope is a CLI evidence package, not API v2, Talk, strategy admission or brokerage execution. This extends the October 29 external evidence specimen and reuses the accepted v1 liquidity code on main `b74d127f`.
 
 Run `ww export tt1-cadence` (optional `--verbose`). One verified ZIP is published atomically in the actual user's Downloads directory. Existing files are never overwritten; subsequent exports get a UTC timestamp and, if necessary, numeric collision suffix. Output contains only the six requested result files, no code, logs, credentials or unbounded source dumps. `manifest.json` checksums the other five members; ZIP construction verifies all six exact contents and CRCs before publication. File mode is 0600.

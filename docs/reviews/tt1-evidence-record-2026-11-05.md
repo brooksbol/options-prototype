@@ -104,5 +104,56 @@ the actual new replay clock. The regression detaches from the original cadence
 path and runs the archived standalone generator, comparing pinned decisions,
 source identities and generator identity.
 
-Exact R4 source and independent disposition are recorded after submission.
+Immutable source: `4885d601f22c5771a7d8814b89218665667d4a3d`.
+Independent disposition: **ACCEPT for the bounded offline evidence-record capability**.
+
+Reviewer independently verified every produced member hash/length, exact generator
+source/hash/runtime, original notes and mode0600. Original notes, packages, history
+and repository-script copies were removed before running the archived generator.
+Every derived field matched apart from the actual newer replay composition time.
+All 31 prior invariant specimens, Python25 and relevant Node42/one unavailable
+private-fixture skip passed independently. The reference six-source lifecycle and
+post-exit trace also passed; original rationale/final fees remained unknown.
+
+No remaining blocker was found within that scope. This is not complete experiment
+closure, complete transaction history, final cumulative net P/L, original historical
+ranking/rationale, executable counterfactuals, future observation coverage,
+Principal success criteria, backend admission, Product acceptance or installation.
+
+R1–R3 rejected commits/worktrees remain preserved. The implementation actor did not
+review its own submission. A separate final documentation-only closeout records
+this acceptance; the reviewed executable source remains byte-identical.
 No installation is authorized by either tests or review ACCEPT.
+
+## Final bounded verification and handoff
+
+- Reviewed executable source remains byte-identical to `4885d601`; final closeout
+  changes reference/review/journal/navigation documentation only.
+- Full standalone CLI/TT/visual regression command: **442 passed, two unavailable
+  private fixtures skipped, zero failures** (444 top-level tests). Its new wrapper
+  additionally runs **25 Python accountability tests**. Focused CLI/history/
+  cadence/market/record subset: **42 passed, one of those fixtures skipped**.
+- The first broad run encountered three missing generated Java specimens, rather
+  than implementation failures. Existing offline `PositionsTest`,
+  `HistoricalPositionsTest` and `TastytradeAcquisitionTest` generated the four
+  required synthetic files: **18 Java tests passed**. The unchanged Java sources'
+  generated files were reused in later isolated worktrees' ignored build folders.
+  Broad regressions then passed, including the final R4 source.
+- A separate private harness invoked existing `TransactionHistory.retained` using
+  SQLite `mode=ro`, no provider client and acquisition disabled; the existing
+  `validateHistory`/`renderHistory` JSONL path accepted its stale, incomplete
+  32-record result. The source cut remains old; no broker history refresh occurred.
+- The private final record combines that source with six retained cadence ZIPs,
+  preserves their bytes, actual reference lifecycle and later observations, and
+  keeps final fees/rationale/account bridge unknown. It includes generator bytes,
+  digest/runtime and detached replay locations. Source and result archives remain
+  outside Git, in private verification storage.
+- The root Talk worktree, installed `ww`/`tt` targets, exporter source, services,
+  broker orders, credentials, grants, strategy parameters, Sentinel and schedules
+  remain unchanged. No live brokerage acquisition or notification occurred.
+- No changed file is a canonical input of the inspected Roadmap generator. No
+  Roadmap regeneration is required. No API v2 contract/runtime/build semantics
+  changed; API documentation update/publication is NO_OP for this workstream.
+- Source is handed off on its isolated exporter lineage. Remote main remains the
+  separately verified accepted-main identity; no merge, installation, activation,
+  Product acceptance or strategy ratification is claimed.

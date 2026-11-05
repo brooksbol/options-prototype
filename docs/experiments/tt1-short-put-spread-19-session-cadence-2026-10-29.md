@@ -115,6 +115,12 @@ Track: qualified entries completed (out of 19), WAIT breakdown, median/mean hold
 
 ## Governance / cross-chat resume
 
+November 5 evidence-custody continuation: the independently reviewed
+[offline experimental-record candidate](../cli/tt1-experimental-record.md) connects
+retained cadence packages, supplied decisions/policy versions and broker evidence.
+It is not installed, does not change these trading rules or resolve the open
+success/risk/cohort decisions, and performs no live acquisition or broker actions.
+
 This document records an **operator trading experiment**, not a Wheelwright strategy admission. At capture, repository parking-lot `PL-STRAT-01` describes credit spreads as *out of scope for Wheelwright Product absent reconsideration*. Do not silently override it because the operator trades put credit spreads in TT1.
 
 To resume in a new chat: provide this path and say **“Resume TT1 19-session short put spread cadence; start with current session, refresh actual tt1 state, and distinguish confirmed fills from scenarios.”** Reacquire current GitHub main and brokerage observations. If live data are inaccessible, ask for `tt live` output, options chain, or brokerage evidence rather than inventing it.

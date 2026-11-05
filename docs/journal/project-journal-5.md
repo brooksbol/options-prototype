@@ -2426,3 +2426,52 @@ The [audit receipt](../reviews/sdk-talk-capability-audit-2026-10-27.md) preserve
 - **Width discovery.** Configured widths ($1/2/3/5/10) missed half-dollar and wide strikes. Exhaustive discovery shows extreme maximum widths on deep chains (SPY "$1–$394" under the default band). The narrowest quoted width is the more useful signal.
 
 **Records.** `docs/parking-lot-9.md` (`PL-EVID-OBS` refinement, reconciliation, TT1 scope clarification, width-discovery refinement) and `docs/bugs/BUG-055-tradier-missing-open-interest-coerced-to-zero.md`. Still open and not authorized: the Cash Deployment 1–100 Liq score proposal and the after-close admissibility observation (871 of 1,300 post-close chains inadmissible).
+
+### November 5, 2026 — TT1 offline evidence-record candidate independently accepted; installation reserved
+
+The Principal commissioned bounded evidence-closure engineering following the
+Experimental-Custodianship Audit, preserving the strategy and explicitly reserving
+live acquisition, broker changes, schedules and installation. Work used an isolated
+exporter-lineage worktree, protecting the concurrently running Sentinel thread and
+the Talk checkout. The audit supplied investigative leads, not implementation
+authority; the subsequent explicit engineering assignment supplied that scope.
+
+Recovered the TT1 experiment/report contracts, source retention/history/decision
+facilities, ADR-015/016/019/022/023, maintained subject owners and research controls.
+The existing Decision and Artifact contracts do not admit these arbitrary TT1
+operator notes without extension. The smallest independently achievable slice is
+an offline source-artifact composition beside the existing cadence exporter, with
+no database, backend/API resource, strategy/ranking model or new acquisition.
+
+Candidate command `ww export tt1-record` pins original package/manifest bytes,
+operator-supplied SELECT/WAIT and policy payloads, explicit execution links, actual
+exit configurations/replacements, qualified gross/net economics, retained marks
+and original-contract post-exit research observations. Original notes and data are
+preserved privately. Exact standalone reconciler bytes/hash/runtime plus detached
+replay input make the derivation recoverable. Missing rationale/costs/criteria
+remain missing; historic TT1 inventory does not automatically become the cohort.
+
+Independent review rejected immutable `108892c4` for incoming reversal, temporal
+and partial-sibling association defects; rejected `ffac5dc8` for an unqualified
+cancellation-event clock; then verified the reconciled event model in `a7c986b3`
+but rejected its missing generator provenance (raised by implementer and
+independently confirmed). Frozen rejected submissions remain preserved. The
+separate reviewer ACCEPTED `4885d601f22c5771a7d8814b89218665667d4a3d`, independently
+testing detached replay, prior falsifiers, synthetic regressions and retained
+source trace. [Full bounded review history](../reviews/tt1-evidence-record-2026-11-05.md).
+
+The existing backend retained-only history function and JSONL renderer were also
+exercised offline against a read-only source with no provider client/acquisition.
+Private retained evidence remains stale/incomplete, so final cumulative net
+experiment accounting remains unresolved. Public Git contains no brokerage source
+extracts or private result archives. The proposed bracket remains provisional,
+non-retroactive and unapplied. Sentinel mathematics/integration are unchanged.
+
+No domain meaning, ASSIM-0002 resolution, Product horizon, PL/BUG identity or
+architecture change is introduced. Journal/reference/experiment navigation changes
+are not inputs to the inspected Roadmap generator; no projection regeneration is
+triggered. No API v2 semantic/build input changed, so API documentation publication
+is NO_OP for this work; unrelated publication state is not repaired or asserted.
+Accepted-main integration and installation are not claimed: this isolated exporter
+candidate is a separately published source handoff, with operational `ww` still
+on `4d97643c`. Principal criteria/cohort decisions and installation remain reserved.
