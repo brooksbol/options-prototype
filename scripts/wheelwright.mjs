@@ -2,6 +2,8 @@
 import {parseHistory,readHistory,renderHistory,readHistories,renderHistories,historyDiagnostic,HISTORY_HELP} from './ww-history.mjs';
 
 import { parseCapital,readCapital,renderCapital,CAPITAL_HELP } from "./ww-capital.mjs";
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { readFile } from "node:fs/promises";
 import { parseShow, showConfig, readHeldQuote, presentShow, presentShowRows, selectShowObservations, presentFields } from "./ww-show.mjs";
 import { parsePositions, readPositions, readPositionCollection, renderPositionCollection, renderPositions, POSITIONS_HELP, parseObservations, readObservations, renderObservations, OBSERVATIONS_HELP } from "./ww-positions.mjs";
@@ -21,6 +23,8 @@ Account history uses backend policy-bounded read-through with explicit outcomes.
 Acquisition never claims suitability. Pipe commands without a format flag.
 
 Working commands:
+  export tt1-record --input NOTES.json --output PRIVATE_DIRECTORY
+      Compose an offline experimental record from retained cadence ZIPs.
   export tt1-cadence [-v | --verbose]
       Save a read-only ChatGPT evidence ZIP in ~/Downloads.
   pull [-v | --verbose] [--no-color]
@@ -232,6 +236,7 @@ export function parseArgs(args) {
   if (args.length === 1 && args[0] === "--man") return { command: "root-man" };
   const [command, ...rest] = args;
   if (command === "export") {
+    if(rest[0]==='tt1-record')return {command:'export-tt1-record',options:rest.slice(1)};
     if (rest.length===1 && ["--help","-h"].includes(rest[0])) return {command:"export-help"};
     if (rest[0]!=="tt1-cadence") usage("export: use ww export tt1-cadence");
     const options=rest.slice(1);
@@ -765,6 +770,13 @@ export function presentFetchResult(result, quiet, stdoutIsTTY, stderrIsTTY, verb
 
 export async function main(args) {
   const parsed = parseArgs(args);
+  if(parsed.command==='export-tt1-record') {
+    // Offline dispatch precedes all backend/configuration/credential discovery.
+    const result=spawnSync('python3',['-B',fileURLToPath(new URL('./tt1-experimental-record.py',import.meta.url)),...parsed.options],{stdio:'inherit'});
+    if(result.error)throw new WwError('tt1-record: Python 3 unavailable');
+    if(result.status!==0)throw new WwError('tt1-record: composition failed',result.status??1);
+    return;
+  }
   const usesBackend=['pull','history','ls-capital','ls-position-observations','ls-accounts','sync-account','show-positions','show','ls','fetch','prices','observed-prices','export-tt1'].includes(parsed.command)&&!parsed.fields;
   const base=usesBackend?await readBackendBase():undefined;
   if(parsed.command==='export-help') {
