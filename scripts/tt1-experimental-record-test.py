@@ -73,6 +73,7 @@ def history(orders, final=True):
                              complete=False, lifetimeCoverage="UNKNOWN", requestedThrough=NOW)))
     for index, row in enumerate(rows):
         row.update(currency="USD", normalization="SUPPORTED", correctionStatus="NONE_OBSERVED", reversalStatus="NONE_REPORTED",
+                   sourceTransactionId=str(1000 + index), sourceIdentityStatus="BROKER_TRANSACTION_ID",
                    provenance=dict(artifactId="artifact", observationId="observation-" + str(index), sha256="0"*64,
                                    receivedAt=NOW, rowNumber=index + 1))
         row["history"]["recordCount"] = len(rows)
@@ -236,10 +237,41 @@ class EvidenceTests(unittest.TestCase):
         _, ps = sources(); items = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"]
         rows = history([items[0], items[3]])
         raw = "\n".join(json.dumps(r) for r in rows).encode()
-        result, _ = m.history_rows(raw, None)
+        result, _ = m.history_rows(raw, None, NOW)
         self.assertEqual(len(result), 4)
         rows[1]["accountId"] = "other"
-        with self.assertRaises(ValueError): m.history_rows("\n".join(json.dumps(r) for r in rows).encode(), None)
+        with self.assertRaises(ValueError): m.history_rows("\n".join(json.dumps(r) for r in rows).encode(), None, NOW)
+
+    def test_review_incoming_reversal_blocks_final_net(self):
+        s, ps = sources(); items = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"]
+        rows = history([items[0], items[3]])
+        reversal = copy.deepcopy(rows[0])
+        reversal.update(transactionId="reversal", sourceTransactionId="2000", reversesSourceId=rows[0]["sourceTransactionId"],
+                        reversesTransactionId=rows[0]["transactionId"], kind="OTHER", orderId=None)
+        rows.append(reversal)
+        for row in rows: row["history"]["recordCount"] = len(rows)
+        result = self.record(s, ps, rows)
+        self.assertEqual(result["lifecycles"][0]["economics"]["status"], "TRANSACTION_FILL_CONFLICT")
+        self.assertIsNone(result["lifecycles"][0]["economics"]["netRealized"])
+
+    def test_review_future_receipt_or_context_never_enters_past_record(self):
+        s, ps = sources(); items = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"]
+        rows = history([items[0], items[3]])
+        rows[0]["provenance"]["receivedAt"] = "2027-01-01T00:00:00Z"
+        with self.assertRaises(ValueError): self.record(s, ps, rows)
+        rows = history([items[0], items[3]])
+        for row in rows: row["history"]["checkedAt"] = "2027-01-01T00:00:00Z"
+        with self.assertRaises(ValueError): self.record(s, ps, rows)
+
+    def test_review_partial_or_cancelled_filled_sibling_makes_group_ambiguous(self):
+        for status in ["Filled", "Cancelled"]:
+            s, ps = sources(); items = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"]
+            sibling = copy.deepcopy(items[0]); sibling["id"] = 9; sibling["status"] = status
+            for leg in sibling["legs"]: leg["fills"][0]["quantity"] = "0.5"
+            items.append(sibling)
+            record = self.record(s, ps)
+            self.assertIsNone(record["lifecycles"][0]["grossRealized"])
+            self.assertEqual(record["unresolvedOpeningOrders"][0]["orderId"], "9")
 
 
 class ArchiveTests(unittest.TestCase):

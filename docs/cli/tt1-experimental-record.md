@@ -207,6 +207,15 @@ authorization to recover later brokerage history; backend admission contract if
 that becomes needed; supported Sentinel integration; installation. No new
 framework or strategy change is justified by these gaps.
 
-Independent review: pending at initial candidate freeze. Test results, immutable
-review identities and final publishing disposition are appended after review.
-No operational change or Principal Product acceptance is claimed.
+Independent review REJECTED frozen `108892c4f7f881df6d5878772e23a435f173b2b2`:
+incoming transaction reversals, future transaction receipts, and partially executed
+sibling openings could be promoted into unsupported final outcomes. The original
+commit/worktree is preserved. Correction is a new isolated revision under the
+same bounded assignment, not authority derived from the rejection. It applies the
+composition cutoff to transaction provenance/context, tests incoming reversal
+relationships, and includes every executed sibling in group ambiguity. An
+unresolved partially executed opening cannot disappear merely because it is
+Cancelled rather than Filled. See the [review record](../reviews/tt1-evidence-record-2026-11-05.md).
+
+Corrected-candidate independent re-review is pending at this freeze. No
+installation, operational change or Principal Product acceptance is claimed.

@@ -183,7 +183,7 @@ def fills(order, terms):
     return dict(cash=cash, first=min(times, key=instant), last=max(times, key=instant))
 
 
-def history_rows(raw, account_id):
+def history_rows(raw, account_id, knowledge_cut):
     if raw is None:
         return [], dict(status="NOT_SUPPLIED", lifetimeCoverage="UNKNOWN")
     rows = [json.loads(line) for line in raw.decode().splitlines() if line.strip()]
@@ -193,6 +193,7 @@ def history_rows(raw, account_id):
     require(account_id, "History Account identity missing")
     seen = set()
     contexts = []
+    cut = instant(knowledge_cut)
     for row in rows:
         require(row.get("accountId") == account_id and isinstance(row.get("history"), dict), "History Account/context mismatch")
         identity = row.get("transactionId")
@@ -208,6 +209,13 @@ def history_rows(raw, account_id):
                 provenance.get("observationId") and isinstance(provenance.get("rowNumber"), int) and
                 provenance["rowNumber"] > 0, "Transaction source lineage required")
         instant(provenance.get("receivedAt"))
+        require(instant(provenance["receivedAt"]) <= cut, "Transaction received after composition cut")
+        for key in ["executedAt", "sourceCreatedAt"]:
+            if row.get(key) is not None:
+                require(instant(row[key]) <= cut, "Future transaction event")
+        for key in ["asOf", "checkedAt", "lastImportedAt", "requestedThrough"]:
+            if context.get(key) is not None:
+                require(instant(context[key]) <= cut, "History context after composition cut")
         contexts.append(context)
     return rows, dict(status="SUPPLIED_BOUNDED_RESULT", attribution="OPERATOR_SUPPLIED_TT1_SOURCE; NOT_NATIVE_ACCOUNT_CROSS_VERIFIED", **contexts[0])
 
@@ -223,11 +231,16 @@ def costs_for(orders, rows):
             if len(matches) != 1:
                 return dict(netRealized=None, reportedNetCash=None, costs=None, status="TRANSACTION_ASSOCIATION_UNRESOLVED")
             row = matches[0]
+            source_id = row.get("sourceTransactionId")
+            incoming_reversal = any(other.get("reversesSourceId") == source_id or
+                                    other.get("reversesTransactionId") == row.get("transactionId")
+                                    for other in rows if other is not row)
             cash = sum((decimal(f["fill-price"]) * decimal(f["quantity"]) * 100 for f in leg["fills"]), Decimal(0))
             cash *= -1 if leg["action"].startswith("Buy") else 1
             if (decimal(row.get("quantity")) != decimal(leg["quantity"]) or decimal(row.get("value")) != cash or
                     row.get("correctionStatus") != "NONE_OBSERVED" or
                     row.get("reversalStatus") != "NONE_REPORTED" or row.get("reversesSourceId") is not None or
+                    not source_id or row.get("sourceIdentityStatus") != "BROKER_TRANSACTION_ID" or incoming_reversal or
                     row.get("currency") != "USD" or row.get("normalization") != "SUPPORTED" or
                     not row.get("executedAt") or not min(instant(f["filled-at"]) for f in leg["fills"]) <=
                     instant(row["executedAt"]) <= max(instant(f["filled-at"]) for f in leg["fills"])):
@@ -297,7 +310,7 @@ def build_record(source, packages, history=None, recorded_at=None):
     for policy in policies.values():
         require(instant(policy["declaredAt"]) <= instant(recorded_at), "Future policy assertion")
         instant(policy["effectiveAt"])
-    rows, coverage = history_rows(history, source.get("history", {}).get("accountId"))
+    rows, coverage = history_rows(history, source.get("history", {}).get("accountId"), recorded_at)
     terms = multipliers(packages)
     versions, observations = {}, {}
     for package in packages:
@@ -309,12 +322,16 @@ def build_record(source, packages, history=None, recorded_at=None):
             if identity not in versions or instant(at) > instant(versions[identity][1]):
                 versions[identity] = order, at
     orders = {key: item[0] for key, item in versions.items()}
+    def has_open_execution(order):
+        return any(l.get("action", "").endswith("to Open") and
+                   any((decimal(f.get("quantity")) or 0) > 0 for f in l.get("fills", [])) for l in order.get("legs", []))
     unresolved_openings = [dict(orderId=key, status=order.get("status"), evidence=observations[key],
         reason="UNSUPPORTED_CONSTRUCTION_OR_INCOMPLETE_FILLS_OR_UNVERIFIED_TERMS") for key, order in orders.items()
-        if order.get("status") == "Filled" and any(l.get("action", "").endswith("to Open") for l in order.get("legs", []))
+        if (order.get("status") == "Filled" or has_open_execution(order)) and any(l.get("action", "").endswith("to Open") for l in order.get("legs", []))
         and (not constituents(order, True) or not fills(order, terms))]
     groups = Counter(str(o.get("complex-order-id")) for o in orders.values() if o.get("complex-order-id") is not None
-                     and constituents(o, True) and fills(o, terms))
+                     and (has_open_execution(o) or o.get("status") == "Filled" and
+                          any(l.get("action", "").endswith("to Open") for l in o.get("legs", []))))
     decisions = []
     decision_ids = set()
     for note in source.get("decisions", []):
@@ -403,7 +420,8 @@ def build_record(source, packages, history=None, recorded_at=None):
                     if (contract.get("underlying") == structure["underlying"] and spot_clock and
                             instant(spot_clock) > instant(exit_fill["last"]) and market_evidence.get("underlyingSpot") is not None):
                         point = dict(packageSha256=package["sha256"], observedAt=spot_clock, price=market_evidence["underlyingSpot"],
-                                     kind="POST_EXIT_RESEARCH", convention=market_evidence.get("spotPriceConvention"))
+                                     kind="POST_EXIT_RESEARCH", convention=market_evidence.get("spotPriceConvention"),
+                                     sourceQualification={k: market_evidence.get(k) for k in ["status", "issues", "spotAgeSeconds"]})
                         if point not in underlying_after:
                             underlying_after.append(point)
                     clock = observed.get("marketEvidence", {}).get("marketQuoteObservedAt")
