@@ -217,5 +217,17 @@ relationships, and includes every executed sibling in group ambiguity. An
 unresolved partially executed opening cannot disappear merely because it is
 Cancelled rather than Filled. See the [review record](../reviews/tt1-evidence-record-2026-11-05.md).
 
-Corrected-candidate independent re-review is pending at this freeze. No
-installation, operational change or Principal Product acceptance is claimed.
+Independent re-review REJECTED R2
+`ffac5dc80bc7e3f47948c80d6c351026eaf49c5c`: its original three corrections passed,
+but future cancellations could still become confirmed event periods. R2 is also
+preserved unchanged. Before R3, the temporal model was reconciled into a shared
+observed-event boundary rather than another cancellation-only check: occurred
+order events must lie between instruction receipt and source observation;
+operational update clocks must not exceed source observation; transaction events
+must not exceed artifact receipt; receipts/context must not exceed composition.
+Planned GTD/option expiration and future-effective declared policy are distinct
+from occurred events and remain representable without pretending they happened.
+
+R3 has a parameterized event-class/boundary test matrix. Independent review is
+pending at this freeze. No installation, operational change or Principal Product
+acceptance is claimed.

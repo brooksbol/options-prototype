@@ -34,6 +34,36 @@ def instant(value):
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def observed_event(value, receipt, lower_bound=None):
+    """An occurred event is known by its source receipt, never by a future plan."""
+    event = instant(value)
+    require(event <= instant(receipt), "Observed event after source receipt")
+    require(lower_bound is None or event >= instant(lower_bound), "Order event precedes instruction receipt")
+    return event
+
+
+def validate_order_times(order, receipt):
+    received = order["received-at"]
+    observed_event(received, receipt)
+    # These denote occurred events. gtc-date/option expires-at denote future plans
+    # or contract terms and deliberately do not participate in this test.
+    for field in ["cancelled-at", "filled-at", "rejected-at", "expired-at", "live-at", "triggered-at"]:
+        if order.get(field) is not None:
+            observed_event(order[field], receipt, received)
+    for leg in order.get("legs", []):
+        for fill in leg.get("fills", []):
+            observed_event(fill["filled-at"], receipt, received)
+    updated = order.get("updated-at")
+    if updated is not None:
+        if isinstance(updated, str) and re.search(r"(Z|[+-]\d\d:\d\d)$", updated):
+            observed_event(updated, receipt)
+        else:
+            number = decimal(updated)
+            require(number is not None, "Unknown order update clock")
+            updated_at = datetime.fromtimestamp(float(number / 1000), timezone.utc).isoformat()
+            observed_event(updated_at, receipt)
+
+
 def decimal(value):
     if value is None or isinstance(value, bool):
         return None
@@ -212,7 +242,7 @@ def history_rows(raw, account_id, knowledge_cut):
         require(instant(provenance["receivedAt"]) <= cut, "Transaction received after composition cut")
         for key in ["executedAt", "sourceCreatedAt"]:
             if row.get(key) is not None:
-                require(instant(row[key]) <= cut, "Future transaction event")
+                observed_event(row[key], provenance["receivedAt"])
         for key in ["asOf", "checkedAt", "lastImportedAt", "requestedThrough"]:
             if context.get(key) is not None:
                 require(instant(context[key]) <= cut, "History context after composition cut")
@@ -315,8 +345,7 @@ def build_record(source, packages, history=None, recorded_at=None):
     versions, observations = {}, {}
     for package in packages:
         for order, at in order_items(package):
-            require(instant(order["received-at"]) <= instant(at), "Order receipt after source cut")
-            require(all(instant(f["filled-at"]) <= instant(at) for l in order.get("legs", []) for f in l.get("fills", [])), "Fill after source cut")
+            validate_order_times(order, at)
             identity = str(order["id"])
             observations.setdefault(identity, []).append(dict(packageSha256=package["sha256"], retrievedAt=at, order=order))
             if identity not in versions or instant(at) > instant(versions[identity][1]):
@@ -540,7 +569,7 @@ def main():
     args = parser.parse_args()
     try:
         print(publish(args.input.resolve(), args.output.resolve()))
-    except (ValueError, KeyError, TypeError, OSError, zipfile.BadZipFile):
+    except (ValueError, KeyError, TypeError, OverflowError, OSError, zipfile.BadZipFile):
         parser.exit(1, "TT1 record validation/publication failed; input sources and existing output preserved.\n")
 
 

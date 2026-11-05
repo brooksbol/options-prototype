@@ -273,6 +273,35 @@ class EvidenceTests(unittest.TestCase):
             self.assertIsNone(record["lifecycles"][0]["grossRealized"])
             self.assertEqual(record["unresolvedOpeningOrders"][0]["orderId"], "9")
 
+    def test_observed_order_event_classes_share_source_receipt_boundary(self):
+        for field in ["cancelled-at", "filled-at", "rejected-at", "expired-at", "live-at", "triggered-at"]:
+            for when in ["2027-01-01T00:00:00Z", "2026-11-05T16:30:00Z", "2026-10-27T00:00:00Z"]:
+                with self.subTest(field=field, when=when):
+                    s, ps = sources()
+                    ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"][2][field] = when
+                    with self.assertRaises(ValueError): self.record(s, ps)
+
+    def test_future_planned_expiry_is_distinct_from_occurred_event(self):
+        s, ps = sources()
+        stop = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"][2]
+        stop["gtc-date"] = "2027-01-01"
+        self.assertEqual(self.record(s, ps)["lifecycles"][0]["actualExitConfigurations"][1]["expiresAt"], "2027-01-01")
+
+    def test_native_order_update_and_fill_clocks_cannot_exceed_source_cut(self):
+        s, ps = sources()
+        opening = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"][0]
+        opening["updated-at"] = int(m.instant("2027-01-01T00:00:00Z").timestamp() * 1000)
+        with self.assertRaises(ValueError): self.record(s, ps)
+        del opening["updated-at"]
+        opening["legs"][0]["fills"][0]["filled-at"] = "2026-10-28T15:01:00Z"
+        with self.assertRaises(ValueError): self.record(s, ps)
+
+    def test_transaction_event_after_artifact_receipt_is_not_historical_evidence(self):
+        s, ps = sources(); items = ps[1]["account"]["observed"]["reads"][0]["body"]["data"]["items"]
+        rows = history([items[0], items[3]])
+        rows[0]["provenance"]["receivedAt"] = "2026-10-27T00:00:00Z"
+        with self.assertRaises(ValueError): self.record(s, ps, rows)
+
 
 class ArchiveTests(unittest.TestCase):
     def test_zip_integrity_private_output_and_cli(self):

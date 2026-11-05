@@ -35,7 +35,9 @@ no new database or backend admission API is required for this slice. That is not
 acceptance of the rejected implementation or a claim of complete experiment
 closure.
 
-## R2 — correction submitted separately
+## R2 — REJECT after correction submitted separately
+
+Immutable candidate: `ffac5dc80bc7e3f47948c80d6c351026eaf49c5c`.
 
 Corrections preserve three general invariants:
 
@@ -46,6 +48,38 @@ Corrections preserve three general invariants:
 - Every executed opening, including incomplete/canceled siblings, participates
   in ambiguity. Unresolved execution cannot be treated as absent execution.
 
-Implementation and independent re-review remain separate. Final exact corrected
-identity, verification and review disposition are recorded after submission.
+The independent reviewer verified the original three fixes using incoming TRADE
+and OTHER reversals, three partially executed sibling status classes, and seven
+transaction/history clock cases. Independent Python21 and Node42/one unavailable
+private-fixture skip passed. Six actual retained source ZIP inventories/hashes/
+lengths and the reference lifecycle/post-exit trace were independently verified;
+final costs and selection rationale remained unknown.
+
+R2 nevertheless had one remaining blocker: a future cancellation timestamp was
+projected as a confirmed historical cancellation period. The independent frozen
+reproduction was retained at `/tmp/tt1-independent-cancellation-ffac5dc8.py`.
+The same knowledge-cut invariant had been applied selectively. R2 remains frozen
+and unchanged; its valid fixes are retained in the successor.
+
+## R3 — model reconciliation and new candidate
+
+The repeated temporal finding triggered model synthesis before further code:
+
+| Time class | Permitted relationship |
+|---|---|
+| Actual order receipt | At or before source read receipt |
+| Actual fill/cancel/reject/expire/live/trigger event when reported | At or after instruction receipt and at or before source read receipt; no activation semantics inferred |
+| Native broker update clock | At or before source read receipt; operational clock is not an economic event |
+| Actual transaction execution/creation | At or before its artifact receipt |
+| Transaction artifact receipt and supplied history context | At or before composition cut |
+| Source decision evidence | All material source clocks at or before asserted decision time |
+| Planned GTD/option expiry/future-effective policy | May be future; never interpreted as an occurred historical event |
+
+A shared observed-event validator and explicit native-clock classification now
+implement that model. Parameterized tests vary every event class across
+before-instruction, after-source/before-composition, and future-composition cuts;
+valid future planned dates remain admissible. This changes evidence qualification,
+not the trading policy, broker trigger semantics or authority model.
+
+Final exact R3 identity and independent disposition are recorded after submission.
 No installation is authorized by either tests or review ACCEPT.
