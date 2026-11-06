@@ -1,4 +1,4 @@
-"""Bounded Portfolio account-identity acquisition. No trading or token creation."""
+"""Bounded Portfolio paper-account evidence acquisition. No trading or token creation."""
 from __future__ import annotations
 
 import argparse
@@ -19,6 +19,11 @@ from webull.core.auth.signers.signer_factory import SignerFactory
 from webull.trade.request.v2.get_account_list_request import GetAccountListRequest
 from webull.trade.request.v2.get_account_balance_request import AccountBalanceRequest
 from webull.trade.request.v2.get_account_positions_request import AccountPositionsRequest
+from webull.trade.request.v3.get_order_open_request_v2 import OrderOpenRequestV2
+from webull.trade.request.v3.get_order_history_request_v2 import OrderHistoryRequestV2
+from webull.trade.request.v3.get_order_detail_request import OrderDetailRequest
+from webull.trade.request.get_activities_request_v2 import GetActivitiesRequestV2
+from activity_records import RecordError, timestamp, window, page, order_records, cash_records
 
 # The official signer emits signing headers/material at DEBUG. This isolated
 # harness must remain safe even when imported by a caller with verbose logging.
@@ -31,8 +36,18 @@ PATHS = {
     "accounts": "/trading/accounts/list",
     "balances": "/trading/assets/balances/get",
     "positions": "/trading/assets/positions/list",
+    "working": "/trading/orders/open-orders/list",
+    "history": "/trading/orders/historical-orders/list",
+    "detail": "/trading/orders/get",
+    "cash": "/trading/activities/cash-activities/list",
 }
+FACTORIES = {"accounts": GetAccountListRequest, "balances": AccountBalanceRequest,
+             "positions": AccountPositionsRequest, "working": OrderOpenRequestV2,
+             "history": OrderHistoryRequestV2, "detail": OrderDetailRequest, "cash": GetActivitiesRequestV2}
+PAGED = {"working", "history", "cash"}
+MAX_PAGES, MAX_RECORDS, MAX_DETAILS = 20, 2000, 20
 ROOT = Path.home() / "Library/Application Support/Wheelwright/webull-paper-identity"
+VERIFIED_RUN = ROOT / "20261106T185745.422065Z"
 MAX_BYTES = 2_000_000
 
 
@@ -50,11 +65,28 @@ def validate_request(method, url, body=None):
             or parsed.path not in PATHS.values() or parsed.fragment or body):
         raise AuditError("Sandbox read-only request rejected.")
     pairs = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True)
-    expected = [] if parsed.path == PATHS["accounts"] else ["account_id"]
-    if sorted(k for k, _ in pairs) != expected:
+    kind = next(k for k, v in PATHS.items() if v == parsed.path)
+    required = set() if kind == "accounts" else {"account_id"}
+    optional = {"pagination_key"} if kind in PAGED else set()
+    if kind in ("history", "cash"):
+        required |= {"start_time", "end_time"}
+    if kind == "detail":
+        required.add("client_order_id")
+    values = dict(pairs)
+    if len(values) != len(pairs) or not required <= values.keys() or values.keys() - required - optional:
         raise AuditError("Unexpected query parameters rejected.")
-    if pairs and not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", pairs[0][1]):
-        raise AuditError("Invalid account reference.")
+    for key in ("account_id", "client_order_id"):
+        if key in values and not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", values[key]):
+            raise AuditError("Invalid provider reference.")
+    if "pagination_key" in values and not re.fullmatch(r"[!-~]{1,4096}", values["pagination_key"]):
+        raise AuditError("Invalid pagination cursor.")
+    if kind in ("history", "cash"):
+        try:
+            canonical = window(values["start_time"], values["end_time"], cash=kind == "cash")
+            if canonical != (values["start_time"], values["end_time"]):
+                raise RecordError()
+        except RecordError:
+            raise AuditError("Invalid or noncanonical bounded history window.") from None
 
 
 class SandboxSession(requests.Session):
@@ -211,14 +243,17 @@ class IdentityReader:
         self._evidence = evidence
         self._sequence = 0
 
-    def _read(self, kind, account_id=None):
-        factory = {"accounts": GetAccountListRequest, "balances": AccountBalanceRequest,
-                   "positions": AccountPositionsRequest}
-        if kind not in factory or (kind == "accounts") != (account_id is None):
+    def _read(self, kind, account_id=None, **parameters):
+        if kind not in FACTORIES or (kind == "accounts") != (account_id is None):
             raise AuditError("Read operation rejected.")
-        request = factory[kind]()
+        request = FACTORIES[kind]()
         if account_id is not None:
             request.set_account_id(account_id)
+        for name, value in parameters.items():
+            setter = getattr(request, "set_" + name, None)
+            if setter is None:
+                raise AuditError("Unsupported SDK query parameter.")
+            setter(value)
         request.set_endpoint(HOST)
         url = BASE + PATHS[kind]
         prepared = requests.Request("GET", url, params=request.get_query_params()).prepare()
@@ -232,7 +267,8 @@ class IdentityReader:
                                                if k.lower() in ("x-signature", "x-access-token"))
         self._sequence += 1
         prefix = f"{self._sequence:02d}-{kind}"
-        meta = {"operation": kind, "host": HOST, "started_at": utc_now(), "method": "GET"}
+        meta = {"operation": kind, "host": HOST, "started_at": utc_now(), "method": "GET",
+                "query": dict(request.get_query_params())}
         try:
             with self._session.send(prepared) as response:
                 meta["http_status"] = response.status_code
@@ -253,7 +289,8 @@ class IdentityReader:
                 meta["body_sha256"] = hashlib.sha256(body).hexdigest()
                 if response.status_code != 200:
                     raise AuditError(f"Sandbox HTTP {response.status_code}; stopped without retry. Inspect private evidence.")
-                require_unpaginated(document)
+                if kind not in PAGED:
+                    require_unpaginated(document)
                 return document
         except requests.RequestException:
             raise AuditError("Sandbox transport failed; stopped without retry.") from None
@@ -272,21 +309,146 @@ class IdentityReader:
     def positions(self, account_id):
         return position_rows(self._read("positions", account_id))
 
+    def _pages(self, kind, account_id, **parameters):
+        if kind not in PAGED:
+            raise AuditError("Paginated operation rejected.")
+        rows, seen, receipts = [], set(), []
+        for _ in range(MAX_PAGES):
+            document = self._read(kind, account_id, **parameters)
+            items, cursor = page(document)
+            rows.extend(items)
+            receipts.append({"request_sequence": self._sequence, "count": len(items),
+                             "has_next_page": bool(cursor)})
+            if len(rows) > MAX_RECORDS:
+                raise AuditError("Record bound reached; retained pages are incomplete.")
+            if not cursor:
+                return {"data": rows, "pages": receipts, "complete_for_query": True}
+            if cursor in seen:
+                raise AuditError("Repeated pagination cursor; retained pages are incomplete.")
+            seen.add(cursor)
+            parameters["pagination_key"] = cursor
+        raise AuditError("Page bound reached; retained pages are incomplete.")
+
+    def working_orders(self, account_id):
+        return self._pages("working", account_id)
+
+    def historical_orders(self, account_id, start, end):
+        start, end = window(start, end)
+        return self._pages("history", account_id, start_time=start, end_time=end)
+
+    def cash_activities(self, account_id, start, end):
+        start, end = window(start, end, cash=True)
+        return self._pages("cash", account_id, start_time=start, end_time=end)
+
+    def order_detail(self, account_id, client_order_id):
+        return self._read("detail", account_id, client_order_id=client_order_id)
+
+
+def verified_account(accounts, prior_accounts, desktop):
+    number = desktop.get("account_number")
+    if not isinstance(number, str) or not number:
+        raise AuditError("Prior verified Desktop account number is unavailable.")
+    prior = [a for a in prior_accounts if a.get("account_number") == number
+             and a.get("account_class") == "INDIVIDUAL_CASH"]
+    if len(prior) != 1:
+        raise AuditError("Prior verified account anchor is unavailable.")
+    matching = [a for a in accounts if a.get("account_id") == prior[0]["account_id"]
+                and a.get("account_number") == number and a.get("account_class") == "INDIVIDUAL_CASH"]
+    if len(matching) != 1:
+        raise AuditError("Previously verified account is not uniquely present; stopped.")
+    return matching[0]["account_id"]
+
+
+def collect_activity(reader, ref, start, end):
+    """Independent reads: preserve partial evidence while reporting any failure.
+
+    No caller-supplied order IDs: details are limited to IDs actually enumerated
+    in this observation. Working/history snapshots are never added as cash flows.
+    """
+    start, end = window(start, end, cash=True)
+    summary = {"account_id": ref, "start_time": start, "end_time": end,
+               "started_at": utc_now(), "operations": {}, "details": []}
+    clients = set()
+    operations = {
+        "balances": lambda: reader.balances(ref), "positions": lambda: reader.positions(ref),
+        "working": lambda: reader.working_orders(ref),
+        "history": lambda: reader.historical_orders(ref, start, end),
+        "cash": lambda: reader.cash_activities(ref, start, end),
+    }
+    for name, read in operations.items():
+        try:
+            result = read()
+            if name in ("working", "history"):
+                records = order_records(result["data"], ref)
+                for group in result["data"]:
+                    for item in [group] + group["orders"]:
+                        cid = item.get("client_order_id")
+                        if isinstance(cid, str) and cid:
+                            clients.add(cid)
+                result["normalized_orders"] = records
+            elif name == "cash":
+                result["normalized_activities"] = cash_records(result["data"], ref)
+            summary["operations"][name] = {"status": "OBSERVED", "result": result}
+        except (AuditError, RecordError) as error:
+            summary["operations"][name] = {"status": "FAILED", "reason": str(error)}
+    if len(clients) > MAX_DETAILS:
+        summary["details_status"] = "INCOMPLETE: detail count exceeds this pilot's bound"
+    else:
+        summary["details_status"] = "NOT EXERCISED: no observed client order IDs" if not clients else "OBSERVED"
+        for cid in sorted(clients):
+            try:
+                detail = reader.order_detail(ref, cid)
+                records = order_records([detail], ref)
+                summary["details"].append({"status": "OBSERVED", "client_order_id": cid,
+                                           "provider": detail, "normalized_orders": records})
+            except (AuditError, RecordError) as error:
+                summary["details"].append({"status": "FAILED", "client_order_id": cid, "reason": str(error)})
+        if any(item["status"] == "FAILED" for item in summary["details"]):
+            summary["details_status"] = "INCOMPLETE: one or more detail reads failed"
+    summary["finished_at"] = utc_now()
+    return summary
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--observe", action="store_true", help="Perform the authorized Sandbox account reads")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--observe", action="store_true", help="Perform the original Sandbox identity reads")
+    modes.add_argument("--activity", action="store_true", help="Observe orders/cash for the previously verified paper account")
+    parser.add_argument("--start", help="Explicit ISO8601 window start, with timezone")
+    parser.add_argument("--end", help="Explicit ISO8601 window end, with timezone")
     args = parser.parse_args()
-    if not args.observe:
+    if not args.observe and not args.activity:
         parser.print_help()
         return 2
     try:
+        if args.activity:
+            start, end = window(args.start, args.end, cash=True)
+        elif args.start is not None or args.end is not None:
+            raise AuditError("History windows require --activity.")
         private_directory(ROOT)
         evidence = ROOT / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
         evidence.mkdir(mode=0o700)
         key, secret = load_credentials()
         reader = IdentityReader(key, secret, evidence)
         accounts = reader.accounts()
+        if args.activity:
+            prior = json.loads((VERIFIED_RUN / "01-accounts.json").read_bytes())
+            desktop = json.loads((VERIFIED_RUN / "desktop-observation.json").read_bytes())
+            ref = verified_account(accounts, prior, desktop)
+            result = collect_activity(reader, ref, start, end)
+            if not secret_free(result, (key, secret)):
+                raise AuditError("Normalized result contains authentication material; not retained.")
+            retain(evidence / "activity-observation.json", json.dumps(result, indent=2).encode())
+            print(f"Window UTC: {start} through {end}")
+            for name, entry in result["operations"].items():
+                count = len(entry["result"]["data"]) if name in PAGED and entry["status"] == "OBSERVED" else None
+                print(f"{name}: {entry['status']}" + (f"; objects: {count}" if count is not None else ""))
+            print(f"Order detail status: {result['details_status']}; requests: {len(result['details'])}. Desktop order reconciliation: UNRESOLVED.")
+            print(f"Private evidence: {evidence}")
+            failed = any(e["status"] == "FAILED" for e in result["operations"].values())
+            failed |= any(e["status"] == "FAILED" for e in result["details"])
+            failed |= result["details_status"].startswith("INCOMPLETE")
+            return 1 if failed else 0
         for number, account in enumerate(accounts, 1):
             ref = account["account_id"]
             reader.balances(ref)
@@ -296,7 +458,7 @@ def main():
         print(f"Account count: {len(accounts)}. Identity verdict: UNRESOLVED pending Desktop comparison.")
         print(f"Private evidence: {evidence}")
         return 0
-    except AuditError as error:
+    except (AuditError, RecordError) as error:
         print(str(error), file=sys.stderr)
         return 1
     except Exception:
