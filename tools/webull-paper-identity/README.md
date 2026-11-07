@@ -236,3 +236,137 @@ Verified during the November 5–6 access investigation:
 * [Cash activities](https://developer.webull.com/apis/docs/reference/trade-cash-activity-by-type/)
 * [Sandbox rate limits](https://developer.webull.com/apis/docs/rate-limits/)
 * [Separate OpenAPI market-data entitlements](https://developer.webull.com/apis/docs/market-data-api/faq/)
+
+## Authorized experiment preparation — November 7, 2026 (local review candidate)
+
+Authority: [Principal ratification and engineering grant, bc494ef](https://github.com/brooksbol/portfolio/blob/bc494ef4499aaaacf998c446417b06db28d0c490/decisions/2026-11-07-aristocrats-experiment-3am-principal-reconciliation.md).
+This slice is **uncommitted on the existing draft PR #46 branch**, pending independent
+review and Principal Product acceptance. It is not installed v2 behavior. No order
+writer, signal predicate, quote service, scheduler or notification sender is added.
+
+Reuse and gaps:
+
+- `acquisition_state.py` composes the existing seven GET families and normalization.
+  It brackets the acquisition with another positions/working-orders/balances read;
+  checks quantities, order/detail consistency, pagination, capacity fields and account
+  arithmetic; and refuses missing, unsupported, conflicting or old observations.
+  The 60-second acquisition/receipt guard is a conservative engineering bound for
+  this diagnostic, **not** source-event freshness or a new quote policy. Order lists
+  can lag; a stable bracket is not an atomic or complete broker-history guarantee.
+- `experiment_state.py` supplies the missing Portfolio-specific cohort/treatment/
+  intent/client-order correlation identities. A single protected JSON file, file
+  lock, atomic replacement and fsync suffice; no database or service is introduced.
+  The file never substitutes for reacquired financial state. Its account fingerprint
+  scopes native correlations; it is not a new Wheelwright Account identity.
+- Duplicate events recover the same identities; other events cannot enroll the same
+  underlying again. Existing-cohort children remain planned after an exactly matched
+  control fill. Unknown submissions never clear automatically, even when later reads
+  find the order. Unassociated activity or inconsistent inventory stops the evaluation.
+- `prepare()` returns **unsigned, unpriced data**, with submission and retry always
+  false. It exposes no send operation. The official SDK's v3 `PlaceOrderRequest` can
+  package the synthetic fields locally in tests, but the unchanged real transport
+  rejects its POST. This is packaging evidence, not preview/submission acceptance.
+- Canonical financial resources, broker observations and existing pilot evidence stay
+  with Wheelwright. Experimental identities and attribution belong to Portfolio.
+  No v2 contract, governance, Position ontology or operational database changes.
+
+From the existing branch and private environment, ordinary read-only inspection is:
+
+```sh
+~/.local/share/wheelwright/webull-paper-identity/venv/bin/python tools/webull-paper-identity/experiment.py CAT
+~/.local/share/wheelwright/webull-paper-identity/venv/bin/python tools/webull-paper-identity/experiment.py XOM
+```
+
+Each command enumerates accounts and verifies the original Desktop identity anchor,
+then acquires new broker evidence. It does not load an old observation as current.
+Private outputs are `current-state.json` and `experiment-result.json` in the existing
+timestamped evidence directories. Durable identities live in the sibling owner-only
+`aristocrats-experiment/experiment.json`; opening an empty store does not enroll it.
+
+Engineering enrollment takes both `--event-id` and `--contracts PATH`. The former is
+an explicitly supplied event identity, **not automatic stochastic confirmation**.
+The latter is a private JSON list with `symbol`, `expiration`, `strike`, `right: PUT`,
+`multiplier: 100`, `deliverable: 100`, and a nonempty source `reference`, one selected
+put per distinct expiration within 45 calendar days. The supplied reference is not
+independently verified by this pilot. No signal or contract file was invented to
+enroll a real treatment during this demonstration. Selection of actual available
+expirations/ATM requires independent source qualification. By default, previews use
+only currently held put metadata, excluding expired dates; they are not a full chain.
+
+### Authenticated Product observation — November 7, 2026
+
+Two final demonstration runs each made **12 Sandbox GET requests, all HTTP200**:
+
+| Read boundary UTC | Underlying | Actual result |
+|---|---|---|
+| 16:08:14–16:08:16.943804 | CAT | **BLOCKED**: existing broker exposure and reported order activity |
+| 16:08:53–16:08:55.422811 | XOM | **ELIGIBLE_FOR_PLANNING**: no exposure/order observed at this cut; not execution clearance |
+
+Both reported cash **$945,522.84**, NLV **$999,871.84**, settled cash **$944,040.00**,
+buying power **$833,522.84**, and option buying power **$833,522.84**. These are distinct
+broker fields, not interchangeable collateral or available-cash determinations.
+CAT still reported100 shares and short1 each of Nov6 and Nov13 $560 puts. Its preview
+showed stock100 plus one Nov13 put; no cohort was enrolled. XOM showed an unpriced
+stock preview and no discovered put references; no cohort was enrolled. These are
+current account reads on Saturday, not regular-session quote or execution evidence.
+The overdue Nov6 position does not prove assignment or unassigned expiration.
+
+Raw IDs, source rows, full timestamps and response hashes remain private. Final run
+directories are `20261107T160814.559088Z` and `20261107T160853.272528Z` beneath the
+existing evidence root. Earlier evidence reports remain unchanged historical records.
+
+### Focused verification and remaining gates
+
+The complete pilot suite has **69 passing offline tests** (the existing52 plus17):
+duplicate signals, preserved children, partial fills, delayed/missing/conflicting
+details, account mismatch, opposing inventory rows, unknown acceptance, atomic state
+failure, separate-process identity recovery and stale-observation rejection. Existing
+host, method, redirect, credential-redaction and pagination tests remain unchanged.
+Fixtures and SDK packaging do not prove broker submission or idempotency.
+
+```sh
+~/.local/share/wheelwright/webull-paper-identity/venv/bin/python -m unittest discover -s tools/webull-paper-identity -p 'test*.py' -v
+```
+
+Before the first programmatic paper order: independently qualify actual contract/ATM
+selection, live bid/ask and Greeks and permitted data use; reconcile current capacity
+and obligations; independently review/accept an explicitly sandbox-only writer and
+client-ID outcome controls; obtain separate bounded Principal order authorization.
+The official [place-order contract](https://developer.webull.com/apis/docs/reference/common-order-place/)
+documents account-unique client IDs; [list queries](https://developer.webull.com/apis/docs/reference/order-open/)
+can lag and recommend detail lookup. A missing lookup does not prove nonacceptance.
+No create/modify/cancel/preview request, credential change, broker mutation, deployment,
+or production endpoint access occurred. No automatic retry or covered-call capability
+is enabled. Independent review and Principal acceptance remain pending.
+
+### Bounded successor correction — November 7, 2026
+
+The original local candidate was independently **REJECTED** for two financial
+qualification omissions. Its base `9f995ee7`, original patch SHA-256
+`5e2afb48b2b865ed712254a30b276d9db6e3a9bdf3e153d676f9753052d956b4`,
+patch, test log and manifest remain unchanged in private `engineering-slice-20261107/`.
+The CAT/XOM observations above remain historical evidence, not new acquisitions.
+
+This successor reuses `reconcile_lifecycle.unique_cash()` to reject conflicting
+account/activity identities, checks each cash projection against the retained
+provider row, and applies the same existing USD cash + market value = NLV check
+to **both** balance boundaries. The existing one-cent representation tolerance
+is unchanged. Opening and closing NLV need not match; consistent market-value
+changes remain admissible. Existing cash/quantity stability guards still require
+reacquisition when those parts of the observed account cut change.
+
+Successful preview publication now occurs only after the identity transaction
+completes. A commit/directory-sync failure cannot publish successful enrollment.
+A later preview-write failure reports that publication failed after commitment;
+the durable identities remain available to the same event on the next read-only
+evaluation. No cross-resource rollback or automatic brokerage retry is claimed.
+
+Verification: **78 offline tests pass** (the previous69 plus9 focused correction
+tests). CLI regressions inject replace failure, directory-sync failure and preview
+write failure; repeat the same event and compare the committed identities. Financial
+regressions cover duplicate/conflicting cash, projection contradictions, missing or
+invalid closing values, legitimate NLV movement and the existing rounding boundary.
+No new authenticated reads, Keychain access, brokerage mutation or endpoint change
+was used to verify this correction. The seven-path Sandbox GET transport and
+submission-disabled boundary are unchanged. This is a distinct uncommitted successor,
+**pending separate independent review**, not an accepted revision of rejected evidence.
