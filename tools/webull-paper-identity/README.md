@@ -182,6 +182,42 @@ assignment, premiums, fees, expiration, dividend eligibility/payments, basis,
 covered-call availability or corporate-action accounting. Those require a later
 scope and any test trade requires separate authorization.
 
+## Offline lifecycle checkpoint
+
+The Principal's November 6 continuation authorizes read-only reconciliation of
+the two CAT puts through expiration/possible assignment. The
+[lifecycle result](LIFECYCLE-RESULT-2026-11-06.md) verifies both opening fills and
+cash, but leaves expiration/assignment UNRESOLVED at the evening observation.
+No new transport path or acquisition behavior is required.
+
+`reconcile_lifecycle.py` reads two existing private `activity-observation.json`
+files and writes a new timestamped 0600 reconciliation beside the later one.
+It performs no HTTP or Keychain read. For this checkpoint:
+
+```sh
+~/.local/share/wheelwright/webull-paper-identity/venv/bin/python tools/webull-paper-identity/reconcile_lifecycle.py --before "$HOME/Library/Application Support/Wheelwright/webull-paper-identity/20261106T192437.158183Z" --after "$HOME/Library/Application Support/Wheelwright/webull-paper-identity/20261107T032447.580059Z" --symbol CAT --expiry 2026-11-06 --strike 560 --control-shares 100
+```
+
+Preserve originals. Stable account/order IDs anchor observed updates; repeated
+cumulative fill quantities are not summed across snapshots. Native cash records
+deduplicate by account/activity ID; conflicting same-ID records fail closed.
+The control quantity must match the prior snapshot. Case A needs option removal,
+100 additional shares, a uniquely associated documented OPTION_ASSIGNMENT event,
+strike debit and internally consistent reported cash/positions. Case B needs
+option removal, unchanged control quantity and an associated OPTION_EXPIRATION
+event. Missing/delayed/conflicting evidence stays Case C. Event-symbol uniqueness
+is tested against returned expiry contracts; no order-ID cash link is fabricated.
+The tool is a bounded single 100-share put audit, not a generic transaction engine.
+
+Exact Decimal arithmetic checks provider cash/NLV/position values and flags
+last-price versus market-value discrepancies without rewriting marks. Such a flag
+can reflect different quote sessions, as the supplied after-hours Desktop quote
+supports in this checkpoint; it does not by itself establish a broker defect. A conditional
+premium-adjusted acquisition outlay is not observed assignment or pooled broker
+cost basis. Business, accounting and observation times remain distinct; no posting
+or settlement time is guessed. The expanded **52-test** suite includes synthetic
+assignment/expiration paths, which do not establish real simulator behavior.
+
 ## Official sources
 
 Verified during the November 5–6 access investigation:
