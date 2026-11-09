@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "client_order_id": "fixture-parent",
+      "combo_type": "NORMAL",
+      "orders": [
+        {
+          "client_order_id": "fixture-client-1",
+          "order_id": "fixture-order-1",
+          "symbol": "DEMO",
+          "instrument_type": "OPTION",
+          "position_intent": "SELL_TO_OPEN",
+          "side": "SELL",
+          "status": "PARTIAL_FILLED",
+          "order_type": "LIMIT",
+          "total_quantity": "2",
+          "filled_quantity": "1",
+          "filled_price": "2.35",
+          "limit_price": "2.30",
+          "place_time_at": "2026-11-06T09:35:00.000-05:00",
+          "filled_time_at": "2026-11-06T14:36:00.123Z",
+          "legs": [
+            {
+              "id": "fixture-option-1",
+              "symbol": "DEMO",
+              "side": "SELL",
+              "quantity": "2",
+              "option_type": "PUT",
+              "strike_price": "100",
+              "option_expire_date": "2026-11-13",
+              "option_contract_multiplier": "100",
+              "option_contract_deliverable": "100"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
