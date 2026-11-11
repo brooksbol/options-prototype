@@ -55,6 +55,7 @@ TRADIER_INTERVAL = 0.65
 # Maintain the observer's existing cadence. Every actual send is marked on
 # the same route as PR46 and is serialized under its qualification lock.
 WEBULL_INTERVAL = 3
+FINANCIAL_REFRESH_SECONDS = 15
 CATALOG_PATH = "/trading/instruments/options/contracts/list"
 
 
@@ -566,7 +567,7 @@ def entry(broker, providers, state, execute):
             if fresh != selected:
                 broker.catalog(fresh)
             selected = fresh
-        if (now() - datetime.fromisoformat(current["observed_at"])).total_seconds() >= 20:
+        if (now() - datetime.fromisoformat(current["observed_at"])).total_seconds() >= FINANCIAL_REFRESH_SECONDS:
             current = broker.snapshot()
         wait_start = time.monotonic()
         with qualification_slot():
@@ -752,7 +753,7 @@ def roll(broker, providers, state, execute, strike_selector=select_roll):
                 raise Blocked("Roll selector did not use the next listed expiration")
             broker.catalog(old)
             broker.catalog(destination)
-            if (now() - datetime.fromisoformat(cut["observed_at"])).total_seconds() >= 20:
+            if (now() - datetime.fromisoformat(cut["observed_at"])).total_seconds() >= FINANCIAL_REFRESH_SECONDS:
                 cut = broker.snapshot()
             wait_start = time.monotonic()
             with qualification_slot():

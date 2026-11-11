@@ -1,7 +1,7 @@
 """Exercise the normal CLI workflow through simulated provider/transport boundaries."""
 from collections import Counter
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal as D
 import json
 from pathlib import Path
@@ -255,6 +255,29 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual({r["request"]["side"] for r in rolls}, {"BUY"})
         self.assertEqual({r["request"]["option_strategy"] for r in rolls}, {"CALENDAR"})
         self.assertEqual(len(FakeSender.observed), 54)
+
+    def test_financial_cut_refreshes_before_pacing_exhausts_dispatch_age(self):
+        broker = FakeBroker(self.runtime, runner.Measurements())
+        current = AT
+        calls = 0
+        original = broker.snapshot
+        def snapshot(history=False):
+            nonlocal calls
+            calls += 1
+            result = original(history)
+            result["observed_at"] = current.isoformat()
+            return result
+        def wait(route, interval=3):
+            nonlocal current
+            if route == "webull:place":
+                current += timedelta(seconds=2)
+        broker.snapshot = snapshot
+        with patch.object(runner, "now", side_effect=lambda: current), patch.object(
+            broker.measurements, "wait", side_effect=wait
+        ):
+            runner.entry(broker, FakeProviders(), {"orders": {}}, True)
+        self.assertEqual(len(FakeSender.observed), 28)
+        self.assertGreaterEqual(calls, 5)
 
     def test_pacing_can_expire_final_quote_before_any_attempt_is_reserved(self):
         metrics = runner.Measurements()
