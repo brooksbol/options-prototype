@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-01T18:21:11.519Z",
+    "generatedAt": "2026-11-02T18:05:16.704Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -11649,6 +11649,20 @@
           "tables": []
         },
         {
+          "heading": "November2 reboot regression and recovery",
+          "level": 2,
+          "content": "After the laptop reboot, launchd restored permanent Talk8787 against the older\nOctober29 operational backend JAR. The accepted tactical candidate had used a\ntemporary backend; its accepted source had reached main, but its backend binary\nhad not been permanently installed. Valid ALL_AUTHORIZED and ACCOUNT/pts tool\narguments reached `/v2/positions?view=inventory`; the old backend returned422\n`INVALID_REQUEST` with “Unknown or repeated query parameter.” Account discovery\ncontinued to succeed. This was an installed-contract mismatch, not bad user input\nor an invalid scope decision.",
+          "truncated": true,
+          "tables": []
+        },
+        {
+          "heading": "Five-request conversational continuation — November2",
+          "level": 3,
+          "content": "The Principal supplied the complete acceptance conversation: `show me pts` →\n`show pts positiosn` → `show me ptf` → `tactical view` → `show me nov 20 options`.\nReplaying against the corrected backend separated two remaining defects from\nthe reboot mismatch. The first three turns returned native PTS results. The\nrepresentation follow-up incorrectly borrowed a nested source ID from a\nnoncanonical PTF inventory context for exact Position detail, producing404.\nThe expiration request instead selected portfolio-wide PUT inventory: the\nnative capability lacked expiration, and the model instructions incorrectly\nforced implicit option requests to portfolio scope.",
+          "truncated": true,
+          "tables": []
+        },
+        {
           "heading": "Intended semantics violated",
           "level": 2,
           "content": "The real-data Product must use legitimate backend read permissions and qualified source observations. A current operator question must not silently use a disconnected October19 store when newer supplied evidence can be admitted through an existing backend path.",
@@ -11792,6 +11806,13 @@
           "heading": "October 29, 2026 — Principal-accepted candidate; installation pending",
           "level": 2,
           "content": "**October 29 Principal acceptance / session closeout:** Principal: “accepted. execute end of session protocol”, referring to corrected8821runtime `4f67412c`. Exact Account-plus-underlying scope and retained Fidelity terminal geometry are accepted candidate Product behavior; earlier geometry-only acceptance remains distinct. Independent source reviews and actual SDK/browser scope replay preserved. [Acceptance/closeout](../reviews/sdk-talk-account-underlying-selection-2026-10-29.md#principal-acceptance-and-end-of-session-closeout). Ordinary accepted-main synchronization is authorized by invoked closeout; production deployment not authorized/performed. Existing BUG052/053 remain Open for their wider installed/evidence/freshness obligations. Full opening continuity/economic parity remain unresolved; no new grants/policies/trading authority.",
+          "truncated": false,
+          "tables": []
+        },
+        {
+          "heading": "Observed-state candidate and read-only architecture handoff — November2",
+          "level": 3,
+          "content": "The PTF payoff-only specimen prompted a bounded retained-underlying spot fallback\nand separate dated broker open P/L rendering. Author checks and exact source/runtime\nidentity are in the existing recovery receipt. Principal subsequently challenged\nwhy other Fidelity cards still prefer October27 spot and commissioned a read-only\narchitecture investigation. The candidate remains unmerged; source precedence,\nAccount coupling and minimum necessary quote reuse require investigation, not\nanother inferred implementation grant. Wider BUG053 remains Open.",
           "truncated": false,
           "tables": []
         }

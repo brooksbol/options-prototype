@@ -388,3 +388,25 @@ The existing Product mandate's no-CYA requirement governs the [deletion-and-dens
 ### November1 — Principal accepts financial tactical view; session closeout
 
 Principal: **“ACCEPTED; execute end of session protocol”**. Runtimefdf3ca93 on8787 and byte-identical sanitized public candidate11fd2124/PR43 are accepted for the bounded financial/tactical presentation. [Closeout receipt](../reviews/sdk-talk-tactical-deletion-2026-10-31.md#principal-acceptance-and-end-of-session-closeout--november-1-2026) owns scope, memory/derived checks, API-docs VALIDATION_FAILED/PUBLICATION_WITHHELD and final synchronization. Ordinary accepted-main persistence is authorized by the invoked protocol; no permanent installation, new workstream, grant/policy change, trading or broader financial/Position semantics. Existing operationalv1/ttlive/backend and protected worktrees/evidence are preserved; temporary8787 remains operator frontdoor. Broader PL-MCP-01/BUG052/053 remain unresolved.
+
+
+## November2 reboot and five-turn conversational correction
+
+Principal reported ordinary navigation failures after a laptop reboot, then supplied
+`show me pts` → `show pts positiosn` → `show me ptf` → `tactical view` →
+`show me nov 20 options` as the full next-correction specimen. Existing BUG053
+and the [recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.md) own
+this continuation. The reboot restored an older permanent backend binary; beyond
+that mismatch, actual replay exposed nested source-ID misuse and missing native
+expiration selection/scope continuity. The correction reuses SDK/MCP/native
+inventory, adds the backend expiration intersection, and makes display follow-ups
+produce native results in the current reply. No question router or financial
+engine, domain-identity change, grants, acquisition policy or brokerage action.
+
+Author verification: two separate fresh full conversations PASS on permanent8787,
+ten desktop/mobile rendered-turn checks PASS, original four-request regression
+PASS, BDRY financial geometry unchanged. Focused Java235, Talk89, MCP28 and OAS8
+conformance groups pass. Source and sanitized evidence continue in draft PR44;
+independent review and Principal Product acceptance remain pending. Permanent
+backend/Talk jobs use the corrected implementation with private rollback copies;
+no main merge or public API-reference publication is claimed by this correction.

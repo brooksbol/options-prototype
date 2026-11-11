@@ -200,8 +200,30 @@ const {inspectTacticalInventory}=await import('./tactical-inventory.mjs');
 const inventoryAccount='acct_'+'a'.repeat(32),inventoryOther='acct_'+'b'.repeat(32),sourceHolding='/v2/holdings/11111111-1111-4111-8111-111111111111';
 function tacticalFixture(){return {representation:'TACTICAL_POSITION_INVENTORY',requestId,currentCustody:'NOT_ESTABLISHED',underlying:null,accounts:[{nickname:'pine',broker:'FIDELITY',account:{href:'/v2/accounts/'+inventoryAccount},status:'READ',readComplete:true,source:{snapshotId:'cut'},sourceHoldingCount:1,representedHoldingCount:1,items:[{representation:'TACTICAL_INVENTORY_GROUP',account:{href:'/v2/accounts/'+inventoryAccount},custody:{snapshotId:'cut'},sourceHoldings:[{href:sourceHolding}],underlyings:[{symbol:'ABC'}],constituents:[],variant:'SHARES_AND_CALLS'}]},{nickname:'birch',broker:'TASTYTRADE',account:{href:'/v2/accounts/'+inventoryOther},status:'FORBIDDEN',readComplete:false,items:[]}]};}
 function tacticalConfig(mutate=()=>{}){const calls=[];return {...config,calls,fetchImpl:async url=>{calls.push(url);if(url.pathname==='/v2/accounts')return response(JSON.stringify({requestId,accounts:[{id:inventoryAccount,alias:'pine',brokerAssociation:{broker:'FIDELITY'}},{id:inventoryOther,alias:'birch',brokerAssociation:{broker:'TASTYTRADE'}}]}));const d=tacticalFixture();if(url.searchParams.has('accountId'))d.accounts=d.accounts.filter(a=>a.account.href.endsWith(url.searchParams.get('accountId')));d.underlying=url.searchParams.get('underlying');mutate(d);return response(JSON.stringify(d));}};}
+test('unknown Account stops at discovery; old installed inventory contract preserves correlated422',async()=>{
+ const unknown=tacticalConfig();
+ const unavailable=await inspectTacticalInventory({accountScope:'ACCOUNT',account:'ptf'},unknown);
+ assert.equal(unavailable.isError,true);assert.equal(unknown.calls.length,1);
+ assert.deepEqual(JSON.parse(unavailable.content[0].text).availableAccounts.map(a=>a.nickname),['pine','birch']);
+ for(const selection of [{accountScope:'ALL_AUTHORIZED'},{accountScope:'ACCOUNT',account:'pine'}]){
+  const c=tacticalConfig(),original=c.fetchImpl;
+  c.fetchImpl=async url=>url.pathname==='/v2/accounts'?original(url):response(JSON.stringify({status:422,code:'INVALID_REQUEST',title:'Invalid request',requestId,detail:'PRIVATE-BACKEND-DETAIL'}),422);
+  const result=await inspectTacticalInventory(selection,c);
+  assert.equal(result.isError,true);
+  const problem=JSON.parse(result.content[0].text);
+  assert.equal(problem.code,'INVALID_REQUEST');assert.equal(problem.status,422);assert.equal(problem.requestId,requestId);
+  assert.doesNotMatch(result.content[0].text,/PRIVATE-BACKEND-DETAIL/);
+ }
+});
 test('one backend universal view covers all discovered Accounts and narrows without model grouping/history pages',async()=>{
  const c=tacticalConfig(),r=await inspectTacticalInventory({accountScope:'ALL_AUTHORIZED'},c),d=JSON.parse(r.content[0].text);assert.equal(d.accounts.length,2);assert.equal(d.accounts[1].status,'FORBIDDEN');assert.equal(c.calls[1].searchParams.get('view'),'inventory');assert.equal(c.calls[1].searchParams.has('accountId'),false);assert.equal(c.calls.length,2);const narrow=tacticalConfig();assert.equal(JSON.parse((await inspectTacticalInventory({accountScope:'ACCOUNT',account:'pine',underlying:'ABC'},narrow)).content[0].text).accounts.length,1);assert.equal(narrow.calls[1].searchParams.get('accountId'),inventoryAccount);assert.equal(narrow.calls[1].searchParams.has('projection'),false);
+});
+test('expiration is an independent backend selector and cannot change Account, date or full-context conservation',async()=>{
+ const make=(mutate=()=>{})=>{const c=tacticalConfig(d=>{d.expiration='2026-11-20';d.accounts[0].items[0].constituents=[{terms:{right:'CALL',expiration:'2026-11-20',qualification:'PARTIAL_SOURCE_TERMS'}}];mutate(d);});return c;};
+ const c=make(),result=JSON.parse((await inspectTacticalInventory({accountScope:'ACCOUNT',account:'pine',expiration:'2026-11-20'},c)).content[0].text);
+ assert.equal(result.expiration,'2026-11-20');assert.equal(c.calls[1].searchParams.get('expiration'),'2026-11-20');assert.equal(c.calls[1].searchParams.has('underlying'),false);assert.equal(c.calls[1].searchParams.get('accountId'),inventoryAccount);
+ for(const mutation of [d=>d.expiration='2026-12-18',d=>d.accounts[0].items[0].constituents[0].terms.expiration='2026-12-18',d=>d.accounts[0].items[0].constituents[0].terms.qualification='CONFLICT'])await assert.rejects(inspectTacticalInventory({accountScope:'ACCOUNT',account:'pine',expiration:'2026-11-20'},make(mutation)),/scope|expiration/);
+ for(const expiration of ['2026-02-30','2026-11-31','Nov20','2026-1-2']){const bad=make();await assert.rejects(inspectTacticalInventory({accountScope:'ACCOUNT',account:'pine',expiration},bad),/expiration/);assert.equal(bad.calls.length,0);}
 });
 test('universal capability rejects missing/foreign Accounts, stale cuts, wrong symbols, duplicate rows and fabricated canonical identity',async()=>{
  const mutations=[d=>d.accounts.pop(),d=>d.accounts[0].items[0].account.href='/v2/accounts/'+inventoryOther,d=>d.accounts[0].items[0].custody.snapshotId='other',d=>d.accounts[0].items.push(structuredClone(d.accounts[0].items[0])),d=>d.accounts[0].items[0].id=requestId,d=>d.accounts[0].sourceHoldingCount=2,d=>d.accounts[0].items[0].sourceHoldings[0].href='file:///private.csv'];for(const mutation of mutations)await assert.rejects(inspectTacticalInventory({accountScope:'ALL_AUTHORIZED'},tacticalConfig(mutation)));
