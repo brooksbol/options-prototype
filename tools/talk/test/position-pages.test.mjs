@@ -45,7 +45,7 @@ test('expanded detail is explicit and continuation cannot change projection or e
 test('request-triggered monitoring allows bounded cold acquisition beyond the old five-second read budget',async()=>{
  const c=config(null);const original=c.fetchImpl;c.fetchImpl=async(url,init)=>{if(url.pathname==='/v2/positions')await import('node:timers/promises').then(({setTimeout})=>setTimeout(5500,undefined,{signal:init.signal}));return original(url,init);};
  const r=await inspectPositions({account:'fixture'},c);assert.equal(r.isError,undefined);assert.equal(c.paths.length,2);
- const short=config(null),transport=short.fetchImpl;short.timeoutMs=10;short.fetchImpl=async(url,init)=>{if(url.pathname==='/v2/positions')await import('node:timers/promises').then(({setTimeout})=>setTimeout(100,undefined,{signal:init.signal}));return transport(url,init);};await assert.rejects(inspectPositions({account:'fixture'},short),/abort/i);
+ const short=config(null),transport=short.fetchImpl;short.timeoutMs=10;short.fetchImpl=async(url,init)=>{if(url.pathname==='/v2/positions')await import('node:timers/promises').then(({setTimeout})=>setTimeout(100,undefined,{signal:init.signal}));return transport(url,init);};await assert.rejects(inspectPositions({account:'fixture'},short),/abort|deadline/i);
 });
 
 test('underlying selector is backend scoped, retained on continuation, and empty stays narrow',async()=>{

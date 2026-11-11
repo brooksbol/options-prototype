@@ -388,3 +388,50 @@ The existing Product mandate's no-CYA requirement governs the [deletion-and-dens
 ### November1 — Principal accepts financial tactical view; session closeout
 
 Principal: **“ACCEPTED; execute end of session protocol”**. Runtimefdf3ca93 on8787 and byte-identical sanitized public candidate11fd2124/PR43 are accepted for the bounded financial/tactical presentation. [Closeout receipt](../reviews/sdk-talk-tactical-deletion-2026-10-31.md#principal-acceptance-and-end-of-session-closeout--november-1-2026) owns scope, memory/derived checks, API-docs VALIDATION_FAILED/PUBLICATION_WITHHELD and final synchronization. Ordinary accepted-main persistence is authorized by the invoked protocol; no permanent installation, new workstream, grant/policy change, trading or broader financial/Position semantics. Existing operationalv1/ttlive/backend and protected worktrees/evidence are preserved; temporary8787 remains operator frontdoor. Broader PL-MCP-01/BUG052/053 remain unresolved.
+
+
+## November2 reboot and five-turn conversational correction
+
+Principal reported ordinary navigation failures after a laptop reboot, then supplied
+`show me pts` → `show pts positiosn` → `show me ptf` → `tactical view` →
+`show me nov 20 options` as the full next-correction specimen. Existing BUG053
+and the [recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.md) own
+this continuation. The reboot restored an older permanent backend binary; beyond
+that mismatch, actual replay exposed nested source-ID misuse and missing native
+expiration selection/scope continuity. The correction reuses SDK/MCP/native
+inventory, adds the backend expiration intersection, and makes display follow-ups
+produce native results in the current reply. No question router or financial
+engine, domain-identity change, grants, acquisition policy or brokerage action.
+
+Author verification: two separate fresh full conversations PASS on permanent8787,
+ten desktop/mobile rendered-turn checks PASS, original four-request regression
+PASS, BDRY financial geometry unchanged. Focused Java235, Talk89, MCP28 and OAS8
+conformance groups pass. Source and sanitized evidence continue in draft PR44;
+independent review and Principal Product acceptance remain pending. Permanent
+backend/Talk jobs use the corrected implementation with private rollback copies;
+no main merge or public API-reference publication is claimed by this correction.
+
+## November 2 Principal-authorized architectural recovery
+
+Principal directs bounded architectural recovery, mandatory complete-capability fitness for every new feature, confirmed market/balance/native-result repairs, systematic ten-area audit, independent falsification and safe normal8787 observation. This supersedes the preceding read-only restriction for this bounded recovery only. Existing v1/tt live, credentials/grants, acquisition ownership, original evidence and unrelated work are protected. New branch protection or consequential deployment-policy changes are not implicitly authorized.
+
+Current owner Codex; separate independent reviewer has not implemented the submission. Existing capability matrix owns the single prioritized recovery inventory; BUG052/053 retain defect lifecycle. Baseline mainc87facff; inherited unmerged PR44e78f5c71 is not accepted by this assignment. Candidate branchcodex/architectural-recovery-20261102 preserves it unchanged. Existing global quote owner and balance-only provider path are reused; no new provider, scheduler, polling or quote cache. Candidate-bound fitness and deliberate production disconnection/omission proof are required before complete capability acceptance. Principal Product acceptance remains reserved.
+
+
+### November2 architectural recovery — verified candidate, acceptance pending
+
+[Recovery/review/operational receipt](../reviews/sdk-talk-architectural-recovery-2026-11-02.md) records exact24695fe7 independent ACCEPT, deliberate market/balance/native/host disconnection and omitted-proof rejection, all5 actual conversational requests,8 November2 underlying references with October27 custody, acquired November2 brokerage balance, desktop/mobile native output and temporary restart/rollback. Earlier ce7a39ac independent REJECT and6e3ddd98 operational REJECT remain preserved. This supersedes the recovery rows' pending source-verification status only; BUG052/053, Principal Product acceptance, main integration, permanent installation and protected required-check activation remain open. Other audited capabilities retain their existing bounded/qualified standing. No new grants, service ownership, financial semantics or v1/ttlive changes.
+
+
+### November 2 — required-check activation authorized, integration prerequisite pending
+
+**Principal exact authorization:** “I authorize option A: require the composed-capability check after the reviewed workflow reaches main. Preserve all other branch protection settings. Do not infer permission to merge, deploy, or waive the API-docs failure.”
+
+This is active, conditional authorization for the single required-check activation; it remains valid while integration is pending. It does not authorize merging PR45, permanent installation, API-docs waiver or unrelated settings changes. Reverification finds main `c87facff6179ddb1abf4a36fa38f2a4ea0ae5151` lacks the reviewed workflow; PR45 remains OPEN/DRAFT at `66dbcfafd2fda9d18d71974fa275060172c80dcc`. Therefore **activation is PENDING_INTEGRATION; no protection mutation is permitted yet**. No repeat Principal authorization is required for the same conditional action.
+
+Owner: Codex architectural-fitness integration engineering. Resume only after independently authorized integration places the reviewed workflow on main; verify the actual accepted workflow/check, negative and omission controls, permissions, bypass behavior and effective pre-change settings before the authorized minimal mutation. Re-read effective settings afterward and prove failed fitness blocks the applicable merge path without merging a broken PR. If required prerequisites cannot be proved, preserve this pending state and report the exact blocker. [Current source/configuration evidence and limits](../reviews/sdk-talk-architectural-recovery-2026-11-02.md#conditional-required-check-activation--november-2-continuation). Product acceptance, integration authorization, API-docs repair/publication and permanent deployment remain separate.
+
+
+### November2 integration preparation — bounded API-docs recovery
+
+Principal authorizes advancing PR45 through existing review/integration preparation, including bounded documentation blocker correction, exact-candidate fitness and independent verification. This is not merge or permanent-installation authorization. [Recovery investigation/correction](../reviews/sdk-talk-architectural-recovery-2026-11-02.md#integration-preparation--api-documentation-blocker-recovery) separates current candidate preview fidelity from unchanged accepted publication identity. The source→bundle→public consumer now receives explicit negative controls in the existing fitness check. Historical36/32 accepted publication, current39/35unpublished candidate and Product acceptance remain distinct. Exact proposed candidate/CI/review evidence belongs to PR45; no green check or reviewer ACCEPT grants merge permission. Conditional composed-capability activation remains authorized after separately authorized accepted-main integration; preserve all other settings.

@@ -23,7 +23,10 @@ public class AccountBalanceObservations {
     public record Selection(String mode, String status, int retainedObservationCount, int unknownSourceTimeCount,
                             String latestKnownSourceTime, String selectedSourceTime, String sourceAtOrAfter, String readAt) {}
     public record Read(String requestId, String accountId, String currentness, String historyCoverage,
-                       List<Observation> observations, List<String> qualifications, Selection selection) {}
+                       List<Observation> observations, List<String> qualifications, Selection selection, @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) PositionAcquisition.BalanceRefresh acquisition) {}
+    private PositionAcquisition acquisition;
+    @org.springframework.beans.factory.annotation.Autowired(required=false) public void acquisition(PositionAcquisition source){this.acquisition=source;}
+    @org.springframework.beans.factory.annotation.Value("${wheelwright.portfolio.market.reuse-seconds:30}") private long reuseSeconds=30;
     private final String url;
     private final BrokerageArtifacts artifacts;
     private final AccountDirectory accounts;
@@ -62,6 +65,8 @@ public class AccountBalanceObservations {
         Instant lower=sourceAtOrAfter==null?null:Instant.parse(sourceAtOrAfter);
         if(!caller.hasGrant("account.artifacts.read:"+account))throw new SecurityException();
         var owner=accounts.get(account).orElseThrow();
+        PositionAcquisition.BalanceRefresh refreshed=null;
+        if(acquisition!=null&&artifactId==null&&selection.equals("latest-source")&&sourceAtOrAfter==null)refreshed=acquisition.balance(account,caller,Math.max(0,Math.min(86400,reuseSeconds)));
         var observations=new ArrayList<Observation>(); long bytes=0;
         try(var c=DriverManager.getConnection(url)) {
             c.setAutoCommit(false);
@@ -70,7 +75,7 @@ public class AccountBalanceObservations {
                 try(var rs=q.executeQuery()){while(rs.next()) {
                     String id=rs.getString("artifact_id");if(!seen.add(id))continue;
                     byte[] payload=rs.getBytes("payload");bytes+=payload.length;
-                    if(bytes>32L*1024*1024||seen.size()>200)throw new SQLException("balance read capacity exceeded");
+                    if(bytes>32L*1024*1024||selection.equals("all")&&seen.size()>200)throw new SQLException("balance read capacity exceeded");
                     String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(payload));
                     if(!hash.equals(rs.getString("sha256")))throw new SQLException("retained hash mismatch");
                     var scope=artifacts.sourceScopes(account,rs.getString("original_filename"),payload);
@@ -93,7 +98,7 @@ public class AccountBalanceObservations {
             "No post-fill/currentness, per-put collateral, strategy permission or Operating Regime allocation inferred.",
             "History remains in the backend. Source coverage ends at latestKnownSourceTime; no later orderable balance has been retained."),
             new Selection(selection,selectionResult.status(),observations.size(),selectionResult.unknown(),selectionResult.latest(),selectionResult.selected(),
-                lower==null?null:lower.toString(),Instant.now().toString()));
+                lower==null?null:lower.toString(),Instant.now().toString()),refreshed);
     }
     private record Selected(List<Observation> observations,String status,int unknown,String latest,String selected){}
     private static Instant sourceTime(Observation o) {

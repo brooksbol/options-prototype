@@ -21,7 +21,7 @@ import java.util.*;
  * Authentication resolves to the already authenticated operational User and LIVE original grants. */
 public final class TalkRetainedPreview {
  static Path directory, accountSource;
- static String userId, token;
+ static String userId, token; static boolean recovery;
  static String ro(Path path){return "jdbc:sqlite:file:"+path.toAbsolutePath()+"?mode=ro";}
  static void backup(Path from,Path to)throws Exception {
   try(var c=DriverManager.getConnection(ro(from))){
@@ -37,8 +37,11 @@ public final class TalkRetainedPreview {
   }
   @Bean AccountDirectory accounts(){return new AccountDirectory(ro(accountSource));}
   @Bean BearerAuthenticator auth()throws Exception {return BearerAuthenticator.existingUser(new UserDirectory(ro(accountSource)),token,userId);}
-  @Bean BrokerageArtifacts artifacts(ObjectMapper mapper){return new BrokerageArtifacts(ro(accountSource),mapper,new PositionReadService(ro(accountSource),mapper));}
-  @Bean AccountBalanceObservations balances(BrokerageArtifacts artifacts,AccountDirectory accounts){return new AccountBalanceObservations(ro(accountSource),artifacts,accounts);}
+  @Bean BrokerageArtifacts artifacts(ObjectMapper mapper,SqliteEvidenceStore accountStore,AccountDirectory accounts)throws Exception{return recovery?new BrokerageArtifacts(accountStore,mapper,new PositionReadService(accountStore,mapper),accounts):new BrokerageArtifacts(ro(accountSource),mapper,new PositionReadService(ro(accountSource),mapper));}
+  @Bean AccountBalanceObservations balances(BrokerageArtifacts artifacts,AccountDirectory accounts,SqliteEvidenceStore accountStore)throws Exception{return recovery?new AccountBalanceObservations(accountStore,artifacts,accounts):new AccountBalanceObservations(ro(accountSource),artifacts,accounts);}
+  @Bean @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="wheelwright.recovery",havingValue="true") TastytradeClient recoveryClient(){return new TastytradeClient(System.getenv("TASTYTRADE_CLIENT_ID"),System.getenv("TASTYTRADE_CLIENT_SECRET"),System.getenv("TASTYTRADE_REFRESH_TOKEN"));}
+  @Bean @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name="wheelwright.recovery",havingValue="true") PositionAcquisition recoveryBalance(SqliteEvidenceStore accountStore,AccountDirectory accounts,ObjectMapper mapper,TastytradeClient client)throws Exception{return new PositionAcquisition(accountStore,accounts,new PositionReadService(accountStore,mapper),client);}
+  @Bean PortfolioPublicMarket publicMarket(){return new PortfolioPublicMarket(recovery?"http://127.0.0.1:3100":"");}
   @Bean PortfolioRepository repository(SqliteEvidenceStore accountStore,ObjectMapper mapper)throws Exception{return new PortfolioRepository(accountStore,mapper);}
   @Bean PortfolioSources sources(PortfolioRepository repo,ObjectMapper mapper,AccountDirectory accounts){return new PortfolioSources(repo,mapper,accounts);}
   @Bean PortfolioReadService portfolio(PortfolioRepository repo,PortfolioSources sources){return new PortfolioReadService(repo,sources);}
@@ -47,21 +50,22 @@ public final class TalkRetainedPreview {
 
  public static void main(String[] args)throws Exception {
   if(args.length!=3||!"AUTHORIZED_REAL_RETAINED_READS".equals(System.getenv("WW_TALK_DISCLOSURE_PROFILE")))throw new IllegalStateException("explicit disclosure profile required");
+  recovery="PRINCIPAL_AUTHORIZED_ARCHITECTURAL_RECOVERY_20261102".equals(System.getenv("WW_ARCHITECTURAL_RECOVERY"));
   directory=Path.of(args[0]).toAbsolutePath();accountSource=Path.of(args[1]).toAbsolutePath();
   Files.createDirectories(directory,PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
   String existing=System.getenv("WW_API_TOKEN");if(existing==null||existing.isBlank())throw new IllegalStateException("existing credential required");
   // Established operational identity, no credential values or financial payload printed.
   var response=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).followRedirects(HttpClient.Redirect.NEVER).build().send(
-   HttpRequest.newBuilder(URI.create("http://127.0.0.1:55834/v2/me")).timeout(Duration.ofSeconds(5)).header("Authorization","Bearer "+existing).GET().build(),HttpResponse.BodyHandlers.ofString());
+   HttpRequest.newBuilder(URI.create((recovery?"http://127.0.0.1:3101":"http://127.0.0.1:55834")+"/v2/me")).timeout(Duration.ofSeconds(5)).header("Authorization","Bearer "+existing).GET().build(),HttpResponse.BodyHandlers.ofString());
   if(response.statusCode()!=200)throw new IllegalStateException("existing identity unavailable");
   var me=new ObjectMapper().readTree(response.body());userId=me.at("/user/id").asText(me.path("id").asText());
   if(new UserDirectory(ro(accountSource)).get(userId).isEmpty())throw new IllegalStateException("source identity mismatch");
-  token=UUID.randomUUID().toString();
-  var app=new SpringApplication(Preview.class);app.setDefaultProperties(Map.of("server.port","0","server.address","127.0.0.1","spring.main.banner-mode","off","logging.level.root","ERROR"));
+  token=recovery?existing:UUID.randomUUID().toString();
+  var app=new SpringApplication(Preview.class);app.setDefaultProperties(Map.of("server.port","0","server.address","127.0.0.1","spring.main.banner-mode","off","logging.level.root","ERROR","wheelwright.recovery",Boolean.toString(recovery)));
   var context=(ServletWebServerApplicationContext)app.run();
   boolean providers=context.getBeansOfType(TastytradeClient.class).size()>0||context.getBeansOfType(PortfolioMarketAcquisition.class).size()>0||context.getBeansOfType(PortfolioOrderAcquisition.class).size()>0;
-  if(providers){context.close();throw new IllegalStateException("provider beans forbidden");}
-  var ready=Path.of(args[2]);Files.writeString(ready,new ObjectMapper().writeValueAsString(Map.of("base","http://127.0.0.1:"+context.getWebServer().getPort(),"token",token,"profile","AUTHORIZED_REAL_RETAINED_READS","providerBeans",false)));
+  if(providers&&!recovery){context.close();throw new IllegalStateException("provider beans forbidden");}
+  var ready=Path.of(args[2]);Files.writeString(ready,new ObjectMapper().writeValueAsString(Map.of("base","http://127.0.0.1:"+context.getWebServer().getPort(),"token",token,"profile","AUTHORIZED_REAL_RETAINED_READS","providerBeans",providers,"architecturalRecovery",recovery)));
   Files.setPosixFilePermissions(ready,PosixFilePermissions.fromString("rw-------"));
  }
 }

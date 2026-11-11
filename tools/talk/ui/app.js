@@ -187,7 +187,7 @@ $('composer').addEventListener('submit', async event => {
     else for(const source of supportingSources){let loaded=false;source.details.addEventListener('toggle',()=>{if(source.details.open&&!loaded){loaded=true;source.populate(source.details);}});article.append(source.details);}
     const analysisContent=article.querySelector('.text');
     if (!analysisContent.textContent.replace(/[\p{White_Space}\p{Cf}]/gu,'').trim()) { analysisContent.remove();
-    } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).tacticalPositions||evidenceView(resultText(tool.result)).custodyInventory||evidenceView(resultText(tool.result)).tacticalInventory))) {
+    } else if ((answer.tools??[]).some(tool=>(evidenceView(resultText(tool.result)).closedTradeSummary||evidenceView(resultText(tool.result)).balanceSummary||evidenceView(resultText(tool.result)).executionSummary||evidenceView(resultText(tool.result)).tacticalPositions||evidenceView(resultText(tool.result)).custodyInventory||evidenceView(resultText(tool.result)).tacticalInventory))) {
       const content=article.querySelector('.text'),positionDetails=visibleTactical.size?article.querySelector('.tactical-details'):null;
       if(positionDetails){
         content.remove();let added=false;positionDetails.addEventListener('toggle',()=>{if(positionDetails.open&&!added){added=true;const heading=document.createElement('h5');heading.textContent='Talk commentary · response-wide';positionDetails.append(heading,content);}});

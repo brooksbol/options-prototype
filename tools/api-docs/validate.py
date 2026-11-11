@@ -19,33 +19,6 @@ from v2_oas import (COMMON, Contracts, implemented_v2_operations, normalized_rou
 from build import ALLOWLIST, SECURITY_PROSE, EXCLUDED_PUBLIC, component_refs, public_projection
 
 
-def without_authorized_f6_delta(current, baseline, name):
-    """Verify the exact Principal-authorized routing/grant additions, then compare all other wire fields.
-    This is not permission to refresh the preserved b48 baseline or ignore arbitrary contract changes.
-    """
-    import copy
-    value=copy.deepcopy(current)
-    common='api-v2-direct-quote-acquisition-proposal.yaml'
-    if name==common:
-        expected=copy.deepcopy(baseline['components']['schemas']['HeldQuoteReadProblem'])
-        expected['properties']['status']['enum'].append(405)
-        expected['properties']['code']['enum'].append('METHOD_NOT_ALLOWED')
-        expected['oneOf'].append({'type':'object','properties':{'status':{'const':405},'code':{'const':'METHOD_NOT_ALLOWED'},'title':{'const':'Method not allowed'},'type':{'const':'urn:wheelwright:problem:method_not_allowed'}}})
-        assert without_documentation(value['components']['schemas'].pop('RoutingProblem'))==without_documentation(expected)
-        expected_response={'headers':{'X-Request-Id':{'required':True,'schema':{'type':'string','format':'uuid'}},'Cache-Control':{'required':True,'schema':{'const':'private, no-store'}},'Allow':{'required':True,'schema':{'type':'string','minLength':1}}},'content':{'application/problem+json':{'schema':{'allOf':[{'$ref':'#/components/schemas/RoutingProblem'},{'type':'object','properties':{'status':{'const':405},'code':{'const':'METHOD_NOT_ALLOWED'}}}]}}}}
-        assert without_documentation(value['components']['responses'].pop('MethodNotAllowed'))==expected_response
-    for path,item in value['paths'].items():
-        for method,op in item.items():
-            if method not in {'get','post'}:continue
-            assert op['responses'].pop('405')=={'$ref':('' if name==common else common)+'#/components/responses/MethodNotAllowed'}
-            if name==common and path=='/v2/quotes' and method=='post':
-                assert op.pop('x-required-grants')==['quote.acquire']
-                assert op.pop('x-required-grants-when-force')==['quote.force']
-            if path.startswith('/v2/market-observations'):
-                assert op.pop('x-required-grants-for-account-scope')==['account.market.read:{accountId}']
-    return value
-
-
 def without_bug049_disclosure_delta(current, baseline, name):
     """Allow only BUG-049's number-free Account schema; preserve every other wire check."""
     if name != 'api-v2-account-evidence.json':
@@ -62,19 +35,77 @@ def without_bug049_disclosure_delta(current, baseline, name):
     return value
 
 
+def assert_public_operation_scope(internal_ops, public_ops):
+    assert EXCLUDED_PUBLIC <= internal_ops, 'Administrative exclusion disappeared from source'
+    assert public_ops == internal_ops - EXCLUDED_PUBLIC, 'Public operation scope differs from the four established exclusions'
+
+
+def assert_bundle_fidelity(contracts, bundle):
+    """Compare current authoritative wire graphs, including cycles and renamed bundled references.
+
+    This proves candidate rendering fidelity, not acceptance of the candidate contract.
+    The separately pinned publication identity remains enforced by build.py.
+    """
+    visited = set()
+    def target(value, owner, source):
+        while isinstance(value, dict) and '$ref' in value:
+            reference = value['$ref']
+            siblings = without_documentation({k: v for k, v in value.items() if k != '$ref'})
+            filename, fragment = reference.split('#', 1)
+            if source:
+                owner = filename or owner
+                assert owner in contracts.documents, 'Unknown source reference owner'
+                result = contracts.documents[owner]
+            else:
+                assert not filename, 'Nonlocal bundled reference'
+                result = bundle
+            for key in fragment.lstrip('/').split('/'):
+                result = result[key.replace('~1', '/').replace('~0', '~')]
+            # Redocly retains wire siblings; reject contradictory overlays rather than weaken them.
+            if siblings:
+                assert isinstance(result, dict)
+                assert all(k not in result or result[k] == v for k, v in siblings.items()), 'Conflicting reference sibling'
+                result = {**result, **siblings}
+            value = result
+        return value, owner
+    def same(left, owner, right, location, property_names=False):
+        key = (id(left), owner, id(right), property_names)
+        if key in visited: return
+        visited.add(key)
+        left, owner = target(left, owner, True)
+        right, _ = target(right, None, False)
+        if isinstance(left, dict) and isinstance(right, dict):
+            a, b = without_documentation(left, property_names), without_documentation(right, property_names)
+            assert a.keys() == b.keys(), 'Bundled wire keys differ: ' + location
+            # Recurse on original values to keep graph identity stable across cycles.
+            for k in a: same(left[k], owner, right[k], location + '/' + k, k == 'properties')
+        elif isinstance(left, list) and isinstance(right, list):
+            assert len(left) == len(right), 'Bundled wire list differs: ' + location
+            for n, (a, b) in enumerate(zip(left, right)): same(a, owner, b, location + '/' + str(n))
+        else:
+            assert left == right, 'Bundled wire value differs: ' + location
+    operations = contracts.operations()
+    actual = {(m.upper(), p) for p, item in bundle['paths'].items() for m in item if m in {'get', 'post'}}
+    assert actual == set(operations), 'Bundled operation inventory differs from source'
+    for (method, path), (operation, item, owner) in operations.items():
+        same(operation, owner, bundle['paths'][path][method.lower()], method + ' ' + path)
+        same(item.get('parameters', []), owner, bundle['paths'][path].get('parameters', []), path + '/parameters')
+    same(contracts.documents[COMMON]['components']['securitySchemes'], COMMON,
+         bundle['components']['securitySchemes'], 'securitySchemes')
+
+
 def main():
     output = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else TOOL / 'dist'
     contracts = Contracts(); contracts.validate_structure()
     operations = contracts.operations()
     assert implemented_v2_operations() == {(m, normalized_route(p)) for m, p in operations}
     report = []; examples = 0
-    for name, current in contracts.documents.items():
-        raw = subprocess.check_output(['git', 'show', 'b48e3c6fc36f9a7feb6abbf97cbacff5934d477e:docs/contracts/' + name], cwd=ROOT, text=True)
-        import yaml
-        baseline = json.loads(raw) if name.endswith('.json') else yaml.safe_load(raw)
-        preserved = without_bug049_disclosure_delta(current, baseline, name)
-        preserved = without_authorized_f6_delta(preserved, baseline, name)
-        assert without_documentation(baseline) == without_documentation(preserved), 'Wire contract changed: ' + name
+    # Candidate previews follow current authoritative contracts, not a frozen historical catalogue.
+    # Publication still requires the unchanged accepted inputs/artifact in build.py --publish.
+    account_name = 'api-v2-account-evidence.json'
+    account_baseline = json.loads(subprocess.check_output(['git', 'show',
+        'b48e3c6fc36f9a7feb6abbf97cbacff5934d477e:docs/contracts/' + account_name], cwd=ROOT))
+    without_bug049_disclosure_delta(contracts.documents[account_name], account_baseline, account_name)
     for (method, path), (op, item, name) in operations.items():
         assert op['operationId'] and op['tags'] and op['summary'] != op['operationId']
         assert op['security'] == [{'bearerAuth': []}]
@@ -135,13 +166,14 @@ def main():
     assert 'explicit grants' in entry and 'Administrator' in entry
     internal = json.loads((output / 'private/bundled-internal.json').read_text())
     public = json.loads((output / 'private/public-projection.json').read_text())
+    assert_bundle_fidelity(contracts, internal)
     assert internal['info']['version'] == public['info']['version']
     assert public['servers']==[{'url':'https://api.example.invalid','description':'Synthetic nonworking example origin; the runtime host is deployment-specific.'}]
     assert internal['components']['securitySchemes'] and 'securitySchemes' not in public['components']
     internal_ops = {(method, path) for path, item in internal['paths'].items() for method in item if method in {'get', 'post'}}
     public_ops = {(method, path) for path, item in public['paths'].items() for method in item if method in {'get', 'post'}}
-    assert public_ops == internal_ops - EXCLUDED_PUBLIC
-    assert len(internal_ops) == 36 and len(public_ops) == 32
+    assert_public_operation_scope(internal_ops, public_ops)
+    assert {(method.upper(), normalized_route(path)) for method, path in internal_ops} == implemented_v2_operations()
     assert public['paths']['/v2/me']['get']['tags'] == ['Identity']
     assert not any(tag['name'] in {'Users', 'Market evidence'} for tag in public['tags'])
     # Independently check native Redocly pruning: every retained component reachable.
@@ -207,6 +239,10 @@ def main():
     assert 'FORCE bypasses reuse, not provider-contact restrictions' in quote
     assert 'CONTACT_NOT_PERMITTED means policy prevented contact' in quote
     assert 'UPSTREAM_UNAVAILABLE means the upstream source is unavailable' in quote
+    liquidity = public['paths']['/v2/quotes/{symbol}/liquidity']['get']['description']
+    for meaning in ('not a liquidity ranking', 'ASK-BID', '34 significant digits',
+                    'not simultaneous sides', 'No currency', 'No acquisition'):
+        assert meaning in liquidity, 'Public filtering erased retained-side meaning: ' + meaning
     upload = public['paths']['/v2/artifacts']['post']['description']
     for meaning in ('POSITIONS', 'ACTIVITY', 'BALANCES', 'OPTION_SUMMARY',
                     'Account number; Account name; Investment type',

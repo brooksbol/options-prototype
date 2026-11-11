@@ -8,6 +8,51 @@
 ## Observed failure
 Talk reported old Sawdust custody despite newer Downloads exports. PTS/tt1 holdings and tt1 balances were denied because corresponding backend read grants were absent. After authorized holdings access, a successful inventory tool result still failed conversational narration.
 
+## November2 reboot regression and recovery
+
+After the laptop reboot, launchd restored permanent Talk8787 against the older
+October29 operational backend JAR. The accepted tactical candidate had used a
+temporary backend; its accepted source had reached main, but its backend binary
+had not been permanently installed. Valid ALL_AUTHORIZED and ACCOUNT/pts tool
+arguments reached `/v2/positions?view=inventory`; the old backend returned422
+`INVALID_REQUEST` with “Unknown or repeated query parameter.” Account discovery
+continued to succeed. This was an installed-contract mismatch, not bad user input
+or an invalid scope decision.
+
+The bounded recovery installs the already accepted main backend in the existing
+launchd JAR location, with private JAR/database rollback and an identity receipt.
+The service was restarted and the four actual8787 SDK/MCP conversational requests
+passed. An opt-in installed navigation regression now detects this failure across
+service restart; adapter tests preserve backend error correlation and distinguish
+schema refusal from adapter exceptions. Concise operational failures replace the
+generic “no new finding established” text. Desktop/mobile actual-result chart
+checks pass. [Recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.md).
+This resolves this reboot occurrence; wider BUG053 remains Open, and author
+verification is not independent review or new Principal Product acceptance.
+
+### Five-request conversational continuation — November2
+
+The Principal supplied the complete acceptance conversation: `show me pts` →
+`show pts positiosn` → `show me ptf` → `tactical view` → `show me nov 20 options`.
+Replaying against the corrected backend separated two remaining defects from
+the reboot mismatch. The first three turns returned native PTS results. The
+representation follow-up incorrectly borrowed a nested source ID from a
+noncanonical PTF inventory context for exact Position detail, producing404.
+The expiration request instead selected portfolio-wide PUT inventory: the
+native capability lacked expiration, and the model instructions incorrectly
+forced implicit option requests to portfolio scope.
+
+The correction extends the same backend inventory view with an exact expiration
+intersection, preserving whole companion contexts and financial evaluation.
+MCP validates the echoed selectors and returned membership. SDK/tool contracts
+keep the active inventory Account, distinguish representation from evidence
+drill-down, and require a native result in the current display turn. No host
+question router, new domain identity or financial engine is introduced. Generic
+empty Markdown sections are suppressed; support remains deliberately expandable.
+The [same recovery receipt](../reviews/sdk-talk-reboot-recovery-2026-11-02.md)
+records the failed intermediate replay and final real-conversation/browser
+verification. Principal acceptance and independent review remain separate.
+
 ## Intended semantics violated
 The real-data Product must use legitimate backend read permissions and qualified source observations. A current operator question must not silently use a disconnected October19 store when newer supplied evidence can be admitted through an existing backend path.
 
@@ -123,3 +168,21 @@ Principal visually accepted PTS BDRY geometry on8820 but rejected Account scope 
 ## October 29, 2026 — Principal-accepted candidate; installation pending
 
 **October 29 Principal acceptance / session closeout:** Principal: “accepted. execute end of session protocol”, referring to corrected8821runtime `4f67412c`. Exact Account-plus-underlying scope and retained Fidelity terminal geometry are accepted candidate Product behavior; earlier geometry-only acceptance remains distinct. Independent source reviews and actual SDK/browser scope replay preserved. [Acceptance/closeout](../reviews/sdk-talk-account-underlying-selection-2026-10-29.md#principal-acceptance-and-end-of-session-closeout). Ordinary accepted-main synchronization is authorized by invoked closeout; production deployment not authorized/performed. Existing BUG052/053 remain Open for their wider installed/evidence/freshness obligations. Full opening continuity/economic parity remain unresolved; no new grants/policies/trading authority.
+
+
+### Observed-state candidate and read-only architecture handoff — November2
+
+The PTF payoff-only specimen prompted a bounded retained-underlying spot fallback
+and separate dated broker open P/L rendering. Author checks and exact source/runtime
+identity are in the existing recovery receipt. Principal subsequently challenged
+why other Fidelity cards still prefer October27 spot and commissioned a read-only
+architecture investigation. The candidate remains unmerged; source precedence,
+Account coupling and minimum necessary quote reuse require investigation, not
+another inferred implementation grant. Wider BUG053 remains Open.
+
+## November 2 architectural recovery — active bounded remediation
+
+Principal authorizes architectural recovery and complete-capability fitness. Confirmed additional specimens: Fidelity historical spot remains selected without composition of global quote acquisition, and operational tastytrade buying-power reads select retained evidence without balance acquisition. Existing capability matrix owns the single ranked recovery inventory. Candidate composes existing global quote owner with qualified underlying binding and extracts the existing balance-only source path without refreshing securities. Full source/API/MCP/SDK/native fitness, unchanged-oracle production disconnection rejection and independent exact-source review are required. Status remains Open; author component passes or narrow review do not close the Product outcome. Existing runtime/credentials/grants/v1/tt live and PR44 remain protected during candidate work.
+
+
+November2 recovery candidate: [receipt](../reviews/sdk-talk-architectural-recovery-2026-11-02.md) records exact24695fe7 independent source acceptance plus actual5turn/8underlying/balance/native/restart proof. Required omission/disconnection fitness is implemented and CI passes. Wider defect remains Open: no Principal Product acceptance, main promotion, permanent deployment or protected required-check activation is inferred. Prior bounded reviews/failures are retained.

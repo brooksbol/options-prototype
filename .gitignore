@@ -9,3 +9,9 @@ coverage/
 
 # Wheelwright-only client configuration
 .ww.env
+
+# Local dependency links are disposable, including worktree symlinks.
+/tools/*/node_modules
+
+# Python compilation products are generated build output, not candidate source.
+__pycache__/

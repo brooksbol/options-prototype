@@ -117,7 +117,7 @@ public final class PortfolioReadService {
  public ObjectNode inventoryEvaluation(String account,ObjectNode construction,Principal caller,Instant now,ReadContext context)throws Exception {
   var n=obj().put("state","UNRESOLVED");n.set("stateEvidence",obj());n.set("warnings",array());n.set("evaluation",PortfolioMath.evaluate(authorizedContract(construction,caller),observations(account,now,context),now));
   var evaluated=(ObjectNode)n.path("evaluation");PortfolioMath.reportedSpot(construction,evaluated);var terminal=(ObjectNode)evaluated.path("payoff");var reference=PortfolioMath.brokerBasisPayoff(authorizedContract(construction,caller),terminal);if(reference!=terminal)evaluated.set("payoff",reference);
-  return (ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");
+  var authorized=(ObjectNode)PortfolioAuthorization.project(new Document(Kind.POSITION,"",account,n,null,null),caller).path("evaluation");return authorized;
  }
  public ObjectNode read(Document d,Principal p,Instant now)throws Exception {return read(d,p,now,new ReadContext());}
  public ObjectNode read(Document d,Principal p,Instant now,ReadContext context)throws Exception {
