@@ -1,6 +1,6 @@
 # PR47 buy-writes and Friday rolls
 
-Implementation candidate for Principal review. Broker placement has not been exercised by this candidate. The retained Webull Sandbox sender, readers, pacing protocol and provider workers supply the execution mechanics.
+The Principal approved the execution plan for implementation candidate 1e0643cd on November 10, 2026 Mountain time, choosing option A. Independent code review is pending. Broker placement has not been exercised by this candidate. The retained Webull Sandbox sender, readers, pacing protocol and provider workers supply the execution mechanics.
 
 ## Execution sequence
 
@@ -90,4 +90,4 @@ Private state and raw evidence are retained under `~/Library/Application Support
 
 Each run retains startup-to-first-prepared/acknowledgment, accepted mean/peak rates, per-provider/per-route requests, requests per accepted order, worker-lock waits, file-lock waits, pacing waits, explicit HTTP sends and preparation-to-acknowledgment p50/p95. Acceptance, broker fill time, first observed fill and first position reconciliation are separately recorded. Actual trading improvements require the reviewed session's measured results.
 
-Benchmark and preview raw evidence stay local. The completed candidate awaits execution-plan review.
+Benchmark and preview raw evidence stay local. The execution plan is Principal-approved. The candidate awaits independent code review and the required PR46 completion handoff. The protected principal-approval.json record binds that approval to implementation commit 1e0643cdb04ed8a78a8a40b1240387c79e581cbc and preserves the dates, account scope, sequencing, strike rule and zero-net fallback.
