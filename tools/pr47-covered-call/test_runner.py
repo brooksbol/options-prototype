@@ -279,6 +279,40 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(len(FakeSender.observed), 28)
         self.assertGreaterEqual(calls, 5)
 
+    def test_friday_stock_additions_preserve_proven_original_call_scope(self):
+        broker = FakeBroker(self.runtime, runner.Measurements())
+        state = {"orders": {}}
+        runner.entry(broker, FakeProviders(), state, True)
+        runner.observe(broker, state)
+        broker.shares[COHORT[2]] += 100
+        friday = datetime(2026, 11, 13, 15, tzinfo=timezone.utc)
+        original = broker.snapshot
+        def current(history=False):
+            result = original(history)
+            result["observed_at"] = friday.isoformat()
+            return result
+        broker.snapshot = current
+        with patch.object(runner, "now", return_value=friday):
+            runner.roll(broker, FakeRollProviders(), state, True)
+        self.assertIn(client_id("roll", COHORT[2]), state["orders"])
+
+    def test_friday_stock_removal_does_not_reassign_original_experiment_scope(self):
+        broker = FakeBroker(self.runtime, runner.Measurements())
+        state = {"orders": {}}
+        runner.entry(broker, FakeProviders(), state, True)
+        runner.observe(broker, state)
+        broker.shares[COHORT[2]] -= 100
+        friday = datetime(2026, 11, 13, 15, tzinfo=timezone.utc)
+        original = broker.snapshot
+        def current(history=False):
+            result = original(history)
+            result["observed_at"] = friday.isoformat()
+            return result
+        broker.snapshot = current
+        with patch.object(runner, "now", return_value=friday):
+            runner.roll(broker, FakeRollProviders(), state, True)
+        self.assertNotIn(client_id("roll", COHORT[2]), state["orders"])
+
     def test_pacing_can_expire_final_quote_before_any_attempt_is_reserved(self):
         metrics = runner.Measurements()
         broker = FakeBroker(self.runtime, metrics)

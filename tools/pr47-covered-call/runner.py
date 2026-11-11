@@ -730,7 +730,12 @@ def roll(broker, providers, state, execute, strike_selector=select_roll):
             screening[symbol] = "ROLL_ALREADY_RESERVED"
             continue
         status = statuses[cid]["state"]
-        if status != "POSITION_RECONCILED":
+        opening_scope_retained = (
+            status == "FILL_CONFIRMED_POSITION_PENDING"
+            and record.get("position_reconciled_at")
+            and shares[symbol] >= number(record["shares_before"]) + 100
+        )
+        if status != "POSITION_RECONCILED" and not opening_scope_retained:
             screening[symbol] = f"ENTRY_{status}"
             continue
         old = record_contract(record)
