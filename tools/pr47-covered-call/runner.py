@@ -268,9 +268,9 @@ class Broker:
         position_value = sum((number(row["market_value"]) for row in observed["positions"]), Decimal(0))
         closing_value = sum((number(row["market_value"]) for row in closing["positions"]), Decimal(0))
         if abs(closing_value - closing_market) <= Decimal(".01"):
-            selected_balance, valuation_boundary = closing["balance"], "CLOSING"
+            selected_balance, selected_positions, valuation_boundary = closing["balance"], closing["positions"], "CLOSING"
         elif abs(position_value - market) <= Decimal(".01"):
-            selected_balance, valuation_boundary = balance, "OPENING"
+            selected_balance, selected_positions, valuation_boundary = balance, observed["positions"], "OPENING"
         else:
             raise Blocked("Neither financial boundary reconciles position market value to balance")
         if (now() - before).total_seconds() > 60:
@@ -278,7 +278,7 @@ class Broker:
         history_rows = order_records(observed["history"]["data"], self.account) if history else []
         cash = cash_records(observed["cash"]["data"], self.account) if history else []
         return dict(balance=selected_balance, valuation_boundary=valuation_boundary,
-                    inventory=inventory(observed["positions"]), working=working,
+                    inventory=inventory(selected_positions), working=working,
                     orders=history_rows, cash=cash, observed_at=now().isoformat())
 
     def catalog(self, contract):
@@ -507,6 +507,7 @@ def submit(broker, order, phase, cut, reserved_cash, state, validate, prepared_a
     retain(path / "unsigned-order.json", json.dumps(sender.package).encode())
     atomic(path / "pre-send-audit.json", dict(evidence, cash_reservation=reserved_cash,
                                               account_observed_at=cut["observed_at"],
+                                              valuation_boundary=cut.get("valuation_boundary"),
                                               request_sha256=sender.package["sha256"]))
     broker.measurements.wait("webull:place", PLACEMENT_INTERVAL)
     session_window(phase)
