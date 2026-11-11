@@ -19,6 +19,7 @@ class QuotePolicyTests(unittest.TestCase):
         result = qualify([self.book], self.meta, self.clock, AT)
         self.assertEqual(result["status"], "QUALIFIED")
         self.assertEqual(result["observations"][0]["sides"]["bid"]["age_seconds"], 120)
+        self.assertEqual(result["source_skew_seconds"], 119)
 
     def test_old_response_remains_blocked(self):
         self.meta["completed_utc"] = datetime.fromtimestamp(AT.timestamp()-6, timezone.utc).isoformat()

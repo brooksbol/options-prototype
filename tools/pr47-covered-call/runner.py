@@ -362,6 +362,8 @@ def qualify(books, meta, clock, now=None):
     result = shared_qualify(books, meta, clock, now)
     sources = [side for observation in result["observations"] for side in observation["sides"].values()]
     complete = bool(books) and len(sources) == 2 * len(books)
+    ages = [side["age_seconds"] for side in sources]
+    result["source_skew_seconds"] = max(ages) - min(ages) if complete else None
     if complete and all(side["age_seconds"] >= 0 for side in sources):
         last_change_reasons = {"SOURCE_AGE_BID", "SOURCE_AGE_ASK", "SOURCE_CLOCK_SKEW"}
         result["reasons"] = [reason for reason in result["reasons"] if reason not in last_change_reasons]
