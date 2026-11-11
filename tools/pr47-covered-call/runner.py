@@ -501,15 +501,27 @@ def entry(broker, providers, state, execute):
     candidates = {}
     # Catalog preparation, Greek subscriptions, and read-only Tradier work can
     # overlap across providers. Per-provider worker I/O stays serialized.
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        futures = {symbol: pool.submit(try_prepare, providers, broker, symbol) for symbol in limits}
-        for symbol, future in futures.items():
-            try:
-                candidates[symbol] = future.result()
-                broker.measurements.mark("prepared", symbol=symbol)
-            except Exception as error:
-                errors[symbol] = str(error)
-                print(json.dumps({"symbol": symbol, "blocker": str(error)}), flush=True)
+    pending = tuple(limits)
+    for wave in range(3):
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            futures = {symbol: pool.submit(try_prepare, providers, broker, symbol) for symbol in pending}
+            for symbol, future in futures.items():
+                try:
+                    candidates[symbol] = future.result()
+                    errors.pop(symbol, None)
+                    broker.measurements.mark("prepared", symbol=symbol)
+                except Exception as error:
+                    errors[symbol] = str(error)
+                    print(json.dumps({"symbol": symbol, "blocker": str(error), "preparation_wave": wave + 1}),
+                          flush=True)
+        # Only pre-send Greek-data failures get another bounded read. Retain
+        # successful preparations and revalidate their Greeks before dispatch.
+        pending = tuple(symbol for symbol, error in errors.items()
+                        if error.startswith("Missing or stale Tastytrade Greeks"))
+        if not pending:
+            break
+        if wave < 2:
+            time.sleep(3)
     if errors:
         raise Blocked(f"Entry preparation blocked on {len(errors)}/{len(limits)} remaining symbols; no orders admitted")
     prices = {}

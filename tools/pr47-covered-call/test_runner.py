@@ -168,10 +168,27 @@ class WorkflowTests(unittest.TestCase):
             runner.entry(broker, FakeProviders(), {"orders": {}}, True)
         self.assertEqual(FakeSender.observed, [])
 
+    def test_preparation_retries_only_stale_greeks_and_retains_successes(self):
+        broker = FakeBroker(self.runtime, runner.Measurements())
+        providers = FakeProviders()
+        original = providers.greeks
+        observations = Counter()
+        def refresh(symbol):
+            observations[symbol] += 1
+            if symbol == COHORT[0] and observations[symbol] == 1:
+                return {"expiration": "2026-11-13", "greeks": []}
+            return original(symbol)
+        providers.greeks = refresh
+        with patch.object(runner.time, "sleep"):
+            runner.entry(broker, providers, {"orders": {}}, False)
+        self.assertEqual(observations[COHORT[0]], 2)
+        self.assertTrue(all(observations[symbol] == 1 for symbol in COHORT[1:]))
+        self.assertFalse(FakeSender.observed)
+
     def test_missing_greeks_stop_entire_basket_before_any_send(self):
         providers = FakeProviders()
         providers.greeks = lambda symbol: {"expiration": "2026-11-13", "greeks": []}
-        with self.assertRaises(Blocked):
+        with patch.object(runner.time, "sleep"), self.assertRaises(Blocked):
             runner.entry(FakeBroker(self.runtime, runner.Measurements()), providers, {"orders": {}}, True)
         self.assertEqual(FakeSender.observed, [])
 
