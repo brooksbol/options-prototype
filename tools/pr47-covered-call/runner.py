@@ -43,6 +43,7 @@ def verify_sources():
 verify_sources()
 sys.path.insert(0, str(RELEASE))
 from activity_records import cash_records, order_records
+from acquisition_state import valuation
 from pr46_execution import ET, Market, qualify, quote_map
 from pr46_proven import _PR47SingleSender, atomic, positive_ack
 from pr46_universe import PACER, PLACEMENT_INTERVAL, ROOT as SHARED_ROOT, qualification_slot
@@ -255,13 +256,14 @@ class Broker:
                 or working != order_records(closing["working"]["data"], self.account)):
             raise Blocked("Inventory or working orders changed within the financial cut")
         balance = observed["balance"]
-        cash = number(balance["total_cash_balance"])
-        market = number(balance["total_market_value"])
-        nav = number(balance["total_net_liquidation_value"])
+        cash, market, _ = valuation(balance, "Opening")
+        closing_cash, _, _ = valuation(closing["balance"], "Closing")
+        for boundary in (balance, closing["balance"]):
+            usd = [row for row in boundary["account_currency_assets"] if row.get("currency") == "USD"]
+            if len(usd) != 1 or number(usd[0].get("cash_balance")) != number(boundary["total_cash_balance"]):
+                raise Blocked("USD cash disagrees with the total cash used for reconciliation")
         position_value = sum((number(row["market_value"]) for row in observed["positions"]), Decimal(0))
-        if (cash != number(closing["balance"]["total_cash_balance"])
-                or abs(cash + market - nav) > Decimal(".01")
-                or abs(position_value - market) > Decimal(".01")):
+        if cash != closing_cash or abs(position_value - market) > Decimal(".01"):
             raise Blocked("Cash or position valuation failed financial-cut reconciliation")
         if (now() - before).total_seconds() > 60:
             raise Blocked("Financial observation exceeded the retained 60-second bound")
@@ -655,8 +657,10 @@ def check_roll_cut(cut, state, old, new, debit):
     if any(row.get("client_order_id") not in state["orders"] for row in cut["working"]):
         raise Blocked("External working order requires fresh funding and coverage reconciliation")
     usd = next(row for row in cut["balance"]["account_currency_assets"] if row["currency"] == "USD")
-    unseen = sum((number(record["cash_reservation"]) for record in state["orders"].values()
-                  if record["phase"] == "roll" and not record.get("position_reconciled_at")), Decimal(0))
+    current_id = client_id("roll", old.symbol)
+    unseen = sum((number(record["cash_reservation"]) for cid, record in state["orders"].items()
+                  if cid != current_id and record["phase"] == "roll"
+                  and not record.get("position_reconciled_at")), Decimal(0))
     capacity = min(number(usd["cash_balance"]) - put_obligation(options),
                    number(usd["option_buying_power"]))
     if debit + unseen > max(Decimal(0), capacity):

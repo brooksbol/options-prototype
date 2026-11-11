@@ -184,7 +184,9 @@ def funding(balance, shares, options, orders, stock_limits):
     usd = [row for row in balance["account_currency_assets"] if row["currency"] == "USD"]
     if len(usd) != 1:
         raise Blocked("Missing USD balance")
-    cash = number(usd[0]["cash_balance"])
+    cash = number(balance.get("total_cash_balance"))
+    if balance.get("total_asset_currency") != "USD" or number(usd[0]["cash_balance"]) != cash:
+        raise Blocked("USD cash and reconciled total cash disagree")
     stock_bp = number(usd[0]["overnight_buying_power"])
     cost = sum((number(ask) * 100 for ask in stock_limits.values()), Decimal(0))
     puts = put_obligation(options)

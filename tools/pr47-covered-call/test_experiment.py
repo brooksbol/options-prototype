@@ -20,7 +20,9 @@ def position_leg(contract, kind="CALL"):
 
 
 def balance(cash="100000", stock="100000", option="100000"):
-    return dict(account_currency_assets=[dict(currency="USD", cash_balance=cash,
+    return dict(total_asset_currency="USD", total_cash_balance=cash, total_market_value="0",
+                total_net_liquidation_value=cash,
+                account_currency_assets=[dict(currency="USD", cash_balance=cash,
                                              overnight_buying_power=stock, option_buying_power=option)])
 
 

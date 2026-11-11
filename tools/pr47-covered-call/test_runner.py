@@ -321,6 +321,18 @@ class WorkflowTests(unittest.TestCase):
             with self.assertRaises(Blocked):
                 runner.session_window("entry")
 
+    def test_current_roll_claim_is_counted_once_after_persistence(self):
+        broker = FakeBroker(self.runtime, runner.Measurements())
+        cut = broker.snapshot()
+        cut["balance"] = balance(cash="100", option="100")
+        cut["inventory"][1][contract_identity(OLD)] = -1
+        own = dict(phase="roll", cash_reservation="60")
+        state = {"orders": {client_id("roll", OLD.symbol): own}}
+        runner.check_roll_cut(cut, state, OLD, NEW, D(60))
+        state["orders"][client_id("roll", "KO")] = dict(phase="roll", cash_reservation="60")
+        with self.assertRaises(Blocked):
+            runner.check_roll_cut(cut, state, OLD, NEW, D(60))
+
     def test_roll_debit_is_limited_by_real_capacity_without_a_policy_cap(self):
         broker = FakeBroker(self.runtime, runner.Measurements())
         cut = broker.snapshot()
