@@ -44,7 +44,7 @@ verify_sources()
 sys.path.insert(0, str(RELEASE))
 from activity_records import cash_records, order_records
 from acquisition_state import valuation
-from pr46_execution import ET, Market, qualify, quote_map
+from pr46_execution import ET, Market, qualify as shared_qualify, quote_map
 from pr46_proven import _PR47SingleSender, atomic, positive_ack
 from pr46_universe import PACER, PLACEMENT_INTERVAL, ROOT as SHARED_ROOT, qualification_slot
 from webull_identity import HOST, IdentityReader, load_credentials, retain, secret_free
@@ -350,6 +350,28 @@ class ComboSender(_PR47SingleSender):
                 or self.order["option_strategy"] not in {"COVERED_STOCK", "CALENDAR", "DIAGONAL"}):
             raise Blocked("Frozen PR47 combo geometry changed")
         self.validate_evidence()
+
+
+def qualify(books, meta, clock, now=None):
+    """Compose PR46 transport checks with the proven PR47 quote-clock meaning.
+
+    Portfolio Nov 9 execution report records same-session last-change clocks
+    and <=5s receipt age. Last-change age/skew is disclosed independently and
+    does not establish how recently a real-time quote snapshot was delivered.
+    """
+    result = shared_qualify(books, meta, clock, now)
+    sources = [side for observation in result["observations"] for side in observation["sides"].values()]
+    complete = bool(books) and len(sources) == 2 * len(books)
+    if complete and all(side["age_seconds"] >= 0 for side in sources):
+        last_change_reasons = {"SOURCE_AGE_BID", "SOURCE_AGE_ASK", "SOURCE_CLOCK_SKEW"}
+        result["reasons"] = [reason for reason in result["reasons"] if reason not in last_change_reasons]
+    if not books:
+        result["reasons"].append("INCOMPLETE_QUOTE_EVIDENCE")
+    result["status"] = "UNQUALIFIED" if result["reasons"] else "QUALIFIED"
+    result["policy"] = dict(response_age_seconds=5, source_clocks="NONFUTURE_SAME_CORE_SESSION",
+                            last_change_age_and_skew="DISCLOSED",
+                            precedent="Portfolio 2026-11-09-aristocrats-paper-execution-report.md, Tradier production prices")
+    return result
 
 
 def qualify_equities(books, meta, clock):
