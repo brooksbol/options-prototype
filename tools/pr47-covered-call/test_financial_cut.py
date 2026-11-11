@@ -69,6 +69,20 @@ class FinancialCutTests(unittest.TestCase):
         result = self.observed(self.valid(), closing)
         self.assertEqual(result["balance"]["total_cash_balance"], "100")
 
+    def test_coherent_closing_valuation_recovers_asynchronous_opening_marks(self):
+        opening = self.valid()
+        opening.update(total_market_value="105", total_net_liquidation_value="205")
+        result = self.observed(opening, self.valid())
+        self.assertEqual(result["valuation_boundary"], "CLOSING")
+        self.assertEqual(result["balance"]["total_market_value"], "100")
+
+    def test_two_incoherent_position_value_boundaries_are_rejected(self):
+        opening, closing = self.valid(), self.valid()
+        opening.update(total_market_value="105", total_net_liquidation_value="205")
+        closing.update(total_market_value="106", total_net_liquidation_value="206")
+        with self.assertRaises(Blocked):
+            self.observed(opening, closing)
+
     def test_missing_closing_currency_is_rejected(self):
         closing = self.valid()
         closing.pop("total_asset_currency")

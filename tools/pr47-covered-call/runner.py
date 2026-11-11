@@ -258,20 +258,28 @@ class Broker:
             raise Blocked("Inventory or working orders changed within the financial cut")
         balance = observed["balance"]
         cash, market, _ = valuation(balance, "Opening")
-        closing_cash, _, _ = valuation(closing["balance"], "Closing")
+        closing_cash, closing_market, _ = valuation(closing["balance"], "Closing")
         for boundary in (balance, closing["balance"]):
             usd = [row for row in boundary["account_currency_assets"] if row.get("currency") == "USD"]
             if len(usd) != 1 or number(usd[0].get("cash_balance")) != number(boundary["total_cash_balance"]):
                 raise Blocked("USD cash disagrees with the total cash used for reconciliation")
+        if cash != closing_cash:
+            raise Blocked("Cash changed within the financial cut")
         position_value = sum((number(row["market_value"]) for row in observed["positions"]), Decimal(0))
-        if cash != closing_cash or abs(position_value - market) > Decimal(".01"):
-            raise Blocked("Cash or position valuation failed financial-cut reconciliation")
+        closing_value = sum((number(row["market_value"]) for row in closing["positions"]), Decimal(0))
+        if abs(closing_value - closing_market) <= Decimal(".01"):
+            selected_balance, valuation_boundary = closing["balance"], "CLOSING"
+        elif abs(position_value - market) <= Decimal(".01"):
+            selected_balance, valuation_boundary = balance, "OPENING"
+        else:
+            raise Blocked("Neither financial boundary reconciles position market value to balance")
         if (now() - before).total_seconds() > 60:
             raise Blocked("Financial observation exceeded the retained 60-second bound")
         history_rows = order_records(observed["history"]["data"], self.account) if history else []
         cash = cash_records(observed["cash"]["data"], self.account) if history else []
-        return dict(balance=observed["balance"], inventory=inventory(observed["positions"]),
-                    working=working, orders=history_rows, cash=cash, observed_at=now().isoformat())
+        return dict(balance=selected_balance, valuation_boundary=valuation_boundary,
+                    inventory=inventory(observed["positions"]), working=working,
+                    orders=history_rows, cash=cash, observed_at=now().isoformat())
 
     def catalog(self, contract):
         # Narrow call equivalent of the existing PR47 exact-catalog GET.
