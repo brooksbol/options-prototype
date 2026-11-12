@@ -298,6 +298,7 @@ Useful and correct within their bounded subject. Non-governing outside that scop
 | `bootstrap/chatgpt-cold-start.md` | AI actor cold-start instructions (ChatGPT reasoning partner) |
 | `bootstrap/kiro-cold-start.md` | AI actor cold-start instructions (Kiro implementation partner) |
 | `bootstrap/codex-cold-start.md` | AI actor cold-start instructions (Codex independent reviewer/falsifier) |
+| `engineering-spikes/claude-codex-peer-messaging-2026-11-12.md` | Verified one-shot messaging between existing Claude and Codex conversations: Claude-owned background file-event wake, native Codex queue reply, evidence, reproduction and limits; no persistent messaging service commissioned |
 | `development-machine.md` | Hardware spec |
 | `velvet-rope/*` | Universe admission domain model (dormant) |
 | `universe/*` | Candidate universe design (dormant) |
