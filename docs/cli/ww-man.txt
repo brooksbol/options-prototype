@@ -233,3 +233,9 @@ PORTFOLIO CAPITAL OBSERVATIONS (candidate)
     Example (ordinary presentation; no financial logic in awk):
       ww ls portfolio-capital-observations --account pts | sort -k1,1 |
         awk -v columns=2 -v title='PTS — Portfolio Capital History' -f scripts/unicode-observations.awk
+
+TT1 EVIDENCE EXPORT
+    ww export tt1-cadence [-v | --verbose]
+    Atomically saves a collision-safe ZIP to ~/Downloads. Read-only source
+    collection; no sync, refresh, FORCE or order changes. Partial evidence is
+    explicit. See ww export tt1-cadence --help and ww-export-tt1-cadence.md.

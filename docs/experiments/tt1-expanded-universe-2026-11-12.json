@@ -1,0 +1,4157 @@
+{
+  "schema": "tt1-research-universe/v1",
+  "version": "2026-11-12-liquidity-ordinary-39-v1",
+  "standing": "Principal-authorized research discovery membership; historical pass does not establish current eligibility",
+  "historicalControlSymbols": [
+    "IWM",
+    "TLT",
+    "SPY",
+    "XLE",
+    "XLF",
+    "EWZ",
+    "EEM",
+    "HYG",
+    "GDX",
+    "SLV",
+    "GLD",
+    "QQQ",
+    "USO",
+    "IBIT"
+  ],
+  "expandedOrdinarySymbols": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "XLE",
+    "SMH",
+    "EEM",
+    "TLT",
+    "NVDA",
+    "AAPL",
+    "MSFT",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "AMD",
+    "BAC",
+    "TSLA",
+    "AAL",
+    "AG",
+    "ASTS",
+    "AVGO",
+    "BABA",
+    "CRWV",
+    "FXI",
+    "GOOG",
+    "HOOD",
+    "INTC",
+    "IREN",
+    "KO",
+    "MARA",
+    "MSTR",
+    "NFLX",
+    "NOW",
+    "ORCL",
+    "PLTR",
+    "SOFI",
+    "SPCX",
+    "T",
+    "UBER"
+  ],
+  "historicalProtocolWindow": {
+    "minDte": 42,
+    "maxDte": 52
+  },
+  "recentObservationalWindow": {
+    "minDte": 38,
+    "maxDte": 45
+  },
+  "selectionBasis": {
+    "method": "historical_42_52/control_delta, baseline liquidity pass; remove Principal exclusions and IBIT/VXX",
+    "shortAbsDelta": [
+      0.2,
+      0.3
+    ],
+    "bothLegMinimumOpenInterest": 20,
+    "bothLegMinimumVolume": 5,
+    "minimumNaturalToMidpoint": 0.65,
+    "measurementStart": "2026-11-12T18:58:00Z",
+    "measurementEnd": "2026-11-12T19:16:45Z",
+    "sourceFile": "final-prioritized/author-symbol-measurements.csv",
+    "sourceSha256": "d218b74b4e45dd06fc47d96bf797c331b7178fbdbdc6a53ee6d0dcfbbb3215fa",
+    "independentComparisonSha256": "649eab194f0e7389f5506d234f96112db0714be6d0fffc0728faf624e41a091e"
+  },
+  "excludedNewEntries": [
+    {
+      "symbol": "USO",
+      "reason": "PRINCIPAL_EXCLUSION_COMMODITY_TRACKING_OR_GDX"
+    },
+    {
+      "symbol": "GLD",
+      "reason": "PRINCIPAL_EXCLUSION_COMMODITY_TRACKING_OR_GDX"
+    },
+    {
+      "symbol": "SLV",
+      "reason": "PRINCIPAL_EXCLUSION_COMMODITY_TRACKING_OR_GDX"
+    },
+    {
+      "symbol": "GDX",
+      "reason": "PRINCIPAL_EXCLUSION_COMMODITY_TRACKING_OR_GDX"
+    }
+  ],
+  "reviewProducts": [
+    {
+      "symbol": "IBIT",
+      "securityType": "CRYPTO_TRACKING_ETF",
+      "reason": "SEPARATE_EXPLICIT_PRODUCT_REVIEW; control observations retained"
+    },
+    {
+      "symbol": "VXX",
+      "securityType": "VOLATILITY_ETN",
+      "reason": "SEPARATE_EXPLICIT_PRODUCT_REVIEW; not ordinary equity"
+    }
+  ],
+  "symbols": [
+    {
+      "symbol": "IWM",
+      "providerInstrumentId": 27615,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares Russell 2000 Index Fund",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "TLT",
+      "providerInstrumentId": 27952,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares 20+ Year Treasury Bond ETF",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "SPY",
+      "providerInstrumentId": 27854,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "State Street SPDR S&P 500 ETF Trust",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "XLE",
+      "providerInstrumentId": 22574,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "State Street Energy Select Sector SPDR ETF",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "XLF",
+      "providerInstrumentId": 26370,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "State Street Financial Select Sector SPDR ETF",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "EWZ",
+      "providerInstrumentId": 23003,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares MSCI Brazil ETF",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "EEM",
+      "providerInstrumentId": 26562,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares MSCI Emerging Index Fund",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "HYG",
+      "providerInstrumentId": 28737,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares iBoxx $ High Yield Corporate Bond ETF",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "GDX",
+      "providerInstrumentId": 28550,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "VanEck Gold Miners ETF",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "SLV",
+      "providerInstrumentId": 22783,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares Silver Trust",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "GLD",
+      "providerInstrumentId": 26278,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "SPDR Gold Shares",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "QQQ",
+      "providerInstrumentId": 26311,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "Invesco QQQ Trust, Series 1",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "USO",
+      "providerInstrumentId": 27073,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "United States Oil Fund",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "IBIT",
+      "providerInstrumentId": 20876762,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares Bitcoin Trust",
+      "isEtf": true,
+      "originalControl": true,
+      "expandedOrdinary": false
+    },
+    {
+      "symbol": "DIA",
+      "providerInstrumentId": 23012,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "State Street SPDR Dow Jones Industrial Average ETF Trust",
+      "isEtf": true,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "SMH",
+      "providerInstrumentId": 27624,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "VanEck Semiconductor ETF",
+      "isEtf": true,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "NVDA",
+      "providerInstrumentId": 10473,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "NVIDIA Corporation - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "AAPL",
+      "providerInstrumentId": 726,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Apple Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "MSFT",
+      "providerInstrumentId": 2073,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Microsoft Corporation - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "AMZN",
+      "providerInstrumentId": 13595,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Amazon.com, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "META",
+      "providerInstrumentId": 15719003,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Meta Platforms, Inc. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "GOOGL",
+      "providerInstrumentId": 7824,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Alphabet Inc. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "AMD",
+      "providerInstrumentId": 147,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Advanced Micro Devices, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "BAC",
+      "providerInstrumentId": 1939,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Bank of America Corporation Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "TSLA",
+      "providerInstrumentId": 13754,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Tesla, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "AAL",
+      "providerInstrumentId": 4208,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "American Airlines Group, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "AG",
+      "providerInstrumentId": 11320,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "First Majestic Silver Corp. Ordinary Shares (Canada)",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "ASTS",
+      "providerInstrumentId": 14813722,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "AST SpaceMobile, Inc. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "AVGO",
+      "providerInstrumentId": 2660,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Broadcom Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "BABA",
+      "providerInstrumentId": 7964,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Alibaba Group Holding Limited American Depositary Shares each representing eight Ordinary share",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "CRWV",
+      "providerInstrumentId": 39217274,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "CoreWeave, Inc. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "FXI",
+      "providerInstrumentId": 24046,
+      "provider": "tastytrade",
+      "securityType": "ETF",
+      "description": "iShares China Large-Cap ETF",
+      "isEtf": true,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "GOOG",
+      "providerInstrumentId": 12363,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Alphabet Inc. - Class C Capital Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "HOOD",
+      "providerInstrumentId": 16034545,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Robinhood Markets, Inc. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "INTC",
+      "providerInstrumentId": 14883,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Intel Corporation - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "IREN",
+      "providerInstrumentId": 17291012,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "IREN Limited - Ordinary Shares",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "KO",
+      "providerInstrumentId": 2057,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Coca-Cola Company (The) Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "MARA",
+      "providerInstrumentId": 14684,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "MARA Holdings, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "MSTR",
+      "providerInstrumentId": 975,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Strategy Inc - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "NFLX",
+      "providerInstrumentId": 18962,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Netflix, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "NOW",
+      "providerInstrumentId": 4318,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "ServiceNow, Inc. Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "ORCL",
+      "providerInstrumentId": 13163,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Oracle Corporation Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "PLTR",
+      "providerInstrumentId": 12983479,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Palantir Technologies Inc. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "SOFI",
+      "providerInstrumentId": 15401511,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "SoFi Technologies, Inc. - Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "SPCX",
+      "providerInstrumentId": 13710075,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Space Exploration Technologies Corp. - Class A Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "T",
+      "providerInstrumentId": 17613,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "AT&T Inc.",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    },
+    {
+      "symbol": "UBER",
+      "providerInstrumentId": 8457248,
+      "provider": "tastytrade",
+      "securityType": "EQUITY",
+      "description": "Uber Technologies, Inc. Common Stock",
+      "isEtf": false,
+      "originalControl": false,
+      "expandedOrdinary": true
+    }
+  ],
+  "researchClassifications": [
+    {
+      "symbol": "SPY",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "QQQ",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "IWM",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "DIA",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "XLF",
+      "securityType": "ETF",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "XLE",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "XLK",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "XLV",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "XLI",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "XLY",
+      "securityType": "ETF",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "XLP",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "SMH",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "EEM",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "EWZ",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "TLT",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "IEF",
+      "securityType": "ETF",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "HYG",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "LQD",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "NVDA",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EARNINGS_CROSSING_SHADOW_COHORT"
+    },
+    {
+      "symbol": "AAPL",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "MSFT",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "AMZN",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "META",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "GOOGL",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "AMD",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "JPM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "BAC",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "C",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "GS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "TSLA",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "XOM",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "CVX",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "WMT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CAT",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "BA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "USO",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "PRINCIPAL_NEW_ENTRY_EXCLUSION"
+    },
+    {
+      "symbol": "GLD",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "PRINCIPAL_NEW_ENTRY_EXCLUSION"
+    },
+    {
+      "symbol": "SLV",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "PRINCIPAL_NEW_ENTRY_EXCLUSION"
+    },
+    {
+      "symbol": "GDX",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "PRINCIPAL_NEW_ENTRY_EXCLUSION"
+    },
+    {
+      "symbol": "IBIT",
+      "securityType": "ETF",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "CRYPTO_PRODUCT_REQUIRES_EXPLICIT_REVIEW"
+    },
+    {
+      "symbol": "AAL",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "AAOX",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "ACHR",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "ACTG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ADT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AEG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AES",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AEXA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AG",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "AGNC",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "AGNT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AGRO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AHT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "AIFC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AIRS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AKBA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ALDX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ALK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ALLY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ALOY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ALTO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ALZN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "PROVIDER_CLOSING_ONLY"
+    },
+    {
+      "symbol": "AM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AMBP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AMC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "ANGI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "APH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "API",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "APLD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "APPS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AQST",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ARAY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ARBE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ARCC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ARRY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ARTV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ARX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ASHR",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "ASTS",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "ASX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ATER",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ATNM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AUTL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AVGO",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EARNINGS_CROSSING_SHADOW_COHORT"
+    },
+    {
+      "symbol": "AVR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AVTX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "AZ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BABA",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EARNINGS_CROSSING_SHADOW_COHORT"
+    },
+    {
+      "symbol": "BB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "BBAI",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "BBD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BBT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BCRX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BCS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BCYC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BEAT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BEEM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BFLY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BHP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BILI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BIZD",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BKR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BLND",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BLNK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BMBL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BMNR",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "BMY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "BORR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "BRAG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BRLT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BRZE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BSX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "BTBT",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "BTDR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "BTG",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "BTI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BULL",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "BW",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BXSL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "BZUN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CAG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CALC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CAN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CART",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "CBRG",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "CCC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CCL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CCLD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CDE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CERT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CGC",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "CGEN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CHWY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CIFR",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "CIG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CING",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CION",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CLBT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CLF",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CLNE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CLOV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CLPR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CLSK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CLVT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CMCSA",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "CMG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CMPS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CMPX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CMRC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CNH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CNOB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CNP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "COMP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CORZ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "COSM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "COTY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "COUR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CPNG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CPRT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CRGY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CRK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CRML",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CRON",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CRWV",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "CSWC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CSX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "CTMX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CTXR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "CURI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DAL",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "DGXX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DHC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DJT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "DKNG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "DLO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DNN",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "DOC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DOUG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DOW",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "DRAM",
+      "securityType": "ETF",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "DRVN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DSGR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DSX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DVN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "DX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "DXYZ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EBON",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EFC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ENB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ENGN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ENVB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "PROVIDER_CLOSING_ONLY"
+    },
+    {
+      "symbol": "ENVX",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "EOSE",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "EPM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EQT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "EQX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ERIC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ET",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "ETHA",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "EVC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EVGO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EWG",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EXK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "EYPT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "F",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "FAST",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FBIO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FCX",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "FINV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FLD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FLNA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FLNC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FLO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FMC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FOCL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FRMI",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "FRO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FRSH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FRVO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FSK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FSM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FSP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FULC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FUN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FVRR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FWRG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "FXI",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "FXY",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GANX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GAU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GDRX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GEO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GERN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GFS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GGB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GIS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GLBS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GLXY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "GMAB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GME",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "GNSS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GNW",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GOGO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GOOG",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "GPRO",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "GRAB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "GRO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GSBD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GSM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GTE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GTIM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "GTM",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "GTN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HBAN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HIMS",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "HIVE",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "HL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "HNST",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HOOD",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "HOWL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HPK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HRZN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HTGC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HTH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HTZ",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "HUMA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HYFT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "HYMB",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ICMB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IEP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IGC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ILPT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IMCC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IMMR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IMPP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IMSR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "INDI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "INFY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "INN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "INO",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "INTC",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "INTR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "INVE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IONQ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "IQ",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "IRD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IRE",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "IREN",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "ITP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ITUB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "IVVD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "JBLU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "JD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "JOBY",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "KDK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "KEEL",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "KEY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "KHC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "KLAR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "KMI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "KNX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "KO",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "KOS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "KRE",
+      "securityType": "ETF",
+      "status": "ELIGIBLE",
+      "reason": "BASELINE_CONTRACT_COMPONENTS_OBSERVED"
+    },
+    {
+      "symbol": "KULR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "KWEB",
+      "securityType": "ETF",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "KYIV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LAC",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "LAES",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "LBTYA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LCID",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "LI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "LION",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LITS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LKQ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LPCN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LPTH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LUMN",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "LWLG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "LYFT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "LZM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MARA",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "MAT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MBC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MBOT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MDLN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MGM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MGY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MIST",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MKC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MLSS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MMED",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MNKD",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "MNTS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "PROVIDER_CLOSING_ONLY"
+    },
+    {
+      "symbol": "MPLX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MPT",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "MRKR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MRP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MRVL",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EARNINGS_CROSSING_SHADOW_COHORT"
+    },
+    {
+      "symbol": "MSOS",
+      "securityType": "ETF",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "MSOX",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "MSTR",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "MSTZ",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "MTCH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MUFG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "MX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NAK",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "NAT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NAUT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NCLH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "NEE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "NEOG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NEOV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NEXT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NFLX",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "NG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NGEN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NIO",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "NKE",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "NKTX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NLY",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "NNBR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NNN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NNVC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NOK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "NOMD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NOW",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "NOWL",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "NRGV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NRXP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NSLR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NU",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "NUS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "PROVIDER_CLOSING_ONLY"
+    },
+    {
+      "symbol": "NUVB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NVO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "NVTS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "NWL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NXDR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NXDT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NXE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "NXH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "O",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OBDC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OBE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OCGN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OFG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OFS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OGI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OGN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OKLO",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "ONDS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "OPEN",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "OPK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ORBS",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "ORCL",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EARNINGS_CROSSING_SHADOW_COHORT"
+    },
+    {
+      "symbol": "OTLK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "OWL",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "OXY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PACB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PAGP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PATH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PBR",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "PCB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PCG",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "PCT",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "PDD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PDSB",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "PEB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PEPG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PETS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PEW",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PFE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PFF",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PHUN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PINS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PLBY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PLTR",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "PLUG",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "POET",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PROP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PTC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PTEN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "PTON",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "PURR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PYPL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "PZZA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "QBTS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "QS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "QSI",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "QUBT",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "QXO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "QYLD",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RANI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RCAT",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "REAL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "REI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "REYN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RF",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RFL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RGTI",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "RIG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "RILY",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "RIO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RIOT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "RITM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RIVN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "RKLB",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "BASELINE_ACTIVITY_FLOOR_OR_COVERAGE; QUOTED_SURFACE_EXISTS"
+    },
+    {
+      "symbol": "RKT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "RLX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RNW",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ROL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RR",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "RUN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "RWT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RXRX",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "RXT",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "RYN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "RZLT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SABR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SAIL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SAN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SBET",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "SBSW",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SBUX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "SEER",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SERV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "SES",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SEV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SFL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SGHC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SGU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SHY",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SID",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SIDU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SKM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SKYD",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "SLDP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SMCI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "SMR",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "SNAP",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "SNDL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SNY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SOC",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "SOFI",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "SOLS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SOPH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SOS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "PROVIDER_CLOSING_ONLY"
+    },
+    {
+      "symbol": "SOUN",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "SOXL",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "SPCE",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "SPCX",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "SRAD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SSYS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "STLA",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "STLN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "STNE",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "STTK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "STWD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SUIG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SURG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "SVIA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "T",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "TAL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TBCH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TCOM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TE",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "TENX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TFC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TGB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TII",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TLPH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TLRY",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "TLSA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TMC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "TME",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TNYA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TQQQ",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "TROO",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TSLL",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "LEVERAGED_OR_INVERSE_DESCRIPTION"
+    },
+    {
+      "symbol": "TTD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "TU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "TUYA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UAA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UBER",
+      "securityType": "EQUITY",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "EVENT_CALENDAR_CONFIRMATION_REQUIRED"
+    },
+    {
+      "symbol": "UBS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UEC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "UFI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UIS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UNG",
+      "securityType": "ETF",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "UPWK",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "USAR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "USAS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UTZ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UUP",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "UUUU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "VALE",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "VANI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VEL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VENU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VET",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VFF",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VFS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VG",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "VGZ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VICI",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VNET",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "PROVIDER_CLOSING_ONLY"
+    },
+    {
+      "symbol": "VNRX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VRNS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VTGN",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VTRS",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VXX",
+      "securityType": "ETN",
+      "status": "CONDITIONALLY_ELIGIBLE",
+      "reason": "VOLATILITY_OR_NOTE_PRODUCT_REQUIRES_EXPLICIT_REVIEW"
+    },
+    {
+      "symbol": "VYX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "VZ",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "VZLA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WEN",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "WFC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "WHR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WIT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WLTH",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WMB",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "WOOF",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WRAP",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WRD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WSC",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WT",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WU",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "WULF",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "XEL",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "XFOR",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "XLU",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "XMAG",
+      "securityType": "ETF",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "XNET",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "XP",
+      "securityType": "EQUITY",
+      "status": "UNVERIFIED",
+      "reason": "FRESH_STRATEGY_RELEVANT_SURFACE_NOT_ESTABLISHED"
+    },
+    {
+      "symbol": "XPEV",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_BASELINE_LIQUID_VERTICAL_AT_OBSERVED_CUT"
+    },
+    {
+      "symbol": "XRAY",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "XRX",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "YMM",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "YRD",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ZURA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    },
+    {
+      "symbol": "ZVIA",
+      "securityType": "EQUITY",
+      "status": "EXCLUDED",
+      "reason": "NO_STANDARD_38_52_DTE_EXPIRATION"
+    }
+  ],
+  "confirmedScheduledEvents": [
+    {
+      "symbol": "NVDA",
+      "earningsDate": "2026-11-17",
+      "source": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/default.aspx",
+      "verifiedOn": "2026-11-12",
+      "confidence": "ISSUER_CONFIRMED"
+    },
+    {
+      "symbol": "WMT",
+      "earningsDate": "2026-11-19",
+      "source": "https://corporate.walmart.com/news/events/fy2027-q3-earnings-release",
+      "verifiedOn": "2026-11-12",
+      "confidence": "ISSUER_CONFIRMED"
+    }
+  ]
+}

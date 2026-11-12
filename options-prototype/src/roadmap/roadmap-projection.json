@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-11-01T18:21:11.519Z",
+    "generatedAt": "2026-11-12T20:33:12.974Z",
     "sources": [
       "docs/roadmap.md",
       "docs/architecture-roadmap.md",
@@ -1738,7 +1738,7 @@
       "id": "PL-EVID-04",
       "name": "Market-Priced Risk",
       "section": "Blocked on External Dependencies",
-      "description": "Historical quote/IV sufficiency remains unresolved. Bounded retained production SPY specimens contain distinct IV fields; that does not establish historical paths or current account access. EVA-001 audit complete; two Muse reports partially source-checked; protocol draft 0.2 adds an RV-only baseline and preserves separate forecast/economic tests. No empirical run; see October 14 refinements in `parking-lot-10.md`.",
+      "description": "Historical quote/IV sufficiency remains unresolved. November 12 TT1 refinement: provider-reported underlying IVR verified for 14/14 symbols; exporter/IVR reconciled onto main with the 39-symbol expanded research population; Principal authorized commit/push and production installation after verified export delivery. No local historical-IV calculator or trading-policy change; [bounded implementation and verification](cli/ww-export-tt1-cadence.md#november-12-2026--main-reconciliation-and-provider-ivr-candidate). Bounded retained production SPY specimens contain distinct IV fields; that does not establish historical paths or current account access. EVA-001 audit complete; two Muse reports partially source-checked; protocol draft 0.2 adds an RV-only baseline and preserves separate forecast/economic tests. No empirical run; see October 14 refinements in `parking-lot-10.md`.",
       "descriptionTruncated": false,
       "state": null,
       "sourceFile": "parking-lot.md",
