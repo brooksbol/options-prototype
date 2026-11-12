@@ -1,6 +1,6 @@
 # TT1 cadence evidence export
 
-November 12 expanded-universe candidate: [verified direct-run handoff](tt1-expanded-export-2026-11-12.md), versioned ordinary39/control14 membership, explicit42–52 comparison, event qualification and unchanged installed tools.
+November 12 expanded-universe release: [installed verification and handoff](tt1-expanded-export-2026-11-12.md#installed-and-verified-release), versioned ordinary39/control14 membership, explicit42–52 comparison, event qualification and provider IVR. Installed ww now uses the committed release; tt remains unchanged.
 
 **November 12, 2026: Principal accepted commit/push and production installation after the verified expanded-universe handoff; see the linked delivery receipt.** Historical candidate checkpoint: Exporter reconciliation and underlying IVR are implemented and tested; this is not Principal acceptance, independent reviewer acceptance, installation or deployment. Historical release receipts below retain their original scope. See the November 12 reconciliation section at the end.
 
