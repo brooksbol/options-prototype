@@ -317,7 +317,8 @@ def dispatch_one(broker,providers,greeks,path,metrics,state,plans,date,symbol,tr
 def run(broker,providers,greeks,path,metrics,state,plans,date,binding):
     execution_window(date)
     for symbol,treatment in state['treatments'].items():
-        if treatment['execution_date']<date and treatment['client_order_id'] not in state['orders']:
+        if (treatment['execution_date']<date and treatment['client_order_id'] not in state['orders']
+                and treatment.get('disposition')!='EXCLUDED'):
             treatment.update(disposition='MISSED_SESSION',reason='Original assigned expiration session passed without any dispatch claim; never re-enrolled')
     r.atomic(ROOT/'state.json',state)
     cut,statuses=reconciled_cut(broker,state)
@@ -331,7 +332,7 @@ def run(broker,providers,greeks,path,metrics,state,plans,date,binding):
     r.atomic(path/'whole-universe-funding.json',full_funding(cut,state,plans));metrics.mark('prepared')
     for symbol,treatment in state['treatments'].items():
         cid=treatment['client_order_id']
-        if treatment['execution_date']!=date or cid in state['orders']:continue
+        if treatment['execution_date']!=date or cid in state['orders'] or treatment.get('disposition')=='EXCLUDED':continue
         try:dispatch_one(broker,providers,greeks,path,metrics,state,plans,date,symbol,treatment)
         except DataBlocked as error:
             if cid in state['orders']:raise

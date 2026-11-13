@@ -69,7 +69,9 @@ catalog, Greeks and quotes, and reconciliation of November 13 outcomes.
 private recovery receipt. Preparation uses its actual Eastern session date:
 November 13 measures 28 entries plus 41 future estimates; November 20 refreshes
 only the remaining 41 and keeps the first 28 as prior-session records. Past
-unattempted treatments become explicitly missed, never re-enrolled. Terminal
+unattempted treatments become explicitly missed, never re-enrolled. Explicit
+Principal withdrawals stay excluded across same-day and later resumes and are
+never dispatched or relabeled missed. Terminal
 zero-fill broker orders retain their original identity and release collateral
 only after matching native terminal/zero-fill evidence with no working row.
 

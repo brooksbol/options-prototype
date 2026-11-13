@@ -4,7 +4,10 @@ from copy import deepcopy
 from datetime import datetime,timezone
 from decimal import Decimal as D
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch,Mock
+from pathlib import Path
+from contextlib import redirect_stdout
+from io import StringIO
 import execute as e
 from model import Blocked,Put,treatment_id
 
@@ -76,5 +79,13 @@ class Tests(unittest.TestCase):
         s=self.state();s['orders'][cid]=record
         self.assertEqual(e.observations(c,s)[cid]['state'],'EXPIRED_ENTRY_LIFECYCLE_PENDING')
         self.assertFalse(record.get('lifecycle_cash_settled',False));self.assertEqual(record['position_reconciled_at'],'2026-11-13T18:00:00Z')
+    def test_principal_withdrawal_neither_dispatches_nor_becomes_missed(self):
+        for date in ('2026-11-13','2026-11-20'):
+            state=self.state();state['baseline']={};cut=self.cut()
+            for treatment in state['treatments'].values():treatment.update(execution_date='2026-11-13',disposition='EXCLUDED')
+            broker=Mock();broker.snapshot.return_value=cut
+            with patch.object(e,'execution_window'),patch.object(e,'reconciled_cut',return_value=(cut,{})),patch.object(e.r,'atomic'),patch.object(e,'dispatch_one') as dispatch,redirect_stdout(StringIO()):
+                e.run(broker,Mock(),Mock(),Path('/offline-fixture'),Mock(),state,{},date,dict(mode='EXPLICIT_EXISTING_EXCEPTION'))
+            dispatch.assert_not_called();self.assertTrue(all(t['disposition']=='EXCLUDED' for t in state['treatments'].values()))
 
 if __name__=='__main__':unittest.main()
