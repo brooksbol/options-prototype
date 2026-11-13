@@ -64,12 +64,33 @@ the source-graph verification inherited from `pr47-covered-call/runner.py` for
 installed dependencies. Default commands never fund or reset an account.
 
 November 20 requires an active agent/operator session, fresh account/collateral,
-catalog, Greeks and quotes, and reconciliation of November 13 outcomes. No
-unattended scheduler is installed or demonstrated by this slice. The current
-read-only preparation command is the November 13 specimen; later-session
-preparation and full assignment economics require their separately verified
-continuation. Preserve all original treatments even if unfilled or unassigned;
-do not retry those treatments in the remaining-41 batch.
+catalog, Greeks and quotes, and reconciliation of November 13 outcomes.
+`continuation.py` verifies the original remaining-41 enrollment and writes the
+private recovery receipt. Preparation uses its actual Eastern session date:
+November 13 measures 28 entries plus 41 future estimates; November 20 refreshes
+only the remaining 41 and keeps the first 28 as prior-session records. Past
+unattempted treatments become explicitly missed, never re-enrolled. Terminal
+zero-fill broker orders retain their original identity and release collateral
+only after matching native terminal/zero-fill evidence with no working row.
+
+`observe_lifecycle.py` is a separate read-only observer using the retained exact
+OCC OPTION_EA cash-event and complete-symbol share bridge, including older calls
+and puts. It preserves entry fill/position proof separately from later position
+changes. Filled prior-session entries with pending lifecycle proof retain their
+full unresolved cash reserve. Assignment requires delivered shares and a
+reconciled account cash bridge; original account stock is not a new acquisition.
+Multi-lot ambiguity and missing exact-contract events remain explicit. Net
+acquisition cost is derived only when entry cash is uniquely attributable,
+assignment/debit/share evidence reconciles, and no cash charges remain
+unallocated; unreported fee/commission categories stay unknown.
+
+The observer supports a bounded scheduled mode through November 24, with no
+sender or funding calls. A separately verified private launchd registration may
+run that read-only mode every 15 minutes; installation alone is not evidence of
+a successful scheduled observation. Preserve its actual source/run receipts.
+It skips while an account writer owns state. This does not install unattended
+November 20 trading: entry still requires the active agent session described
+above. Preserve unfilled, unassigned and unresolved original treatments.
 
 Performance uses retained startup, provider request, pacing/lock and
 preparation-to-ack events. Fills and position proof are measured separately.

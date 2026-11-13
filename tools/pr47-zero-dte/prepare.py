@@ -18,6 +18,10 @@ from model import Blocked,broker_contract,canonical,identity,number,select_lowes
 ROOT=r.ROOT.parent/'pr47-all69-0dte-acquisition-20261113'
 DATES=('2026-11-13','2026-11-20')
 
+def session_symbols(universe,first,session):
+    if session not in DATES:raise Blocked('Not an assigned entry date')
+    return [s for s in universe if (DATES[0] if s in first else DATES[1])>=session]
+
 class PutGreeks:
     def __init__(self,path,metrics):
         self.path,self.metrics=path,metrics
@@ -70,22 +74,29 @@ def catalog(reader,symbol,date):
 
 def main():
     os.umask(0o077);ROOT.mkdir(mode=0o700,exist_ok=True)
+    session=r.now().astimezone(r.ET).date().isoformat()
+    if session not in DATES:raise Blocked('Run session preparation only on its actual assigned execution date')
     source=max(r.ROOT.parent.glob('pr47-0dte-20261113-discovery-*'),key=lambda p:p.stat().st_mtime)
     first,rest,universe=calendar(source/'retained-calendar.json')
-    r.atomic(ROOT/'calendar-batches.json',dict(nov13=first,nov20=rest,universe=universe))
+    batches=dict(nov13=first,nov20=rest,universe=universe)
+    if (ROOT/'calendar-batches.json').exists() and json.loads((ROOT/'calendar-batches.json').read_text())!=batches:
+        raise Blocked('Original immutable28/41 enrollment changed')
+    r.atomic(ROOT/'calendar-batches.json',batches)
     if not (ROOT/'account-binding.json').exists():r.atomic(ROOT/'account-binding.json',dict(status='UNRESOLVED',required='Separate US-options Sandbox account; no implicit GRA5/PR46 substitution',initial_authorized_cash='2000000',execution_enabled=False))
     path=ROOT/('prepare-'+str(time.time_ns()));path.mkdir(mode=0o700);metrics=r.Measurements()
     reader=r.Reader(r.load_credentials(),path/'catalog',metrics);providers=r.Providers(path,metrics);greeks=PutGreeks(path,metrics)
-    outcomes={}
+    active=session_symbols(universe,first,session)
+    outcomes={s:dict(status='PRIOR_SESSION_RECONCILE_ONLY',symbol=s,execution_date=DATES[0],
+        note='Original November13 treatment stays with its original identity; read broker lifecycle, never re-enroll in remaining41') for s in universe if s not in active}
     try:
-        books,meta,clock=providers.prices(tuple('BF/B' if s=='BF.B' else s for s in universe))
+        books,meta,clock=providers.prices(tuple('BF/B' if s=='BF.B' else s for s in active))
         r.qualify_equities(books,meta,clock)
         r.atomic(path/'underlyings.json',dict(books=books,meta=meta,clock=clock))
         # Catalog I/O overlaps the independent provider/Greek workers, retaining
         # shared Webull and Tradier pacing. At most one Greek snapshot is active.
         with ThreadPoolExecutor(max_workers=1) as pool:
-            futures={s:pool.submit(catalog,reader,s,DATES[0] if s in first else DATES[1]) for s in universe}
-            for i,symbol in enumerate(universe):
+            futures={s:pool.submit(catalog,reader,s,DATES[0] if s in first else DATES[1]) for s in active}
+            for i,symbol in enumerate(active):
                 date=DATES[0] if symbol in first else DATES[1]
                 try:
                     outcome={}
@@ -99,7 +110,7 @@ def main():
                     if not listed:raise Blocked('Retained session listing is no longer available')
                     contracts=[c for c,_ in pairs]
                     if any(c.occ not in listed for c in contracts):raise Blocked('Broker/Tradier standard put grids disagree')
-                    if date==DATES[0]:
+                    if date==session:
                         g=greeks.read(symbol,date)
                         selected,delta=select_lowest(contracts,g,r.now().timestamp())
                         row=next(raw for c,raw in pairs if c==selected)
@@ -129,7 +140,8 @@ def main():
         estimated=sum((number(x['gross_collateral_estimate']) for x in outcomes.values() if 'gross_collateral_estimate'in x),Decimal(0))
         r.atomic(path/'funding.json',dict(today_exact_indicative=str(exact),nov20_estimated=str(estimated),combined_indicative=str(exact+estimated),
             blockers=[s for s,x in outcomes.items() if x['status']=='BLOCKED'],complete=len(outcomes)==69 and all(x['status']!='BLOCKED' for x in outcomes.values()),
-            funding_complete=len(outcomes)==69 and all('gross_collateral' in x or 'gross_collateral_estimate' in x for x in outcomes.values()),
+            funding_complete=len(outcomes)==69 and all('gross_collateral' in x or 'gross_collateral_estimate' in x or x['status']=='PRIOR_SESSION_RECONCILE_ONLY' for x in outcomes.values()),
+            session=session,current_batch_size=sum(x['execution_date']==session for x in outcomes.values()),
             note='No account admission or orders. All data must be refreshed at actual dispatch; future reserve is an estimate.'))
         r.atomic(ROOT/'latest-preparation.json',dict(path=str(path)))
     finally:

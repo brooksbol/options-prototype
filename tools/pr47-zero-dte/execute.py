@@ -88,6 +88,7 @@ def full_funding(cut,state,plans,current_symbol=None,current_strike=None):
     for symbol,treatment in state['treatments'].items():
         record=state['orders'].get(treatment['client_order_id'])
         if record:
+            if record.get('terminal_no_fill'):continue
             request=record['request'];rawkey=r.contract_key(request['legs'][0]);key=(canonical(rawkey[0]),)+rawkey[1:]
             baseline=number(record['option_baseline'][0]['baseline_quantity'])
             # An unreflected/uncertain accepted claim retains full collateral.
@@ -117,7 +118,7 @@ def observations(cut,state):
         status=r.reconcile(projected,projected_orders,*cut['inventory'])
         matching=[x for x in cut['orders']+cut['working'] if x.get('client_order_id')==cid]
         # Never hide a conflicting identity/terminal row behind a valid one.
-        if len({x.get('order_id') for x in matching})>1 or any(x['state'] not in {'PENDING','SUBMITTED','FILLED','PARTIALLY_FILLED'} for x in matching):
+        if len({x.get('order_id') for x in matching})>1 or any(x['state'] not in {'PENDING','SUBMITTED','FILLED','PARTIALLY_FILLED','CANCELED','FAILED'} for x in matching):
             raise Blocked('Conflicting or terminal original PUT order evidence')
         def geometry(leg):
             return (canonical(leg['symbol']),leg['option_type'],leg['option_expire_date'],number(leg['strike_price']),leg['side'],number(leg['quantity']))
@@ -125,8 +126,17 @@ def observations(cut,state):
         for row in matching:
             if (canonical(row.get('symbol'))!=canonical(record['request']['symbol']) or row.get('side')!='SELL'
                     or number(row.get('quantity'))!=1 or Counter(map(geometry,row.get('legs') or []))!=expected
+                    or number(row.get('limit_price'))!=number(record['request']['limit_price'])
                     or (record.get('order_id') and row.get('order_id')!=record['order_id'])):
                 raise Blocked('Original PUT geometry or native identity changed, including working rows')
+        terminal=[x for x in matching if x['state'] in {'CANCELED','FAILED'}]
+        if terminal:
+            if (len(terminal)!=len(matching) or len({x['state'] for x in terminal})!=1
+                    or any(number(x.get('filled_quantity'))!=0 for x in terminal)
+                    or record.get('fill_confirmed_at') or any(x.get('client_order_id')==cid for x in cut['working'])):
+                raise Blocked('Conflicting terminal/fill/working evidence; original identity retained')
+            record.update(terminal_no_fill=True,terminal_disposition=terminal[0]['state'],terminal_observed_at=cut['observed_at'])
+            result[cid]={'state':'UNFILLED_TERMINAL'};continue
         filled=[x for x in projected_orders if x.get('client_order_id')==cid and x['state']=='FILLED']
         if filled and all(order_match(x,projected['request']) for x in filled):
             record.setdefault('fill_confirmed_at',cut['observed_at'])
@@ -139,6 +149,11 @@ def observations(cut,state):
         if status['state']=='POSITION_RECONCILED':
             record.setdefault('fill_observed_at',cut['observed_at']);record.setdefault('fill_utc',status.get('fill_utc'))
             record.setdefault('position_reconciled_at',cut['observed_at'])
+        if filled and all(order_match(x,projected['request']) for x in filled) and all(x['state']=='FILLED' for x in matching):
+            if record.get('lifecycle_cash_settled'):status={'state':'LIFECYCLE_RECONCILED'}
+            elif record.get('position_reconciled_at') and datetime.fromisoformat(cut['observed_at']).astimezone(r.ET)>=datetime.combine(
+                    datetime.fromisoformat(record['request']['legs'][0]['option_expire_date']).date(),daytime(16),tzinfo=r.ET):
+                status={'state':'EXPIRED_ENTRY_LIFECYCLE_PENDING'}
         result[cid]=status
     return result
 
@@ -146,7 +161,7 @@ def observations(cut,state):
 def reconciled_cut(broker,state):
     def read():
         cut=broker.snapshot(history=True);statuses=observations(cut,state)
-        if any(x['state'] not in {'POSITION_RECONCILED','SUBMITTED'} for x in statuses.values()):
+        if any(x['state'] not in {'POSITION_RECONCILED','SUBMITTED','UNFILLED_TERMINAL','LIFECYCLE_RECONCILED','EXPIRED_ENTRY_LIFECYCLE_PENDING'} for x in statuses.values()):
             raise ReconciliationPending('Original acknowledged identity still propagating; never resend')
         return cut,statuses
     return reconcile_confirmed(read)
@@ -257,6 +272,10 @@ def dispatch_one(broker,providers,greeks,path,metrics,state,plans,date,symbol,tr
 
 def run(broker,providers,greeks,path,metrics,state,plans,date,binding):
     execution_window(date)
+    for symbol,treatment in state['treatments'].items():
+        if treatment['execution_date']<date and treatment['client_order_id'] not in state['orders']:
+            treatment.update(disposition='MISSED_SESSION',reason='Original assigned expiration session passed without any dispatch claim; never re-enrolled')
+    r.atomic(ROOT/'state.json',state)
     cut,statuses=reconciled_cut(broker,state)
     if 'baseline' not in state:
         if binding['mode']=='SEPARATE' and (any(cut['inventory'][0].values()) or any(cut['inventory'][1].values())

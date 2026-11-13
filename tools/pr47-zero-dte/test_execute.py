@@ -62,5 +62,19 @@ class Tests(unittest.TestCase):
             sender.validate_geometry()
             sender.order['legs'][0]['option_type']='CALL';sender.expected=deepcopy(sender.order)
             with self.assertRaises(Blocked):sender.validate_geometry()
+    def test_changed_working_limit_stops_reconciliation(self):
+        c=self.cut();record=self.record();cid=record['request']['client_order_id'];row=dict(deepcopy(record['request']),order_id='native-proof',state='SUBMITTED');row['limit_price']='1.30';c['working']=[row]
+        with self.assertRaises(Blocked):e.observations(c,dict(orders={cid:record}))
+    def test_terminal_zero_fill_releases_claim_reserve_never_deletes_identity(self):
+        c=self.cut();s=self.state();record=self.record();cid=record['request']['client_order_id'];s['orders'][cid]=record
+        c['orders']=[dict(deepcopy(record['request']),order_id='native-proof',state='CANCELED',filled_quantity='0')]
+        self.assertEqual(e.observations(c,s)[cid]['state'],'UNFILLED_TERMINAL');self.assertIn(cid,s['orders'])
+        self.assertEqual(e.full_funding(c,s,{'KO':{'strike':'90'}})['total_required'],'9000')
+    def test_expiration_does_not_erase_historical_entry_proof_or_release_cash(self):
+        c=self.cut();c['observed_at']='2026-11-20T17:00:00+00:00';record=self.record();record['position_reconciled_at']='2026-11-13T18:00:00Z';cid=record['request']['client_order_id']
+        c['orders']=[dict(deepcopy(record['request']),order_id='native-proof',state='FILLED',filled_quantity='1',average_fill_price='1.25')]
+        s=self.state();s['orders'][cid]=record
+        self.assertEqual(e.observations(c,s)[cid]['state'],'EXPIRED_ENTRY_LIFECYCLE_PENDING')
+        self.assertFalse(record.get('lifecycle_cash_settled',False));self.assertEqual(record['position_reconciled_at'],'2026-11-13T18:00:00Z')
 
 if __name__=='__main__':unittest.main()
