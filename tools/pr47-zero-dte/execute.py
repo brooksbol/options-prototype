@@ -55,8 +55,52 @@ class Broker(CoherentBroker):
         self.account=matching[0]['account_id']
         if binding['mode']=='SEPARATE' and self.account in binding.get('excluded_native_account_ids',[]):
             raise Blocked('Separate-account policy forbids an existing experimental account')
+        self.experiment_symbols=set(json.loads((ROOT/'calendar-batches.json').read_text())['universe'])
+    def opaque(self,positions):
+        known=[];opaque=[]
+        for row in positions:
+            if row.get('instrument_type')=='EQUITY' or row.get('option_strategy') in {'SINGLE','COVERED_STOCK'}:
+                known.append(row);continue
+            symbol=canonical(row.get('symbol'));legs=row.get('legs') or [];quantity=number(row.get('quantity'))
+            if (symbol in self.experiment_symbols or row.get('instrument_type')!='OPTION' or row.get('option_strategy')!='VERTICAL'
+                    or len(legs)!=2 or abs(quantity)!=1 or not row.get('position_id')):
+                raise Blocked('Unsupported position cannot be reconciled or bounded outside original69')
+            keys=[]
+            for leg in legs:
+                if (canonical(leg.get('symbol'))!=symbol or leg.get('instrument_type')!='OPTION' or leg.get('option_type')!='PUT'
+                        or number(leg.get('option_contract_multiplier'))!=100 or number(leg.get('option_contract_deliverable'))!=100):
+                    raise Blocked('Opaque foreign spread lacks a finite verified100-multiplier put bound')
+                key=r.contract_key(leg)
+                if key[3]<=0:raise Blocked('Invalid opaque foreign put strike')
+                keys.append((symbol,)+key[1:])
+            if keys[0][2]!=keys[1][2] or keys[0][3]==keys[1][3]:raise Blocked('Ambiguous foreign vertical geometry')
+            opaque.append(dict(position_id=row['position_id'],symbol=symbol,quantity=str(quantity),keys=keys,
+                gross_cash_bound=sum((key[3]*100*abs(quantity) for key in keys),Decimal(0)),
+                standing='Leg polarity UNKNOWN; both puts reserved as if short; no invented signed position'))
+        return known,opaque
+    def position_inventory(self,positions):
+        known,_=self.opaque(positions);return r.inventory(known)
+    def position_signature(self,positions):
+        known,opaque=self.opaque(positions)
+        return r.inventory(known),tuple(sorted((x['position_id'],x['symbol'],x['quantity'],tuple(sorted(x['keys']))) for x in opaque))
     def snapshot(self,history=False):
         cut=super().snapshot(history)
+        _,opaque=self.opaque(cut['positions']);cut['opaque_foreign_positions']=opaque
+        for position in opaque:
+            # Native position rows omit leg polarity/ratios. Prove the actual
+            # one-to-one leg quantities from the unique filled opening history,
+            # reserving BOTH legs as short instead of inferring either side.
+            if not history:raise Blocked('Opaque foreign put bound requires complete native order history')
+            def geometry(row):return frozenset((canonical(leg['symbol']),)+r.contract_key(leg)[1:] for leg in row.get('legs') or [])
+            matches=[row for row in cut['orders'] if canonical(row.get('symbol'))==position['symbol']
+                and row['provider'].get('option_strategy')=='VERTICAL' and geometry(row)==frozenset(position['keys'])]
+            if (not matches or len({row.get('order_id') for row in matches})!=1 or not matches[0].get('order_id')
+                    or any(row['state']!='FILLED' or row['provider'].get('position_intent') not in {'BUY_TO_OPEN','SELL_TO_OPEN'}
+                        or number(row['quantity'])!=1 or number(row['filled_quantity'])!=1 or len(row['legs'])!=2
+                        or any(number(leg.get('quantity'))!=1 for leg in row['legs']) for row in matches)):
+                raise Blocked('Native history does not prove one filled one-to-one foreign put vertical')
+            position['ratio_evidence_order_id']=matches[0]['order_id']
+        cut['inventory_scope']='Supported positions only; opaque foreign puts separately reserved at full both-leg gross bound'
         shares,options=cut['inventory'];normalized_shares=Counter();normalized_options=Counter()
         for symbol,q in shares.items():normalized_shares[canonical(symbol)]+=q
         for key,q in options.items():normalized_options[(canonical(key[0]),)+key[1:]]+=q
@@ -84,7 +128,7 @@ def full_funding(cut,state,plans,current_symbol=None,current_strike=None):
     if any(row.get('client_order_id') not in owned for row in cut['working']):
         raise Blocked('Other working orders require explicit reconciliation')
     # Native outstanding obligations include filled new puts exactly once.
-    options=cut['inventory'][1];required=r.put_obligation(options);unseen=Decimal(0);remaining=Decimal(0)
+    options=cut['inventory'][1];required=r.put_obligation(options);opaque=sum((number(x['gross_cash_bound']) for x in cut.get('opaque_foreign_positions',[])),Decimal(0));unseen=Decimal(0);remaining=Decimal(0)
     for symbol,treatment in state['treatments'].items():
         record=state['orders'].get(treatment['client_order_id'])
         if record:
@@ -100,13 +144,13 @@ def full_funding(cut,state,plans,current_symbol=None,current_strike=None):
             if strike is None:raise Blocked(f'{symbol}: missing remaining-treatment reserve')
             remaining+=number(strike)*100
     usd=next(x for x in cut['balance']['account_currency_assets'] if x['currency']=='USD')
-    cash=number(usd['cash_balance']);need=required+unseen+remaining
+    cash=number(usd['cash_balance']);need=required+opaque+unseen+remaining
     # Positive actual premium remains cash; anticipated premiums and stock values
     # are never added to capacity. Stock assignment debits already reduce cash.
     shortfall=max(Decimal(0),need-cash)
     if shortfall:raise Blocked(f'Full69 gross funding shortfall ${shortfall}; no scope reduction or margin borrowing')
     if remaining+unseen>number(usd['option_buying_power']):raise Blocked('Option buying power below remaining new obligations')
-    return dict(cash=str(cash),current_put_obligations=str(required),unreflected_claims=str(unseen),
+    return dict(cash=str(cash),current_put_obligations=str(required),opaque_foreign_gross_put_bound=str(opaque),unreflected_claims=str(unseen),
                 remaining_intended_reserves=str(remaining),total_required=str(need),shortfall=str(shortfall))
 
 

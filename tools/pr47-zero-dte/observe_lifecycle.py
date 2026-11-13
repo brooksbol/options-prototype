@@ -45,7 +45,11 @@ def lifecycle_report(cut,state,baseline):
     start=datetime.fromisoformat(baseline['as_of']);asof=datetime.fromisoformat(cut['observed_at'])
     owned=set(state['orders']);original={x for x in state['baseline']['historical_order_ids'] if x}
     foreign=[x for x in cut['orders']+cut['working'] if not (x.get('order_id') and x['order_id'] in original) and x.get('client_order_id') not in owned]
-    events={x['activity_id']:x for x in cut['cash']}
+    events={}
+    for event in cut['cash']:
+        prior=events.get(event['activity_id'])
+        if prior is not None and prior!=event:raise Blocked('Conflicting cash content for one activity identity')
+        events[event['activity_id']]=event
     future=[x for x in events.values() if x.get('occurred_at_utc') and datetime.fromisoformat(x['occurred_at_utc'].replace('Z','+00:00'))>asof]
     unknown=[x for x in events.values() if not x.get('occurred_at_utc') or x.get('currency')!='USD']
     later=[x for x in events.values() if x.get('occurred_at_utc') and start<datetime.fromisoformat(x['occurred_at_utc'].replace('Z','+00:00'))<=asof]
@@ -69,7 +73,9 @@ def lifecycle_report(cut,state,baseline):
         keys={key:occ(key) for key,n in outstanding.items() if key[0]==symbol}
         if any(outstanding[key]!=1 for key in keys):
             multi[symbol]='Multiple/unsupported lots require explicit native allocation; no inferred experiment assignment'
-        by_symbol[symbol]=r.lifecycle(symbol,baseline['shares'].get(symbol,'0'),cut['inventory'],normalized_events,keys,bool(foreign))
+        symbol_foreign=[x for x in foreign if not x.get('symbol') or canonical(x['symbol'])==symbol
+            or any(canonical(leg.get('symbol'))==symbol for leg in x.get('legs') or [])]
+        by_symbol[symbol]=r.lifecycle(symbol,baseline['shares'].get(symbol,'0'),cut['inventory'],normalized_events,keys,bool(symbol_foreign))
     treatments={}
     for symbol,treatment in state['treatments'].items():
         cid=treatment['client_order_id'];record=state['orders'].get(cid)
@@ -83,8 +89,10 @@ def lifecycle_report(cut,state,baseline):
         # The broker cash feed can omit strike/order ID. Under a verified window
         # with no external orders, this experiment has exactly one entry for
         # this symbol/right/date; otherwise attribution remains unresolved.
-        unknown_charges=[x for x in later if x['event_type'] not in {'TRADE','OPTION_EA','DEPOSIT','WITHDRAWAL'} and number(x['net_amount'])!=0]
-        credit=number(entry_rows[0]['net_amount']) if len(entry_rows)==1 and not foreign else None
+        unknown_charges=[x for x in later if x['event_type'] not in {'TRADE','OPTION_EA','DEPOSIT','WITHDRAWAL','WITHDRAW'} and number(x['net_amount'])!=0]
+        symbol_foreign=[x for x in foreign if not x.get('symbol') or canonical(x['symbol'])==symbol
+            or any(canonical(leg.get('symbol'))==symbol for leg in x.get('legs') or [])]
+        credit=number(entry_rows[0]['net_amount']) if len(entry_rows)==1 and not symbol_foreign else None
         filled_row=next(x for x in cut['orders'] if x.get('client_order_id')==cid and x['state']=='FILLED')
         gross_credit=number(filled_row['average_fill_price'])*100
         credit_ok=credit is not None and 0<=credit<=gross_credit
@@ -103,6 +111,7 @@ def lifecycle_report(cut,state,baseline):
     return dict(observed_at=cut['observed_at'],cash=str(cash),cash_bridge_expected=str(expected_cash),
         cash_bridge_difference=str(cash-expected_cash),cash_reconciled=cash_ok,
         external_order_count=len({x.get('order_id') for x in foreign}),multi_lot_symbols=multi,
+        opaque_foreign_positions=cut.get('opaque_foreign_positions',[]),
         working_original_orders=len([x for x in cut['working'] if x.get('client_order_id') in owned]),
         treatments=treatments,scope='Original69 only; assignment requires exact native OCC event and complete symbol share bridge; economics not yet established')
 

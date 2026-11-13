@@ -226,6 +226,12 @@ class Broker:
     def new_reader(self, label):
         return Reader(self.credentials, self.path / f"{label}-{time.time_ns()}", self.measurements)
 
+    def position_inventory(self, positions):
+        return inventory(positions)
+
+    def position_signature(self, positions):
+        return self.position_inventory(positions)
+
     def snapshot(self, history=False):
         before = now()
         queries = {"positions": lambda r: r.positions(self.account),
@@ -253,7 +259,7 @@ class Broker:
         if not closing["working"]["complete_for_query"]:
             raise Blocked("Incomplete closing working-order view")
         working = order_records(observed["working"]["data"], self.account)
-        if (inventory(observed["positions"]) != inventory(closing["positions"])
+        if (self.position_signature(observed["positions"]) != self.position_signature(closing["positions"])
                 or working != order_records(closing["working"]["data"], self.account)):
             raise Blocked("Inventory or working orders changed within the financial cut")
         balance = observed["balance"]
@@ -278,7 +284,7 @@ class Broker:
         history_rows = order_records(observed["history"]["data"], self.account) if history else []
         cash = cash_records(observed["cash"]["data"], self.account) if history else []
         return dict(balance=selected_balance, valuation_boundary=valuation_boundary,
-                    inventory=inventory(selected_positions), positions=selected_positions, working=working,
+                    inventory=self.position_inventory(selected_positions), positions=selected_positions, working=working,
                     orders=history_rows, cash=cash, observed_at=now().isoformat())
 
     def catalog(self, contract):

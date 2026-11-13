@@ -84,6 +84,22 @@ acquisition cost is derived only when entry cash is uniquely attributable,
 assignment/debit/share evidence reconciles, and no cash charges remain
 unallocated; unreported fee/commission categories stay unknown.
 
+Conflicting cash rows sharing an activity identity stop qualification; identical
+repeats count once. This closes the independently reproduced pre-activation
+observer defect at candidate `089ba204`; it did not affect the earlier accepted
+entry source `0309d84d`.
+
+The shared account can acquire positions outside this experiment. The retained
+financial bracket now has default-compatible inventory/signature hooks. For a
+foreign one-lot, two-put VERTICAL only, the scoped adapter may retain opaque leg
+polarity after complete native history proves a unique filled one-to-one opening
+order. Both legs are reserved at full strike times 100; no hedge credit, margin
+capacity or invented signed positions are used. Full native position values and
+opaque structural signatures remain inside both financial boundaries. Original
+69 symbols cannot use this opaque path; unknown calls, ratios, deliverables or
+unproved histories block. Supported position counters are explicitly scoped;
+the separate foreign reserve is included in whole-basket funding.
+
 The observer supports a bounded scheduled mode through November 24, with no
 sender or funding calls. A separately verified private launchd registration may
 run that read-only mode every 15 minutes; installation alone is not evidence of
