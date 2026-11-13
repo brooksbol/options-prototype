@@ -173,12 +173,15 @@ def run(broker, providers, state, execute):
     if remaining:
         books, meta, clock = providers.prices(tuple(remaining) + tuple(x.occ for x in remaining.values()))
         r.qualify_equities({s: books[s] for s in remaining}, meta, clock)
-        r.qualified(books, meta, clock)
+        needed = {}
         gross = Decimal(0)
         for symbol, old in remaining.items():
             r.verify_option_quote(old, books[old.occ])
             if (number(books[symbol]['bid']) + number(books[symbol]['ask'])) / 2 > old.strike:
+                needed.update({symbol: books[symbol], old.occ: books[old.occ]})
                 gross += number(books[old.occ]['ask']) * 100
+        if needed:
+            r.qualified(needed, meta, clock)
         finance(cut, state, gross)
         r.atomic(broker.path / 'basket-funding.json', dict(gross_close_debits=str(gross), **finance(cut, state)))
     for symbol in COHORT:
