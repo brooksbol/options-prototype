@@ -1,5 +1,36 @@
 # PR47 buy-writes and Friday rolls
 
+## November 13 execution correction
+
+Actual CALENDAR placement rejected CVX with `OPENAPI_OPTION_STRATEGY_UNMATCHED`
+and IBM with `OPENAPI_MULTILEG_ORDER_OPEN_CLOSE_MISMATCH` (close existing positions
+first). Exact-ID detail and complete history/open-order reads confirmed neither
+order exists. Preserve both original attempts and all preview evidence; preview
+acceptance did not prove placement compatibility with covered-stock holdings.
+
+The Principal instructed this thread to continue resolving the execution defect
+instead of reopening the settled strike/expiration/pricing choices. The bounded
+`sequential.py` successor closes only an original experimental ITM call, confirms
+its exact fill and position removal, then sells the same-strike next-expiration
+call. It uses documented single-order top-level intents and `LEG_OUT` with the
+exact native covered-stock position ID. Shared readers, sender, financial brackets,
+quotes, claims, writer locks and provider pacing are reused. No stock or put order
+is generated. Gross close costs (without anticipated sale credits), put obligations
+and outstanding close reservations constrain funding. Changed share scope blocks.
+
+Each leg has its own durable identity. An unfilled or uncertain close cannot open;
+an unfinished opening remains explicit and cannot cause a repeated close. Once
+the old call is closed, the committed replacement is completed even if spot crosses
+the strike in between. Same-strike destination is frozen before closing. There is
+no atomic net limit across sequential fills: ask/bid limits are acquired separately,
+so realized net consideration can change between legs. Exactly equal prices require
+no artificial one-cent debit because both individual limits remain positive.
+
+Use `sequential.py plan` for read-only diagnostics, `sequential.py observe` for
+read-only broker reconciliation with local evidence persistence, and
+`sequential.py execute --reviewed-execution` only after independent successor review.
+No automatic retries, cancellations, replacements or autonomous launcher are added.
+
 The Principal approved the execution plan for implementation candidate 1e0643cd on November 10, 2026 Mountain time, choosing option A. Wednesday November 11 completed all 28 API buy-writes, with 2,800 additional shares and 28 short calls filled and position-reconciled. The final Wednesday executed source was independently accepted at d26bcf7360665f728f85f0df4c34d0d22902f2ca. Friday readiness source 30f1a80dd1d063eaa62c3ae7bca6042c5a7a5c54 passed independent review with 55 tests. The retained Webull Sandbox sender, readers, pacing protocol and provider workers supply the execution mechanics.
 
 ## Execution sequence

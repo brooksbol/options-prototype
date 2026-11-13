@@ -278,7 +278,7 @@ class Broker:
         history_rows = order_records(observed["history"]["data"], self.account) if history else []
         cash = cash_records(observed["cash"]["data"], self.account) if history else []
         return dict(balance=selected_balance, valuation_boundary=valuation_boundary,
-                    inventory=inventory(selected_positions), working=working,
+                    inventory=inventory(selected_positions), positions=selected_positions, working=working,
                     orders=history_rows, cash=cash, observed_at=now().isoformat())
 
     def catalog(self, contract):
