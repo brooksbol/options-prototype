@@ -31,6 +31,16 @@ read-only broker reconciliation with local evidence persistence, and
 `sequential.py execute --reviewed-execution` only after independent successor review.
 No automatic retries, cancellations, replacements or autonomous launcher are added.
 
+The first SINGLE leg-out placement returned the explicit rejection
+`OPENAPI_POSITION_INTENT_NOT_SUPPORT_LEG_IN_OUT_ROLLING`: this API version
+forbids `position_intent` together with `LEG_OUT`. The successor omits that field
+on native leg-out closes; the close remains explicitly identified by BUY side,
+exact old contract, LEG_OUT and its original covered-stock position ID. Ordinary
+single opening orders retain SELL_TO_OPEN. The rejected close identity is retained
+and independently checked as not present; the corrected leg-out close uses a
+distinct deterministic identity. Only explicit supported 417 rejections corroborated
+by exact-ID not-present and complete history/open-order evidence release reserves.
+
 The Principal approved the execution plan for implementation candidate 1e0643cd on November 10, 2026 Mountain time, choosing option A. Wednesday November 11 completed all 28 API buy-writes, with 2,800 additional shares and 28 short calls filled and position-reconciled. The final Wednesday executed source was independently accepted at d26bcf7360665f728f85f0df4c34d0d22902f2ca. Friday readiness source 30f1a80dd1d063eaa62c3ae7bca6042c5a7a5c54 passed independent review with 55 tests. The retained Webull Sandbox sender, readers, pacing protocol and provider workers supply the execution mechanics.
 
 ## Execution sequence

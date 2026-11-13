@@ -25,6 +25,10 @@ def serialize(contract):
     return dict(symbol=contract.symbol, expiry=contract.expiry, strike=str(contract.strike), occ=contract.occ)
 
 
+def close_id(symbol):
+    return client_id('roll-close-legout', symbol)
+
+
 def single(contract, closing, price, position=None):
     price = number(price)
     if price <= 0 or price != price.quantize(Decimal('.01')):
@@ -37,6 +41,10 @@ def single(contract, closing, price, position=None):
     order['position_intent'] = intent
     if position:
         order.update(leg_in_or_out='LEG_OUT', position_id=position)
+        # Observed 417: intent is forbidden on LEG_OUT in this API version.
+        del order['position_intent']
+    if closing:
+        order['client_order_id'] = close_id(contract.symbol)
     return order
 
 
@@ -64,9 +72,10 @@ class Sender(r.ComboSender):
         if len(order['legs']) != 1 or order['quantity'] != '1':
             raise Blocked('Sequential order must be exactly one contract')
         leg = order['legs'][0]
-        closing = order['position_intent'] == 'BUY_TO_CLOSE'
+        closing = order['client_order_id'] == close_id(order['symbol'])
         side = 'BUY' if closing else 'SELL'
-        if (order['position_intent'] not in {'BUY_TO_CLOSE', 'SELL_TO_OPEN'}
+        expected_intent = None if closing and order.get('leg_in_or_out') == 'LEG_OUT' else 'BUY_TO_CLOSE' if closing else 'SELL_TO_OPEN'
+        if (order.get('position_intent') != expected_intent
                 or order['side'] != side or leg['side'] != side or leg['quantity'] != '1'
                 or leg['option_type'] != 'CALL' or leg['instrument_type'] != 'OPTION'
                 or leg['symbol'] != order['symbol'] or 'position_intent' in leg
@@ -88,7 +97,8 @@ def finance(cut, state, debit=Decimal(0), current=None):
     usd = next(x for x in cut['balance']['account_currency_assets'] if x['currency'] == 'USD')
     available = min(number(usd['cash_balance']) - r.put_obligation(options), number(usd['option_buying_power']))
     reserved = sum((number(v['cash_reservation']) for cid, v in state['orders'].items()
-                    if cid != current and v['phase'] == 'roll-close' and not v.get('position_reconciled_at')), Decimal(0))
+                    if cid != current and v['phase'] == 'roll-close' and not v.get('position_reconciled_at')
+                    and not v.get('rejected_no_order')), Decimal(0))
     if debit + reserved > max(Decimal(0), available):
         raise Blocked(f'Whole-basket closing debit/reservations exceed capacity by {debit + reserved - available}')
     return dict(cash=usd['cash_balance'], option_buying_power=usd['option_buying_power'],
@@ -108,16 +118,20 @@ def confirm(record, cut):
 def permit_prior_failures(broker, state, cut):
     """A retained rejection is not deleted or treated as a replay permission."""
     for cid, record in state['orders'].items():
-        if record['phase'] != 'roll':
+        if record['phase'] not in {'roll', 'roll-close'}:
             continue
         if record.get('acknowledged_at') or record.get('order_id'):
-            raise Blocked('Existing paired roll requires separate reconciliation')
+            if record['phase'] == 'roll':
+                raise Blocked('Existing paired roll requires separate reconciliation')
+            continue
         evidence = list(r.ROOT.glob(f'roll-*/{cid}/place-result.json'))
+        evidence += list(r.ROOT.glob(f'sequential-execute-*/{cid}/place-result.json'))
         if len(evidence) != 1:
             raise Blocked('Missing/ambiguous original calendar rejection evidence')
         result = json.loads(evidence[0].read_text())
         if result.get('http_status') != 417 or result.get('response', {}).get('error_code') not in {
-            'OPENAPI_OPTION_STRATEGY_UNMATCHED', 'OPENAPI_MULTILEG_ORDER_OPEN_CLOSE_MISMATCH'}:
+            'OPENAPI_OPTION_STRATEGY_UNMATCHED', 'OPENAPI_MULTILEG_ORDER_OPEN_CLOSE_MISMATCH',
+            'OPENAPI_POSITION_INTENT_NOT_SUPPORT_LEG_IN_OUT_ROLLING'}:
             raise Blocked('Original paired attempt does not have an explicit strategy rejection')
         if any(x.get('client_order_id') == cid for x in cut['orders'] + cut['working']):
             raise Blocked('Rejected calendar identity unexpectedly appears in broker orders')
@@ -132,12 +146,13 @@ def permit_prior_failures(broker, state, cut):
         if not any(x.get('error_code') == 'OPENAPI_PARAM_ERR' and x.get('message') == 'Parameter error, Order not present.'
                    for x in matching):
             raise Blocked('Original rejection lacks an exact-ID not-present receipt')
+        record['rejected_no_order'] = dict(evidence=str(evidence[0]), verified_at=cut['observed_at'])
 
 
 def publish(broker, state, cut):
     result = {}
     for symbol, workflow in state.get('sequential_rolls', {}).items():
-        close = state['orders'].get(client_id('roll-close', symbol))
+        close = state['orders'].get(close_id(symbol))
         opened = state['orders'].get(client_id('roll-open', symbol))
         close_result = confirm(close, cut) if close else {'state': 'UNATTEMPTED'}
         open_result = confirm(opened, cut) if opened else {'state': 'UNATTEMPTED'}
@@ -164,7 +179,7 @@ def run(broker, providers, state, execute):
         record = state['orders'].get(client_id('entry', symbol))
         if not record or not record.get('position_reconciled_at'):
             raise Blocked('An original experiment entry lacks position proof')
-        if symbol in state['sequential_rolls']:
+        if symbol in state['sequential_rolls'] and close_id(symbol) in state['orders']:
             continue
         old = r.record_contract(record)
         if cut['inventory'][1][contract_identity(old)] != -1:
@@ -203,7 +218,7 @@ def run(broker, providers, state, execute):
         r.session_window('roll')
         broker.catalog(new)
         for closing, contract in [(True, old), (False, new)]:
-            cid = client_id('roll-close' if closing else 'roll-open', symbol)
+            cid = close_id(symbol) if closing else client_id('roll-open', symbol)
             cut = broker.snapshot(history=True)
             prior = state['orders'].get(cid)
             if prior:
@@ -213,7 +228,7 @@ def run(broker, providers, state, execute):
                     break
                 continue
             if not closing:
-                close = state['orders'].get(client_id('roll-close', symbol))
+                close = state['orders'].get(close_id(symbol))
                 if not close or confirm(close, cut)['state'] != 'POSITION_RECONCILED':
                     raise Blocked('Opening requires exact close fill and position removal')
             broker.catalog(contract)

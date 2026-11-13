@@ -86,7 +86,7 @@ class Tests(unittest.TestCase):
         close = s.single(OLD, True, '2.10', 'native-position')
         opened = s.single(NEW, False, '2')
         self.assertNotEqual(close['client_order_id'], opened['client_order_id'])
-        self.assertEqual(close['position_intent'], 'BUY_TO_CLOSE')
+        self.assertNotIn('position_intent', close)
         self.assertEqual(close['leg_in_or_out'], 'LEG_OUT')
         self.assertEqual(close['position_id'], 'native-position')
         self.assertNotIn('position_intent', close['legs'][0])
@@ -101,7 +101,7 @@ class Tests(unittest.TestCase):
             with patch.object(r, 'ROOT', path), patch.object(r, 'now', return_value=AT), patch.object(s, 'COHORT', ('PG',)), \
                  patch.object(r, 'qualified'), patch.object(r, 'qualify_equities'), patch.object(s, 'Sender', Sender):
                 s.run(b, Providers(), st, True)
-                self.assertEqual([x['position_intent'] for x in b.sent], ['BUY_TO_CLOSE', 'SELL_TO_OPEN'])
+                self.assertEqual([x.get('position_intent') for x in b.sent], [None, 'SELL_TO_OPEN'])
                 self.assertEqual(st['sequential_rolls']['PG']['status'], 'COMPLETE')
                 self.assertEqual(b.options[contract_identity(OLD)], 0)
                 self.assertEqual(b.options[contract_identity(NEW)], -1)
