@@ -157,6 +157,7 @@ def permit_prior_failures(broker, state, cut):
             continue
         evidence = list(r.ROOT.glob(f'roll-*/{cid}/place-result.json'))
         evidence += list(r.ROOT.glob(f'sequential-execute-*/{cid}/place-result.json'))
+        evidence += list(r.ROOT.glob(f'sequential-complete-*/{cid}/place-result.json'))
         if len(evidence) != 1:
             raise Blocked('Missing/ambiguous original calendar rejection evidence')
         result = json.loads(evidence[0].read_text())
@@ -198,7 +199,7 @@ def publish(broker, state, cut):
     return result
 
 
-def run(broker, providers, state, execute):
+def run(broker, providers, state, execute, complete_existing=False):
     cut = broker.snapshot(history=True)
     permit_prior_failures(broker, state, cut)
     finance(cut, state)
@@ -210,6 +211,8 @@ def run(broker, providers, state, execute):
         record = state['orders'].get(client_id('entry', symbol))
         if not record or not record.get('position_reconciled_at'):
             raise Blocked('An original experiment entry lacks position proof')
+        if complete_existing and symbol not in state['sequential_rolls']:
+            continue
         if symbol in state['sequential_rolls'] and close_id(symbol) in state['orders']:
             continue
         old = r.record_contract(record)
@@ -232,6 +235,8 @@ def run(broker, providers, state, execute):
         r.atomic(broker.path / 'basket-funding.json', dict(gross_close_debits=str(gross), **finance(cut, state)))
     for symbol in COHORT:
         workflow = state['sequential_rolls'].get(symbol)
+        if complete_existing and workflow is None:
+            continue
         if workflow and workflow['status'] == 'COMPLETE':
             continue
         entry = state['orders'][client_id('entry', symbol)]
@@ -315,10 +320,10 @@ def run(broker, providers, state, execute):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['plan', 'execute', 'observe'])
+    parser.add_argument('action', choices=['plan', 'execute', 'complete', 'observe'])
     parser.add_argument('--reviewed-execution', action='store_true')
     args = parser.parse_args()
-    execute = args.action == 'execute'
+    execute = args.action in {'execute', 'complete'}
     if execute and not args.reviewed_execution:
         parser.error('Reviewed execution flag required')
     r.session_window('roll')
@@ -342,7 +347,7 @@ def main():
             else:
                 providers = r.Providers(path, metrics)
                 stack.callback(providers.close)
-                run(broker, providers, state, execute)
+                run(broker, providers, state, execute, complete_existing=args.action == 'complete')
     except Exception as error:
         print(json.dumps(dict(blocker=str(error), evidence=str(path))), flush=True)
         raise SystemExit(1) from None

@@ -82,6 +82,15 @@ def state():
 
 
 class Tests(unittest.TestCase):
+    def test_completion_mode_never_admits_untouched_itm_call(self):
+        with tempfile.TemporaryDirectory() as path:
+            path = Path(path);b = Broker(path);st = state();providers = Providers()
+            with patch.object(r, 'ROOT', path), patch.object(r, 'now', return_value=AT), patch.object(s, 'COHORT', ('PG',)), \
+                 patch.object(providers, 'prices', side_effect=AssertionError('No new selection in completion mode')):
+                s.run(b, providers, st, True, complete_existing=True)
+                self.assertEqual(b.sent, [])
+                self.assertEqual(st['sequential_rolls'], {})
+
     def test_proposed_open_requires_additional_coverage(self):
         cut = Broker(Path('/tmp')).snapshot()
         cut['inventory'][1][('PG', 'CALL', NEW.expiry, D(185))] = -1
