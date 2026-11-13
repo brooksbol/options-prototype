@@ -123,6 +123,8 @@ def permit_prior_failures(broker, state, cut):
         if record.get('acknowledged_at') or record.get('order_id'):
             if record['phase'] == 'roll':
                 raise Blocked('Existing paired roll requires separate reconciliation')
+            if cid != close_id(record['request']['symbol']):
+                raise Blocked('Acknowledged legacy close must reconcile; no new close identity permitted')
             continue
         evidence = list(r.ROOT.glob(f'roll-*/{cid}/place-result.json'))
         evidence += list(r.ROOT.glob(f'sequential-execute-*/{cid}/place-result.json'))

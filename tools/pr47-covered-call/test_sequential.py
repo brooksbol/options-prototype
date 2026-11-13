@@ -95,6 +95,15 @@ class Tests(unittest.TestCase):
             with self.assertRaises(Blocked):
                 s.single(NEW, False, invalid)
 
+    def test_acknowledged_legacy_close_blocks_new_identity(self):
+        st = state()
+        old = s.single(OLD, True, '2', 'native-position')
+        old['client_order_id'] = client_id('roll-close', 'PG')
+        st['orders'][old['client_order_id']] = dict(phase='roll-close', request=old,
+                                                  acknowledged_at=AT.isoformat())
+        with self.assertRaises(Blocked):
+            s.permit_prior_failures(None, st, Broker(Path('/tmp')).snapshot())
+
     def test_full_close_confirmation_and_restart_no_replay(self):
         with tempfile.TemporaryDirectory() as path:
             path = Path(path); b = Broker(path); st = state()
