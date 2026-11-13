@@ -63,7 +63,7 @@ class Broker(CoherentBroker):
                 known.append(row);continue
             symbol=canonical(row.get('symbol'));legs=row.get('legs') or [];quantity=number(row.get('quantity'))
             if (symbol in self.experiment_symbols or row.get('instrument_type')!='OPTION' or row.get('option_strategy')!='VERTICAL'
-                    or len(legs)!=2 or abs(quantity)!=1 or not row.get('position_id')):
+                    or row.get('currency')!='USD' or len(legs)!=2 or abs(quantity)!=1 or not row.get('position_id')):
                 raise Blocked('Unsupported position cannot be reconciled or bounded outside original69')
             keys=[]
             for leg in legs:

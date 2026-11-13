@@ -11,7 +11,7 @@ class Tests(unittest.TestCase):
     def broker(self):
         b=object.__new__(e.Broker);b.experiment_symbols={'PG','KO'};return b
     def position(self):
-        return dict(position_id='foreign-position-proof',symbol='SPY',quantity='-1',instrument_type='OPTION',option_strategy='VERTICAL',legs=[
+        return dict(currency='USD',position_id='foreign-position-proof',symbol='SPY',quantity='-1',instrument_type='OPTION',option_strategy='VERTICAL',legs=[
             dict(symbol='SPY',instrument_type='OPTION',option_type='PUT',option_expire_date='2026-11-13',option_exercise_price=str(k),option_contract_multiplier='100',option_contract_deliverable='100') for k in (751,752)])
     def cut(self):
         position=self.position();order=dict(order_id='foreign-opening-proof',symbol='SPY',state='FILLED',quantity='1',filled_quantity='1',
@@ -48,5 +48,9 @@ class Tests(unittest.TestCase):
                 other=deepcopy(cut['orders'][0]);other['order_id']='other-native-order';cut['orders'].append(other)
             with patch.object(e.CoherentBroker,'snapshot',return_value=cut):
                 with self.assertRaises(Blocked):b.snapshot(history=change!='no_history')
+    def test_foreign_or_missing_currency_cannot_be_reserved_as_usd(self):
+        for currency in ('EUR',None):
+            p=self.position();p['currency']=currency
+            with self.assertRaises(Blocked):self.broker().position_inventory([p])
 
 if __name__=='__main__':unittest.main()
