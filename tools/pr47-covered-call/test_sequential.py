@@ -104,6 +104,25 @@ class Tests(unittest.TestCase):
         with self.assertRaises(Blocked):
             s.permit_prior_failures(None, st, Broker(Path('/tmp')).snapshot())
 
+    def test_corrected_close_lost_ack_recovers_fill_without_second_close(self):
+        with tempfile.TemporaryDirectory() as path:
+            path = Path(path);b = Broker(path);st = state()
+            request = s.single(OLD, True, '2.10', 'original-covered')
+            st['orders'][request['client_order_id']] = dict(phase='roll-close', request=request,
+                shares_before='200', cash_reservation='210', status='UNCERTAIN',
+                option_baseline=[dict(request['legs'][0], baseline_quantity='-1')])
+            st['sequential_rolls'] = {'PG':dict(old=s.serialize(OLD), new=s.serialize(NEW), shares='200', status='CLOSE_PENDING')}
+            b.options[contract_identity(OLD)] = 0
+            b.history.append(dict(client_order_id=request['client_order_id'], order_id='actual-close', symbol='PG',
+                side='BUY', quantity='1', filled_quantity='1', average_fill_price='2.10', legs=request['legs'],
+                state='FILLED', last_execution_at_utc=AT.isoformat()))
+            with patch.object(r, 'ROOT', path), patch.object(r, 'now', return_value=AT), patch.object(s, 'COHORT', ('PG',)), \
+                 patch.object(r, 'qualified'), patch.object(r, 'qualify_equities'), patch.object(s, 'Sender', Sender):
+                s.run(b, Providers(), st, True)
+                self.assertEqual(len(b.sent), 1)
+                self.assertEqual(b.sent[0]['side'], 'SELL')
+                self.assertEqual(st['sequential_rolls']['PG']['status'], 'COMPLETE')
+
     def test_full_close_confirmation_and_restart_no_replay(self):
         with tempfile.TemporaryDirectory() as path:
             path = Path(path); b = Broker(path); st = state()

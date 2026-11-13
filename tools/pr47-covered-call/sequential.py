@@ -120,6 +120,10 @@ def permit_prior_failures(broker, state, cut):
     for cid, record in state['orders'].items():
         if record['phase'] not in {'roll', 'roll-close'}:
             continue
+        # Corrected identities always recover through exact original-ID fill /
+        # position reconciliation below, including lost acknowledgements.
+        if record['phase'] == 'roll-close' and cid == close_id(record['request']['symbol']):
+            continue
         if record.get('acknowledged_at') or record.get('order_id'):
             if record['phase'] == 'roll':
                 raise Blocked('Existing paired roll requires separate reconciliation')
