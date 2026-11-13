@@ -15,6 +15,25 @@ import time
 
 import runner as r
 from experiment import Blocked, COHORT, EXPIRY, Contract, client_id, combo, contract_identity, contract_key, number
+from pr46_proven import ReconciliationPending, reconcile_confirmed
+
+
+class CoherentBroker(r.Broker):
+    def snapshot(self, history=False):
+        def read():
+            try:
+                return super(CoherentBroker, self).snapshot(history)
+            except Blocked as error:
+                if str(error) not in {
+                    'Inventory or working orders changed within the financial cut',
+                    'Cash changed within the financial cut',
+                    'Neither financial boundary reconciles position market value to balance',
+                }:
+                    raise
+                self.measurements.mark('financial_cut_retry', reason=str(error))
+                raise ReconciliationPending(str(error)) from error
+        # Existing bounded three-read propagation helper, never a POST retry.
+        return reconcile_confirmed(read)
 
 
 def terms(document):
@@ -84,14 +103,20 @@ class Sender(r.ComboSender):
         self.validate_evidence()
 
 
+def coverage(cut, symbol, additional=0):
+    shares, options = cut['inventory']
+    committed = sum(-q for key, q in options.items() if key[:2] == (symbol, 'CALL') and q < 0)
+    if shares[symbol] < 100 * (committed + additional):
+        raise Blocked('Current and proposed short calls exceed retained stock coverage')
+
+
 def finance(cut, state, debit=Decimal(0), current=None):
     r.check_cut_age(cut)
     if cut['balance'].get('open_margin_calls'):
         raise Blocked('Account reports an open margin call')
     shares, options = cut['inventory']
-    if any(shares[symbol] < 100 * sum(-q for key, q in options.items()
-           if key[:2] == (symbol, 'CALL') and q < 0) for symbol in COHORT):
-        raise Blocked('Aggregate short-call stock coverage is insufficient')
+    for symbol in COHORT:
+        coverage(cut, symbol)
     if any(row.get('client_order_id') not in state['orders'] for row in cut['working']):
         raise Blocked('External working order requires explicit reconciliation')
     usd = next(x for x in cut['balance']['account_currency_assets'] if x['currency'] == 'USD')
@@ -252,6 +277,8 @@ def run(broker, providers, state, execute):
                         raise Blocked('Original experimental share scope changed')
                     if options[contract_identity(new)] != 0 or options[contract_identity(old)] != (-1 if closing else 0):
                         raise Blocked('Exact old/destination quantities changed')
+                    if not closing:
+                        coverage(cut, symbol, additional=1)
                     if closing and (number(quotes[symbol]['bid']) + number(quotes[symbol]['ask'])) / 2 <= old.strike:
                         raise Blocked('Call no longer ITM before close; no order sent')
                     finance(cut, state, number(quotes[old.occ]['ask']) * 100 if closing else Decimal(0), cid)
@@ -306,7 +333,7 @@ def main():
                              r.SHARED_ROOT.parent / 'aristocrats-covered-calls/execution.lock',
                              r.SHARED_ROOT / 'cohort-dispatch/writer.lock', r.SHARED_ROOT / 'sender-control.lock']:
                     stack.enter_context(r.exclusive(lock))
-            broker = r.Broker(path, metrics)
+            broker = CoherentBroker(path, metrics)
             state = json.loads((r.ROOT / 'state.json').read_text())
             if args.action == 'observe':
                 result = publish(broker, state, broker.snapshot(history=True))

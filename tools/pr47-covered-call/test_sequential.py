@@ -82,6 +82,24 @@ def state():
 
 
 class Tests(unittest.TestCase):
+    def test_proposed_open_requires_additional_coverage(self):
+        cut = Broker(Path('/tmp')).snapshot()
+        cut['inventory'][1][('PG', 'CALL', NEW.expiry, D(185))] = -1
+        s.coverage(cut, 'PG')
+        with self.assertRaises(Blocked):s.coverage(cut, 'PG', additional=1)
+
+    def test_only_transient_financial_reads_retry_three_times(self):
+        b = object.__new__(s.CoherentBroker);b.measurements = SimpleNamespace(mark=lambda *a,**kw:None)
+        transient = Blocked('Inventory or working orders changed within the financial cut')
+        with patch.object(r.Broker, 'snapshot', side_effect=[transient, {'coherent':True}]) as read, patch('pr46_proven.time.sleep'):
+            self.assertEqual(b.snapshot(), {'coherent':True});self.assertEqual(read.call_count, 2)
+        with patch.object(r.Broker, 'snapshot', side_effect=transient) as read, patch('pr46_proven.time.sleep'):
+            with self.assertRaises(s.ReconciliationPending):b.snapshot()
+            self.assertEqual(read.call_count, 3)
+        with patch.object(r.Broker, 'snapshot', side_effect=Blocked('Incomplete working observation')) as read:
+            with self.assertRaises(Blocked):b.snapshot()
+            self.assertEqual(read.call_count, 1)
+
     def test_wire_shape_and_distinct_intents(self):
         close = s.single(OLD, True, '2.10', 'native-position')
         opened = s.single(NEW, False, '2')
