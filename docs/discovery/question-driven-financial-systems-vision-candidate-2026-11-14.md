@@ -64,3 +64,38 @@ The investor knows their susceptibility to emotional pressure. The solution is d
 - `docs/foundations/idea-intake-reconciliation.md`: strategic/architectural reconciliation precedes promotion to the roadmap.
 
 **Open:** reconcile this broadened financial-system and life-phase vision against canonical Wheelwright strategy, the prior Bridge Income assumptions, domain scope and investment-execution boundary. Do not assume an already-authorized trading robot or make new legal/benefit determinations. The current artifact is documentary provenance, not a Product or implementation decision.
+
+
+---
+
+## Continuation handoff — transition to the first fully functioning Treasury ladder (November 15, 2026)
+
+**Standing:** Principal-requested, durable next-session investigation. OPEN / NOT YET ANALYZED. This records the question and the design/verification boundaries; it does not ratify a funding method, purchase sequence, security choice, trading action, or change to the vision.
+
+**Principal's exact framing:** “next time, we'll talk about the transition to the $120,000 yearl-long ladder. i suspect it won't be as simple as buying a bunch of t-bills on the secondary market all at once”
+
+### Objective and meaning
+
+Investigate the path **from the actual present financial state to an operating twelve-month liquidity shock absorber**, initially targeting one approximately $10,000 Treasury maturity each month ($120,000 aggregate target face value, subject to precise cash/face-value and purchase-cost accounting). Do not confuse purchase of twelve securities with establishment of sustainable replenishment, or the target configuration with the transition path. The ladder is principally a *timing and behavioral buffer*, not an asserted $120,000 of income or a yield-maximization exercise.
+
+The Principal's example of a “13th T-bill” asks whether the first consumed/matured rung can be replenished while the system continues to fund household obligations and retain productive assets. Its exact purchase convention, target term, and maturity-calendar semantics remain to be decided.
+
+### Questions to resolve in the next session
+
+1. **Starting state and source of capital:** What cash, existing Treasury securities, earmarked reserves, expected receipts, committed collateral, accessible taxable versus tax-deferred capital, and near-term obligations are actually available? What is already counted in another subsystem? Distinguish owned capital from deployable cash and from income.
+2. **What exactly is the ladder target?** Twelve monthly maturity *cash receipts* of $10,000 versus $10,000 face-value securities; exact due dates, settlement conventions, discounts/yields, minimum denomination, and whether cash buffers are needed between a bill's maturity and household payments. A $10,000 face-value bill may cost less than $10,000 to buy and matures at face value; the difference is not spendable twice.
+3. **Immediate versus phased build:** Compare a simultaneous secondary-market purchase of staggered maturities, phased purchases using newly issued bills and existing cash, and plausible hybrids. Evaluate availability of the desired maturities, bid/ask spreads, accrued/discount pricing, settlement, operational simplicity, interim cash coverage, and exposure to rate changes; do not presume any alternative superior.
+4. **Transition-period spending and runway:** How are the first several months funded before the target ladder is fully populated? Does putting $120,000 to work all at once create a cash squeeze, collateral issue, or forced liquidation elsewhere? Model timing of purchases, maturities and spending, not just year-end totals.
+5. **Replenishment feedback:** For each monthly maturation, which proceeds are consumed, which are reinvested, and where do dividends, realized options cash flows, benefit income, rental/other receipts, and interest enter? What is the cumulative replenishment gap, forward runway and available buffer after each event?
+6. **Life-phase/SSDI and healthcare contingencies:** Compare the relevant benefit/coverage/capital-access scenarios, without assuming award, Medicare effective date, lower healthcare premiums, rollover eligibility or penalty exception. These may change both the amount needed monthly and the capital that can legitimately support a tactical investment sleeve.
+7. **Annual 3% distribution growth:** Specify how and when the initially illustrative $10,000 monthly maturity target grows, how to rebalance rungs without disguising principal consumption as production, and what happens when sustainable replenishment falls short.
+8. **Failure modes and policy:** Failed or delayed settlement, unsuitable secondary-market liquidity, cash timing mismatch, incomplete source accounting, negative production, reserve erosion, unexpectedly high health costs, benefit delay, rate changes, or need to sell productive assets. Identify leading signals and a precommitted response policy rather than presenting every shortfall as a trading imperative.
+9. **Reporting questions and evidence:** “Can I meet this month's bills?”, “Can I buy the next rung?”, “How many months of obligations are covered?”, “What did the productive portfolio actually replenish?”, and “What would be sacrificed to fund the ladder now?” Answers must preserve separate principal, interest, income, cash, commitment, and mark-to-market semantics.
+
+### Next-session approach
+
+Start from **reconciled current facts and dates**, not the idealized $120,000 end-state. Construct a time-phased cash-flow and maturity schedule; compare at least two transition paths using the *same* starting state and obligations; show how the buffer evolves month by month and where it fails. Use current Treasury offerings, broker terms, settlement calendars and actual quotes **only when that analysis is undertaken**. Do not invent current yields or presume suitable inventory today. Keep investments and the ladder as distinct subsystems joined by a traceable replenishment feedback mechanism. Treat any allocation, sale or order as a separately governed decision.
+
+**Next-session entry question:** “Given what I own and need to spend, what is the safest feasible sequence for establishing twelve $10,000 monthly maturities without accidentally consuming the capital or liquidity that keeps the rest of the system working?”
+
+**Persistence disposition:** This appendix extends the existing vision checkpoint's unresolved transition problem. It is not a new standalone register or implemented roadmap initiative. A future session should reconcile its findings against the current governing sources and retain decisions with their actual authority and evidence.
