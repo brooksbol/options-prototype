@@ -1,10 +1,54 @@
 # Existing-session Claude–Codex messaging: verified local method
 
-**Date:** November 12, 2026  
+**Date:** November 12, 2026; bootstrap updated November 16, 2026
 **Standing:** Category E — bounded engineering reference and observed tooling evidence. Not Wheelwright Product architecture, a permission grant, or a commissioned messaging service.  
 **Principal instruction:** “persist this approach since it's the only thing we've gotten to work” (PR46 conversation, after the correlated acknowledgement below).
 
-## What actually worked
+## New-thread bootstrap — updated November 16, 2026
+
+**Purpose:** connect a new Codex thread to an already-running Claude Code conversation on the Principal's Mac, preserving each conversation's context and permissions. This is local engineering tooling, not a Wheelwright Product capability. Follow the repository bootstrap first; do not install anything merely to bootstrap messaging.
+
+The verified directions are:
+
+| Direction / recipient state | Observed mechanism | Boundary |
+| --- | --- | --- |
+| Codex → existing Claude conversation | Write a correlated request into a file watched by a background task owned by that Claude conversation; completion wakes Claude | Watcher must already be armed, or be explicitly armed in the existing Claude conversation; restarting Claude stops its watcher |
+| Claude → active existing Codex turn | Recovered helper performs a WebSocket handshake over the existing local app-server Unix control socket, initializes, then calls `turn/steer` with the exact active turn ID | Demonstrated during an active PR47 turn on November 16; no replacement conversation/server |
+| Claude → idle existing Codex conversation | `codex queue --thread <CURRENT_THREAD_ID> --message '<identified reply>' --resume` | Queue acceptance is not receipt; this route waited for turn completion when Codex was active |
+
+### Procedure
+
+1. **Recover current identities and transport state.** Identify this Codex thread and the actual existing Claude conversation using available session metadata and installed tooling. Historical IDs below are evidence, not destinations. Verify that the existing local Codex app server is running and that Claude's own file-event watcher is armed. Do not start a new Claude/Codex conversation or server as a substitute. If the watcher is absent, report that exact missing prerequisite rather than claiming a connection.
+2. **Recover the working specimens.** On the Principal's Mac, the protected evidence root is `~/Library/Application Support/Wheelwright/agent-communication/`. The original watcher specimen is in `20261112-existing-session-watcher/`. The recovered live-reply helper is `20261116-claude-turn-steer/codex_ws_steer.py`, with `receipt.json`; the separate receiver receipt is `20261116-live-steer-receipt.json`. Verify the helper's SHA-256 before reuse:
+
+   ```text
+   f758c08babcc9266e8c0286b3c341032220fa37158cb61feb5e96d57c2ab0b7d
+   ```
+
+   The earlier Downloads source was `~/Downloads/claude-codex_ws_steer-2026-11-16.py`. The protected copy is the recovery locator. If it is unavailable or differs, say so; do not silently replace it with a new client. These files are local evidence, not a universally installed command.
+3. **Coordinate the inbox.** `/tmp/codex-to-claude.md` was used by the existing Claude watcher. Confirm its current watch and pending-request state before writing; multiple Codex threads share this inbox. Use a unique correlation ID and include sender, intended Claude recipient, this Codex reply thread ID, bounded request and no-reply-loop instruction. Write into the watched inode; do not replace/delete it. Do not overwrite another agent's unacknowledged request. The original private-directory one-shot specimen below remains available when explicitly coordinated with Claude.
+4. **Use the correct return path.** For active Codex, Claude must obtain the current active turn ID and use the recovered helper's `turn/steer` path. Its one-shot invocation shape is:
+
+   ```sh
+   python3 '<absolute protected path>/codex_ws_steer.py' steer \
+     '<CURRENT_CODEX_THREAD_ID>' '<CURRENT_ACTIVE_TURN_ID>' \
+     'FROM CLAUDE: <session>; correlation=<request-id>; <bounded reply>; no new Principal authority'
+   ```
+
+   A stale expected turn ID or idle recipient is not delivery. For idle Codex, use the queue fallback explicitly. Do not use `thread/inject_items` as a wake mechanism or assume `queue --resume` can steer an active turn. Respect native parent/child messaging restrictions: direct app-server input to a multi-agent sub-agent can be refused; route through its owning parent instead of bypassing the restriction.
+5. **Prove one round trip.** Send a trivial request for Claude's current session identity and an acknowledgement. Require the correlated reply to arrive in this actual Codex thread. Record the identities, correlation, send/receipt times and outcome, then stop. Socket/RPC success, a queue ID, or a file appearing is not sufficient. Acknowledgements must not trigger acknowledgement loops.
+
+### November 16 evidence and limits
+
+PR47's receiver receipt records multiple labeled Claude messages arriving **during its ongoing active turn**, without Principal relay or waiting for that turn to finish. The helper was recovered from Claude's actual Downloads artifact and hash-verified into protected storage. An earlier claimed protected path did not exist; that mistake and its correction remain in the receipt. PR47's separately attempted `pr47-live-delivery.py` timed out during initialization and was **not** the working path. Do not retry that alternative as though it were the accepted specimen.
+
+The recovered helper is a minimal one-shot specimen: no comprehensive WebSocket fragmentation, message-size or ping handling is claimed. Keep messages short and non-sensitive, bound each exchange, and use the trusted local socket only. The helper itself does not provide automatic idle fallback, watcher startup/rearming, restart recovery, strong sender authentication or a commissioned persistent bridge. Verify current installed behavior before reuse.
+
+`turn/steer` carries **user-role input**. Preserve the explicit external-agent/session/correlation/no-new-authority envelope; transport role does not turn Claude into the Principal. Communication grants neither task permissions nor authority to change services, credentials, code, accounts or trades. Independent investigations must finish before conclusions are exchanged when review independence is required. Persistent configuration or service installation still needs Principal authorization.
+
+The instructions and observed standing are published here. Raw receipts and the recovered executable remain in protected local storage; no full conversation, credentials or financial records are published by this reference. Official mechanism reference: [Codex app-server steering](https://learn.chatgpt.com/docs/app-server#steer-an-active-turn).
+
+## What actually worked on November 12
 
 Codex wrote a bounded request to a watched local file. A **background Bash task owned by the existing Claude Code conversation** received a macOS kernel file-change event and exited. Claude Code's background-task completion notification triggered a new turn in that same conversation. Claude read the task output and replied using:
 
@@ -41,7 +85,7 @@ FROM CLAUDE: 76d02bf7-0aef-45bc-ae1a-2c745711b901; ACK watch-peer-7c16fa5c-cf9a-
 
 Attribution was checked against `claude agents --json`, the specific existing Claude transcript's background invocation/completion/queue tool calls, Codex's native thread inventory, and the actual acknowledgement delivered into PR46. A successful queue command alone was not counted as delivery.
 
-## Reproduce the one-shot mechanism
+## Reproduce the November 12 one-shot mechanism
 
 Use a new private temporary directory and unique request ID for each test. Discover current session/thread identities rather than copying the historical IDs above as universal destinations. Keep the destination Codex thread explicitly bound to the authorized exchange.
 
@@ -73,7 +117,7 @@ if not events:
 print((base / 'message.txt').read_text(), flush=True)
 ```
 
-## Limits and authority
+## November 12 specimen limits and authority
 
 - **One-shot verified; ongoing peer facility not installed.** The watcher exits on the first write or timeout. It must be explicitly rearmed for another inbound message. Do not claim continuous listening, automatic rearming, multi-message delivery, restart recovery, or unattended reliability from this specimen.
 - The file event and reply queue are different mechanisms. No assertion is made that arbitrary MCP notifications can wake Codex or that Claude's native peer socket is a supported cross-vendor API.
