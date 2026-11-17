@@ -26,7 +26,7 @@ public final class ResearchCandidateRehearsal {
                     new double[]{41748000000d,50971000000d,59427000000d,67060000000d,64809000000d,67589000000d},
                     "NUMERIC", sec),
                 new FilingCoverage("0000018230-26-000008",LocalDate.parse("2025-12-31"),true,true,sub),
-                new PriceContext(570.49,709.75,1073.53,LocalDate.parse("2026-11-16"),investigation),
+                new PriceContext(570.49,709.75,1073.46,LocalDate.parse("2026-11-16"),investigation),
                 new SpreadEvidence(true,false,false,false,false,false,investigation)));
     }
     static Assessment clx() {
