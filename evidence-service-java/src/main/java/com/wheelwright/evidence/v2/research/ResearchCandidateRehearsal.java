@@ -22,7 +22,8 @@ public final class ResearchCandidateRehearsal {
         EvidenceRef investigation = new EvidenceRef("Round 2 reconstructed broker research report",
                 "6d63a7da26f9b416e9e861c507b6efdba8b500e7396624075e73b216ef93bb24", "2026-11-17 (report date)");
         return assess(new Request("CAT", 18230L, UNIVERSE,
-                new AnnualMetrics(new double[]{5.46,11.83,12.64,20.12,22.05,18.81},
+                new AnnualMetrics(new LocalDate[]{LocalDate.parse("2020-12-31"),LocalDate.parse("2021-12-31"),LocalDate.parse("2022-12-31"),LocalDate.parse("2023-12-31"),LocalDate.parse("2024-12-31"),LocalDate.parse("2025-12-31")},
+                    new double[]{5.46,11.83,12.64,20.12,22.05,18.81},
                     new double[]{41748000000d,50971000000d,59427000000d,67060000000d,64809000000d,67589000000d},
                     "NUMERIC", sec),
                 new FilingCoverage("0000018230-26-000008",LocalDate.parse("2025-12-31"),true,true,sub),
@@ -35,7 +36,8 @@ public final class ResearchCandidateRehearsal {
         EvidenceRef sub = new EvidenceRef("SEC retained submissions CLX",
                 "cf9fbf3c4678ec41a803f5425c95cbce75225619fc14313296b9a9fc1ae00828", CAPTURE);
         return assess(new Request("CLX",21076L,UNIVERSE,
-                new AnnualMetrics(new double[]{7.36,5.58,3.73,1.20,2.25,6.52},
+                new AnnualMetrics(new LocalDate[]{LocalDate.parse("2020-06-30"),LocalDate.parse("2021-06-30"),LocalDate.parse("2022-06-30"),LocalDate.parse("2023-06-30"),LocalDate.parse("2024-06-30"),LocalDate.parse("2025-06-30")},
+                    new double[]{7.36,5.58,3.73,1.20,2.25,6.52},
                     new double[]{6721000000d,7341000000d,7107000000d,7389000000d,7093000000d,7104000000d},
                     "NUMERIC",sec),
                 new FilingCoverage("0000021076-26-000034",LocalDate.parse("2026-06-30"),false,false,sub),
