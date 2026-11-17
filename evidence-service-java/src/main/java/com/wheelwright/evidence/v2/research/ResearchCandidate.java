@@ -24,14 +24,16 @@ public final class ResearchCandidate {
                 throw new IllegalArgumentException("immutable evidence reference required");
         }
     }
-    public record AnnualMetrics(double[] dilutedEps, double[] revenue,
+    public record AnnualMetrics(LocalDate[] annualPeriodEnds, double[] dilutedEps, double[] revenue,
                                 String outcome, EvidenceRef evidence) {
         public AnnualMetrics {
+            annualPeriodEnds = annualPeriodEnds == null ? null : annualPeriodEnds.clone();
             dilutedEps = dilutedEps == null ? null : dilutedEps.clone();
             revenue = revenue == null ? null : revenue.clone();
             Objects.requireNonNull(evidence);
             Objects.requireNonNull(outcome);
         }
+        @Override public LocalDate[] annualPeriodEnds() { return annualPeriodEnds == null ? null : annualPeriodEnds.clone(); }
         @Override public double[] dilutedEps() { return dilutedEps == null ? null : dilutedEps.clone(); }
         @Override public double[] revenue() { return revenue == null ? null : revenue.clone(); }
     }
@@ -85,7 +87,18 @@ public final class ResearchCandidate {
         AnnualMetrics a = r.financials();
         Double epsCagr = null, latestYoY = null;
         double[] eps = a.dilutedEps();
-        if (eps != null && eps.length >= 2 && finitePositive(eps[0]) && finitePositive(eps[eps.length-1])) {
+        LocalDate[] years = a.annualPeriodEnds();
+        boolean periodsValid = eps != null && years != null && eps.length == years.length && eps.length >= 2;
+        if (periodsValid) {
+            for (int i = 1; i < years.length; i++) {
+                if (years[i-1] == null || years[i] == null || !years[i].equals(years[i-1].plusYears(1))) {
+                    periodsValid = false;
+                    break;
+                }
+            }
+        }
+        if (!periodsValid) holds.add("ANNUAL_PERIODS_INCOMPARABLE");
+        if (periodsValid && finitePositive(eps[0]) && finitePositive(eps[eps.length-1])) {
             epsCagr = (Math.pow(eps[eps.length-1]/eps[0], 1.0/(eps.length-1))-1)*100;
             if (finitePositive(eps[eps.length-2]))
                 latestYoY = 100*(eps[eps.length-1]/eps[eps.length-2]-1);
