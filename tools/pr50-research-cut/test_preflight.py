@@ -30,7 +30,7 @@ class ResearchCutTests(unittest.TestCase):
                       "shareClass": sid, "symbol": "INVENTED", "listing": "SYNTHETIC",
                       "currency": "USD", "mappingStatus": "QUALIFIED",
                       "mappingVersion": "fixture/1", "gicsSector": None,
-                      "classificationSourceVersion": None},
+                      "classificationSourceVersion": None, "brokerContractId": None},
                       "acquisition": {"outcome": "OBSERVED", "attempts": 1},
                       "research": {"outcome": "WAIT", "reasonCodes": ["RULE_NOT_ADOPTED"],
                                    "rationale": "Synthetic WAIT; no recommendation"},
@@ -38,6 +38,9 @@ class ResearchCutTests(unittest.TestCase):
             for group in preflight.GROUPS:
                 member[group] = {"qualification": "UNRESOLVED", "evidenceReferences": [deepcopy(ref)]}
             members.append(member)
+        roster = {"securities": [{field: m["identity"][field] for field in preflight.ROSTER_IDENTITY}
+                                 for m in members]}
+        (self.root / "roster.json").write_text(json.dumps(roster))
         self.cut = {"contractVersion": preflight.VERSION, "cutId": "synthetic-cut/1",
                     "producerIdentity": "fixture", "acquisitionMode": "ASSISTED",
                     "targetAsOf": now, "producedAt": now,
@@ -45,7 +48,11 @@ class ResearchCutTests(unittest.TestCase):
                                  "effectiveAt": now, "artifactPath": "roster.json",
                                  "artifactHash": self.digest("roster.json"), "expectedMemberCount": 2},
                     "method": {"adoptionStatus": "PROPOSED", "ruleVersion": None,
-                               "authorityReference": None},
+                               "authorityReference": None, "derivationVersions": {}},
+                    "coverage": {"attempted": 2, "observed": 2, "qualified": 0,
+                                 "excluded": 0, "unresolved": 2, "notAttempted": 0},
+                    "sectorCoverage": [{"sector": "UNKNOWN", "observedCount": 2,
+                                        "qualifiedCount": 0, "totalCount": 2}],
                     "sourceManifest": [{"id": "capture-1", "path": "capture.txt",
                                         "sha256": self.digest("capture.txt"),
                                         "receivedAt": "2026-11-17T17:58:00Z", "sourceTime": None}],
@@ -122,7 +129,7 @@ class ResearchCutTests(unittest.TestCase):
 
     def test_accepted_rule_cannot_hide_missing_dependencies(self):
         self.cut["method"] = {"adoptionStatus": "ACCEPTED", "ruleVersion": "fixture/1",
-                              "authorityReference": "synthetic-unverified-authority"}
+                              "authorityReference": "synthetic-unverified-authority", "derivationVersions": {}}
         self.cut["members"][0]["research"].update(outcome="BUY_RESEARCH", ruleVersion="fixture/1")
         self.rejected("unresolved dependencies")
 
@@ -154,6 +161,76 @@ class ResearchCutTests(unittest.TestCase):
         self.assertEqual(bad.returncode, 1)
         self.assertNotIn(str(self.root), bad.stdout + bad.stderr)
         self.assertNotIn("missing-private-identifier", bad.stdout + bad.stderr)
+
+    def make_synthetic_buy(self):
+        self.cut["method"].update(adoptionStatus="ACCEPTED", ruleVersion="fixture/1",
+                                  authorityReference="unverified-synthetic-reference")
+        member = self.cut["members"][0]
+        member["research"].update(outcome="BUY_RESEARCH", ruleVersion="fixture/1")
+        for group in preflight.GROUPS:
+            member[group]["qualification"] = "QUALIFIED"
+        self.cut["coverage"].update(qualified=1, unresolved=1)
+        self.cut["sectorCoverage"][0]["qualifiedCount"] = 1
+        return member
+
+    def test_accepted_structural_buy_still_verifies_no_authority_or_market(self):
+        self.make_synthetic_buy()
+        result = preflight.preflight(self.cut, self.root)
+        self.assertEqual(result["outcomes"]["BUY_RESEARCH"], 1)
+        self.assertFalse(result["authorityVerified"])
+        self.assertFalse(result["marketEvidenceVerified"])
+        self.assertFalse(result["executionReady"])
+
+    def test_receipt_after_target_is_not_contemporaneous(self):
+        self.cut["targetAsOf"] = self.cut["universe"]["effectiveAt"] = "2026-11-17T12:00:00Z"
+        self.rejected("after target knowledge cutoff")
+
+    def test_dv_decision_after_target_cannot_hide_behind_later_production(self):
+        self.cut["targetAsOf"] = self.cut["universe"]["effectiveAt"] = "2026-11-17T17:59:30Z"
+        self.rejected("Later evidence")
+
+    def test_unknown_only_and_reconstructed_groups_cannot_be_current_qualified(self):
+        for classification in ("U", "HR"):
+            with self.subTest(classification=classification):
+                member = self.make_synthetic_buy()
+                member["technical"]["evidenceReferences"][0]["classification"] = classification
+                self.rejected("requires DV")
+
+    def test_failed_capture_cannot_support_buy(self):
+        self.make_synthetic_buy()["acquisition"]["outcome"] = "FAILED"
+        self.rejected("requires observed acquisition")
+
+    def test_arbitrary_acquisition_success_label_is_not_admitted(self):
+        self.cut["members"][0]["acquisition"]["outcome"] = "SUCCEEDED_MAYBE"
+        self.rejected("Unknown acquisition")
+
+    def test_member_core_identity_must_match_roster(self):
+        self.cut["members"][0]["identity"]["shareClass"] = "other-class"
+        self.rejected("identity differs")
+
+    def test_fictional_coverage_summary_cannot_override_members(self):
+        self.cut["coverage"].update(qualified=2, unresolved=0)
+        self.rejected("Coverage summary contradicts")
+
+    def test_fictional_sector_winners_cannot_override_members(self):
+        self.cut["sectorCoverage"][0]["qualifiedCount"] = 2
+        self.rejected("Sector summary contradicts")
+
+    def test_not_attempted_is_explicit_and_counted(self):
+        self.cut["members"][0]["acquisition"].update(outcome="NOT_ATTEMPTED", attempts=0)
+        self.cut["members"][0]["research"]["outcome"] = "UNASSESSED"
+        self.cut["coverage"].update(attempted=1, observed=1, notAttempted=1)
+        self.cut["sectorCoverage"][0]["observedCount"] = 1
+        self.assertEqual(preflight.preflight(self.cut, self.root)["coverage"]["notAttempted"], 1)
+
+    def test_deep_json_refuses_without_traceback(self):
+        path = self.root / "deep.json"
+        path.write_text("[" * 200000 + "]" * 200000)
+        result = subprocess.run([sys.executable, "-I", preflight.__file__, str(path),
+                                 "--evidence-root", str(self.root)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(json.loads(result.stdout)["status"], "REFUSED")
+        self.assertEqual(result.stderr, "")
 
 
 if __name__ == "__main__":
