@@ -16,9 +16,19 @@ The verified directions are:
 | Claude → active existing Codex turn | Recovered helper performs a WebSocket handshake over the existing local app-server Unix control socket, initializes, then calls `turn/steer` with the exact active turn ID | Demonstrated during an active PR47 turn on November 16; no replacement conversation/server |
 | Claude → idle existing Codex conversation | `codex queue --thread <CURRENT_THREAD_ID> --message '<identified reply>' --resume` | Queue acceptance is not receipt; this route waited for turn completion when Codex was active |
 
+### Contact first, prepare in parallel
+
+When engaging a peer, send the initial bounded request, purpose and proposed work split **before** building a harness or doing lengthy setup. Once contact is established, do independent preparation in parallel. Make blockers visible promptly. Do not leave the partner waiting while silently preparing, and do not mistake an acknowledgement loop for collaboration. This changes coordination order, not the recipient's permissions or the independence required for a review.
+
+Parallel preparation does not imply concurrent benchmark measurements, conflicting Git writes or unordered dependent actions. Preserve serialization where required by correctness, shared resources or measurement fairness.
+
+**Observed learning:** in the November 16 local Git speed test, Codex waited **248.0 seconds** after its first recorded setup before contacting CLAUDE 1. The two successful benchmark suites together took **22.777 seconds**, while first setup to the initial report took **535.1 seconds**. These are different spans, not a pure transport-latency comparison. Codex's report records the avoidable contact delay; CLAUDE 1 reviewed the data, requested five corrections, then accepted report revision 2. The retained failed Claude attempt, timing caveats and unknown sandbox status remain visible.
+
+Protected evidence/report locator: `~/Downloads/Codex-Claude1-Git-Speed-Test-20261117T022652Z/`. The accepted `GIT-SPEED-TEST-REPORT.md` revision-2 SHA-256 is `e7ebba1f71aa8cc3d384750d91cbaea6d96326ce0b35d91b7e63ec8f54dbb475`; `CLAUDE-1-REPORT-REVIEW.md` and `CLAUDE-1-CORRECTION-CHECK.md` retain the independent findings and acceptance. Raw benchmark data and the earlier reviewed report are preserved locally. Subsequent documentation persistence is outside the benchmark's measured unchanged-project interval.
+
 ### Procedure
 
-1. **Recover current identities and transport state.** Identify this Codex thread and the actual existing Claude conversation using available session metadata and installed tooling. Historical IDs below are evidence, not destinations. Verify that the existing local Codex app server is running and that Claude's own file-event watcher is armed. Do not start a new Claude/Codex conversation or server as a substitute. If the watcher is absent, report that exact missing prerequisite rather than claiming a connection.
+1. **Contact promptly; recover current identities and transport state.** Identify this Codex thread and the actual existing Claude conversation using available session metadata and installed tooling. Historical IDs below are evidence, not destinations. Verify that the existing local Codex app server is running and that Claude's own file-event watcher is armed. Do not start a new Claude/Codex conversation or server as a substitute. If the watcher is absent, report that exact missing prerequisite rather than claiming a connection.
 2. **Recover the working specimens.** On the Principal's Mac, the protected evidence root is `~/Library/Application Support/Wheelwright/agent-communication/`. The original watcher specimen is in `20261112-existing-session-watcher/`. The recovered live-reply helper is `20261116-claude-turn-steer/codex_ws_steer.py`, with `receipt.json`; the separate receiver receipt is `20261116-live-steer-receipt.json`. Verify the helper's SHA-256 before reuse:
 
    ```text
