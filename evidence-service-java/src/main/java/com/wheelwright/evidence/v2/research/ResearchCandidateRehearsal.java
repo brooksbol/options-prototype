@@ -41,14 +41,25 @@ public final class ResearchCandidateRehearsal {
                 new FilingCoverage("0000021076-26-000034",LocalDate.parse("2026-06-30"),false,false,sub),
                 null,null));
     }
+    public static String formatRow(Assessment a) {
+        String quality = a.quality().status() == Disposition.HELD ? "HOLD (filing gap)" :
+                a.holds().contains("EARNINGS_TRAJECTORY_DECLINE_REVIEW") ? "REVIEW (EPS trend)" : "UNASSESSED";
+        String dislocation = a.emaDistancePercent() == null ? "UNASSESSED" :
+                String.format(java.util.Locale.US,"%+.1f%% EMA50",a.emaDistancePercent());
+        String spread = a.spread().status() == Disposition.HELD ? "HOLD" : "UNASSESSED";
+        return String.format(java.util.Locale.US,"%-7s %-20s %-13s %-16s %-12s %s",
+                a.symbol(),quality,"UNASSESSED",dislocation,spread,"NO TRADE");
+    }
     public static void main(String[] args) {
+        System.out.println("BQS research rehearsal | S&P 500 roster 2026-11-17 | price cut 2026-11-16");
+        System.out.printf("%-7s %-20s %-13s %-16s %-12s %s%n",
+                "SYMBOL","BUSINESS QUALITY","VALUATION","DISLOCATION","SPREAD","DECISION");
         for (Assessment a : new Assessment[]{cat(),clx()}) {
-            System.out.printf("%s | QUALITY %s | VALUE %s | DISLOCATION %s | SPREAD %s%n",
-                    a.symbol(), a.quality().status(), a.valuation().status(),
-                    a.dislocation().status(), a.spread().status());
-            System.out.printf("  EPS CAGR: %s; latest YoY: %s; EMA distance: %s%n",
-                    a.epsCagrPercent(),a.latestEpsGrowthPercent(),a.emaDistancePercent());
-            System.out.printf("  Holds: %s; tradeQualified=%s%n",a.holds(),a.isTradeQualified());
+            System.out.println(formatRow(a));
+            if (args.length > 0 && "--evidence".equals(args[0])) {
+                System.out.printf("  EPS CAGR %.2f%%; latest reported YoY %s; holds %s%n",
+                        a.epsCagrPercent(), a.latestEpsGrowthPercent(), a.holds());
+            }
         }
     }
 }
