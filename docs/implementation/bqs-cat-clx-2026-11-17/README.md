@@ -6,7 +6,7 @@
 
 ## What is runnable now
 
-- `ResearchCandidate`: pure, deterministic provisional assessment with four **separate** outputs (quality, valuation, dislocation, spread), explicit holds, immutable-by-copy annual metrics and source reference fields. It does not compute a BQS/100, infer intrinsic value or produce a BUY/trade status.
+- `ResearchCandidate`: pure, deterministic provisional assessment with four **separate** outputs (quality, valuation, dislocation, spread), explicit holds, immutable-by-copy fiscal-period-ordered annual metrics and source reference fields. It does not compute a BQS/100, infer intrinsic value or produce a BUY/trade status.
 - `ResearchCandidateRehearsal`: operator-visible CLI using the CAT and CLX **dated retained-data specimen**. It intentionally returns CAT quality/value as `NOT_COMPUTED`, dislocation as `OBSERVED` and spread as `HELD`; it returns CLX quality `HELD` because the applicable 2026 annual filing lacked matching annual selected-tag facts in that retained Company Facts packet.
 - `ResearchCandidateChecks`: focused Java contract checks with no database/provider access.
 
@@ -22,7 +22,7 @@ java -cp /tmp/bqs-rehearsal-classes com.wheelwright.evidence.v2.research.Researc
 java -cp /tmp/bqs-rehearsal-classes com.wheelwright.evidence.v2.research.ResearchCandidateRehearsal
 ```
 
-A separate isolated Java 21 check in the authoring environment passed 14 focused assertions and printed the following research-only specimen:
+A separate isolated Java 21 check in the authoring environment passed 16 focused assertions and printed the following research-only specimen:
 
 ```text
 BQS research rehearsal | S&P 500 roster 2026-11-17 | price cut 2026-11-16
@@ -32,6 +32,8 @@ CLX     HOLD (filing gap)    UNASSESSED    UNASSESSED       UNASSESSED   NO TRAD
 ```
 
 Add `--evidence` to the rehearsal command to display provisional CAGR, latest YoY and explicit hold codes. The foreground deliberately avoids presenting research controls as a financial recommendation.
+
+A new period-continuity guard rejects gaps or mismatched annual dates as `ANNUAL_PERIODS_INCOMPARABLE`; fiscal transitions and accounting semantics still need primary-evidence interpretation.
 
 ### Dated source custody and limitations
 
