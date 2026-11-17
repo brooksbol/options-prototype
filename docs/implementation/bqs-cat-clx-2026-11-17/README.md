@@ -25,13 +25,13 @@ java -cp /tmp/bqs-rehearsal-classes com.wheelwright.evidence.v2.research.Researc
 A separate isolated Java 21 check in the authoring environment passed 14 focused assertions and printed the following research-only specimen:
 
 ```text
-CAT | QUALITY NOT_COMPUTED | VALUE NOT_COMPUTED | DISLOCATION OBSERVED | SPREAD HELD
-  EPS CAGR: 28.0675881138706; latest YoY: -14.693877551020417; EMA distance: -19.620993307502644
-  Holds: [EARNINGS_TRAJECTORY_DECLINE_REVIEW, DELAYED_LEGS, SIDE_ALIGNMENT_UNKNOWN, REQUIRED_GREEK_MISSING, EVENT_COVERAGE_UNKNOWN, SPREAD_ECONOMICS_UNVERIFIED]; tradeQualified=false
-CLX | QUALITY HELD | VALUE NOT_COMPUTED | DISLOCATION NOT_COMPUTED | SPREAD NOT_COMPUTED
-  EPS CAGR: -2.3945751232814394; latest YoY: 189.77777777777777; EMA distance: null
-  Holds: [ANNUAL_FILING_METRIC_COVERAGE_UNRESOLVED]; tradeQualified=false
+BQS research rehearsal | S&P 500 roster 2026-11-17 | price cut 2026-11-16
+SYMBOL  BUSINESS QUALITY     VALUATION     DISLOCATION      SPREAD       DECISION
+CAT     REVIEW (EPS trend)   UNASSESSED    -19.6% EMA50     HOLD         NO TRADE
+CLX     HOLD (filing gap)    UNASSESSED    UNASSESSED       UNASSESSED   NO TRADE
 ```
+
+Add `--evidence` to the rehearsal command to display provisional CAGR, latest YoY and explicit hold codes. The foreground deliberately avoids presenting research controls as a financial recommendation.
 
 ### Dated source custody and limitations
 
