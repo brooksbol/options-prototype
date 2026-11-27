@@ -1,0 +1,6 @@
+{
+  "schema": "pr50-process-environment/1",
+  "python": "/Users/bollich/.local/share/wheelwright/webull-paper-identity/venv/bin/python",
+  "node": "/Users/bollich/.local/bin/node",
+  "processOnly": true
+}
